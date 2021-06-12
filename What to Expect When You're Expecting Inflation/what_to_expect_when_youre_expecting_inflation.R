@@ -3,7 +3,7 @@
 # Installs pacman ("package manager") if needed
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,scale,data.table,lubridate)
+pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,scale,data.table,lubridate,forecast)
 
 fiveyrbreakeven <-import("C:/Users/Joseph/Documents/SubStack/What to Expect when you're expecting inflation/Five Year TIPS Breakevens.csv")
 
@@ -51,6 +51,11 @@ CPINSA5yr <- data.frame("DATE" = tail(CPINSA$DATE,-60), "CPI5YRpct" = tail((((CP
 
 CPINSA10yr <- data.frame("DATE" = tail(CPINSA$DATE,-120), "CPI10YRpct" = tail((((CPINSA$CPIAUCNS/lag(CPINSA$CPIAUCNS,n=120))^0.1)-1)*100,-120))
 
+CPINSA1yr <- data.frame("DATE" = tail(CPINSA$DATE,-12), "CPI1YRpct" = tail((((CPINSA$CPIAUCNS/lag(CPINSA$CPIAUCNS,n=12)))-1)*100,-12))
+
+ggAcf(CPINSA5yr$CPI5YRpct,lag.max = 240) + theme_economist() + xlim (60,250) + xlab("Lag (months)") + ylab("Autocorrelation") + ggtitle("Autocorrelation of 5yr Annualized Inflation")
+ggAcf(CPINSA10yr$CPI10YRpct,lag.max = 240) + theme_economist() + xlim (120,250) + xlab("Lag (months)") + ylab("Autocorrelation") + ggtitle("Autocorrelation of 10yr Annualized Inflation")
+ggAcf(CPINSA1yr$CPI1YRpct,lag.max = 240) + theme_economist() + xlim (12,250) + xlab("Lag (months)") + ylab("Autocorrelation") + ggtitle("Autocorrelation of 1yr Annualized Inflation")
 #Here I'm just defining the start and end dates for the TIPS graphs
 Start.end5yr <- c(as.Date("2008-01-01"),as.Date("2021-04-01"))
 Start.end5yr5yrfwd <- c(as.Date("2013-01-01"),as.Date("2021-04-01"))
