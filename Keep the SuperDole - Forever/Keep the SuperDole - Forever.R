@@ -1,9 +1,12 @@
-pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,tidyr,zoo,RCurl,Cairo)
-
+pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,tidyr,zoo,RCurl,Cairo,datetime)
 
 Yearly_NIPA_Aggregates <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Keep%20the%20SuperDole%20-%20Forever/Yearly%20Aggregates.csv")
 # create data
+
+PI_PCE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Keep%20the%20SuperDole%20-%20Forever/Personal%20Income%20and%20Consumption%20Expenditures.csv")
+
 Yearly_NIPA_Aggregates <- t(Yearly_NIPA_Aggregates)#transposing data
+
 
 colnames(Yearly_NIPA_Aggregates) <- Yearly_NIPA_Aggregates[1,] #moving text names to headers
 Yearly_NIPA_Aggregates <-Yearly_NIPA_Aggregates[-1,] #removing text names
@@ -33,6 +36,35 @@ Yearly_NIPA_Aggregates$PandemicPrograms <-
 
 Yearly_NIPA_Aggregates$PandemicPrograms[is.na(Yearly_NIPA_Aggregates$PandemicPrograms)] <- 0 #converting na to 0
 
+PI_PCE08 <- PI_PCE[PI_PCE$DATE > "2007-10-01", ] 
+PI_PCE20 <- PI_PCE[PI_PCE$DATE > "2019-12-01", ]
+PI_PCE08$MonthsRecession <- -1:161
+PI_PCE20$MonthsRecession <- -1:15
+
+personal_income_rec <- ggplot() + 
+  geom_line(data=PI_PCE08, aes(x=MonthsRecession,y=(PI/12162)*100,color= "2008 Personal Income"), size = 1.25) +
+  geom_line(data=PI_PCE20, aes(x=MonthsRecession,y=(PI/18973)*100,color= "2020 Personal Income"), size = 1.25) +
+  ylim(80,130) +
+  xlim(-1,30) +
+  xlab("Months Since Start of Recession") +
+  ylab("Index - 1 Month Before Recession = 100") +
+  ggtitle("A Tale of Two Recessions: Seasonally Adjusted Personal Income") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  theme_economist() +
+  scale_color_economist(name="")
+  
+personal_consumption_rec <- ggplot() + 
+  geom_line(data=PI_PCE08, aes(x=MonthsRecession,y=(PCE/9898)*100,color= "2008 Personal Consumption Expenditures"), size = 1.25) +
+  geom_line(data=PI_PCE20, aes(x=MonthsRecession,y=(PCE/14880)*100,color= "2020 Personal Consupmtion Expenditures"), size = 1.25) +
+  ylim(80,130) +
+  xlim(-1,30) +
+  xlab("Months Since Start of Recession") +
+  ylab("Index - 1 Month Before Recession = 100") +
+  ggtitle("A Tale of Two Recessions: Seasonally Adjusted PCE") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  theme_economist() +
+  scale_color_economist(name="")
+
 personal_income <- ggplot() + 
   geom_line(data=Yearly_NIPA_Aggregates, aes(x=Year,y=Personalincome,color= "Nominal Personal Income, Billions"), size = 1.25) + 
   #scale_x_date(limits = Start.end) +
@@ -45,10 +77,6 @@ personal_income <- ggplot() +
   #scale_fill_manual(name="", values=c("clrscheme"= "red","black")) +
   theme_economist() +
   scale_color_economist(name="")
-
-test <- Yearly_NIPA_Aggregates$Personalincome - Yearly_NIPA_Aggregates$PandemicPrograms - Yearly_NIPA_Aggregates$Personalcurrenttransferreceipts
-test
-Yearly_NIPA_Aggregates$Personalincome
 
 stacked_area <- 
   ggplot() + 
@@ -71,6 +99,10 @@ stacked_area <-
   
 ggsave(dpi = "retina",plot = stacked_area, "Stacked Personal Income.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = personal_income, "Personal Income.png",w = 5, h = 5.53, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = personal_income_rec, "Personal Income Recession.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = personal_consumption_rec, "Personal Consumption Recession.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 
 #test <- c(rbind(Yearly_NIPA_Aggregates$Personalincome,Yearly_NIPA_Aggregates$Economicimpactpayments5,Yearly_NIPA_Aggregates$CoronavirusFoodAssistanceProgram1,Yearly_NIPA_Aggregates$PaycheckProtectionProgramloanstobusinesses2))
 #trying to cbind for a new stacked graph
