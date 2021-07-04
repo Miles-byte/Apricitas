@@ -94,6 +94,13 @@ levels(UI_Income_Weighted_Crosstabs$ppincimp) <- list("<5k" ="Less than $5,000",
                                                       "200k" = "$175,000 to $199,999",
                                                       "250k" = "$200,000 to $249,999",
                                                       ">250k" = "$250,000 or more")
+
+levels(UI_Income_Weighted_Crosstabs$CV16_a) <- list("Refused" = "Refused",
+                                                    "Did not apply" = "Did not apply for and did not receive" ,
+                                                    "Applied for but not received" = "Applied for but not received",
+                                                    "Received" = "Received")
+                                                    
+  
 #graphing ui outcomes by hh income
 UI_Outcomes_Income <- ggplot(UI_Income_Weighted_Crosstabs, aes(x = ppincimp,pct/100, fill = CV16_a))+
   geom_bar(stat = "identity") +
@@ -133,7 +140,7 @@ personal_income_rec <- ggplot() +
 #graphing personal consumption by recession
 personal_consumption_rec <- ggplot() + 
   geom_line(data=PI_PCE08, aes(x=MonthsRecession,y=(PCE/9898)*100,color= "2008 Personal Consumption Expenditures"), size = 1.25) +
-  geom_line(data=PI_PCE20, aes(x=MonthsRecession,y=(PCE/14880)*100,color= "2020 Personal Consupmtion Expenditures"), size = 1.25) +
+  geom_line(data=PI_PCE20, aes(x=MonthsRecession,y=(PCE/14880)*100,color= "2020 Personal Consumption Expenditures"), size = 1.25) +
   ylim(80,130) +
   xlim(-1,30) +
   xlab("Months Since Start of Recession") +
@@ -167,10 +174,11 @@ stacked_area <-
   scale_x_date(limits = c(as.IDate("2018-01-01"),as.IDate("2020-01-01")), date_breaks = "1 year", date_labels = "%Y") +
   #ylim(labels = scales::comma)
   scale_y_continuous(labels = scales::dollar) +
+  ggtitle("Breakdown of Annual Nominal Personal Income") +
   #xlim(2000,2021) +
   xlab("Year") +
   ylab("Nominal $,Billions") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(caption = "Graph created by @JosephPolitano with help from Michael Farquharson using BEA data") +
   #scale_color_manual(name="", values = c("clrscheme" = "red","black")) +
   #scale_fill_manual(name="", values=c("clrscheme"= "red","black")) +
   theme_economist() +
@@ -183,16 +191,6 @@ ggsave(dpi = "retina",plot = personal_income_rec, "Personal Income Recession.png
 ggsave(dpi = "retina",plot = personal_consumption_rec, "Personal Consumption Recession.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Unemployed_income_graph, "UI Income.png",w = 4.5, h = 5.5, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = UI_Outcomes_Income, "UI Outcomes by Income.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-
-
-
-
-#test <- c(rbind(Yearly_NIPA_Aggregates$Personalincome,Yearly_NIPA_Aggregates$Economicimpactpayments5,Yearly_NIPA_Aggregates$CoronavirusFoodAssistanceProgram1,Yearly_NIPA_Aggregates$PaycheckProtectionProgramloanstobusinesses2))
-#trying to cbind for a new stacked graph
-#ime <- as.numeric(rep(seq(2015,2020),each=7))  # x axis = 7 to include personal income, pre existing transfers, traditional unemployment, expanded unemployment, checks, ppp, and other new programs
-#value <- runif(49, 10, 100)               # y Axis
-#group <- rep(LETTERS[1:7],times=7)        # group, one shape per group
-#data <- data.frame(time, value, group)
 
 # Clear packages
 p_unload(all)  # Remove all add-ons
