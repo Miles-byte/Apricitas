@@ -2,6 +2,7 @@ pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,f
 
 SHED_2020 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202020.csv")
 SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
+Delinquencies <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/Delinquency.csv")
 
 Emergency_Expenses20 <- crosstab(df = SHED_2020, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
 Emergency_Expenses_2020
@@ -188,13 +189,34 @@ Surprise_Expense_Crosstab_Graph <- ggplot(Surprise_Expense_Crosstab, aes(x = ppi
   theme_economist() +
   scale_fill_economist(name="")
 
+
+Delinquencies08 <- Delinquencies[Delinquencies$DATE > "2007-9-01", ] #trimming Credit Card and SFH Mortgage data to the recessions and indexing them to Quarter before/after the recession begins
+Delinquencies20 <- Delinquencies[Delinquencies$DATE > "2019-12-01", ]
+Delinquencies08$QuartersRecession <- -1:51
+Delinquencies20$QuartersRecession <- -1:3
+
+Delinquencies_Graph <- ggplot() + 
+  geom_line(data=Delinquencies08, aes(x=QuartersRecession,y=(DRCCLACBN/4.8)*100,color= "2008 Credit Card"), size = 1.25) +
+  geom_line(data=Delinquencies20, aes(x=QuartersRecession,y=(DRCCLACBN/2.76)*100,color= "2020 Credit Card"), size = 1.25) +
+  geom_line(data=Delinquencies08, aes(x=QuartersRecession,y=(DRSFRMACBS/3.68)*100,color= "2008 Mortgage"), size = 1.25) +
+  geom_line(data=Delinquencies20, aes(x=QuartersRecession,y=(DRSFRMACBS/2.39)*100,color= "2020 Mortgage"), size = 1.25) +
+  ylim(70,350) +
+  xlim(-1,12) +
+  xlab("Quarters Since Start of Recession") +
+  ylab("Index - 1 Quarter Before Recession = 100") +
+  ggtitle("A Tale of Two Recessions: Delinquency Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_economist() +
+  scale_color_economist(name="")
+
 ggsave(dpi = "retina",plot = Emergency_Expenses_2019_Graph, "2019 SHED Emergency Funds.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_2020_Graph, "2020 SHED Emergency Funds.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_19_Borrow_Graph, "2019 SHED Emergency Funds Borrowing.png",height = 5.76, width = 9.25, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_19_Borrow_Graph_No, "2019 SHED Emergency Funds Borrowing pctNo.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Surprise_Expense_Crosstab_Graph, "$400 Emergency Expense Crosstab Graph.png",height = 5.76, width = 9.5, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Delinquencies_Graph, "Delinquencies.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-
+rlang::last_error()
 # Clear packages
 p_unload(all)  # Remove all add-ons
 
