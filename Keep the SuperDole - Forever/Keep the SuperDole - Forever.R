@@ -95,7 +95,7 @@ levels(UI_Income_Weighted_Crosstabs$ppincimp) <- list("<5k" ="Less than $5,000",
                                                       "250k" = "$200,000 to $249,999",
                                                       ">250k" = "$250,000 or more")
 
-levels(UI_Income_Weighted_Crosstabs$CV16_a) <- list("Refused" = "Refused",
+levels(UI_Income_Weighted_Crosstabs$CV16_a) <- list("Refused" = "Refused", #renaming uI levels
                                                     "Did not apply" = "Did not apply for and did not receive" ,
                                                     "Applied for but not received" = "Applied for but not received",
                                                     "Received" = "Received")
