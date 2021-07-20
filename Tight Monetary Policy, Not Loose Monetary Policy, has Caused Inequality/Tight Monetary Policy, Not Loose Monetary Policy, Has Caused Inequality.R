@@ -11,7 +11,6 @@ PCEPI <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/T
 EPop <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Tight%20Monetary%20Policy%2C%20Not%20Loose%20Monetary%20Policy%2C%20has%20Caused%20Inequality/EPop.csv")
 
 
-
 Compensation$DATE <- as.Date(Compensation$DATE)#forcing date on characters
 GDP$DATE <- as.Date(GDP$DATE)
 Wages$DATE <- as.Date(Wages$DATE)
