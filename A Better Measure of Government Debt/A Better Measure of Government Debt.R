@@ -4,6 +4,11 @@ govdebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main
 fyoint <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/FYOINT.csv")
 DAMonthly <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Debt+Assets_Monthly.csv")
 DAQuarterly <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Debt+Assets_Quarterly.csv")
+TotalAssets <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/TotalGovAssets.csv")
+
+TotalAssets$DATE <- as.Date(TotalAssets$DATE) #forcing date
+TotalAssets$DATE <- as.IDate(TotalAssets$DATE)
+TotalAssets$FGTNILQ027S <- as.numeric(TotalAssets$FGTNILQ027S) 
 
 DAMonthly$DATE <- as.Date(DAMonthly$DATE) #forcing date
 DAMonthly$DATE <- as.IDate(DAMonthly$DATE)
