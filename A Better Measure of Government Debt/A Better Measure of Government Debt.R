@@ -116,7 +116,6 @@ DebtWealth <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Marketable.Treasury.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Marketable Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt & Reserves/Wealth"), size = 1.25) +
-  geom_line(data=MergedDebtWealth, aes(x=X,y=(-FGNETWQ027S)/(BOGZ1FL892090005Q*1000),color= "Gross Net Federal Liabilities/Wealth"), size = 1.25) +
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1958-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.3), breaks = c(-.1,0,.1,.2,.3), expand = c(0,0)) +
@@ -131,8 +130,8 @@ rlang::last_error()
 ggsave(dpi = "retina",plot = InterestPct, "InterestPct.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtGDP, "DebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtNetAssets, "DebtNetAssets.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = DebtGDP, "DebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = DebtNetAssets, "DebtNetAssets.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = DebtWealth, "DebtWealth.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = DebtNetAssetsStock, "DebtNetAssetsStock.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 
