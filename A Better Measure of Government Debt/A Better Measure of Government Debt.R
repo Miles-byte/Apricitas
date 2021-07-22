@@ -56,18 +56,19 @@ fyoint$DATE <- as.IDate(fyoint$DATE)
 fyoint[nrow(fyoint), 1] = "2021-01-01" #2021 data broke for this csv, manually adding it here
 fyoint[nrow(fyoint), 4] = as.numeric("22061503")
 
-
 MergedDebtGDP <- merge(govdebt, fyoint, by.x = "X", by.y = "DATE") #merging the dallas govdebt df with the interest df to calculate debt/gdp measures
-DoubleMergedDebtGDP <- merge(MergedDebtGDP, DAMonthly, by.x = "X", by.y = "DATE")
-DoubleMergedDebtGDP <- merge(DoubleMergedDebtGDP, TotalAssets, by.x = "X", by.y = "DATE") #merging with total federal assets for fed assets/liabilities graph
-DoubleMergedDebtGDP <- merge(DoubleMergedDebtGDP, FedNet, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
+MergedDebtGDPRes <- merge(MergedDebtGDP, DAMonthly, by.x = "X", by.y = "DATE") #merging for reserves
+MergedDebtGDPRes <- merge(MergedDebtGDPRes, TotalAssets, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
+MergedDebtGDPRes <- merge(MergedDebtGDPRes, DAQuarterly, by.x = "X", by.y = "DATE") #merging with US wealth
+MergedDebtAssets <- merge(MergedDebtGDP, TotalAssets, by.x = "X", by.y = "DATE") #merging with total federal assets for fed assets/liabilities graph
+MergedDebtAssets <- merge(MergedDebtAssets, FedNet, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
 
 
 DebtGDP <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtGDP, aes(x=X,y=Gross.federal.debt.par*1000/GDP,color= "Gross Federal Debt/GDP"), size = 1.25) +
   geom_line(data=MergedDebtGDP, aes(x=X,y=Marketable.Treasury.debt.par*1000/GDP,color= "Marketable Debt/GDP"), size = 1.25) +
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "Privately Held Debt/GDP"), size = 1.25) +
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=(Privately.held.gross.federal.debt.par+TOTRESNS)*1000/GDP,color= "Privately Held Debt & Reserves/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtGDPRes, aes(x=X,y=(Privately.held.gross.federal.debt.par+TOTRESNS)*1000/GDP.x,color= "Privately Held Debt & Reserves/GDP"), size = 1.25) +
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.25,1.35),  breaks = c(-.25,0,0.25,0.50,0.75,1,1.25), expand = c(0,0)) +
@@ -78,13 +79,13 @@ DebtGDP <- ggplot() + #plotting interest as a %of GDP
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
 
 DebtNetAssets <- ggplot() + #plotting federal assets net liabilities
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=(((Gross.federal.debt.par*1000)-FGTNILQ027S)/GDP),color= "Gross Federal Debt Net Federal Assets/GDP"), size = 1.25) +
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=((Marketable.Treasury.debt.par*1000)-FGTNILQ027S)/GDP,color= "Marketable Debt Net Federal Assets/GDP"), size = 1.25) +
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000)-FGTNILQ027S)/GDP,color= "Privately Held Debt Net Federal Assets/GDP"), size = 1.25) +
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000-FGTNILQ027S)/GDP,color= "Privately Held Debt & Reserves Net Federal Assets/GDP"), size = 1.25) +
-  geom_line(data=DoubleMergedDebtGDP, aes(x=X,y=(-FGNETWQ027S)/GDP,color= "Gross Net Federal Liabilities/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtAssets, aes(x=X,y=(((Gross.federal.debt.par*1000)-FGTNILQ027S)/GDP),color= "Gross Federal Debt Net Federal Assets/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtAssets, aes(x=X,y=((Marketable.Treasury.debt.par*1000)-FGTNILQ027S)/GDP,color= "Marketable Debt Net Federal Assets/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtAssets, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000)-FGTNILQ027S)/GDP,color= "Privately Held Debt Net Federal Assets/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtGDPRes, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000-FGTNILQ027S)/GDP.x,color= "Privately Held Debt & Reserves Net Federal Assets/GDP"), size = 1.25) +
+  geom_line(data=MergedDebtAssets, aes(x=X,y=(-FGNETWQ027S)/GDP,color= "Gross Net Federal Liabilities/GDP"), size = 1.25) +
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1957-01-01"),as.IDate("2021-01-01"))) +
+  scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.25,1.35), breaks = c(-.25,0,0.25,0.50,0.75,1,1.25), expand = c(0,0)) +
   ylab("Percent of GDP") +
   ggtitle("Properly Counting the National Debt") +
@@ -93,18 +94,18 @@ DebtNetAssets <- ggplot() + #plotting federal assets net liabilities
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"))
 
 
-MergedDebtWealth <- merge(DoubleMergedDebtGDP, DAQuarterly, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
+MergedDebtWealth <- merge(MergedDebtAssets, DAQuarterly, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
 
 
 DebtNetAssetsStock <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtWealth, aes(x=X,y=(((Gross.federal.debt.par*1000)-FGTNILQ027S)/(BOGZ1FL892090005Q*1000)),color= "Gross Federal Debt Net Federal Assets/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Marketable.Treasury.debt.par*1000)-FGTNILQ027S)/(BOGZ1FL892090005Q*1000),color= "Marketable Debt Net Federal Assets/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000)-FGTNILQ027S)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt Net Federal Assets/Wealth"), size = 1.25) +
-  geom_line(data=MergedDebtWealth, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000-FGTNILQ027S)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt & Reserves Net Federal Assets/Wealth"), size = 1.25) +
+  geom_line(data=MergedDebtGDPRes, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000-FGTNILQ027S)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt & Reserves Net Federal Assets/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=(-FGNETWQ027S)/(BOGZ1FL892090005Q*1000),color= "Gross Net Federal Liabilities/Wealth"), size = 1.25) +
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1958-01-01"),as.IDate("2021-01-01"))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.2), breaks = c(-.1,0,.1,.2), expand = c(0,0)) +
+  scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.3), breaks = c(-.1,0,.1,.2,.3), expand = c(0,0)) +
   ylab("Percent of National Wealth") +
   ggtitle("Comparing National Debt to National Wealth") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "A Stock-to-Stock Measure of the National Debt, Adjusted for the Federal Government's Assets") +
@@ -115,9 +116,9 @@ DebtWealth <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtWealth, aes(x=X,y=(((Gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000)),color= "Gross Federal Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Marketable.Treasury.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Marketable Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt/Wealth"), size = 1.25) +
-  geom_line(data=MergedDebtWealth, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt & Reserves/Wealth"), size = 1.25) +
+  geom_line(data=MergedDebtGDPRes, aes(x=X,y=(((Privately.held.gross.federal.debt.par+TOTRESNS))*1000)/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt & Reserves/Wealth"), size = 1.25) +
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1958-01-01"),as.IDate("2021-01-01"))) +
+  scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.3), breaks = c(-.1,0,.1,.2,.3), expand = c(0,0)) +
   ylab("Percent of National Wealth") +
   ggtitle("Comparing National Debt to National Wealth") +
@@ -125,7 +126,6 @@ DebtWealth <- ggplot() + #plotting interest as a %of GDP
   theme_apricitas + theme(legend.position = c(.3,.83)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"))
 
-rlang::last_error()
 
 ggsave(dpi = "retina",plot = InterestPct, "InterestPct.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtGDP, "DebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
