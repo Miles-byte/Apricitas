@@ -44,8 +44,8 @@ InterestPct <- ggplot() + #plotting interest as a %of GDP
   scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2020-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5), expand = c(0,0),limits = c(0,0.035)) +
   ylab("Percent of GDP") +
-  ggtitle("Interest as a Percent of GDP Was at Historical Lows") +
-  labs(caption = "Graph created by @JosephPolitano using OMB and BEA data",subtitle = "When Accounting for Fed Remittances, Interest Costs on the Federal Debt Bottomed Out in 2017") +
+  ggtitle("The Simplest and Best Way to Measure the National Debt") +
+  labs(caption = "Graph created by @JosephPolitano using OMB and BEA data",subtitle = "Net Interest Expenses to GDP is the Clearest Measure of Consolidated Government Liabilities") +
   theme_apricitas + theme(legend.position = c(.85,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
 
@@ -74,7 +74,7 @@ DebtGDP <- ggplot() + #plotting interest as a %of GDP
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.25,1.35),  breaks = c(-.25,0,0.25,0.50,0.75,1,1.25), expand = c(0,0)) +
   ylab("Percent of GDP") +
   ggtitle("Properly Counting the National Debt") +
-  labs(caption = "Graph created by @JosephPolitano using Dallas Fed data",subtitle = "Excluding Intergovernmental Debt and Fed Holdings Changes the Picture") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed data",subtitle = "Excluding Intragovernmental Debt and Fed Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.60,.70)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
 
@@ -91,7 +91,7 @@ DebtNetAssets <- ggplot() + #plotting federal assets net liabilities
   ggtitle("Properly Counting the National Debt") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "Accounting for the Federal Government's Assets Provides Important Context") +
   theme_apricitas + theme(legend.position = c(.50,.70)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"))
+  scale_color_manual(name= NULL,values = c("#FFE98F","#9A348E","#00A99D","#EE6055","#A7ACD9"))
 
 
 MergedDebtWealth <- merge(MergedDebtAssets, DAQuarterly, by.x = "X", by.y = "DATE") #merging with FEDNET Liabilities 
@@ -110,7 +110,7 @@ DebtNetAssetsStock <- ggplot() + #plotting interest as a %of GDP
   ggtitle("Comparing National Debt to National Wealth") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "A Stock-to-Stock Measure of the National Debt, Adjusted for the Federal Government's Assets") +
   theme_apricitas + theme(legend.position = c(.3,.83)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"))
+  scale_color_manual(name= NULL,values = c("#FFE98F","#9A348E","#00A99D","#EE6055","#A7ACD9"))
 
 DebtWealth <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtWealth, aes(x=X,y=(((Gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000)),color= "Gross Federal Debt/Wealth"), size = 1.25) +
