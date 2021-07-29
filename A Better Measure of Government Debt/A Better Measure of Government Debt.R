@@ -10,6 +10,11 @@ FedNet <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/
 JPNNGDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/JPNNGDP.csv")
 JPNDebtQE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Japan_Debt_QE.csv")
 
+EnglandDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/England_Debt.csv")
+
+EnglandDebt$Date <- as.Date(EnglandDebt$Date, "%d/%m/%Y") #forcing date
+EnglandDebt$Date <- as.IDate(EnglandDebt$Date)
+
 JPNNGDP$DATE <- as.Date(JPNNGDP$DATE) #forcing date
 JPNNGDP$DATE <- as.IDate(JPNNGDP$DATE)
 
@@ -147,12 +152,13 @@ JPNDebtGDP <- merge(JPNDebtQE, JPNNGDP, by.x = "Name.of.time.series", by.y = "DA
 JapanDebtGDP <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
   geom_line(data=JPNDebtGDP, aes(x=DATE,y=(National.Government.Debt.Total-X_By.Holder.and.Lender.Bank.of.Japan)/(JPNNGDP*10),color= "Japan"), size = 1.25) +
+  geom_line(data=EnglandDebt, aes(x=Date+365,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1994-01-01"),as.IDate("2021-01-01"))) +
+  scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("Privately Held Debt/GDP in Japan and the US") +
-  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoJ data",subtitle = "Counting Central Bank Holdings Changes the Picture") +
+  ggtitle("Privately Held Debt/GDP in Japan, the UK, and the US") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed, BoJ, and BoE data",subtitle = "Accounting for Central Bank Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.60,.70)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
 
