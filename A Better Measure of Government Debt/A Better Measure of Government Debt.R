@@ -7,6 +7,20 @@ DAQuarterly <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/
 TotalAssets <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/TotalGovAssets.csv")
 FedNet <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/FGNETWQ027S.csv")
 
+JPNNGDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/JPNNGDP.csv")
+JPNDebtQE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Japan_Debt_QE.csv")
+
+JPNNGDP$DATE <- as.Date(JPNNGDP$DATE) #forcing date
+JPNNGDP$DATE <- as.IDate(JPNNGDP$DATE)
+
+JPNDebtQE$Name.of.time.series <- paste0("01/",JPNDebtQE$Name.of.time.series) #adding day
+JPNDebtQE$Name.of.time.series <- as.Date(JPNDebtQE$Name.of.time.series, "%d/%Y/%m") #forcing date
+JPNDebtQE$DATE <- as.IDate(JPNDebtQE$Name.of.time.series)
+
+
+DAQuarterly$DATE <- as.Date(DAQuarterly$DATE, "%m/%d/%Y") #forcing date
+DAQuarterly$DATE <- as.IDate(DAQuarterly$DATE)
+
 DAQuarterly$DATE <- as.Date(DAQuarterly$DATE, "%m/%d/%Y") #forcing date
 DAQuarterly$DATE <- as.IDate(DAQuarterly$DATE)
 DAQuarterly$BOGZ1FL892090005Q <- as.numeric(DAQuarterly$BOGZ1FL892090005Q) 
@@ -112,7 +126,7 @@ DebtNetAssetsStock <- ggplot() + #plotting interest as a %of GDP
   theme_apricitas + theme(legend.position = c(.3,.83)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#9A348E","#00A99D","#EE6055","#A7ACD9"))
 
-DebtWealth <- ggplot() + #plotting interest as a %of GDP
+DebtWealth <- ggplot() + #plotting interest as a %of wealth
   geom_line(data=MergedDebtWealth, aes(x=X,y=(((Gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000)),color= "Gross Federal Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Marketable.Treasury.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Marketable Debt/Wealth"), size = 1.25) +
   geom_line(data=MergedDebtWealth, aes(x=X,y=((Privately.held.gross.federal.debt.par*1000))/(BOGZ1FL892090005Q*1000),color= "Privately Held Debt/Wealth"), size = 1.25) +
@@ -127,11 +141,29 @@ DebtWealth <- ggplot() + #plotting interest as a %of GDP
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"))
 
 
+JPNDebtGDP <- merge(JPNDebtQE, JPNNGDP, by.x = "Name.of.time.series", by.y = "DATE") #merging with FEDNET Liabilities 
+
+
+JapanDebtGDP <- ggplot() + #plotting interest as a %of GDP
+  geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
+  geom_line(data=JPNDebtGDP, aes(x=DATE,y=(National.Government.Debt.Total-X_By.Holder.and.Lender.Bank.of.Japan)/(JPNNGDP*10),color= "Japan"), size = 1.25) +
+  xlab("Date") +
+  scale_x_date(limits = c(as.IDate("1994-01-01"),as.IDate("2021-01-01"))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("Privately Held Debt/GDP in Japan and the US") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoJ data",subtitle = "Counting Central Bank Holdings Changes the Picture") +
+  theme_apricitas + theme(legend.position = c(.60,.70)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
+
+
+
 ggsave(dpi = "retina",plot = InterestPct, "InterestPct.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtGDP, "DebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtNetAssets, "DebtNetAssets.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtWealth, "DebtWealth.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = DebtNetAssetsStock, "DebtNetAssetsStock.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = JapanDebtGDP, "JPNvsUSDebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 
