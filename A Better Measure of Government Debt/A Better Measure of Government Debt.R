@@ -16,6 +16,11 @@ GermanDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/m
 
 EU_Debt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/EU_Debt_Data.csv")
 
+JPN_ITA_Int <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Italy_Japan_Debt_Interest.csv")
+
+JPN_ITA_Int$Date <- as.Date(JPN_ITA_Int$Date, "%m/%d/%Y") #forcing date
+JPN_ITA_Int$Date <- as.IDate(JPN_ITA_Int$Date) #forcing date
+
 GermanDebt$Date <- as.Date(GermanDebt$Date, "%m/%d/%Y") #forcing date
 GermanDebt$Date <- as.IDate(GermanDebt$Date)
 
@@ -164,16 +169,16 @@ JPNDebtGDP <- merge(JPNDebtQE, JPNNGDP, by.x = "Name.of.time.series", by.y = "DA
 
 
 JapanEUDebtGDP <- ggplot() + #plotting privately held debt for US,UK,JPN,GER,ITA
-  geom_line(data=EnglandDebt, aes(x=Date+365,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
   geom_line(data=JPNDebtGDP, aes(x=DATE,y=(National.Government.Debt.Total-X_By.Holder.and.Lender.Bank.of.Japan)/(JPNNGDP*10),color= "Japan"), size = 1.25) +
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EU_Debt, aes(x=DATE+365, y=GGGDTADEA188N/100-((ECBASSETSW*.2636)/(CPMNACSCAB1GQDE)), color = "Germany"), size = 1.25) + #=365 normalizes the date to EOY.Debt is divided by 100 to normalize to percent Multiplying by .26/.16 gives their share of ECB assets
-  geom_line(data=EU_Debt, aes(x=DATE+365, y=GGGDTAITA188N/100-((ECBASSETSW*.1698)/(CPMNACSCAB1GQIT)), color = "Italy"), size = 1.25) +
+  geom_line(data=EU_Debt, aes(x=DATE, y=GGGDTADEA188N/100-((ECBASSETSW*.2636)/(CPMNACSCAB1GQDE)), color = "Germany"), size = 1.25) + #=365 normalizes the date to EOY.Debt is divided by 100 to normalize to percent Multiplying by .26/.16 gives their share of ECB assets
+  geom_line(data=EU_Debt, aes(x=DATE, y=GGGDTAITA188N/100-((ECBASSETSW*.1698)/(CPMNACSCAB1GQIT)), color = "Italy"), size = 1.25) +
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1990-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("Debt Minus Central Bank Assets/GDP for Various Countries") +
+  ggtitle("Debt Minus Central Bank Assets as a % of GDP for Various Countries") +
   labs(caption = "Graph created by @JosephPolitano using Dallas Fed, BoJ, and BoE data",subtitle = "Accounting for Central Bank Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.90,.85)) +
   scale_color_manual(name= NULL,values = c("#9A348E","#A7ACD9","#EE6055","#00A99D","#FFE98F"))
@@ -181,41 +186,59 @@ JapanEUDebtGDP <- ggplot() + #plotting privately held debt for US,UK,JPN,GER,ITA
 
 USUKDebtGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EnglandDebt, aes(x=Date+365,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("Privately Held Debt/GDP in the US and UK") +
-  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Excluding Central Bank Holdings Changes the Picture") +
+  ggtitle("Debt Minus Central Bank Assets as a % of GDP for the US and UK") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Accounting for Central Bank Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.60,.70)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
 
 USUKInterestGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
   geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EnglandDebt, aes(x=Date+365,y=IntAPFGDP,color= "UK"), size = 1.25) +
-  geom_line(data=GermanDebt, aes(x=Date+365,y=((NominalInterest-NominalRemit)/(NGDP*1000)), color = "Germany"),size = 1.25) +#adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date,y=IntAPFGDP,color= "UK"), size = 1.25) +
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2021-01-01"))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.045),  breaks = c(0,.01,.02,.03,0.04,0.05), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.065),  breaks = c(0,.01,.02,.03,0.04,0.05,0.06), expand = c(0,0)) +
   ylab("Percent of GDP") +
   ggtitle("Interest Expenses Net Central Bank Remittances as a % of GDP") +
   labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Comparing the Cost to Service the Debt") +
   theme_apricitas +#+ theme(legend.position = c(.60,.70)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
 
-JapanEUInterestGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
-  geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EnglandDebt, aes(x=Date+365,y=IntAPFGDP,color= "UK"), size = 1.25) +
-  geom_line(data=GermanDebt, aes(x=Date+365,y=((NominalInterest-NominalRemit)/(NGDP*1000)), color = "Germany"),size = 1.25) +#adding 365 because England data is EOY
+JapanEUInterestGDP <- ggplot() + #plotting Interest/GDP for many countries
+  geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) + 
+  geom_line(data=EnglandDebt, aes(x=Date,y=IntAPFGDP,color= "UK"), size = 1.25) +
+  geom_line(data=GermanDebt, aes(x=Date,y=((NominalInterest-NominalRemit)/(NGDP*1000)), color = "Germany"),size = 1.25) +
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=JPNIntRemitGDP,color= "Japan"), size = 1.25) +
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=ITAIntRemitGDP,color= "Italy"), size = 1.25) +
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2021-01-01"))) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.045),  breaks = c(0,.01,.02,.03,0.04,0.05), expand = c(0,0)) +
+  scale_x_date(limits = c(as.IDate("1990-01-01"),as.IDate("2021-01-01"))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.065),  breaks = c(0,.01,.02,.03,0.04,0.05,0.06), expand = c(0,0)) +
   ylab("Percent of GDP") +
   ggtitle("Interest Expenses Net Central Bank Remittances as a % of GDP") +
-  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Comparing the Cost to Service the Debt") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed, IMF, Bundesbank, Banca D'Italia, BoJ, and BoE data",subtitle = "Comparing the Cost to Service the Debt") +
   theme_apricitas +#+ theme(legend.position = c(.60,.70)) +
-  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
+  scale_color_manual(name= NULL,values = c("#9A348E","#A7ACD9","#EE6055","#00A99D","#FFE98F"))
+
+JapanEUInterestGDPDashed <- ggplot() + #plotting Interest/GDP with Dashed Lines to show the difference between including and excluding central banks
+  geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) + 
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=JPNIntRemitGDP,color= "Japan"), size = 1.25) +
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=ITAIntRemitGDP,color= "Italy"), size = 1.25) +
+  geom_line(data=fyoint, aes(x=DATE,y=(OINT)/GDP,color= "USA"), size = 1.25,linetype = "dashed") + 
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=JPNIntGDP/100,color= "Japan"), size = 1.25,linetype = "dashed") +
+  geom_line(data=JPN_ITA_Int, aes(x=Date,y=ITAIntGDP/100,color= "Italy"), size = 1.25, linetype = "dashed") +
+  xlab("Date") +
+  scale_x_date(limits = c(as.IDate("1999-01-01"),as.IDate("2021-01-01"))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.065),  breaks = c(0,.01,.02,.03,0.04,0.05,0.06), expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("Interest Expenses Net Central Bank Remittances as a % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed, IMF, Banca D'Italia, and BoJ data",subtitle = "Illustrating the Effects of Central Bank Remittances") +
+  theme_apricitas +#+ theme(legend.position = c(.60,.70)) +
+  scale_color_manual(name= NULL,values = c("#A7ACD9","#EE6055","#FFE98F","#00A99D","#9A348E"))
+
 
 
 ggsave(dpi = "retina",plot = InterestPct, "InterestPct.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -226,6 +249,8 @@ ggsave(dpi = "retina",plot = DebtNetAssetsStock, "DebtNetAssetsStock.png", type 
 ggsave(dpi = "retina",plot = JapanEUDebtGDP, "JPNEUDebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = USUKDebtGDP, "USUKDebtGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = USUKInterestGDP, "USUKInterestGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = JapanEUInterestGDP, "JPNEUInterestGDP.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = JapanEUInterestGDPDashed, "JPNEUInterestGDPDashed.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons
