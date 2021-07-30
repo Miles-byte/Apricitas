@@ -12,7 +12,12 @@ JPNDebtQE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/ma
 
 EnglandDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/England_Debt.csv")
 
+GermanDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/German_Debt.csv")
+
 EU_Debt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/EU_Debt_Data.csv")
+
+GermanDebt$Date <- as.Date(GermanDebt$Date, "%m/%d/%Y") #forcing date
+GermanDebt$Date <- as.IDate(GermanDebt$Date)
 
 EU_Debt$DATE <- as.Date(EU_Debt$DATE, "%Y-%d-%m") #forcing date
 EU_Debt$DATE <- as.IDate(EU_Debt$DATE) #forcing date
@@ -188,9 +193,23 @@ USUKDebtGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
 
 USUKInterestGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
   geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EnglandDebt, aes(x=Date+365,y=IntAPFGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date+365,y=IntAPFGDP,color= "UK"), size = 1.25) +
+  geom_line(data=GermanDebt, aes(x=Date+365,y=((NominalInterest-NominalRemit)/(NGDP*1000)), color = "Germany"),size = 1.25) +#adding 365 because England data is EOY
   xlab("Date") +
-  scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2020-01-01"))) +
+  scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2021-01-01"))) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.045),  breaks = c(0,.01,.02,.03,0.04,0.05), expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("Interest Expenses Net Central Bank Remittances as a % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Comparing the Cost to Service the Debt") +
+  theme_apricitas +#+ theme(legend.position = c(.60,.70)) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
+
+JapanEUInterestGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
+  geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "USA"), size = 1.25) +
+  geom_line(data=EnglandDebt, aes(x=Date+365,y=IntAPFGDP,color= "UK"), size = 1.25) +
+  geom_line(data=GermanDebt, aes(x=Date+365,y=((NominalInterest-NominalRemit)/(NGDP*1000)), color = "Germany"),size = 1.25) +#adding 365 because England data is EOY
+  xlab("Date") +
+  scale_x_date(limits = c(as.IDate("1947-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.045),  breaks = c(0,.01,.02,.03,0.04,0.05), expand = c(0,0)) +
   ylab("Percent of GDP") +
   ggtitle("Interest Expenses Net Central Bank Remittances as a % of GDP") +
