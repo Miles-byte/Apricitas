@@ -169,16 +169,16 @@ JPNDebtGDP <- merge(JPNDebtQE, JPNNGDP, by.x = "Name.of.time.series", by.y = "DA
 
 
 JapanEUDebtGDP <- ggplot() + #plotting privately held debt for US,UK,JPN,GER,ITA
-  geom_line(data=EnglandDebt, aes(x=Date,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date+365,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
   geom_line(data=JPNDebtGDP, aes(x=DATE,y=(National.Government.Debt.Total-X_By.Holder.and.Lender.Bank.of.Japan)/(JPNNGDP*10),color= "Japan"), size = 1.25) +
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EU_Debt, aes(x=DATE, y=GGGDTADEA188N/100-((ECBASSETSW*.2636)/(CPMNACSCAB1GQDE)), color = "Germany"), size = 1.25) + #=365 normalizes the date to EOY.Debt is divided by 100 to normalize to percent Multiplying by .26/.16 gives their share of ECB assets
-  geom_line(data=EU_Debt, aes(x=DATE, y=GGGDTAITA188N/100-((ECBASSETSW*.1698)/(CPMNACSCAB1GQIT)), color = "Italy"), size = 1.25) +
+  geom_line(data=EU_Debt, aes(x=DATE+365, y=GGGDTADEA188N/100-((ECBASSETSW*.2636)/(CPMNACSCAB1GQDE)), color = "Germany"), size = 1.25) + #=365 normalizes the date to EOY.Debt is divided by 100 to normalize to percent Multiplying by .26/.16 gives their share of ECB assets
+  geom_line(data=EU_Debt, aes(x=DATE+365, y=GGGDTAITA188N/100-((ECBASSETSW*.1698)/(CPMNACSCAB1GQIT)), color = "Italy"), size = 1.25) +
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1990-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("Debt Minus Central Bank Assets as a % of GDP for Various Countries") +
+  ggtitle("Debt Minus Central Bank Assets as a % of GDP") +
   labs(caption = "Graph created by @JosephPolitano using Dallas Fed, BoJ, and BoE data",subtitle = "Accounting for Central Bank Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.90,.85)) +
   scale_color_manual(name= NULL,values = c("#9A348E","#A7ACD9","#EE6055","#00A99D","#FFE98F"))
@@ -186,12 +186,12 @@ JapanEUDebtGDP <- ggplot() + #plotting privately held debt for US,UK,JPN,GER,ITA
 
 USUKDebtGDP <- ggplot() + #plotting US and UK privately held Debt/GDP
   geom_line(data=MergedDebtGDP, aes(x=X,y=Privately.held.gross.federal.debt.par*1000/GDP,color= "USA"), size = 1.25) +
-  geom_line(data=EnglandDebt, aes(x=Date,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
+  geom_line(data=EnglandDebt, aes(x=Date+365,y=DebtGdp - BoEGDP,color= "UK"), size = 1.25) + #adding 365 because England data is EOY
   xlab("Date") +
   scale_x_date(limits = c(as.IDate("1952-01-01"),as.IDate("2021-01-01"))) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,2),  breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("Debt Minus Central Bank Assets as a % of GDP for the US and UK") +
+  ggtitle("Debt Minus Central Bank Assets as a % of GDP") +
   labs(caption = "Graph created by @JosephPolitano using Dallas Fed and BoE data",subtitle = "Accounting for Central Bank Holdings Changes the Picture") +
   theme_apricitas + theme(legend.position = c(.60,.70)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
