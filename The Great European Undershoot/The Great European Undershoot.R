@@ -2,11 +2,11 @@ pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,f
 
 OECD_GDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Great%20European%20Undershoot/GDPPerCap.csv")
 OECD_Bond <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Great%20European%20Undershoot/Bond_Spreads.csv")
+EU_Debt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Great%20European%20Undershoot/EU_Debt.csv")
+EU_Deficit <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Great%20European%20Undershoot/EU_Deficit.csv")
 
 Spread <- spread(OECD_Bond,ï..LOCATION,Value)
 Spread$TIME <- as.Date(paste(Spread$TIME,"-01",sep="")) #converting to date and adding Day
-
-?yearmon
 
 GDPPC <- subset(OECD_GDP, SUBJECT == "T_GDPPOP") #OECD Data GDP Per Capita
 GDPPC <- subset(GDPPC, Measure == "USD, constant prices, 2015 PPPs") #filtering by unit
@@ -45,10 +45,46 @@ Bond_Spreads <- ggplot() + #plotting bond spreads
   annotate(geom = "vline",x = as.Date("2012-07-26"),xintercept = as.Date("2012-07-26"), size = 1.25,linetype = "dashed",color = "white") +#annotating "whatever it takes" speech
   annotate(geom = "text", label = as.character("Draghi: 'Whatever it takes'"),x = as.Date("2015-07-26"),y= 0.25,color = "white")
 
+EU_Debt_Graph <- ggplot() + 
+  geom_line(data = EU_Debt, aes(x=TIME, y = Germany..until.1990.former.territory.of.the.FRG./100, color = "Germany"), size = 1.25) +
+  geom_line(data = EU_Debt, aes(x=TIME, y = France/100, color = "France"), size = 1.25) +
+  geom_line(data = EU_Debt, aes(x=TIME, y = Italy/100, color = "Italy"), size = 1.25) +
+  geom_line(data = EU_Debt, aes(x=TIME, y = Greece/100, color = "Greece"), size = 1.25) +
+  geom_line(data = EU_Debt, aes(x=TIME, y = Euro.area...19.countries...from.2015./100, color = "Euro area (19 countries)"), size = 1.25) +
+  xlab("Year") +
+  #xlim(c(2000,2020)) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,2.1), breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
+  ylab("Gross General Government Debt/GDP") +
+  ggtitle("The Maastricht Treaty") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "The Treaty's Restrictions are Incredibly Burdensome") +
+  theme_apricitas + theme(legend.position = c(.55,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotate(geom = "hline",y = 0.6,yintercept = 0.6, size = 1.25,linetype = "dashed",color = "white") +#annotating "whatever it takes" speech
+  annotate(geom = "text", label = as.character("Maastricht Treaty Debt Limit: 60% Debt/GDP"),x = 2015,y= 0.54,color = "white")
 
+EU_Deficit_Graph <- ggplot() + 
+  geom_line(data = EU_Deficit, aes(x=TIME, y = Germany..until.1990.former.territory.of.the.FRG./-100, color = "Germany"), size = 1.25) +
+  geom_line(data = EU_Deficit, aes(x=TIME, y = France/-100, color = "France"), size = 1.25) +
+  geom_line(data = EU_Deficit, aes(x=TIME, y = Italy/-100, color = "Italy"), size = 1.25) +
+  geom_line(data = EU_Deficit, aes(x=TIME, y = Greece/-100, color = "Greece"), size = 1.25) +
+  geom_line(data = EU_Deficit, aes(x=TIME, y = Euro.area...19.countries...from.2015./-100, color = "Euro area (19 countries)"), size = 1.25) +
+  xlab("Year") +
+  #xlim(c(2000,2020))+
+  scale_y_continuous(labels = scales::percent_format(),limits = c(-.05,.15), breaks = c(-0.05,0,0.05,.1,.15), expand = c(0,0)) +
+  ylab("Net Deficit/GDP") +
+  ggtitle("The Maastricht Treaty") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "The Treaty's Restrictions are Incredibly Burdensome") +
+  theme_apricitas + theme(legend.position = c(.87,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotate(geom = "hline",y = 0.03,yintercept = 0.03, size = 1.25,linetype = "dashed",color = "white") +#annotating "whatever it takes" speech
+  annotate(geom = "text", label = as.character("Maastricht Treaty Deficit Limit: 3% Deficit/GDP"),x = 2000,y= 0.005,color = "white")
+
+  
 
 ggsave(dpi = "retina",plot = Undershoot_GDPPerCapita, "Undershoot_GDPPerCapita.png", type = "cairo-png") #Saving Image of 
 ggsave(dpi = "retina",plot = Bond_Spreads, "Bond_Spreads.png", type = "cairo-png") #Saving Image of 
+ggsave(dpi = "retina",plot = EU_Debt_Graph, "EU_Debt.png", type = "cairo-png") #Saving Image of 
+ggsave(dpi = "retina",plot = EU_Deficit_Graph, "EU_Deficit.png", type = "cairo-png") #Saving Image of 
 
 
 p_unload(all)  # Remove all add-ons
