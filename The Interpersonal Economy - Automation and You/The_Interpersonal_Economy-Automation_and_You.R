@@ -5,6 +5,12 @@ Employ_by_sector <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apric
 
 GDP_Goods_Services <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Interpersonal%20Economy%20-%20Automation%20and%20You/Services_Manufacturing_GDP.csv")
 
+Labor_Capital_Share <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Interpersonal%20Economy%20-%20Automation%20and%20You/LaborCapital.csv")
+
+Labor_Capital_Share$DATE <- as.Date(Labor_Capital_Share$DATE,"%m/%d/%Y")
+Labor_Capital_Share <- pivot_longer(Labor_Capital_Share, cols = `Labor`:`Capital`, names_to = "Factor", values_to = "Percent") #gathering data from labor and capital into one colum
+
+ 
 GDP_Goods_Services$DATE <- as.Date(GDP_Goods_Services$DATE,"%m/%d/%Y")
 
 colnames(GDP_Goods_Services) <- c("DATE","Services Production","Goods Production","Services Consumption","Goods Consumption")
@@ -77,9 +83,21 @@ GDP_Goods_Services_graph <- ggplot() +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#EE6055","#EE6055")) +#, guide=guide_legend(override.aes=list(alpha=c(1,.5,1,.5))))+
   scale_alpha_manual(name= NULL,values = c(1,.5,1,.5))
 
+Labor_Capital_Share_Graph <- ggplot() + 
+  geom_area(data = Labor_Capital_Share, aes(x=DATE, y = Percent, fill = Factor),color = NA, size = 0) +
+  xlab("Year") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(.0,.5,.25,.75,1), expand = c(0,0)) +
+  scale_x_date(expand = c(0,0)) +
+  ylab("Share of National Income, %") +
+  ggtitle("Breaking Down Shares of National Income") +
+  labs(caption = "Graph created by @JosephPolitano using data from Penn World Table",subtitle = "Labor's Share of National Income has been Decreasing, but Only by About 3%") +
+  theme_apricitas + theme(legend.position = "right") +
+  scale_fill_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"))
+
 ggsave(dpi = "retina",plot = Employ_by_sector_graph, "Employ_by_sector.png", type = "cairo-png") #Saving Image of Employment by sector graph
 ggsave(dpi = "retina",plot = Employ_by_sector_percent_graph, "Employ_by_sector_percent.png", type = "cairo-png") #Saving Image of employment by sector % graph
 ggsave(dpi = "retina",plot = GDP_Goods_Services_graph, "GDP_Goods_Services.png", type = "cairo-png") #Saving Image of employment by sector % graph
+ggsave(dpi = "retina",plot = Labor_Capital_Share_Graph, "Labor_Capital_Share.png", type = "cairo-png") #Saving Image of employment by sector % graph
 
 
 p_unload(all)  # Remove all add-ons
