@@ -10,9 +10,7 @@ CPI_New_Used_Car_Vehicles$DATE <- as.Date(CPI_New_Used_Car_Vehicles$DATE, "%m/%d
 GDP_Comp$DATE <- as.Date(GDP_Comp$DATE, "%m/%d/%Y")
 ECI_PCE$DATE <- as.Date(ECI_PCE$DATE, "%Y-%m-%d")
 
-colnames(GDP_Comp) <- c("DATE","Nominal Gross Compensation","Nominal GDP","Real GDP")
-GDP_Comp <- pivot_longer(GDP_Comp, cols = `Nominal Gross Compensation`:`Real GDP`, names_to = "Measure", values_to = "Value")
-
+colnames(GDP_Comp) <- c("DATE","Nominal Compensation", "NGDP", "RGDP", "NGDP_Trend", "RGDP_Trend") 
 
 PCE_Inflation_Rates$PCEPI_Trimmed_Mean <- as.numeric(PCE_Inflation_Rates$PCEPI_Trimmed_Mean)
 
@@ -57,11 +55,16 @@ ECI_PCE_Graph <- ggplot() + #ECI/PCE Graph
   theme_apricitas + theme(legend.position = c(.80,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9","#9A348E"))
 
-GDP_Comp_Graph <- ggplot() + #Plotting GDP Growth Rates
-  geom_line(data=GDP_Comp[GDP_Comp$Measure %in% c("Nominal GDP","Real GDP"),], aes(x=DATE,y= Value ,color= Measure), size = 1.25) +
+GDP_Comp_Graph <- 
+  
+ggplot() + #Plotting GDP Growth Rates
+  geom_line(data=GDP_Comp, aes(x=DATE,y=NGDP/21784.209*100 , color="NGDP"), size = 1.25) +
+  geom_line(data=GDP_Comp, aes(x=DATE,y= RGDP/19222.729*100 ,color= "RGDP"), size = 1.25) +
+  geom_line(data=GDP_Comp, aes(x=DATE,y= NGDP_Trend/21784.209*100 ,color= "NGDP Pre-Covid Trend"), size = 1.25) + #taking 2010-2020 r and n gdp grown as trend
+  geom_line(data=GDP_Comp, aes(x=DATE,y= RGDP_Trend/19222.729*100 ,color= "RGDP Pre-Covid Trend"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(),limits = c(10000,25000), breaks = c(10000,15000,20000,25000), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2010-01-01"),as.Date("2021-08-01"))) +
+  scale_y_continuous(limits = c(90,110), breaks = c(90,100,110), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),as.Date("2021-07-01"))) +
   ylab("Percent Change from One Year Ago") +
   ggtitle("Is Inflation Transitory?") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The Traditional 'Core' Inflation Metric Does Not Eliminate Pandemic Volatility") +
