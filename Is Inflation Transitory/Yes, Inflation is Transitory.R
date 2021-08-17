@@ -51,31 +51,30 @@ ECI_PCE_Graph <- ggplot() + #ECI/PCE Graph
   scale_x_date(limits = c(as.Date("2005-01-01"),as.Date("2021-08-01"))) +
   ylab("Index, Q4 2019 = 100") +
   ggtitle("What's Really Happening With Compensation?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data",subtitle = "Real Worker Compensation Has Shrunk Since The Pandemic Started - But Mostly During Last Quarter") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data",subtitle = "Real Compensation Has Shrunk Since the Pandemic Began - But Mostly During Last Quarter") +
   theme_apricitas + theme(legend.position = c(.80,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9","#9A348E"))
 
-GDP_Comp_Graph <- 
-  
-ggplot() + #Plotting GDP Growth Rates
+GDP_Comp_Graph <- ggplot() + #Plotting GDP Growth Rates
   geom_line(data=GDP_Comp, aes(x=DATE,y=NGDP/21784.209*100 , color="NGDP"), size = 1.25) +
   geom_line(data=GDP_Comp, aes(x=DATE,y= RGDP/19222.729*100 ,color= "RGDP"), size = 1.25) +
-  geom_line(data=GDP_Comp, aes(x=DATE,y= NGDP_Trend/21784.209*100 ,color= "NGDP Pre-Covid Trend"), size = 1.25) + #taking 2010-2020 r and n gdp grown as trend
-  geom_line(data=GDP_Comp, aes(x=DATE,y= RGDP_Trend/19222.729*100 ,color= "RGDP Pre-Covid Trend"), size = 1.25) +
+  geom_line(data=GDP_Comp, aes(x=DATE,y= NGDP_Trend/21784.209*100 ,color= "NGDP Pre-Covid Trend"), size = .75,linetype = "dashed") + #taking 2010-2020 r and n gdp grown as trend
+  geom_line(data=GDP_Comp, aes(x=DATE,y= RGDP_Trend/19222.729*100 ,color= "RGDP Pre-Covid Trend"), size = .75, linetype = "dashed") +
   xlab("Date") +
-  scale_y_continuous(limits = c(90,110), breaks = c(90,100,110), expand = c(0,0)) +
+  scale_y_continuous(limits = c(80,110), breaks = c(80,90,100,110), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("2019-01-01"),as.Date("2021-07-01"))) +
-  ylab("Percent Change from One Year Ago") +
-  ggtitle("Is Inflation Transitory?") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The Traditional 'Core' Inflation Metric Does Not Eliminate Pandemic Volatility") +
-  theme_apricitas + theme(legend.position = c(.70,.70)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E"))#, labels = c("PCE Price Index","Core PCE Price Index", "Trimmed Mean PCE Price Index"))+
-  
+  ylab("Index, January 2020 = 100") +
+  ggtitle("Trending Today") +
+  labs(caption = "Graph created by @JosephPolitano using IHS Markit data",subtitle = "Nominal and Real Gross Domestic Product Remain Below Trend") +
+  theme_apricitas + theme(legend.position = c(.75,.40)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,2,1,2), lwd = c(1.25,.75,1.25,.75)))) +#, labels = c("PCE Price Index","Core PCE Price Index", "Trimmed Mean PCE Price Index"))+
+  theme(legend.key.width =  unit(.82, "cm"))
 
 
 ggsave(dpi = "retina",plot = PCE_Inflation_Rates_Graph, "PCE_Inflation_Rates.png", type = "cairo-png") #Saving Image of PCE Inflation Rates Chart
 ggsave(dpi = "retina",plot = CPI_New_Used_Car_Vehicles_Graph, "CPI_New_Used_Car_Vehicles.png", type = "cairo-png") #Saving Image of Car Price Indexes
 ggsave(dpi = "retina",plot = ECI_PCE_Graph, "ECI_PCE.png", type = "cairo-png") #Saving Image of Real Compensation
+ggsave(dpi = "retina",plot = GDP_Comp_Graph, "GDP_Trend.png", type = "cairo-png") #Saving Image of GDP and Trends
 
 
 p_unload(all)  # Remove all add-ons

@@ -15,7 +15,7 @@ Compensation$DATE <- as.Date(Compensation$DATE)#forcing date on characters
 GDP$DATE <- as.Date(GDP$DATE)
 Wages$DATE <- as.Date(Wages$DATE)
 PCEPI$DATE <- as.Date(PCEPI$DATE)
-EPop$DATE <- as.Date(EPop$DATE)
+EPop$DATE <- as.Date(EPop$DATE, "%m/%d/%Y")
 
 
 colnames(Wages) <- c("DATE","Wage_Pct") #changing colnames
