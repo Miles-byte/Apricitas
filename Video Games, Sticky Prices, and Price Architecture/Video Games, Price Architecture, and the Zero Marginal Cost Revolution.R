@@ -2,6 +2,8 @@ pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,f
 
 Gaming_Prices <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Video%20Games%2C%20Sticky%20Prices%2C%20and%20Price%20Architecture/Gaming_Prices.csv")
 
+MC_Curves <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Video%20Games%2C%20Sticky%20Prices%2C%20and%20Price%20Architecture/MC_Curves.csv")
+
 colnames(Gaming_Prices) <- c("DATE","PCEPI", "Nintendo_Nominal","Nintendo_Real","Microsoft_Nominal","Microsoft_Real","Sony_Nominal","Sony_Real")
 
 Gaming_Prices[, 3:8] <- lapply(Gaming_Prices[, 3:8], function(x) as.numeric(gsub("[$,]", "", x))) #forcing numeric on char values and removing , or $
@@ -36,6 +38,18 @@ ConsolePricesGraph <- ggplot() + #Plotting GDP Growth Rates
   theme_apricitas + theme(legend.position = c(.80,.75)) +
   scale_color_manual(name= "",values = c("#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E","#6A4C93"))
 
+
+MC_Curves <- ggplot() + #Plotting GDP Growth Rates
+  geom_line(data=MC_Curves, aes(x=Quantity, y=AC_Traditional , color= "Average Cost"), size = 1.25) +
+  geom_line(data=MC_Curves, aes(x=Quantity, y=MC_Traditional , color= "Marginal Cost"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(0,120), breaks = c(0,30,60,90,120), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0,70)) +
+  ylab("Dollars, Real (2021 Dollars)") +
+  ggtitle("Real Prices of AAA Games are Decreasing Together") +
+  labs(caption = "Graph created by @JosephPolitano using BEA and assorted historical data",subtitle = "Regardless of Game or Console, the Real Prices of AAA Video Games Have Decreased in Unison") +
+  theme_apricitas + theme(legend.position = c(.80,.50)) +
+  scale_color_manual(name= "",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
 
 
 ggsave(dpi = "retina",plot = LoZIndexGraph, "Legend Of Zelda Index.png", type = "cairo-png") #Saving Image of PCE Inflation Rates Chart
