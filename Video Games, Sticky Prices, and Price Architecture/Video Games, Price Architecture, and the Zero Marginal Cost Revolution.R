@@ -1,4 +1,4 @@
-pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly)
+pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,ggpubr)
 
 Gaming_Prices <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Video%20Games%2C%20Sticky%20Prices%2C%20and%20Price%20Architecture/Gaming_Prices.csv")
 
@@ -21,7 +21,7 @@ LoZIndexGraph <- ggplot() + #Plotting GDP Growth Rates
   scale_x_date(limits = c(as.Date("1985-01-01"),as.Date("2021-07-01"))) +
   ylab("Dollars, Real (2021 Dollars) and Nominal") +
   ggtitle("The Legend of Zelda Index") +
-  labs(caption = "Graph created by @JosephPolitano using BEA and assorted historical data",subtitle = "Nominal Prices for Legend of Zelda Games Remained Between $50-$60, but Real Prices Almost Halved") +
+  labs(caption = "Graph created by @JosephPolitano using BEA and assorted historical data",subtitle = "Nominal Prices for Legend of Zelda Games Remained Between $50-$60, but Real Prices Halved") +
   theme_apricitas + theme(legend.position = c(.80,.75)) +
   scale_color_manual(name= "",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
 
@@ -39,21 +39,39 @@ ConsolePricesGraph <- ggplot() + #Plotting GDP Growth Rates
   scale_color_manual(name= "",values = c("#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E","#6A4C93"))
 
 
-MC_Curves <- ggplot() + #Plotting GDP Growth Rates
+MC_Curves_Traditional <- ggplot() + #Plotting GDP Growth Rates
   geom_line(data=MC_Curves, aes(x=Quantity, y=AC_Traditional , color= "Average Cost"), size = 1.25) +
   geom_line(data=MC_Curves, aes(x=Quantity, y=MC_Traditional , color= "Marginal Cost"), size = 1.25) +
-  xlab("Date") +
+  xlab("Q") +
   scale_y_continuous(limits = c(0,120), breaks = c(0,30,60,90,120), expand = c(0,0)) +
-  scale_x_continuous(limits = c(0,70)) +
-  ylab("Dollars, Real (2021 Dollars)") +
-  ggtitle("Real Prices of AAA Games are Decreasing Together") +
-  labs(caption = "Graph created by @JosephPolitano using BEA and assorted historical data",subtitle = "Regardless of Game or Console, the Real Prices of AAA Video Games Have Decreased in Unison") +
-  theme_apricitas + theme(legend.position = c(.80,.50)) +
+  scale_x_continuous(limits = c(0,70), expand = c(0,0)) +
+  ylab("P") +
+  ggtitle("Increasing Marginal Cost") +
+  #labs(caption = subtitle = "Traditional MC Curves Show A High Priced Equilibrium as Marginal Costs Increase") +
+  theme_apricitas + theme(legend.position = c(.80,.45), axis.text.x = element_blank(), axis.text.y = element_blank()) +
+  scale_color_manual(name= "",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E","#6A4C93")) +
+  annotate("segment", x = 0, xend = 34,y = 52, yend =52, linetype = "dashed", color = "white", size = 1.25) +
+  annotate("segment", x = 34, xend = 34, y = 0, yend = 52, linetype = "dashed", color = "white", size = 1.25)
+  
+MC_Curves_ZMC <- ggplot() + #Plotting GDP Growth Rates
+  geom_line(data=MC_Curves, aes(x=Quantity, y=AC_ZMC , color= "Average Cost"), size = 1.25) +
+  geom_line(data=MC_Curves, aes(x=Quantity, y=MC_ZMC , color= "Marginal Cost"), size = 1.25) +
+  xlab("Q") +
+  scale_y_continuous(limits = c(0,120), breaks = c(0,30,60,90,120), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0,70), expand = c(0,0)) +
+  ylab("P") +
+  ggtitle("Zero Marginal Cost") +
+  #labs(caption = "Graph created by @JosephPolitano") +
+  theme_apricitas + theme(legend.position = c(.80,.45), axis.text.x = element_blank(), axis.text.y = element_blank()) +
   scale_color_manual(name= "",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
+
+MC_Curves_Arrage <- ggarrange(MC_Curves_Traditional, MC_Curves_ZMC)
+
 
 
 ggsave(dpi = "retina",plot = LoZIndexGraph, "Legend Of Zelda Index.png", type = "cairo-png") #Saving Image of PCE Inflation Rates Chart
 ggsave(dpi = "retina",plot = ConsolePricesGraph, "Prices By Console.png", type = "cairo-png") #Saving Image of PCE Inflation Rates Chart
+ggsave(dpi = "retina",plot = MC_Curves_Arrage, "MC Curves.png", type = "cairo-png") #Saving Image of PCE Inflation Rates Chart
 
 
 p_unload(all)  # Remove all add-ons
