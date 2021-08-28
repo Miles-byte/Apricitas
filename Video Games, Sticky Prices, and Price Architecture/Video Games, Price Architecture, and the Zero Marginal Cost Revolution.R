@@ -43,26 +43,26 @@ MC_Curves_Traditional <- ggplot() + #Plotting GDP Growth Rates
   geom_line(data=MC_Curves, aes(x=Quantity, y=AC_Traditional , color= "Average Cost"), size = 1.25) +
   geom_line(data=MC_Curves, aes(x=Quantity, y=MC_Traditional , color= "Marginal Cost"), size = 1.25) +
   xlab("Q") +
-  scale_y_continuous(limits = c(0,120), breaks = c(0,30,60,90,120), expand = c(0,0)) +
-  scale_x_continuous(limits = c(0,70), expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,70), breaks = c(0,30,60,90,120), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0,35), expand = c(0,0)) +
   ylab("P") +
   ggtitle("Increasing Marginal Cost") +
   #labs(caption = subtitle = "Traditional MC Curves Show A High Priced Equilibrium as Marginal Costs Increase") +
-  theme_apricitas + theme(legend.position = c(.80,.45), axis.text.x = element_blank(), axis.text.y = element_blank()) +
+  theme_apricitas + theme(legend.position = c(.80,.30), axis.text.x = element_blank(), axis.text.y = element_blank()) +
   scale_color_manual(name= "",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E","#6A4C93")) +
-  annotate("segment", x = 0, xend = 34,y = 52, yend =52, linetype = "dashed", color = "white", size = 1.25) +
-  annotate("segment", x = 34, xend = 34, y = 0, yend = 52, linetype = "dashed", color = "white", size = 1.25)
+  annotate("segment", x = 0, xend = 13.5,y = 21, yend = 21, linetype = "dashed", color = "white", size = 1.25) +
+  annotate("segment", x = 13.5, xend = 13.5, y = 0, yend = 21, linetype = "dashed", color = "white", size = 1.25)
   
 MC_Curves_ZMC <- ggplot() + #Plotting GDP Growth Rates
   geom_line(data=MC_Curves, aes(x=Quantity, y=AC_ZMC , color= "Average Cost"), size = 1.25) +
-  geom_line(data=MC_Curves, aes(x=Quantity, y=MC_ZMC , color= "Marginal Cost"), size = 1.25) +
+  geom_line(data=MC_Curves, aes(x=Quantity, y=MC_ZMC+1 , color= "Marginal Cost"), size = 1.25) +
   xlab("Q") +
   scale_y_continuous(limits = c(0,120), breaks = c(0,30,60,90,120), expand = c(0,0)) +
   scale_x_continuous(limits = c(0,70), expand = c(0,0)) +
   ylab("P") +
   ggtitle("Zero Marginal Cost") +
   #labs(caption = "Graph created by @JosephPolitano") +
-  theme_apricitas + theme(legend.position = c(.80,.45), axis.text.x = element_blank(), axis.text.y = element_blank()) +
+  theme_apricitas + theme(legend.position = c(.80,.30), axis.text.x = element_blank(), axis.text.y = element_blank()) +
   scale_color_manual(name= "",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
 
 MC_Curves_Arrage <- ggarrange(MC_Curves_Traditional, MC_Curves_ZMC)
