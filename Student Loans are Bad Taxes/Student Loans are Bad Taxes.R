@@ -6,11 +6,16 @@ Interest_Rates <- data.frame(Year = c(2006,2007,2008,2009,2010,2011,2012,2013,20
                              Grad = c(0.068,0.068,0.068,0.068,0.068,0.068,0.068,0.0541,0.0621,0.0584,0.0531,0.06,0.06595,0.06079,0.043,0.0528),
                              PLUS = c(0.079,0.079,0.079,0.079,0.079,0.079,0.079,0.0641,0.0721,0.0684,0.0631,0.07,0.07595,0.07079,0.053,0.0628))
 
-Loans_Outstanding <- fredr(series_id = c("SLOAS")) #calling outstanding student loan balance from FRED
-Net_Assets <- fredr(series_id = c("BOGZ1FL892090005Q")) #calling net wealth
 
-Loans_Outstanding <- merge(Loans_Outstanding,Net_Assets, by = "date")
 
+Loan_Debt_Grad <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loans%20are%20Bad%20Taxes/Avg_Loan_Balance_Grad.csv")
+
+Marginal_Tax_Rates <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loans%20are%20Bad%20Taxes/Student_Loan_Marginal_Tax_Rates.csv")
+
+Loans_Outstanding <- fredr(series_id = c("SLOAS")) #downloading outstanding student loan balance from FRED
+Net_Assets <- fredr(series_id = c("BOGZ1FL892090005Q")) #downloading net wealth
+
+Loans_Outstanding <- merge(Loans_Outstanding,Net_Assets, by = "date")#merging in
 
 theme_apricitas <- theme_ft_rc() +
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 11, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
@@ -39,6 +44,8 @@ Loans_Outstanding_Graph <- ggplot() + #plotting Student Loan Rates
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Student Loan Balances Rose as a Share Of Wealth in the Aftermath of the 2008 Recession") +
   theme_apricitas + theme(legend.position = c(.70,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
+
+
 
 ggsave(dpi = "retina",plot = Interest_Rates_Graph, "Student Loan Interest Rates.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Loans_Outstanding_Graph, "Student Loan Outstanding.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
