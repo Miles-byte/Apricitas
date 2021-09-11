@@ -8,7 +8,7 @@ Interest_Rates <- data.frame(Year = c(2006,2007,2008,2009,2010,2011,2012,2013,20
 
 
 
-Loan_Debt_Grad <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loans%20are%20Bad%20Taxes/Avg_Loan_Balance_Grad.csv")
+Loan_Debt_Grad <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loans%20are%20Bad%20Taxes/Average_Loan_Balance_Grad.csv")
 
 Marginal_Tax_Rates <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loans%20are%20Bad%20Taxes/Student_Loan_Marginal_Tax_Rates.csv")
 
@@ -45,10 +45,66 @@ Loans_Outstanding_Graph <- ggplot() + #plotting Student Loan Rates
   theme_apricitas + theme(legend.position = c(.70,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
 
+Loan_Debt_Grad_Graph <- ggplot() + #plotting Student debt at graduation by year
+  geom_line(data=Loan_Debt_Grad, aes(x=Year,y=Real_2020_Balance,color= "Average Student Loan Debt At Graduation, 2020 Dollars"), size = 1.25)+ 
+  xlab("Graduation Year") +
+  ylab("2020 Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(),limits = c(10000,40000), expand = c(0,0)) +
+  ggtitle("Payback Time") +
+  labs(caption = "Graph created by @JosephPolitano using educationdata.org data", subtitle = "After Years of Constant Increases, Debt Levels for Graduates are Stabilizing") +
+  theme_apricitas + theme(legend.position = c(.70,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"))
+
+Marginal_Tax_Rates_Marginal_Graph <- ggplot() + #plotting Marginal Student Loan Tax Rates
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=Standard_Marginal.,color= "Standard Repayment Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=IBR_Marginal.,color= "Income-Based Repayment Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=REPAYE_Marginal.,color= "REPAYE Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=PAYE_Marginal.,color= "PAYE Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=ICR_Marginal.,color= "Income-Contingent Repayment Plan"), size = 1.25)+
+  xlab("Income") +
+  ylab("Marginal Tax Rate, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.01,.30), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  ggtitle("Student Loans are Bad Taxes") +
+  labs(caption = "Graph created by @JosephPolitano", subtitle = "Marginal Tax Rates for Student Loan Repayment Plans are High and Uneven") +
+  theme_apricitas + theme(legend.position = c(.70,.82)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
+
+Marginal_Tax_Rates_Average_Graph <- ggplot() + #plotting Average Student Loan Tax Rates
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=Standard_Average.,color= "Standard Repayment Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=IBR_Average.,color= "Income-Based Repayment Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=REPAYE_Average.,color= "REPAYE Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=PAYE_Average.,color= "PAYE Plan"), size = 1.25)+ 
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=ICR_Average.,color= "Income-Contingent Repayment Plan"), size = 1.25)+
+  xlab("Income") +
+  ylab("Average Tax Rate, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.01,.30), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  ggtitle("Student Loans are Bad Taxes") +
+  labs(caption = "Graph created by @JosephPolitano", subtitle = "Average Tax Rates Show that Student Loans are Regressive") +
+  theme_apricitas + theme(legend.position = c(.70,.82)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
 
 
+Marginal_Tax_Rates_Mnthly_Graph <- ggplot() + #plotting Student Loan Marginal and Average Tax Rates for Lowest Monthly Payment
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=LowestMnthly_Marginal.,color= "Marginal Tax Rate for Lowest Monthly Payment"), size = 1.25)+
+  geom_line(data=Marginal_Tax_Rates, aes(x=Income,y=LowestMnthly_Average.,color= "Average Tax Rate for Lowest Monthly Payment"), size = 1.25)+
+  xlab("Income") +
+  ylab("Tax Rate, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.01,.30), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::dollar_format()) +
+  ggtitle("Student Loans are Bad Taxes") +
+  labs(caption = "Graph created by @JosephPolitano", subtitle = "Single Borrowers Making $13,000-$45,000 Experience High Marginal Tax Rates") +
+  theme_apricitas + theme(legend.position = c(.70,.43)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))
+
+  
 ggsave(dpi = "retina",plot = Interest_Rates_Graph, "Student Loan Interest Rates.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Loans_Outstanding_Graph, "Student Loan Outstanding.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Loan_Debt_Grad_Graph, "Loan Debt by Graduation Year.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Marginal_Tax_Rates_Marginal_Graph, "Marginal Tax Rates.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Marginal_Tax_Rates_Average_Graph, "Average Tax Rates.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Marginal_Tax_Rates_Mnthly_Graph, "Tax Rates for Lowest Monthly Payment.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons
