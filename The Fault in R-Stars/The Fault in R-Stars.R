@@ -39,11 +39,12 @@ CBO_NROU_GRAPH <- ggplot() + #plotting long run unemployment rate against CBO NR
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.02,.10), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2020-01-01"))) +
   ggtitle("Un-Natural History") +
-  labs(caption = "Graph created by @JosephPolitano using BLS, CBO, BEA and Federal Reserve Data", subtitle = "CBO's 'Natural' Unemployment Rate Estimate Does Not Predict Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS, CBO, BEA, and Federal Reserve Data", subtitle = "CBO's 'Natural' Unemployment Rate Estimate Does Not Predict Inflation") +
   theme_apricitas + theme(legend.position = c(.45,.85)) +
   scale_color_manual(name= NULL,breaks = c("Unemployment Rate", "CBO NAIRU Estimate", "PCE Inflation", "Trimmed Mean PCE Inflation"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotation_custom(g, xmin = as.Date("1990-01-01")-2038, xmax = as.Date("1990-01-01")-537, ymin = -0.02-0.036, ymax = -0.02) +
   coord_cartesian(clip = "off")
+
 
 
 ggsave(dpi = "retina",plot = FOMC_UNRATE_GRAPH, "FOMC.png", type = "cairo-png") 
