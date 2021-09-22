@@ -13,6 +13,8 @@ PCEPI <- fredr(series_id = c("PCEPI")) #downloading PCEPI data
 IPD <- fredr(series_id = c("USAGDPDEFQISMEI")) #downloading IPD data
 CPIURS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-allitems.csv")
 CPIURSCORE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-alllessfe.csv")
+BEAPCEDISAGG <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/PCE_Breakdown.csv")
+
 
 CPIURS <- pivot_longer(CPIURS, names_to = "month", values_to = "value", cols = !c(YEAR,AVG,X)) #reorganizing CPIURS data to a real date format in only two columns
 CPIURS <- mutate(CPIURS, date = lubridate::dmy(paste("01",month, YEAR, sep = "-")))
