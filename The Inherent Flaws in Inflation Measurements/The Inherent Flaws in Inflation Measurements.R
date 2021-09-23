@@ -25,7 +25,7 @@ RMD_Fed_Mfg$date <- as.Date(RMD_Fed_Mfg$date, "%m/%d/%Y")
 RMD_Fed_Mfg[2:7] <- rollmeanr(RMD_Fed_Mfg[2:7], k = 3, fill = NA)#3 month rolling average to smooth data
 
 OTC_Securities$date <- as.Date(OTC_Securities$date)
-BEAPCEDISAGG$Date <- as.Date(BEAPCEDISAGG$Date)
+BEAPCEDISAGG$Date <- as.Date(BEAPCEDISAGG$Date, "%m/%d/%Y")
 
 CPIURS <- pivot_longer(CPIURS, names_to = "month", values_to = "value", cols = !c(YEAR,AVG,X)) #reorganizing CPIURS data to a real date format in only two columns
 CPIURS <- mutate(CPIURS, date = lubridate::dmy(paste("01",month, YEAR, sep = "-")))
@@ -103,22 +103,40 @@ Price_Controls_Graph <- ggplot() + #plotting all commission fees
   #geom_line(data=BEAPCEDISAGG, aes(x=Date,y=First.class.postal.service..by.U.S..Postal.Service.,color= "USPS First Class"), size = 1.25)+
   geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Physician.services..44.,color= "Physician Services"), size = 1.25)+
   #geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Food.supplied.to.military,color= "Food Supplied to Military"), size = 1.25)+
-  geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Elementary and Secondary School Lunches"), size = 1.25)+
+  geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Food at Employee Sites and Schools"), size = 1.25)+
   ylab("PCE Price Index, January 2012 = 100") +
   xlab("Date") +
   scale_y_continuous(limits = c(75,150), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("2012-01-01"),as.Date("2021-09-01"))) +
   ggtitle("Complete Control") +
   labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "Governments Have Direct or Indirect Price-Setting Power In Many Sectors") +
-  theme_apricitas + theme(legend.position = c(.59,.70)) +
+  theme_apricitas + theme(legend.position = c(.52,.70)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotate("vline", x = as.Date("2020-04-01"), xintercept = as.Date("2020-04-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate("vline", x = as.Date("2021-04-01"), xintercept = as.Date("2021-07-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate("vline", x = as.Date("2014-12-01"), xintercept = as.Date("2014-12-01"), color = "#00A99D", linetype = "dashed", size = 1.25) +
   annotate("vline", x = as.Date("2020-12-01"), xintercept = as.Date("2020-12-01"), color = "#00A99D", linetype = "dashed", size = 1.25) +
   annotate("text", label = "ACA 100% Federal Funding For", x = as.Date("2013-5-01"), y = 92, color = "#00A99D") +
   annotate("text", label = "Primary Care Fees End", x = as.Date("2013-5-01"), y = 88, color = "#00A99D") +
   annotate("text", label = "CMS Physician Fee Schedule", x = as.Date("2019-4-01"), y = 92, color = "#00A99D") +
   annotate("text", label = "Bump Takes Effect", x = as.Date("2019-4-01"), y = 88, color = "#00A99D") +
+  annotate("text", label = "USDA Reimburses Universal", x = as.Date("2018-10-01"), y = 144, color = "#FFE98F") +
+  annotate("text", label = "Free Meals to Students", x = as.Date("2018-10-01"), y = 140, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*8279), xmax = as.Date("2012-01-01")-(0.049*8279), ymin = 75-(.3*75), ymax = 75) +
+  coord_cartesian(clip = "off")
+
+Lunches_Graph <- ggplot() + #plotting elementary and secondary school lunches
+  geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Food at Employee Sites and Schools"), size = 1.25)+
+  ylab("PCE Price Index, January 2012 = 100") +
+  xlab("Date") +
+  scale_y_continuous(limits = c(60,130), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2018-01-01"),as.Date("2021-09-01"))) +
+  ggtitle("Complete Control") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "Governments Have Direct or Indirect Price-Setting Power In Many Sectors") +
+  theme_apricitas + theme(legend.position = c(.52,.70)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
+  annotate("vline", x = as.Date("2020-04-01"), xintercept = as.Date("2020-04-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate("vline", x = as.Date("2021-04-01"), xintercept = as.Date("2021-07-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate("text", label = "USDA Reimburses Universal", x = as.Date("2018-10-01"), y = 144, color = "#FFE98F") +
   annotate("text", label = "Free Meals to Students", x = as.Date("2018-10-01"), y = 140, color = "#FFE98F") +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*8279), xmax = as.Date("2012-01-01")-(0.049*8279), ymin = 75-(.3*75), ymax = 75) +
