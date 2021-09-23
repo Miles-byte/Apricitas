@@ -11,6 +11,8 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 CPI <- fredr(series_id = c("CPIAUCSL")) #downloading PCEPI data
 PCEPI <- fredr(series_id = c("PCEPI")) #downloading PCEPI data
 IPD <- fredr(series_id = c("USAGDPDEFQISMEI")) #downloading IPD data
+PPI <- fredr(series_id = c("PPIACO")) #downloading PPI data
+ECI <- fredr(series_id = c("ECIALLCIV")) #downloading ECI data
 CPIURS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-allitems.csv")
 CPIURSCORE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-alllessfe.csv")
 BEAPCEDISAGG <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/PCE_Breakdown.csv")
@@ -73,7 +75,8 @@ OTC_Securities_graph <- ggplot() + #plotting otc securities price index
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1997-01-01")-(.1861*9009), xmax = as.Date("1997-01-01")-(0.049*9009), ymin = 0-(.3*3500), ymax = 0) +
   coord_cartesian(clip = "off")
 
-#postal,meals at school, military uniforms, and Physician services for "price controls" index
+#postal,meals at school, military uniforms, and Physician services alongside some other healthcare stuff for "price controls" index
+#maybe talk about phone service hedonic adjustment
 
 ggsave(dpi = "retina",plot = INF_INDEX_GRAPH, "The Importance of Indexes.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Commissions_PCE_graph, "Commissions Indexes.png", type = "cairo-png") 
