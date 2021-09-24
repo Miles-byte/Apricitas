@@ -48,6 +48,21 @@ INF_INDEX_GRAPH <- ggplot() + #plotting all inflation indexes
   ggtitle("The Importance of Indexes") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data", subtitle = "CPI, Even the updated 'Research Series', Tends to Overstate Inflation") +
   theme_apricitas + theme(legend.position = c(.50,.73)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#A7ACD9","#EE6055","#00A99D","#9A348E","#6A4C93"))+ 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1950-01-01")-(.1861*26176), xmax = as.Date("1950-01-01")-(0.049*26176), ymin = 0-(.3*1000), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ALT_INF_INDEX_GRAPH <- ggplot() + #plotting all inflation indexes
+  geom_line(data=PCEPI, aes(x=date,y=value/16.314*100,color= "PCE Price Index"), size = 1.25)+
+  geom_line(data=ECI, aes(x=date,y=value/(100/5.72)*100,color= "Employment Cost Index"), size = 1.25) +
+  geom_line(data=PPI, aes(x=date,y=value/31.6*100,color= "Producer Price Index"), size = 1.25)+
+  ylab("Index, January 1960 = 100") +
+  xlab("Date") +
+  scale_y_continuous(limits = c(0,1000), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("1950-01-01"),as.Date("2021-09-01"))) +
+  ggtitle("The Importance of Indexes") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data", subtitle = "CPI, Even the updated 'Research Series', Tends to Overstate Inflation") +
+  theme_apricitas + theme(legend.position = c(.50,.73)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1950-01-01")-(.1861*26176), xmax = as.Date("1950-01-01")-(0.049*26176), ymin = 0-(.3*1000), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -103,53 +118,56 @@ Price_Controls_Graph <- ggplot() + #plotting all commission fees
   #geom_line(data=BEAPCEDISAGG, aes(x=Date,y=First.class.postal.service..by.U.S..Postal.Service.,color= "USPS First Class"), size = 1.25)+
   geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Physician.services..44.,color= "Physician Services"), size = 1.25)+
   #geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Food.supplied.to.military,color= "Food Supplied to Military"), size = 1.25)+
-  geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Food at Employee Sites and Schools"), size = 1.25)+
+  #geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Food at Employee Sites and Schools"), size = 1.25)+
   ylab("PCE Price Index, January 2012 = 100") +
   xlab("Date") +
-  scale_y_continuous(limits = c(75,150), expand = c(0,0)) +
+  scale_y_continuous(limits = c(90,110), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("2012-01-01"),as.Date("2021-09-01"))) +
   ggtitle("Complete Control") +
   labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "Governments Have Direct or Indirect Price-Setting Power In Many Sectors") +
   theme_apricitas + theme(legend.position = c(.52,.70)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
-  annotate("vline", x = as.Date("2020-04-01"), xintercept = as.Date("2020-04-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate("vline", x = as.Date("2021-04-01"), xintercept = as.Date("2021-07-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate("vline", x = as.Date("2014-12-01"), xintercept = as.Date("2014-12-01"), color = "#00A99D", linetype = "dashed", size = 1.25) +
-  annotate("vline", x = as.Date("2020-12-01"), xintercept = as.Date("2020-12-01"), color = "#00A99D", linetype = "dashed", size = 1.25) +
-  annotate("text", label = "ACA 100% Federal Funding For", x = as.Date("2013-5-01"), y = 92, color = "#00A99D") +
-  annotate("text", label = "Primary Care Fees End", x = as.Date("2013-5-01"), y = 88, color = "#00A99D") +
-  annotate("text", label = "CMS Physician Fee Schedule", x = as.Date("2019-4-01"), y = 92, color = "#00A99D") +
-  annotate("text", label = "Bump Takes Effect", x = as.Date("2019-4-01"), y = 88, color = "#00A99D") +
-  annotate("text", label = "USDA Reimburses Universal", x = as.Date("2018-10-01"), y = 144, color = "#FFE98F") +
-  annotate("text", label = "Free Meals to Students", x = as.Date("2018-10-01"), y = 140, color = "#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*8279), xmax = as.Date("2012-01-01")-(0.049*8279), ymin = 75-(.3*75), ymax = 75) +
+  #annotate("vline", x = as.Date("2020-04-01"), xintercept = as.Date("2020-04-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate("vline", x = as.Date("2021-04-01"), xintercept = as.Date("2021-07-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate("vline", x = as.Date("2014-12-01"), xintercept = as.Date("2014-12-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate("vline", x = as.Date("2020-12-01"), xintercept = as.Date("2020-12-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate("text", label = "ACA 100% Federal Funding For", x = as.Date("2013-5-01"), y = 97, color = "#FFE98F") +
+  annotate("text", label = "Primary Care Fees End", x = as.Date("2013-5-01"), y = 96, color = "#FFE98F") +
+  annotate("text", label = "CMS Physician Fee Schedule", x = as.Date("2019-6-01"), y = 97, color = "#FFE98F") +
+  annotate("text", label = "Bump Takes Effect", x = as.Date("2019-6-01"), y = 96, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*3531), xmax = as.Date("2012-01-01")-(0.049*3531), ymin = 90-(.3*20), ymax = 90) +
   coord_cartesian(clip = "off")
 
 Lunches_Graph <- ggplot() + #plotting elementary and secondary school lunches
   geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Elementary.and.secondary.school.lunches,color= "Food at Employee Sites and Schools"), size = 1.25)+
-  ylab("PCE Price Index, January 2012 = 100") +
+  ylab("CPI Price Index, January 2012 = 100") +#technically these BEA data points are derived from CPI
   xlab("Date") +
   scale_y_continuous(limits = c(60,130), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("2018-01-01"),as.Date("2021-09-01"))) +
-  ggtitle("Complete Control") +
-  labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "Governments Have Direct or Indirect Price-Setting Power In Many Sectors") +
-  theme_apricitas + theme(legend.position = c(.52,.70)) +
+  ggtitle("School Success Story") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data", subtitle = "Government Programs Have Slashed School Meal Costs During the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.40,.70)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotate("vline", x = as.Date("2020-04-01"), xintercept = as.Date("2020-04-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate("vline", x = as.Date("2021-04-01"), xintercept = as.Date("2021-07-01"), color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate("text", label = "USDA Reimburses Universal", x = as.Date("2018-10-01"), y = 144, color = "#FFE98F") +
-  annotate("text", label = "Free Meals to Students", x = as.Date("2018-10-01"), y = 140, color = "#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*8279), xmax = as.Date("2012-01-01")-(0.049*8279), ymin = 75-(.3*75), ymax = 75) +
+  annotate("text", label = "USDA Reimburses Universal", x = as.Date("2019-9-01"), y = 72, color = "#FFE98F") +
+  annotate("text", label = "Free Meals to Students", x = as.Date("2019-9-01"), y = 68, color = "#FFE98F") +
+  annotate("text", label = "California Passes Free School", x = as.Date("2020-12-01"), y = 72, color = "#FFE98F") +
+  annotate("text", label = "Meals For All Act", x = as.Date("2020-12-01"), y = 68, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1339), xmax = as.Date("2018-01-01")-(0.049*1339), ymin = 60-(.3*70), ymax = 60) +
   coord_cartesian(clip = "off")
 
 #postal,meals at school, military uniforms, and Physician services alongside some other healthcare stuff for "price controls" index
 #maybe talk about phone service hedonic adjustment
+#whiplash effect
 
 ggsave(dpi = "retina",plot = INF_INDEX_GRAPH, "The Importance of Indexes.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Commissions_PCE_graph, "Commissions Indexes.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = OTC_Securities_graph, "OTC Index.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = RMD_Fed_graph, "Richmond Fed Survey of Manufacturing Activity.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Price_Controls_Graph, "Price Controls.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = Lunches_Graph, "Lunches.png", type = "cairo-png") 
+
 
 
 p_unload(all)  # Remove all add-ons
