@@ -14,6 +14,15 @@ IPD <- fredr(series_id = c("USAGDPDEFQISMEI")) #downloading IPD data
 PPI <- fredr(series_id = c("PPIACO")) #downloading PPI data
 ECI <- fredr(series_id = c("ECIALLCIV")) #downloading ECI data
 
+PCEPIPCT <- fredr(series_id = c("PCEPI"), units = "pc1") #downloading PCEPI data in percent change format
+TRIMPCEPIPCT <- fredr(series_id = c("PCETRIM12M159SFRBDAL")) #downloading Trimmed Mean PCEPI data in percent change format
+COREPCEPIPCT <- fredr(series_id = c("JCXFE"), units = "pc1") #downloading Core PCEPI data in percent change format
+MEDIANPCE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/Median_PCE.csv") #downloading Median PCE data
+
+MEDIANPCE$Date <- as.Date(MEDIANPCE$Date, "%m/%d/%Y")
+
+Lumber_Futures <- tq_get("LBS=F", from = "2020-01-01")#importing lumber futures market data
+
 CPIURS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-allitems.csv")
 CPIURSCORE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/r-cpi-u-rs-alllessfe.csv")
 BEAPCEDISAGG <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Inherent%20Flaws%20in%20Inflation%20Measurements/PCE_Breakdown.csv")
@@ -61,11 +70,28 @@ ALT_INF_INDEX_GRAPH <- ggplot() + #plotting all inflation indexes
   scale_y_continuous(limits = c(0,1000), expand = c(0,0)) +
   scale_x_date(limits = c(as.Date("1950-01-01"),as.Date("2021-09-01"))) +
   ggtitle("The Importance of Indexes") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data", subtitle = "CPI, Even the updated 'Research Series', Tends to Overstate Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data", subtitle = "Alternative Price Indexes Diverge Substantially From PCE") +
   theme_apricitas + theme(legend.position = c(.50,.73)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1950-01-01")-(.1861*26176), xmax = as.Date("1950-01-01")-(0.049*26176), ymin = 0-(.3*1000), ymax = 0) +
   coord_cartesian(clip = "off")
+
+CORE_INF_INDEX_GRAPH <- ggplot() + #plotting all inflation indexes
+  geom_line(data=PCEPIPCT, aes(x=date,y=value/100,color= "PCE Price Index"), size = 1.25)+
+  geom_line(data=TRIMPCEPIPCT, aes(x=date,y=value/100,color= "Trimmed Mean PCE Price Index"), size = 1.25) +
+  geom_line(data=COREPCEPIPCT, aes(x=date,y=value/100,color= "Core PCE Price Index"), size = 1.25)+
+  geom_line(data=MEDIANPCE, aes(x=Date,y=Median.PCE.Inflation..year.over.year.percent.change/100,color= "Median PCE Price Index"), size = 1.25)+
+  ylab("Index, Percent Change From Year Ago") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.025,0.05), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2000-01-01"),as.Date("2021-09-01"))) +
+  ggtitle("Straight to the Core") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "Even 'Core' Inflation Does Not Exlude All Volatility") +
+  theme_apricitas + theme(legend.position = c(.75,.84)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#6A4C93"))+ 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7914), xmax = as.Date("2000-01-01")-(0.049*7914), ymin = -0.025-(.3*0.075), ymax = -0.025) +
+  coord_cartesian(clip = "off")
+
 
 Commissions_PCE_graph <- ggplot() + #plotting all commission fees
   geom_line(data=BEAPCEDISAGG, aes(x=Date,y=Securities.commissions,color= "Security Commissions"), size = 1.25)+
@@ -157,6 +183,20 @@ Lunches_Graph <- ggplot() + #plotting elementary and secondary school lunches
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1339), xmax = as.Date("2018-01-01")-(0.049*1339), ymin = 60-(.3*70), ymax = 60) +
   coord_cartesian(clip = "off")
 
+Lumber_Graph <- ggplot() + #plotting lumber Futures Prices
+  geom_line(data=Lumber_Futures, aes(x=date,y=adjusted,color= "Lumber Futures Price"), size = 1.25)+
+  ylab("US Dollars") +#technically these BEA data points are derived from CPI
+  xlab("Date") +
+  scale_y_continuous(limits = c(200,1800), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-10-01"))) +
+  ggtitle("That's Bullwhip!") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance Data", subtitle = "Prices Can Shift in a Volatile Self Reinforcing Cycle Called a 'Bullwhip'") +
+  theme_apricitas + theme(legend.position = c(.40,.70)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#6A4C93"))+ 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*639), xmax = as.Date("2020-01-01")-(0.049*639), ymin = 200-(.3*1600), ymax = 200) +
+  coord_cartesian(clip = "off")
+
+
 #postal,meals at school, military uniforms, and Physician services alongside some other healthcare stuff for "price controls" index
 #maybe talk about phone service hedonic adjustment
 #whiplash effect
@@ -167,6 +207,9 @@ ggsave(dpi = "retina",plot = OTC_Securities_graph, "OTC Index.png", type = "cair
 ggsave(dpi = "retina",plot = RMD_Fed_graph, "Richmond Fed Survey of Manufacturing Activity.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Price_Controls_Graph, "Price Controls.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Lunches_Graph, "Lunches.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = ALT_INF_INDEX_GRAPH, "Alternative Inflation Indexes.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = CORE_INF_INDEX_GRAPH, "Core Inflation.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = Lumber_Graph, "Lumber Futures.png", type = "cairo-png") 
 
 
 
