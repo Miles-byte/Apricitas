@@ -70,6 +70,8 @@ Estonia_Unemployment_Graph <- ggplot() + #plotting responses to hungarian manage
   annotation_custom(apricitas_logo_rast, xmin = 1989-(.1861*21), xmax = 1989-(0.049*21), ymin = 0-(.3*.1), ymax = 0) +
   coord_cartesian(clip = "off")
 
+#recreate capacity utilization in the US auto sector graph
+#recreate input/output inventories graph
 
 ggsave(dpi = "retina",plot = Shelter_Shortage_Graph, "Shelter Shortage.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Hungary_Manager_Survey_Graph, "Hungary Manager's Survey.png", type = "cairo-png") 
