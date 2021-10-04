@@ -12,6 +12,11 @@ Civilian_Population <- fredr(series_id = c("CNP16OV"),observation_start = as.Dat
 Shelter_CPI <- fredr(series_id = c("CUSR0000SAH1"),observation_start = as.Date("2000-01-01")) #downloading adult noninstitutional civilian population data
 All_Items_Less_Shelter_CPI <- fredr(series_id = c("CUSR0000SA0L2"),observation_start = as.Date("2000-01-01")) #downloading adult noninstitutional civilian population data
 
+CU_All <- fredr(series_id = c("TCU")) #downloading aggregate Capacity Utilization
+CU_MFN <- fredr(series_id = c("MCUMFN")) #downloading manufacturing capacity Utilization
+CU_Autos <- fredr(series_id = c("CAPUTLG33611S")) #downloading automobile capacity utilization
+CU_HITEK <- fredr(series_id = c("CAPUTLHITEK2S")) #downloading high teck (computers, communications equipment, semiconductors)
+
 Shelter_CPI_Merge <- merge(All_Items_Less_Shelter_CPI,Shelter_CPI, by = "date")#mergind data for shelter and all items less shelter
 Pop_Housing_Merge <- merge(Civilian_Population,Housing_Starts, by = "date")#merging civ pop and housing starts data
 
@@ -70,12 +75,29 @@ Estonia_Unemployment_Graph <- ggplot() + #plotting responses to hungarian manage
   annotation_custom(apricitas_logo_rast, xmin = 1989-(.1861*21), xmax = 1989-(0.049*21), ymin = 0-(.3*.1), ymax = 0) +
   coord_cartesian(clip = "off")
 
+Surplus_Capacity_Graph <- ggplot() + #plotting surplus capacity data
+  geom_line(data=CU_All, aes(x=date,y=1-(value/100),color= "Total Surplus Industrial Capacity"), size = 1.25)+
+  geom_line(data=CU_Autos, aes(x=date,y=1-(value/100),color= "Automobile Surplus Capacity"), size = 1.25)+
+  geom_line(data=CU_MFN, aes(x=date,y=1-(value/100),color= "Manufacturing Surplus Capacity"), size = 1.25)+
+  geom_line(data=CU_HITEK, aes(x=date,y=1-(value/100),color= "Computers, Communications Equipment, and Semiconductors Surplus Capacity"), size = 1.25)+
+  ylab("Surplus Capacity (Inverse of Capacity Utilization), %") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("1972-01-01"),as.Date("2021-08-01"))) +
+  ggtitle("Capitalism: The Surplus Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Surplus Capacity is Endemic to Market Economies") +
+  theme_apricitas + theme(legend.position = c(.45,.84)) +
+  scale_color_manual(breaks = c("Total Surplus Industrial Capacity","Manufacturing Surplus Capacity","Computers, Communications Equipment, and Semiconductors Surplus Capacity","Automobile Surplus Capacity"), name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#6A4C93"))+ 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1972-01-01")-(.1861*18132), xmax = as.Date("1972-01-01")-(0.049*18132), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 #recreate capacity utilization in the US auto sector graph
 #recreate input/output inventories graph
 
 ggsave(dpi = "retina",plot = Shelter_Shortage_Graph, "Shelter Shortage.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Hungary_Manager_Survey_Graph, "Hungary Manager's Survey.png", type = "cairo-png") 
 ggsave(dpi = "retina",plot = Estonia_Unemployment_Graph, "Unemployment Rate Estonia.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = Surplus_Capacity_Graph, "Surplus Capacity.png", type = "cairo-png") 
 
 
 p_unload(all)  # Remove all add-ons
