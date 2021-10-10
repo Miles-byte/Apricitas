@@ -16,7 +16,7 @@ EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   #scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2021-10-01"))) +
   ggtitle("Well Below Full Employment") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
   theme_apricitas + theme(legend.position = c(.75,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
