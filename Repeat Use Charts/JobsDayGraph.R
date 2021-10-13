@@ -59,7 +59,6 @@ U1RATE_Graph <- ggplot() + #plotting Emplyoment-population ratio
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0.01-(.3*0.045), ymax = 0.01) +
   coord_cartesian(clip = "off")
 
-?scale_y_continuous
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
