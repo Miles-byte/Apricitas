@@ -41,17 +41,16 @@ CANEPOP <- fredr(series_id = c("LREM25TTCAM156S"), observation_start = as.Date("
 #CANCOMP <- fredr(series_id = c("CANCOMPQDSNAQ"), observation_start = as.Date("1999-01-01"), observation_end = as.Date("2020-01-01")) 
 
 
-#Pulling Unemployment Rate, Inflation, and Prime Age Employment-Population Ratio for dollarized economies Hong Kong, Ecuador, and Saudi Arabia
-HKUNRATE <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-ECUUNRATE <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-SAUDUNRATE <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-HKCPI <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-ECUCPI <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-SAUDCPI <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-HKEPOP <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-ECUEPOP <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
-SAUDEPOP <- fredr(series_id = c("ULCNFB"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
+#Pulling Unemployment Rate and Inflation for dollarized economies Hong Kong, Ecuador, and Saudi Arabia
+DOLLARIZED_UNRATE_CPI <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Life%2C%20Death%2C%20and%20Zombification%20of%20the%20Phillips%20Curve/HK_ECU_SAUD_PC.csv")
+colnames(DOLLARIZED_UNRATE_CPI) <- c("date","date.code","Country.Name","Country.Code","Unemployment","Inflation")#changing column names
+DOLLARIZED_UNRATE_CPI$Unemployment <- as.numeric(DOLLARIZED_UNRATE_CPI$Unemployment) #converting char to num
 
+#pulling CPI, Core CPI, Unemployment Rate, and Employment-Population Ratio for Denmark
+DNMCPI <- fredr(series_id = c("DNKCPIALLMINMEI"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
+DNMCPILFE <- fredr(series_id = c("DNKCPICORMINMEI"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01"), units = "pc1") 
+DNMUNRATE <- fredr(series_id = c("LRHUTTTTDKM156S"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01")) 
+DNMEPOP <- fredr(series_id = c("LREM25TTDKQ156S"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01")) 
 
 
 EPOP_ECIALLCIV <- merge(EPOP, ECIALLCIV, by = "date") #merging EPOP and ECI data for the ECI/EPOP and PCE/EPOP chart
@@ -189,6 +188,82 @@ XUS_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting Prime Age Epop-Inflation P
   annotation_custom(apricitas_logo_rast, xmin = .78-(.1861*0.08), xmax = .78-(0.049*0.08), ymin = -0.025-(.3*0.075), ymax = -0.025) +
   coord_cartesian(clip = "off")
 
+summary(lm(Unemployment~Inflation, data = DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ])) #creating summary stats for the regression of Unemployment Rate and Inflation for Hong Kong
+
+MAYBE DO DENMARK TOO
+
+HK_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for dollarized countries (HK,Saudi Arabia,Ecuador)
+  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ], aes(x=Unemployment/100,y=Inflation/100, color= "Hong Kong"), size = 1.25)+
+  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ],method = "lm", aes(x=Unemployment/100,y=Inflation/100, color= "Hong Kong"), size = 1.25) +
+  ylab("CPI, Percent Change from Year Ago, %") +
+  xlab("Unemployment Rate, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.06,0.11), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.01,.08)) +
+  ggtitle("The Phillips Curve is Alive in Hong Kong, 1990-2020") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data", subtitle = "Because of a Host of Specific Factors, the Phillips Curve Still Holds up in Hong Kong") +
+  theme_apricitas + theme(legend.position = c(.30,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
+  annotate("text", label = "Coefficient: -0.496", x = 0.085, y = 0.01, color = "#FFE98F") +
+  annotate("text", label = "R-squared: 0.070", x = 0.085, y = 0.007, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = .01-(.1861*0.07), xmax = .01-(0.049*0.07), ymin = -0.06-(.3*0.17), ymax = -0.06) +
+  coord_cartesian(clip = "off")
+
+ECU_SAU_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for dollarized countries (HK,Saudi Arabia,Ecuador)
+  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ], aes(x=Unemployment,y=Inflation, color= "Saudi Arabia"), size = 1.25)+
+  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ],method = "lm", aes(x=Unemployment,y=Inflation, color= "Saudi Arabia"), size = 1.25) +
+  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU" & DOLLARIZED_UNRATE_CPI$date>2001, ], aes(x=Unemployment,y=Inflation, color= "Ecuador"), size = 1.25)+
+  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU"& DOLLARIZED_UNRATE_CPI$date>2001, ],method = "lm", aes(x=Unemployment,y=Inflation, color= "Ecuador"), size = 1.25) +
+  ylab("PCE, Percent Change from Year Ago, %") +
+  xlab("Unemployment Rate, %") +
+  #scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.017,0.042), expand = c(0,0)) +
+  #scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.033,.105)) +
+  ggtitle("The Flat Phillips Curve, 2000-2020") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "The Correlation Between Unemployment and Inflation Has Broken Down") +
+  theme_apricitas + theme(legend.position = c(.30,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
+  annotate("text", label = "Coefficient: -0.496", x = 0.085, y = 0.01, color = "#FFE98F") +
+  annotate("text", label = "R-squared: 0.070", x = 0.085, y = 0.007, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = .033-(.1861*0.072), xmax = .033-(0.049*0.072), ymin = -0.017-(.3*0.059), ymax = -0.017) +
+  coord_cartesian(clip = "off")
+
+DNM_UNRATE_CPI <- merge(DNMUNRATE, DNMCPI, by = "date") #merging Danish Unemployment and Inflation data for the Phillips Curve Chart
+
+summary(lm(value.x~value.y, data = DNM_UNRATE_CPI)) #creating summary stats for the regression of Unemployment Rate and Inflation for Denmark
+
+DNM_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for Denmark
+  geom_point(data=DNM_UNRATE_CPI, aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25)+
+  stat_smooth(data=DNM_UNRATE_CPI, method = "lm", aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25) +
+  ylab("CPI, Percent Change from Year Ago, %") +
+  xlab("Unemployment Rate, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.002,0.042), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.03,.085)) +
+  ggtitle("The Phillips Curve is Dead in Denmark, 2000-2020") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data", subtitle = "Despite Not Having Independent Monetary Policy, The Phillips Curve is Dead in Denmark") +
+  theme_apricitas + theme(legend.position = c(.20,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
+  annotate("text", label = "Coefficient: -0.330", x = 0.065, y = 0.022, color = "#FFE98F") +
+  annotate("text", label = "R-squared: 0.052", x = 0.065, y = 0.02, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = .03-(.1861*0.055), xmax = .03-(0.049*0.055), ymin = -0.002-(.3*0.044), ymax = -0.002) +
+  coord_cartesian(clip = "off")
+
+DNM_EPOP_CPILFE <- merge(DNMEPOP, DNMCPILFE, by = "date") #merging Danish Unemployment and Inflation data for the Phillips Curve Chart
+summary(lm(value.x~value.y, data = DNM_EPOP_CPILFE)) #creating summary stats for the regression of EPOP and Inflation for Denmark
+
+DNM_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for Denmark
+  geom_point(data=DNM_EPOP_CPILFE, aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25)+
+  stat_smooth(data=DNM_EPOP_CPILFE, method = "lm", aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25) +
+  ylab("CPI, Percent Change from Year Ago, %") +
+  xlab("Prime Age (25-54) Employment-Population Ratio, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.002,0.042), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.81,.87)) +
+  ggtitle("The Prime Age Employment Phillips Curve is Dead in Denmark, 2000-2020") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data", subtitle = "Despite Not Having Independent Monetary Policy, The Phillips Curve is Dead in Denmark") +
+  theme_apricitas + theme(legend.position = c(.60,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
+  annotate("text", label = "Coefficient: -1.18", x = 0.83, y = 0.032, color = "#FFE98F") +
+  annotate("text", label = "R-squared: 0.17", x = 0.83, y = 0.03, color = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = .81-(.1861*0.06), xmax = .81-(0.049*0.06), ymin = -0.002-(.3*0.044), ymax = -0.002) +
+  coord_cartesian(clip = "off")
 
 
 #JPN_COMP_EMP <- merge(JPNCOMP, JPNEMP, by = "date") #merging Japanese compensation and employment data to calculate compensation per employee
@@ -273,6 +348,9 @@ ggsave(dpi = "retina",plot = EPOP_ECIPRIVWS_PCETRIM_GRAPH, "EPOP Private Sector 
 ggsave(dpi = "retina",plot = PHILLIPS_CURVE_GRAPH, "The Flat Phillips Curve.png", type = "cairo-png")  #saving ECI Private Wages and Salaries and Trimmed Mean PCE Inflation
 ggsave(dpi = "retina",plot = XUS_PHILLIPS_CURVE_GRAPH, "The Phillips Curve Abroad.png", type = "cairo-png")  #saving Unemployment/CPI Phillips Curve for Japan, Canada, and the United Kingdom
 ggsave(dpi = "retina",plot = XUS_EPOP_PHILLIPS_CURVE_GRAPH, "The EPOP Phillips Curve Abroad.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
+ggsave(dpi = "retina",plot = DNM_PHILLIPS_CURVE_GRAPH, "Denmark Phillips Curve.png", type = "cairo-png")  #saving Unemployment/CPI Phillips Curve for Japan, Canada, and the United Kingdom
+ggsave(dpi = "retina",plot = DNM_EPOP_PHILLIPS_CURVE_GRAPH, "Denmark EPOP Phillips Curve.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
+ggsave(dpi = "retina",plot = HK_PHILLIPS_CURVE_GRAPH, "HK Phillips Curve.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
 ggsave(dpi = "retina",plot = PCE_AUTOCORRELATION_GRAPH, "PCE Autocorrelation Function.png", type = "cairo-png")  #saving a graph of PCE's Autocorrelation Function
 
 
