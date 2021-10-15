@@ -1,4 +1,4 @@
-pacman::p_load(magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(transformr,stringi,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() +
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 11, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
@@ -52,6 +52,9 @@ DNMCPILFE <- fredr(series_id = c("DNKCPICORMINMEI"), observation_start = as.Date
 DNMUNRATE <- fredr(series_id = c("LRHUTTTTDKM156S"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01")) 
 DNMEPOP <- fredr(series_id = c("LREM25TTDKQ156S"), observation_start = as.Date("2000-01-01"), observation_end = as.Date("2020-01-01")) 
 
+STATE_INF_HHNS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Life%2C%20Death%2C%20and%20Zombification%20of%20the%20Phillips%20Curve/statecpi_beta.csv") #downloading state CPI data from Hazell, Herreño, Nakamura, Steinsson
+STATE_UNRATE_LAUS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Life%2C%20Death%2C%20and%20Zombification%20of%20the%20Phillips%20Curve/state_unrate.csv") #downloading state unemployment rate data from the Local Area Unemployment Statistics
+STATE_POP_CPS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Life%2C%20Death%2C%20and%20Zombification%20of%20the%20Phillips%20Curve/state_population.csv") #downloading state population data from the Census
 
 EPOP_ECIALLCIV <- merge(EPOP, ECIALLCIV, by = "date") #merging EPOP and ECI data for the ECI/EPOP and PCE/EPOP chart
 EPOP_PCE <- merge(EPOP, PCE, by = "date") #merging EPOP and PCE data for the ECI/EPOP and PCE/EPOP chart
@@ -190,8 +193,6 @@ XUS_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting Prime Age Epop-Inflation P
 
 summary(lm(Unemployment~Inflation, data = DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ])) #creating summary stats for the regression of Unemployment Rate and Inflation for Hong Kong
 
-MAYBE DO DENMARK TOO
-
 HK_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for dollarized countries (HK,Saudi Arabia,Ecuador)
   geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ], aes(x=Unemployment/100,y=Inflation/100, color= "Hong Kong"), size = 1.25)+
   stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="HKG", ],method = "lm", aes(x=Unemployment/100,y=Inflation/100, color= "Hong Kong"), size = 1.25) +
@@ -208,22 +209,27 @@ HK_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inf
   annotation_custom(apricitas_logo_rast, xmin = .01-(.1861*0.07), xmax = .01-(0.049*0.07), ymin = -0.06-(.3*0.17), ymax = -0.06) +
   coord_cartesian(clip = "off")
 
+summary(lm(Unemployment~Inflation, data = DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU", ])) #creating summary stats for the regression of Unemployment Rate and Inflation for Ecuador
+summary(lm(Unemployment~Inflation, data = DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ])) #creating summary stats for the regression of Unemployment Rate and Inflation for Saudi Arabia
+
 ECU_SAU_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for dollarized countries (HK,Saudi Arabia,Ecuador)
-  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ], aes(x=Unemployment,y=Inflation, color= "Saudi Arabia"), size = 1.25)+
-  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ],method = "lm", aes(x=Unemployment,y=Inflation, color= "Saudi Arabia"), size = 1.25) +
-  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU" & DOLLARIZED_UNRATE_CPI$date>2001, ], aes(x=Unemployment,y=Inflation, color= "Ecuador"), size = 1.25)+
-  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU"& DOLLARIZED_UNRATE_CPI$date>2001, ],method = "lm", aes(x=Unemployment,y=Inflation, color= "Ecuador"), size = 1.25) +
+  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ], aes(x=Unemployment/100,y=Inflation/100, color= "Saudi Arabia"), size = 1.25)+
+  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="SAU", ],method = "lm", aes(x=Unemployment/100,y=Inflation/100, color= "Saudi Arabia"), size = 1.25) +
+  geom_point(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU" & DOLLARIZED_UNRATE_CPI$date>2001, ], aes(x=Unemployment/100,y=Inflation/100, color= "Ecuador"), size = 1.25)+
+  stat_smooth(data=DOLLARIZED_UNRATE_CPI[DOLLARIZED_UNRATE_CPI$Country.Code=="ECU"& DOLLARIZED_UNRATE_CPI$date>2001, ],method = "lm", aes(x=Unemployment/100,y=Inflation/100, color= "Ecuador"), size = 1.25) +
   ylab("PCE, Percent Change from Year Ago, %") +
   xlab("Unemployment Rate, %") +
-  #scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.017,0.042), expand = c(0,0)) +
-  #scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.033,.105)) +
-  ggtitle("The Flat Phillips Curve, 2000-2020") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "The Correlation Between Unemployment and Inflation Has Broken Down") +
-  theme_apricitas + theme(legend.position = c(.30,.20)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.017,0.10), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.03,.075)) +
+  ggtitle("The Phillips Curve is Dead in Dollarized Countries") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "Despite Being Dollarized, the Phillips Curve is Dead in Ecuador and Saudi Arabia") +
+  theme_apricitas + theme(legend.position = c(.80,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
-  annotate("text", label = "Coefficient: -0.496", x = 0.085, y = 0.01, color = "#FFE98F") +
-  annotate("text", label = "R-squared: 0.070", x = 0.085, y = 0.007, color = "#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = .033-(.1861*0.072), xmax = .033-(0.049*0.072), ymin = -0.017-(.3*0.059), ymax = -0.017) +
+  #annotate("text", label = "Relationship Not Significant", x = 0.04, y = 0.01, color = "#FFE98F") +
+  annotate("text", label = "Coefficient: 0.066", x = 0.039, y = 0.014, color = "#FFE98F") +
+  annotate("text", label = "R-squared: 0.317", x = 0.039, y = 0.0085, color = "#FFE98F") +
+  annotate("text", label = "Relationship Not Significant", x = 0.065, y = 0.05, color = "#00A99D") +
+  annotation_custom(apricitas_logo_rast, xmin = .03-(.1861*0.045), xmax = .03-(0.049*0.045), ymin = -0.017-(.3*0.117), ymax = -0.017) +
   coord_cartesian(clip = "off")
 
 DNM_UNRATE_CPI <- merge(DNMUNRATE, DNMCPI, by = "date") #merging Danish Unemployment and Inflation data for the Phillips Curve Chart
@@ -252,11 +258,11 @@ summary(lm(value.x~value.y, data = DNM_EPOP_CPILFE)) #creating summary stats for
 DNM_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve for Denmark
   geom_point(data=DNM_EPOP_CPILFE, aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25)+
   stat_smooth(data=DNM_EPOP_CPILFE, method = "lm", aes(x=value.x/100,y=value.y/100, color= "Denmark"), size = 1.25) +
-  ylab("CPI, Percent Change from Year Ago, %") +
+  ylab("Core CPI, Percent Change from Year Ago, %") +
   xlab("Prime Age (25-54) Employment-Population Ratio, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.002,0.042), expand = c(0,0)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.81,.87)) +
-  ggtitle("The Prime Age Employment Phillips Curve is Dead in Denmark, 2000-2020") +
+  ggtitle("The Employment Phillips Curve is Dead in Denmark, 2000-2020") +
   labs(caption = "Graph created by @JosephPolitano using OECD data", subtitle = "Despite Not Having Independent Monetary Policy, The Phillips Curve is Dead in Denmark") +
   theme_apricitas + theme(legend.position = c(.60,.20)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
@@ -265,6 +271,49 @@ DNM_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/P
   annotation_custom(apricitas_logo_rast, xmin = .81-(.1861*0.06), xmax = .81-(0.049*0.06), ymin = -0.002-(.3*0.044), ymax = -0.002) +
   coord_cartesian(clip = "off")
 
+#Graphing Data from Hazell, Herreño, Nakamura, Steinsson
+
+STATE_UNRATE_LAUS$Period <- gsub("M","", STATE_UNRATE_LAUS$Period) #removing "M" from period to construct month
+STATE_UNRATE_LAUS$Date <- paste(STATE_UNRATE_LAUS$Year, "-", STATE_UNRATE_LAUS$Period, "-","01") #combining year and month with 1st day of the month to form date
+STATE_UNRATE_LAUS$Date <- as.Date(STATE_UNRATE_LAUS$Date,"%Y - %m - %d") #make date
+
+STATE_POP_CPS$date <- paste(STATE_POP_CPS$date, "-", "01", "-","01") #combining year with 1st day and month to form date at 1st of the year
+STATE_POP_CPS$date <- as.Date(STATE_POP_CPS$date,"%Y - %m - %d") #make date
+
+#Replacing "quarter" with the relevant month in preparation for converting to date format and merging
+STATE_INF_HHNS$quarter[STATE_INF_HHNS$quarter == 3] <- 9
+STATE_INF_HHNS$quarter[STATE_INF_HHNS$quarter == 1] <- 3
+STATE_INF_HHNS$quarter[STATE_INF_HHNS$quarter == 2] <- 6
+STATE_INF_HHNS$quarter[STATE_INF_HHNS$quarter == 4] <- 12
+#removing "M" from period to construct month
+STATE_INF_HHNS$Date <- paste(STATE_INF_HHNS$year, "-", STATE_INF_HHNS$quarter, "-","01") #combining year and month with 1st day of the month to form date
+STATE_INF_HHNS$Date <- as.Date(STATE_INF_HHNS$Date,"%Y - %m - %d") #make date
+
+STATE_INF_UNRATE <- merge(STATE_UNRATE_LAUS, STATE_INF_HHNS, by.x = c("Date","Series.ID"), by.y = c("Date","state")) #merging Unemployment Rate and state inflation for the animated state level phillips curve chart chart
+STATE_INF_UNRATE <- select(STATE_INF_UNRATE, c("Date","Series.ID","Value","pi_nt","pi_t","pi")) #selecting only relevant variables
+colnames(STATE_INF_UNRATE) <- c("Date","State","Unrate","pi_nt","pi_t","pi") #renaming columns to reflect data better
+STATE_INF_UNRATE$Unrate <- as.numeric(STATE_INF_UNRATE$Unrate) #converting unemployment rate from character to numeric
+
+STATE_NT_PHILLIPS_CURVE_GRAPH <- ggplot(STATE_INF_UNRATE, aes(x = Unrate/100,y = pi_nt/100,fill = Date, color = "#00A99D")) +
+  geom_point(size = 2) +
+  stat_smooth(method = "lm")+
+  theme_clean() +
+  theme_apricitas +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.055,.155), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.02,.14)) +
+  xlab("Unemployment Rate, %") +
+  ylab("Inflation, Non-tradeable Goods, %") +
+  theme_apricitas +
+  ggtitle("U.S. State Level Phillips Curves, 1978-2017") +
+  labs(caption = "Graph created by @JosephPolitano using data from BLS and Hazell, Herreño, Nakamura, & Steinsson") +
+  annotation_custom(apricitas_logo_rast, xmin = 0.02-(.1861*.12), xmax = 0.02-(0.049*.12), ymin = -0.055-(.3*0.21), ymax = -0.055) +
+  scale_color_manual(values = c("#FFE98F")) +
+  coord_cartesian(clip = "off") +
+  theme(legend.position = "none")
+
+STATE_NT_PHILLIPS_CURVE_GRAPH_ANIMATED <- STATE_NT_PHILLIPS_CURVE_GRAPH + transition_time(Date) + labs(subtitle = 'Date: {frame_time}',size = 2)
+animate(STATE_NT_PHILLIPS_CURVE_GRAPH_ANIMATED, height = 1140, width = 1824, fps = 45, duration = 25, end_pause = 100, res = 200) #increasing resolution alonside height and width
+anim_save("HHNS Animated State PC NT.gif")
 
 #JPN_COMP_EMP <- merge(JPNCOMP, JPNEMP, by = "date") #merging Japanese compensation and employment data to calculate compensation per employee
 #UK_COMP_EMP <- merge(UKCOMP, UKEMP, by = "date") #merging UK compensation and employment data to calculate compensation per employee
@@ -350,7 +399,8 @@ ggsave(dpi = "retina",plot = XUS_PHILLIPS_CURVE_GRAPH, "The Phillips Curve Abroa
 ggsave(dpi = "retina",plot = XUS_EPOP_PHILLIPS_CURVE_GRAPH, "The EPOP Phillips Curve Abroad.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
 ggsave(dpi = "retina",plot = DNM_PHILLIPS_CURVE_GRAPH, "Denmark Phillips Curve.png", type = "cairo-png")  #saving Unemployment/CPI Phillips Curve for Japan, Canada, and the United Kingdom
 ggsave(dpi = "retina",plot = DNM_EPOP_PHILLIPS_CURVE_GRAPH, "Denmark EPOP Phillips Curve.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
-ggsave(dpi = "retina",plot = HK_PHILLIPS_CURVE_GRAPH, "HK Phillips Curve.png", type = "cairo-png")  #saving EPOP/CPI Phillips Curve for Japan, Canada, and the United Kingdom
+ggsave(dpi = "retina",plot = HK_PHILLIPS_CURVE_GRAPH, "HK Phillips Curve.png", type = "cairo-png")  #saving Phillips Curve for Hong Kong
+ggsave(dpi = "retina",plot = ECU_SAU_PHILLIPS_CURVE_GRAPH, "ECU SAUD Phillips Curve.png", type = "cairo-png")  #saving Phillips Curve for Ecuador and Saudi Arabia
 ggsave(dpi = "retina",plot = PCE_AUTOCORRELATION_GRAPH, "PCE Autocorrelation Function.png", type = "cairo-png")  #saving a graph of PCE's Autocorrelation Function
 
 
