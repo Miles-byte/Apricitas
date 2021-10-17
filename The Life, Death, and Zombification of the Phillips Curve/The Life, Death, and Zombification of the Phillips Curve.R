@@ -1,4 +1,4 @@
-pacman::p_load(transformr,stringi,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(plm,transformr,stringi,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() +
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 11, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
@@ -266,7 +266,7 @@ DNM_EPOP_PHILLIPS_CURVE_GRAPH <- ggplot() + #plotting traditional Unemployment/P
   labs(caption = "Graph created by @JosephPolitano using OECD data", subtitle = "Despite Not Having Independent Monetary Policy, The Phillips Curve is Dead in Denmark") +
   theme_apricitas + theme(legend.position = c(.60,.20)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
-  annotate("text", label = "Coefficient: -1.18", x = 0.83, y = 0.032, color = "#FFE98F") +
+  annotate("text", label = "Coefficient: 1.18", x = 0.83, y = 0.032, color = "#FFE98F") +
   annotate("text", label = "R-squared: 0.17", x = 0.83, y = 0.03, color = "#FFE98F") +
   annotation_custom(apricitas_logo_rast, xmin = .81-(.1861*0.06), xmax = .81-(0.049*0.06), ymin = -0.002-(.3*0.044), ymax = -0.002) +
   coord_cartesian(clip = "off")
