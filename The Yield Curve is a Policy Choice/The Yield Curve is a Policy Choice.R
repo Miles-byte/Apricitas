@@ -7,10 +7,28 @@ apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 USYIELDCURVE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Yield%20Curve%20is%20a%20Policy%20Choice/USTREASURY-YIELD.csv")
+US10YRYIELDDECOMP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Yield%20Curve%20is%20a%20Policy%20Choice/FRBSF_Term_Model_Data.csv")
+
+US10YRYIELDDECOMP <- pivot_longer(US10YRYIELDDECOMP, cols = 2:3)
+US10YRYIELDDECOMP$DATE <- as.Date(US10YRYIELDDECOMP$DATE, "%m/%d/%Y")
+
+US10YRYIELDDECOMP_GRAPH <- ggplot(US10YRYIELDDECOMP, aes(x = DATE ,y = value ,fill = name, color = name)) +
+  geom_area() +
+  theme_apricitas +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.075),breaks = c(-0.02,0,0.02,0.04,0.06), expand = c(0,0)) +
+  ylab("10YR 0-Coupon Yield Decomposition, %") +
+  xlab("Date") +
+  theme_apricitas +
+  ggtitle("U.S. 10 Year Bond Yield Decomposition") +
+  labs(caption = "Graph created by @JosephPolitano using data from Federal Reserve Bank of San Francisco") +
+  theme(legend.position = c(.70,.8)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-01-02")-(.1861*8672), xmax = as.Date("1998-01-02")-(0.049*8672), ymin = -0.02-(.3*0.077), ymax = -0.02) +
+  scale_color_manual(name = NULL,values = c("#FFE98F","#00A99D"), labels = c("Expected 10 Year Short Rate","10 Year Bond Risk Premium")) +
+  scale_fill_manual(name = NULL, values = c("#FFE98F","#00A99D"), labels = c("Expected 10 Year Short Rate","10 Year Bond Risk Premium")) +
+  coord_cartesian(clip = "off")
 
 colnames(USYIELDCURVE) <- c("Date",1/12,2/12,3/12,6/12,1,2,3,5,7,10,20,30) 
 USYIELDCURVE <- pivot_longer(USYIELDCURVE, cols = 2:13)
-
 colnames(USYIELDCURVE) <- c("Date","Maturity","Value") 
 USYIELDCURVE$Maturity <- as.numeric(USYIELDCURVE$Maturity)
 USYIELDCURVE$Date <- as.Date(USYIELDCURVE$Date)
@@ -38,6 +56,7 @@ animate(USYIELDCURVE_ANIMATED, height = 1140, width = 1824, fps = 45, duration =
 animate(USYIELDCURVE_ANIMATED, height = 570, width = 912, fps = 15, duration = 10, end_pause = 30, res = 100) #increasing resolution alonside height and width
 
 anim_save("US Yield Curve Animated.gif")
+ggsave(dpi = "retina",plot = US10YRYIELDDECOMP_GRAPH, "US Yield Curve Decomposition.png", type = "cairo-png") #Saving Image of 10 Yr Bond Yield Decomposition
 
 
 p_unload(all)  # Remove all add-ons
