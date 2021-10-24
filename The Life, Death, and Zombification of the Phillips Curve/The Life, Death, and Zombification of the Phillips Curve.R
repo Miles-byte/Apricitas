@@ -383,15 +383,6 @@ PCE_AUTOCORRELATION_GRAPH <- ggplot(data= MELT_PCEACFS, aes(x = lag, y = value, 
   coord_cartesian(clip = "off")
 
 
-25-54 EPOP/Inflation (trimmed mean inflation?) and EPOP Wage Growth for other countries 
-UNRATE/INFLATION FOR OTHER COUNTRIES TOO
-SHOW AUTOCORRELATION
-Endogenous to mon pol
-DO REAL WAGE CURVE VS EMPLOYMENT GRAPH
-REDO WAGE CURVE GRAPH WITH PRIVATE ECI AND TRIMMED MEAN PCE
-ANIMATED GRAPH ANCHORED WITH TIME FIXED EFFECT OR LAGGED PCE INFLATION? WILL PROBABLY HAVE TO ALLOW MOVEMENT ON THE Y AXIS
-LOOK AT OTHER COUNTRIES TOO
-
 ggsave(dpi = "retina",plot = EPOP_ECI_PCE_GRAPH, "EPOP ECI PCE Graph.png", type = "cairo-png") #saving ECI All Civilian and PCE Inflation Graph
 ggsave(dpi = "retina",plot = EPOP_ECIPRIVWS_PCETRIM_GRAPH, "EPOP Private Sector ECI Trimmed Mean PCE Graph.png", type = "cairo-png")  #saving ECI Private Wages and Salaries and Trimmed Mean PCE Inflation
 ggsave(dpi = "retina",plot = PHILLIPS_CURVE_GRAPH, "The Flat Phillips Curve.png", type = "cairo-png")  #saving ECI Private Wages and Salaries and Trimmed Mean PCE Inflation

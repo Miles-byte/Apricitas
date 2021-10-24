@@ -8,6 +8,25 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 USYIELDCURVE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Yield%20Curve%20is%20a%20Policy%20Choice/USTREASURY-YIELD.csv")
 US10YRYIELDDECOMP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Yield%20Curve%20is%20a%20Policy%20Choice/FRBSF_Term_Model_Data.csv")
+JPNYC <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Yield%20Curve%20is%20a%20Policy%20Choice/JPN_YC.csv")
+
+JPNYIELDCURVE_GRAPH <- ggplot(JPNYC, aes(x = ï..Maturity ,y = Yield , color = "#00A99D")) +
+  geom_line(size = 1.25) +
+  geom_point(size = 2) +
+  theme_clean() +
+  theme_apricitas +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.025), limits = c(-0.0025,.01), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0,40)) +
+  xlab("Maturity, Years") +
+  ylab("Yield, %") +
+  theme_apricitas +
+  ggtitle("Japanese Yield Curve") +
+  labs(caption = "Graph created by @JosephPolitano using data from BoJ", subtitle = "Japan's Yield Curve Control has Kept Yields Close to 0 for Bonds up to 10 Years in Maturity") +
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*40), xmax = 0-(0.049*40), ymin = -0.0025-(.3*0.0125), ymax = -0.0025) +
+  scale_color_manual(values = c("#FFE98F")) +
+  coord_cartesian(clip = "off") +
+  theme(legend.position = "none")
+
 
 US10YRYIELDDECOMP <- pivot_longer(US10YRYIELDDECOMP, cols = 2:3)
 US10YRYIELDDECOMP$DATE <- as.Date(US10YRYIELDDECOMP$DATE, "%m/%d/%Y")
@@ -20,9 +39,9 @@ US10YRYIELDDECOMP_GRAPH <- ggplot(US10YRYIELDDECOMP, aes(x = DATE ,y = value ,fi
   xlab("Date") +
   theme_apricitas +
   ggtitle("U.S. 10 Year Bond Yield Decomposition") +
-  labs(caption = "Graph created by @JosephPolitano using data from Federal Reserve Bank of San Francisco") +
+  labs(caption = "Graph created by @JosephPolitano using data from Federal Reserve Bank of San Francisco", subtitle = "US Yields Have Been Decreasing as Expected Future Rates and Risk Premium Decrease") +
   theme(legend.position = c(.70,.8)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-01-02")-(.1861*8672), xmax = as.Date("1998-01-02")-(0.049*8672), ymin = -0.02-(.3*0.077), ymax = -0.02) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-01-02")-(.1861*8672), xmax = as.Date("1998-01-02")-(0.049*8672), ymin = -0.02-(.3*0.095), ymax = -0.02) +
   scale_color_manual(name = NULL,values = c("#FFE98F","#00A99D"), labels = c("Expected 10 Year Short Rate","10 Year Bond Risk Premium")) +
   scale_fill_manual(name = NULL, values = c("#FFE98F","#00A99D"), labels = c("Expected 10 Year Short Rate","10 Year Bond Risk Premium")) +
   coord_cartesian(clip = "off")
@@ -56,7 +75,8 @@ animate(USYIELDCURVE_ANIMATED, height = 1140, width = 1824, fps = 45, duration =
 animate(USYIELDCURVE_ANIMATED, height = 570, width = 912, fps = 15, duration = 10, end_pause = 30, res = 100) #increasing resolution alonside height and width
 
 anim_save("US Yield Curve Animated.gif")
-ggsave(dpi = "retina",plot = US10YRYIELDDECOMP_GRAPH, "US Yield Curve Decomposition.png", type = "cairo-png") #Saving Image of 10 Yr Bond Yield Decomposition
+ggsave(dpi = "retina",plot = US10YRYIELDDECOMP_GRAPH, "US 10YR Yield Decomposition.png", type = "cairo-png") #Saving Image of 10 Yr Bond Yield Decomposition
+ggsave(dpi = "retina",plot = JPNYIELDCURVE_GRAPH, "Japanese Yield Curve.png", type = "cairo-png") #Saving Image of Japanese Yield Curve
 
 
 p_unload(all)  # Remove all add-ons
