@@ -16,7 +16,35 @@ Broadway_Stats <- mutate(Broadway_Stats[Broadway_Stats$Week.Ending > "1997-11-23
 
 Arts_Rec_Employees <- fredr(series_id = c("CES7071000001"), observation_start = as.Date("1990-01-01")) #downloading Unit Labor Cost Data
 Arts_Rec_Prime_Age_Merge <- merge(Arts_Rec_Employees, Prime_Age_Population, by = "date")
- 
+
+OEWS_Data <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Curious%20Case%20of%20the%20Missing%20Artists/OEWS_DATA.csv")
+OEWS_Data$TOT_EMP <- gsub(",","", OEWS_Data$TOT_EMP) 
+OEWS_Data$A_MEDIAN <- gsub(",","", OEWS_Data$A_MEDIAN)
+OEWS_Data$A_PCT10 <- gsub(",","", OEWS_Data$A_PCT10)
+OEWS_Data$A_PCT25 <- gsub(",","", OEWS_Data$A_PCT25)
+OEWS_Data$A_PCT75 <- gsub(",","", OEWS_Data$A_PCT75)
+OEWS_Data$A_PCT90 <- gsub(",","", OEWS_Data$A_PCT90)
+
+OEWS_Data$OCC_TITLE <- gsub("Musicians and singers","Musicians and Singers", OEWS_Data$OCC_TITLE) 
+OEWS_Data$OCC_TITLE <- gsub("Writers and authors","Writers and Authors", OEWS_Data$OCC_TITLE) 
+OEWS_Data$OCC_TITLE <- gsub("Artists and related workers","Artists and Related Workers", OEWS_Data$OCC_TITLE) 
+OEWS_Data$OCC_TITLE <- gsub("Producers and directors","Producers and Directors", OEWS_Data$OCC_TITLE) 
+OEWS_Data$OCC_TITLE <- gsub("Film and video editors","Film and Video Editors", OEWS_Data$OCC_TITLE) 
+
+OEWS_Data$TOT_EMP <- as.numeric(OEWS_Data$TOT_EMP)
+OEWS_Data$H_MEDIAN <- as.numeric(OEWS_Data$H_MEDIAN)
+OEWS_Data$H_PCT10 <- as.numeric(OEWS_Data$H_PCT10)
+OEWS_Data$H_PCT25 <- as.numeric(OEWS_Data$H_PCT25)
+OEWS_Data$H_PCT75 <- as.numeric(OEWS_Data$H_PCT75)
+OEWS_Data$H_PCT90 <- as.numeric(OEWS_Data$H_PCT90)
+
+
+OEWS_Data$A_PCT10 <- as.numeric(OEWS_Data$A_PCT10)
+OEWS_Data$A_PCT25 <- as.numeric(OEWS_Data$A_PCT25)
+OEWS_Data$A_PCT75 <- as.numeric(OEWS_Data$A_PCT75)
+OEWS_Data$A_PCT90 <- as.numeric(OEWS_Data$A_PCT90)
+OEWS_Data$A_MEDIAN <- as.numeric(OEWS_Data$A_MEDIAN)
+
 Museum_Employees_Graph <- ggplot() + 
   geom_line(data = Museum_Prime_Age_Merge, aes(x=date, y =value.x*1000/value.y, color = "Museums, Historical Sites, and Similar Institutions Prime Age Employment-Population Ratio"), size = 1.25) +
   xlab("Date") +
@@ -78,10 +106,213 @@ Arts_Rec_Employees_Graph <- ggplot() +
   annotate("text", label = "Voice Actors", x = as.Date("2014-09-01"), y = 0.0105, color = "#EE6055") +
   annotate("text", label = "Strike", x = as.Date("2014-09-01"), y = 0.01, color = "#EE6055")
 
+Artists_Employees_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = TOT_EMP , color = "Actors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = TOT_EMP , color = "Musicians and Singers"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Writers and Authors", ], aes(x=Year, y = TOT_EMP , color = "Writers and Authors"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(30000,75000), breaks = c(30000,40000,50000,60000,70000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Total Employees") +
+  ggtitle("Hey, The Big Artiste! Aren't You Working On Your Masterpiece?") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Employment in Creative Occupations Is Unstable And Scarce") +
+  theme_apricitas + theme(legend.position = c(.80,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*45000), ymax = 30000) +
+  coord_cartesian(clip = "off")
+
+Artists_Pay_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = H_MEDIAN , color = "Actors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_MEDIAN , color = "Musicians and Singers"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Writers and Authors", ], aes(x=Year, y = H_MEDIAN , color = "Writers and Authors"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(),limits = c(10,35), breaks = c(10,15,20,25,30,25), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Median Hourly Wage, $") +
+  ggtitle("The Wage is Nothing and the Work is Hard") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Median Wage Growth Stagnated for Writers and Musicians, and Varied Considerably for Actors") +
+  theme_apricitas + theme(legend.position = c(.40,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 10-(.3*25), ymax = 10) +
+  coord_cartesian(clip = "off")
+
+Artists_Pay_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = H_PCT10 , color = "10"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = H_PCT25 , color = "25"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = H_MEDIAN , color = "50"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Actors", ], aes(x=Year, y = H_PCT75 , color = "75"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(limits = c(30000,75000), breaks = c(30000,40000,50000,60000,70000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Prime Age Employment-Population Ratio") +
+  ggtitle("That Belongs in a Museum!") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Employment Growth at Museums and Historical Institutions is Extremely Sensitive to Recessions") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*45000), ymax = 30000) +
+  coord_cartesian(clip = "off")
+
+
+Artists_Pay_Graph <- ggplot() +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_PCT10 , color = "10"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_PCT25 , color = "25"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_MEDIAN , color = "50"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_PCT75 , color = "50"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_PCT90 , color = "50"), size = 1.25) +
+  
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = (H_PCT10-lag(H_PCT10))/H_PCT10 , color = "10"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = (H_PCT25-lead(H_PCT25))/H_PCT25 , color = "25"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = (H_MEDIAN-lead(H_MEDIAN))/H_MEDIAN , color = "50"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = (H_PCT75-lead(H_PCT75))/H_PCT75 , color = "75"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Musicians and Singers", ], aes(x=Year, y = H_PCT90 , color = "75"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(limits = c(30000,75000), breaks = c(30000,40000,50000,60000,70000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Prime Age Employment-Population Ratio") +
+  ggtitle("That Belongs in a Museum!") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Employment Growth at Museums and Historical Institutions is Extremely Sensitive to Recessions") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*45000), ymax = 30000) +
+  coord_cartesian(clip = "off")
+
+Writers_Pay_Graph <- ggplot() +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Writers and Authors", ], aes(x=Year, y = H_MEDIAN , color = "Median Annual Income: Writers and Authors"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(limits = c(30000,75000), breaks = c(30000,40000,50000,60000,70000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Prime Age Employment-Population Ratio") +
+  ggtitle("That Belongs in a Museum!") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Employment Growth at Museums and Historical Institutions is Extremely Sensitive to Recessions") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*45000), ymax = 30000) +
+  coord_cartesian(clip = "off")
+
+
+
+
+Producers_Employees_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Producers and Directors", ], aes(x=Year, y = TOT_EMP , color = "Producers and Directors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Editors", ], aes(x=Year, y = TOT_EMP , color = "Editors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Film and Video Editors", ], aes(x=Year, y = TOT_EMP , color = "Film and Video Editors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "27-1014", ], aes(x=Year, y = TOT_EMP , color = "Special Effects Artists, Multimedia Artists, and Animators"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(limits = c(30000,75000), breaks = c(30000,40000,50000,60000,70000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Prime Age Employment-Population Ratio") +
+  ggtitle("That Belongs in a Museum!") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Employment Growth at Museums and Historical Institutions is Extremely Sensitive to Recessions") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*45000), ymax = 30000) +
+  coord_cartesian(clip = "off")
+
+Producers_Wages_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Producers and Directors", ], aes(x=Year, y = A_MEDIAN , color = "Producers and Directors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Editors", ], aes(x=Year, y = A_MEDIAN , color = "Editors (Writing)"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_TITLE == "Film and Video Editors", ], aes(x=Year, y = A_MEDIAN , color = "Film and Video Editors"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "27-1014", ], aes(x=Year, y = A_MEDIAN , color = "Special Effects Artists, Multimedia Artists, and Animators"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(40000,90000), breaks = c(50000,70000,90000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Annual Wages, Dollars") +
+  ggtitle("I Wanna Be a Producer") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Wages in Editing, Directorial, and Production Roles Grew More Robustly, But Still Suffered") +
+  theme_apricitas + theme(legend.position = c(.50,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 30000-(.3*40000), ymax = 50000) +
+  coord_cartesian(clip = "off")
+
+
+Attendants_Employees_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3000", ], aes(x=Year, y = TOT_EMP , color = "Total Employees: Amusement and Recreation Attendants"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(limits = c(225000,350000), expand = c(0,0)) +
+  scale_x_continuous(limits = c(2004,2019)) +
+  ylab("Total Employees") +
+  ggtitle("Will They Tell Your Story?") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "'Attendant' is Far and Away the Largest Occupation in the Arts") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 225000-(.3*125000), ymax = 225000) +
+  coord_cartesian(clip = "off")
+
+Waiters_Employees_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "35-3031", ], aes(x=Year, y = TOT_EMP , color = "Total Empoyees: Waiters and Waitresses"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3031", ], aes(x=Year, y = TOT_EMP , color = "Ushers, Lobby Attendants, and Ticket Takers"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3091", ], aes(x=Year, y = TOT_EMP , color = "Amusement and Recreation Attendants"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(2200000,2600000), expand = c(0,0)) +
+  scale_x_continuous(limits = c(2004,2019)) +
+  ylab("Total Employees") +
+  ggtitle("Waiters and Waitresses: Employees") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Number Of Waiters and Waitresses Peaked in 2017 and Started Declining in 2018") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*15), xmax = 2004-(0.049*15), ymin = 2200000-(.3*400000), ymax = 2200000) +
+  coord_cartesian(clip = "off")
+
+Cooks_Employees_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "35-2014", ], aes(x=Year, y = TOT_EMP , color = "Total Empoyees: Cooks, Restaurant"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3031", ], aes(x=Year, y = TOT_EMP , color = "Ushers, Lobby Attendants, and Ticket Takers"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3091", ], aes(x=Year, y = TOT_EMP , color = "Amusement and Recreation Attendants"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(700000,1500000), expand = c(0,0)) +
+  scale_x_continuous(limits = c(2004,2019)) +
+  ylab("Total Employees") +
+  ggtitle("Cooks: Employees") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Number Of Restaurant Cooks Has Been Consistently Growing") +
+  theme_apricitas + theme(legend.position = c(.50,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*15), xmax = 2004-(0.049*15), ymin = 700000-(.3*800000), ymax = 700000) +
+  coord_cartesian(clip = "off")
+
+Waiters_Wages_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "35-3031", ], aes(x=Year, y = A_MEDIAN , color = "Median Annual Wages: Waiters and Waitresses"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3031", ], aes(x=Year, y = TOT_EMP , color = "Ushers, Lobby Attendants, and Ticket Takers"), size = 1.25) +
+  #geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3091", ], aes(x=Year, y = TOT_EMP , color = "Amusement and Recreation Attendants"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(14000,24000), expand = c(0,0)) +
+  scale_x_continuous(limits = c(2004,2019)) +
+  ylab("Median Annual Wages, Dollars") +
+  ggtitle("Waiters and Waitresses: Wages") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Wages For Waiters and Waitresses Stalled Until 2014 But Have Been Climbing Since") +
+  theme_apricitas + theme(legend.position = c(.50,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*15), xmax = 2004-(0.049*15), ymin = 14000-(.3*10000), ymax = 14000) +
+  coord_cartesian(clip = "off")
+
+
+Attendants_Wages_Graph <- ggplot() + 
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3031", ], aes(x=Year, y = A_MEDIAN , color = "Ushers, Lobby Attendants, and Ticket Takers"), size = 1.25) +
+  geom_line(data = OEWS_Data[OEWS_Data$OCC_CODE == "39-3091", ], aes(x=Year, y = A_MEDIAN , color = "Amusement and Recreation Attendants"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(labels = scales::dollar_format(), limits = c(15000,25500), breaks = c(15000,17500,20000,22500,25000), expand = c(0,0)) +
+  scale_x_continuous() +
+  ylab("Annual Wages, Dollars") +
+  ggtitle("Opening Up") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Great Recession Stopped Attendants' Wage Growth for Five Years") +
+  theme_apricitas + theme(legend.position = c(.50,.66)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 15000-(.3*11000), ymax = 15000) +
+  coord_cartesian(clip = "off")
+
+DONT FORGET FITNESS INSTRUCTORS
+WAGE GROWTH BY QUARTILE FOR ACTORS AND MUSICIANS
 
 ggsave(dpi = "retina",plot = Museum_Employees_Graph, "Museum Employees 1990.png", type = "cairo-png")  #saving a graph of employment-population ratio in museums
 ggsave(dpi = "retina",plot = Broadway_Util_Graph, "Broadway Attendance and Revenue pct.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
 ggsave(dpi = "retina",plot = Arts_Rec_Employees_Graph, "Arts Employment and Strikes.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Attendants_Wages_Graph, "Attendants Wages.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Producers_Wages_Graph, "Producers Wages.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Waiters_Employees_Graph, "Waiters Employees.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Waiters_Wages_Graph, "Waiters Wages.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Cooks_Employees_Graph, "Cooks Employees.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Artists_Employees_Graph, "Artists Employees.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Artists_Pay_Graph, "Artists Pay.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+ggsave(dpi = "retina",plot = Attendants_Employees_Graph, "Attendants Employees.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
+
 
 p_unload(all)  # Remove all add-ons
 

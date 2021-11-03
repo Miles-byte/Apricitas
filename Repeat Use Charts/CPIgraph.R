@@ -5,6 +5,9 @@ CPINEWCARS <- fredr(series_id = "CUSR0000SETA01",observation_start = as.Date("20
 CPIRENT <- fredr(series_id = "CUSR0000SEHA",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #u1Rate Extended Unemployment Data
 CPIOERENT <- fredr(series_id = "CUSR0000SEHC",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #u1Rate Extended Unemployment Data
 CPI <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+CPIPCT <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1")
+CPICAN <- fredr(series_id = "CPALCY01CAM661N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1")
+
 #manually adding CPI trend
 CPI$CPITREND <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,102.7079365,102.8791506,103.0506502,103.2224356,103.3945074,103.5668661,103.739512,103.9124458,104.0856678,104.2591786,104.4329787,104.6070685,104.7814485,104.9561191,105.131081,105.3063345,105.4818802,105.6577184,105.8338499)#,106.0102749,106.186994,106.3640077,106.5413165,106.7189209,106.8968214,107.0750184,107.2535124,107.432304,107.6113937)
 
@@ -62,9 +65,24 @@ CPI <- ggplot() + #plotting CPI
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 95-(.3*17), ymax = 95) +
   coord_cartesian(clip = "off")
 
+CPIUSCAN <- ggplot() + #plotting CPI for US and Canada
+  geom_line(data=CPIPCT, aes(x=date,y= (value/100) ,color= "US CPI, Percent Change From Year Ago"), size = 1.25) +
+  geom_line(data=CPICAN, aes(x=date,y= value/100 ,color= "Canada CPI, Percent Change From Year Ago"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels =scales::percent_format(), limits = c(0,0.06), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2019-01-01"),as.Date("2021-09-01"))) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "CPI Inflation in the US and Canada is Similar, Despite Diverging Policies") +
+  theme_apricitas + theme(legend.position = c(.40,.70)) +
+  scale_color_manual(name= NULL,breaks = c("US CPI, Percent Change From Year Ago","Canada CPI, Percent Change From Year Ago"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.06), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 ggsave(dpi = "retina",plot = CPI_New_Used_Car_Vehicles_Graph, "CPI CARS.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = CPI, "CPI.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = CPI_Rent, "CPI RENT.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = CPIUSCAN, "CPI USCAN.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons
