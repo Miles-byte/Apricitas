@@ -298,8 +298,6 @@ Attendants_Wages_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = 2004-(.1861*16), xmax = 2004-(0.049*16), ymin = 15000-(.3*11000), ymax = 15000) +
   coord_cartesian(clip = "off")
 
-DONT FORGET FITNESS INSTRUCTORS
-WAGE GROWTH BY QUARTILE FOR ACTORS AND MUSICIANS
 
 ggsave(dpi = "retina",plot = Museum_Employees_Graph, "Museum Employees 1990.png", type = "cairo-png")  #saving a graph of employment-population ratio in museums
 ggsave(dpi = "retina",plot = Broadway_Util_Graph, "Broadway Attendance and Revenue pct.png", type = "cairo-png")  #saving a graph of attendance and gross revenue percents from Broadway League
