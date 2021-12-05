@@ -40,12 +40,11 @@ GLITrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-09-01")),tre
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposal Income
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
 
-DSPITrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-09-01")),trend = c(16622.8,17828.02))
-POUTTrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-09-01")),trend = c(15328.8,16440.20))
-
+DSPITrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-10-01")),trend = c(16622.8,17885.16)) #calculated by compounding the Jan 2021 income by 4% for the time period in question (1.83 years as of 11/24/2021)
+POUTTrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-10-01")),trend = c(15328.8,16492.89))
 
 theme_apricitas <- theme_ft_rc() +
-  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 11, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), plot.title = element_text(size = 28, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing Apricitas Logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
@@ -100,7 +99,7 @@ GLI_Graph <- ggplot() +
   ylab("Index, January 2020 = 100") +
   ggtitle("Falling Short?") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income Looks on Trend, But Using ECI Reveals Possible Room for Improvement") +
-  theme_apricitas + theme(legend.position = c(.30,.75)) +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,1,2), lwd = c(1.25,1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 85-(.3*25), ymax = 85) +
@@ -116,7 +115,7 @@ Personal_Income_Graph <- ggplot() +
   ylab("Trillions of Dollars") +
   ggtitle("The Bottom Line") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Personal Income and Outlays are on Trend, But Consumers Have Significant Excess Savings") +
-  theme_apricitas + theme(legend.position = c(.30,.75)) +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 12.5-(.3*10), ymax = 12.5) +

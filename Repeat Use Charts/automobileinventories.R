@@ -13,6 +13,9 @@ Auto_Sales_Merge$series_id <- gsub("HTRUCKSSAAR","Heavy Trucks",Auto_Sales_Merge
 Auto_Sales_Merge$series_id <- gsub("LTRUCKSA","Light Trucks",Auto_Sales_Merge$series_id)
 Auto_Sales_Merge$series_id <- gsub("LAUTOSA","Automobiles",Auto_Sales_Merge$series_id)
 
+Auto_Industrial_Capacity <- fredr(series_id = "CAPG33611SQ",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+
 Auto_Inventory_Sales_Ratio <- fredr(series_id = "AISRSA",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 VMT <- fredr(series_id = "TRFVOLUSM227SFWA",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -100,11 +103,28 @@ VMT_Graph <- ggplot() + #plotting capacity utilization in Automobiles
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(1170)), xmax = as.Date("2018-01-01")-(0.049*(1170)), ymin = 160-(.3*120), ymax = 160) +
   coord_cartesian(clip = "off")
 
+Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in Automobiles
+  geom_line(data=Auto_Industrial_Capacity, aes(x=date,y= value, color = "Industrial Capacity: Automobile and Light Duty Motor Vehicles"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Industrial Capacity, 2017 = 100") +
+  scale_y_continuous(limits = c(60,140), breaks = c(60,80,100,120,140), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("Capacity Failure") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Still Shows the Scars of 2008") +
+  theme_apricitas + theme(legend.position = c(0.40,0.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 60-(.3*80), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+
 ggsave(dpi = "retina",plot = Vehicle_Inventory_Graph, "Vehicle Inventory.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Capacity_Utilization_Graph, "Automobile Capacity Utilization.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Auto_Sales_Graph, "Auto Sales Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Auto_Inventory_Sales_Ratio_Graph, "Auto Inventories Sales Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = VMT_Graph, "VMT.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Auto_Industrial_Capacity_Graph, "Auto Industrial Capacity.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons
