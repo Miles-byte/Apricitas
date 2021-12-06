@@ -1,4 +1,5 @@
-pacman::p_load(magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+library(pacman)
+pacman::p_load(magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 fredr_set_key("96786b5abc3a13aa838f928bf645a572") #setting FRED API key for data download. Normally I would set this in the R environment, but I am manually setting it here for ease of use 
 
@@ -59,7 +60,7 @@ CPI_Graph <- ggplot() + #plotting CPI against 2% CPI trend
   theme_apricitas + theme(legend.position = c(.40,.50)) +
   scale_color_manual(name= "January 2019 = 100",breaks = c("CPI","2% CPI Trend"),values = c("#FFE98F","#FFE98F","#EE6055","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,2), lwd = c(1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 95-(.3*17), ymax = 95) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 100-(.3*10), ymax = 100) +
   coord_cartesian(clip = "off")
 
 PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services
@@ -156,16 +157,16 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   coord_cartesian(clip = "off")
 
 #Saving png images of all graphs
-ggsave(dpi = "retina",plot = CPI_New_Used_Car_Vehicles_Graph, "CPI CARS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = CPI_Graph, "CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
-ggsave(dpi = "retina",plot = CPI_Rent, "CPI RENT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
-ggsave(dpi = "retina",plot = Wage_Price_Graph, "Wage Price Spiral.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = PCE_Graph, "PCE Trend.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = PPI_Commodities, "PPI Commodities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+ggsave(dpi = "retina",plot = CPI_New_Used_Car_Vehicles_Graph, "CPI CARS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+ggsave(dpi = "retina",plot = CPI_Rent, "CPI RENT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+ggsave(dpi = "retina",plot = Wage_Price_Graph, "Wage Price Spiral.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = PROFIT_MARGIN_GRAPH, "Profit Margins.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-p_unload(all)  # Remove all packages using tha package manager
+p_unload(all)  # Remove all packages using the package manager
 
 # Clear console
 cat("\014")  # ctrl+L
