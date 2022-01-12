@@ -58,8 +58,6 @@ TRIMMEDPCEPI <- fredr(series_id = "PCETRIM12M159SFRBDAL",observation_start = as.
 
 PCEPIIND <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #u1Rate Extended Unemployment Data
 
-
-
 #manually adding 2% CPI growth trend for later chart on above-trend CPI
 CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:21)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
 

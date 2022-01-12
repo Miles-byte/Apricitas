@@ -36,7 +36,7 @@ Shelter_Shortage_Graph <- ggplot() + #plotting shelter shortage
   scale_x_date(limits = c(as.Date("2000-01-01"),as.Date("2021-09-01"))) +
   ggtitle("Housing: The Shortage Economy") +
   labs(caption = "Graph created by @JosephPolitano using BLS and Census Data", subtitle = "A Shortage of Housing Construction Has Driven Prices Up and Vacancies Down") +
-  theme_apricitas + theme(legend.position = c(.77,.84)) +
+  theme_apricitas + theme(legend.position = c(.77,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#6A4C93"))+ 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7914), xmax = as.Date("2000-01-01")-(0.049*7914), ymin = 25-(.3*125), ymax = 25) + #plotting the apricitas logo. The last variable in each of the multipication tables is the total size of the axis and keeps the logo in a consistent place across graphs
   coord_cartesian(clip = "off")

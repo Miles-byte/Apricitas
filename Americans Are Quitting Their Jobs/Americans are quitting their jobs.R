@@ -63,7 +63,7 @@ Industry_Quits_Graph <- ggplot() + #plotting total quits by industry
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Workers in Retail, Leisure, and Hospitality-Not Professionals-Are Causing the Jump in Quits") +
   theme_apricitas + theme(legend.position = c(.4,.8),legend.title=element_text(size=14)) +
   scale_color_manual(name= "Quit Rates",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 0-(.3*13.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*5418), xmax = as.Date("2007-01-01")-(0.049*5418), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Wage_Growth_Quartile_Graph <- ggplot() + #plotting wage growth by quartile 
