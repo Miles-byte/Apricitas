@@ -35,7 +35,7 @@ GLI_BLS <- pivot_wider(GLI_BLS, names_from = series_id, values_from = value) #co
 GLI_BLS <- subset(GLI_BLS, select = c("date","AWHAETP","CES0500000003","PAYEMS")) #cleaning up data frame
 colnames(GLI_BLS) <- c("date","hours","wage","NFP") #renaming columns for ease of use 
 
-GLITrend <- data.frame(date = c(as.Date("2020-01-01"),as.Date("2021-09-01")),trend = c(100,107.25))
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-12-01"), "months")), trend = 100*1.003274^(0:23)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposal Income
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
@@ -53,7 +53,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 Wage_Price_Graph <- ggplot() +
   geom_line(data = Wage_Price_Merge, aes(x=date, y = value/100, color = series_id, alpha = series_id), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(),limits = c(-.025,0.065), breaks = c(-0.02,0,0.02,0.04,0.06), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(-.025,0.095), breaks = c(-0.02,0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("Spiral? Not so Fast!") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA data",subtitle = "Price Growth is in Goods, but Wage Growth is in Services") +

@@ -88,8 +88,8 @@ CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:22)) #the sequen
 #manually adding 4% personal income and outlays growth trend line for later chart on personal income and outlays
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 16622.8*1.003274^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 15328.8*1.003274^(0:22))
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-12-01"), "months")), trend = 16622.8*1.003274^(0:23)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-12-01"), "months")), trend = 15328.8*1.003274^(0:23))
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -258,7 +258,7 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("The Bottom Line") +
-  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Personal Income and Outlays are on Trend, But Consumers Have Significant Excess Savings") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income and Outlays are on Trend, But Consumers Have Significant Excess Savings") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
