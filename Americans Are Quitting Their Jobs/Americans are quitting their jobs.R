@@ -11,11 +11,11 @@ Professional_Quits <- fredr(series_id = c("JTS540099QUR"), observation_start = a
 Wage_Growth_Quartile <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Americans%20Are%20Quitting%20Their%20Jobs/wage_growth_quartile.csv")
 Wage_Growth_Edu <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Americans%20Are%20Quitting%20Their%20Jobs/wage_growth_education.csv")
 
-Wage_Growth_Quartile$date <- as.Date(Wage_Growth_Quintile$date, "%m/%d/%Y")
+Wage_Growth_Quartile$date <- as.Date(Wage_Growth_Quartile$date, "%m/%d/%Y")
 Wage_Growth_Edu$date <- as.Date(Wage_Growth_Edu$date, "%m/%d/%Y")
 
 Wage_Growth_Edu[2:5] <- lapply(Wage_Growth_Edu[2:5], as.numeric)
-Wage_Growth_Quartile[2:5] <- lapply(Wage_Growth_Quintile[2:5], as.numeric)
+Wage_Growth_Quartile[2:5] <- lapply(Wage_Growth_Quartile[2:5], as.numeric)
 
 Employer_to_Employer_Transitions <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Americans%20Are%20Quitting%20Their%20Jobs/employer-to-employer_quits.csv")
 Employer_to_Employer_Transitions$date <- as.Date(Employer_to_Employer_Transitions$date, "%m/%d/%Y")
@@ -34,7 +34,7 @@ Total_Quits_Graph <- ggplot() + #plotting total quits
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(2,3,4), limits = c(2,4.5), expand = c(0,0)) +
   ggtitle("You Can't Fire Me, I Quit!") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "A Record Number of Americans are Quitting Their Jobs") +
-  theme_apricitas + theme(legend.position = c(.75,.87)) +
+  theme_apricitas + theme(legend.position = c(.65,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 2-(.3*2.5), ymax = 2) +
   coord_cartesian(clip = "off")

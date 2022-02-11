@@ -21,7 +21,7 @@ GDP <- fredr(series_id = "GDP",observation_start = as.Date("2018-01-01")) #downl
 GDPTrend <- data.frame(date = c(as.Date("2019-10-01"),as.Date("2021-07-01")),trend = c(21694.46,23267.40)) #creating 4% NGDP growth trend
 
 GLI_BEA <- fredr(series_id = "W209RC1",observation_start = as.Date("2018-01-01")) #downloading "Compensation of Employees, Received" data from Fred to calculate Gross Labor Income
-ECI <- fredr(series_id = "CIU2010000000000I",observation_start = as.Date("2018-01-01")) #downloading "Employment Cost Index - Total Compensation for Private Industry workers" data from Fred to calculate Gross Labor Income using a second method
+ECI <- fredr(series_id = "ECIWAG",observation_start = as.Date("2018-01-01")) #downloading "Employment Cost Index - Wages and Salaries for Private Industry workers" data from Fred to calculate Gross Labor Income using a second method
 ELEV <- fredr(series_id = "LNS12000060",observation_start = as.Date("2018-01-01"))#downloading "Employment Level - 25-54 Yrs" data from Fred to calculate Gross Labor Income using a second method
 NFP <- fredr(series_id = "PAYEMS",observation_start = as.Date("2018-01-01")) #downloading "All Employees, Total Nonfarm" data from Fred to calculate Gross Labor Income using a third method
 HOURS <- fredr(series_id = "AWHAETP",observation_start = as.Date("2018-01-01")) #downloading "Average Weekly Hours of All Employees, Total Private" data from Fred to calculate Gross Labor Income using a third method
@@ -35,7 +35,7 @@ GLI_BLS <- pivot_wider(GLI_BLS, names_from = series_id, values_from = value) #co
 GLI_BLS <- subset(GLI_BLS, select = c("date","AWHAETP","CES0500000003","PAYEMS")) #cleaning up data frame
 colnames(GLI_BLS) <- c("date","hours","wage","NFP") #renaming columns for ease of use 
 
-GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-12-01"), "months")), trend = 100*1.003274^(0:23)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-12-01"), "months")), trend = 100*1.003274^(0:23)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposal Income
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
