@@ -123,7 +123,7 @@ ISMProductionLead_Graph <- ggplot() +
   scale_y_continuous(limits = c(50,100), breaks = c(50,60,70,80,90,100), expand = c(0,0)) +
   ylab("Days") +
   ggtitle("The Supply Chain Crisis") +
-  labs(caption = "Graph created by @JosephPolitano using ISM data",subtitle = "Input Lead Times Remain Near Record Highs") +
+  labs(caption = "Graph created by @JosephPolitano using ISM data",subtitle = "Input Lead Times are at Record Highs") +
   theme_apricitas + theme(legend.position = c(.50,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1095), xmax = as.Date("2019-01-01")-(0.049*1095), ymin = 50-(.3*50), ymax = 50) +
