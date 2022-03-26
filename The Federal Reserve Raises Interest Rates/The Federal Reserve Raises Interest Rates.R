@@ -6,9 +6,138 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-NFCI <- fredr(series_id = "NFCI",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #5 Year Inflation Breakevens data
-NFCICREDIT <- fredr(series_id = "NFCICREDIT",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) # 5 year 5 year forward breakevens data
+NFCI <- fredr(series_id = "NFCI",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
+NFCICREDIT <- fredr(series_id = "NFCICREDIT",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 
+ICECORPORATE <- fredr(series_id = "BAMLC0A0CM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+ICECORPORATE <- drop_na(ICECORPORATE)
+
+ICECCCCORPORATE <- fredr(series_id = "BAMLH0A3HYC",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+ICECCCCORPORATE <- drop_na(ICECCCCORPORATE)
+
+Corp_Issuance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/CORP_ISSUANCE.csv")
+Corp_Issuance$Date <- as.Date(Corp_Issuance$Date)
+
+Yield_Curve <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/YIELD_CURVE.csv")
+
+
+IORB <- fredr(series_id = "IORB",realtime_start = NULL, realtime_end = NULL)
+IOER <- fredr(series_id = "IOER",observation_start = as.Date("2010-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+TENYR <- fredr(series_id = "DGS10",observation_start = as.Date("1980-01-01"),realtime_start = NULL, realtime_end = NULL)
+TENYRREAL <- fredr(series_id = "DFII10",realtime_start = NULL, realtime_end = NULL)
+TENYR <- drop_na(TENYR)
+TENYRREAL <- drop_na(TENYRREAL)
+
+NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
+  geom_line(data=NFCI, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index"), size = 1.25) +
+  geom_line(data=NFCICREDIT, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index: Credit Subindex"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(-1,1), breaks = c(-1,-0.5,0,0.5,1), expand = c(0,0)) +
+  ylab("Index, 0 = Average, Higher Numbers are Tighter") +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = -1-(.3*2), ymax = -1) +
+  coord_cartesian(clip = "off")
+
+Corp_Issuance_Graph <- ggplot() + #plotting corporate bond issuance
+  geom_line(data=Corp_Issuance, aes(x=Date,y= Investment_Grade,color= "Investment Grade"), size = 1.25) +
+  geom_line(data=Corp_Issuance, aes(x=Date,y= High_Yield,color= "High Yield"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,300), breaks = c(100,200,300), expand = c(0,0)) +
+  ylab("Billions of Dollars, Monthly") +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using SIFMA data",subtitle = "Corporate Bond Issuance is Decreasing-Especially for High Yield Bonds") +
+  theme_apricitas + theme(legend.position = c(.50,.85)) +
+  scale_color_manual(name= "Corporate Bond Issuance",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*750), xmax = as.Date("2020-01-01")-(0.049*750), ymin = 0-(.3*300), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ICECORPORATE_Graph <- ggplot() + #plotting ice corporate index
+  geom_line(data=ICECORPORATE, aes(x=date,y= value/100,color= "ICE BofA US Corporate Index Option-Adjusted Spread"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.045), breaks = c(0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
+  ylab("Spread, %") +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.045), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
+  geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA CCC & Lower US High Yield Index Option-Adjusted Spread"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.225), breaks = c(0,0.05,0.1,0.15,0.2), expand = c(0,0)) +
+  ylab("Spread, %") +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
+  theme_apricitas + theme(legend.position = c(.50,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.225), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+IOER_IORB_Graph <- ggplot() + #plotting durables v services inflation
+  geom_line(data=IORB, aes(x=date,y= value/100,color= "IORB"), size = 1.25) +
+  geom_line(data=IOER, aes(x=date,y= value/100,color= "IOER"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.025), breaks = c(0,0.005,.01,.015,.02,.025), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("How High Can Rates Go?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Federal Reserve Could not Sustain Rates Above 2% Pre-Pandemic") +
+  theme_apricitas + theme(legend.position = c(.50,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*4150), xmax = as.Date("2010-01-01")-(0.049*4150), ymin = 0-(.3*.025), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+TenYR_Graph <- ggplot() + #plotting durables v services inflation
+  geom_line(data=TENYR, aes(x=date,y= value/100,color= "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity"), size = 1.25) +
+  geom_line(data=TENYRREAL, aes(x=date,y= value/100,color= "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Inflation-Indexed"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(-0.015,.2), breaks = c(0,0.05,.1,.15,.2), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("How High Can Rates Go?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Nominal (and Real) Treasury Yields have Been Declining for Decades") +
+  theme_apricitas + theme(legend.position = c(.50,.94),legend.text = element_text(size = 13, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1980-01-01")-(.1861*15411), xmax = as.Date("1980-01-01")-(0.049*15411), ymin = -0.015-(.3*.215), ymax = -0.015) +
+  coord_cartesian(clip = "off")
+
+Yield_Curve_Graph <- ggplot() + #plotting national financial conditions indexes
+  geom_line(data=Yield_Curve, aes(x=Months/12,y= Dec/100,color= "December 1st 2021"), size = 1.25) +
+  geom_point(data=Yield_Curve, aes(x=Months/12,y= Dec/100,color= "December 1st 2021"), size = 2) +
+  geom_line(data=Yield_Curve, aes(x=Months/12,y= Jan/100,color= "January 3rd 2022"), size = 1.25) +
+  geom_point(data=Yield_Curve, aes(x=Months/12,y= Jan/100,color= "January 3rd 2022"), size = 2) +
+  geom_line(data=Yield_Curve, aes(x=Months/12,y= Feb/100,color= "February 1st 2022"), size = 1.25) +
+  geom_point(data=Yield_Curve, aes(x=Months/12,y= Feb/100,color= "February 1st 2022"), size = 2) +
+  geom_line(data=Yield_Curve, aes(x=Months/12,y= Mar/100,color= "March 1st 2022"), size = 1.25) +
+  geom_point(data=Yield_Curve, aes(x=Months/12,y= Mar/100,color= "March 1st 2022"), size = 2) +
+  xlab("Years") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.03), breaks = c(0,0.005,.01,.015,.02,.025,0.03), expand = c(0,0)) +
+  scale_x_continuous(labels = c("1yr","2yr","3yr","5yr","7yr","10yr","20yr","30yr"), breaks = c(1,2,3,5,7,10,20,30)) +
+  ylab("Yield, %") +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "The Yield Curve is Flattening") +
+  theme_apricitas + theme(legend.position = c(.20,.85), panel.grid.minor = element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*30), xmax = 0-(0.049*30), ymin = 0-(.3*.03), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+
+ggsave(dpi = "retina",plot = NFCI_Graph, "NFCI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = IOER_IORB_Graph, "IOER IORB.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = TenYR_Graph, "Ten Year.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = ICECORPORATE_Graph, "ICE Corporate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = ICECCCCORPORATE_Graph, "ICE CCC Corporate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Corp_Issuance_Graph, "Corporate Issuance.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Yield_Curve_Graph, "Yield Curve.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
