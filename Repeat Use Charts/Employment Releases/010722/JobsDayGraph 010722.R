@@ -10,13 +10,13 @@ Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
 
-Layoffs_TNSPT_WARE <- bls_api("JTU480099000000000LDL", startyear = 2017, endyear = 2021, Sys.getenv("BLS_KEY"))
+Layoffs_TNSPT_WARE <- bls_api("JTU480099000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
 Layoffs_TNSPT_WARE=Layoffs_TNSPT_WARE[order(nrow(Layoffs_TNSPT_WARE):1),]
-Layoffs_TNSPT_WARE$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
+Layoffs_TNSPT_WARE$date <- seq(as.Date("2017-01-01"), as.Date("2022-01-01"), "months")
 
-Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2021, Sys.getenv("BLS_KEY"))
+Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
 Layoffs_RETAIL=Layoffs_RETAIL[order(nrow(Layoffs_RETAIL):1),]
-Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
+Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2022-01-01"), "months")
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2021, Sys.getenv("BLS_KEY"))
 Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
@@ -50,11 +50,28 @@ ARTS <- fredr(series_id = "CES7071000001",observation_start = as.Date("2019-01-0
 COURIERS <- fredr(series_id = "CES4349200001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 PWD <- fredr(series_id = "LNU02374597",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 
+ICSA <- fredr(series_id = "ICSA",realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+
+
 theme_apricitas <- theme_ft_rc() +
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
+
+ICNSA14_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
+  geom_line(data=ICSA, aes(x=date,y= value/1000,color= "Weekly Initial Unemployment Insurance Claims"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Initial Claims") +
+  #scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,800), expand = c(0,0)) +
+  ggtitle("The Labor Market Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of New People Claiming Unemployment is Near All Time Lows") +
+  theme_apricitas + theme(legend.position = c(.52,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Unemployment Claims hit 6M", x = as.Date("2000-06-01"), y = 100, color ="white", size = 4, alpha = 0.75) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("1967-01-01")-(.1861*20171), xmax = as.Date("1967-01-01")-(0.049*20171), ymin = 0-(.3*800), ymax = 0) +
+  coord_cartesian(clip = "off")
 
 ICNSA14_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
   geom_line(data=Initial_Claims_NSA_14, aes(x=date,y= value/1000,color= "Weekly Initial Unemployment Insurance Claims, NSA"), size = 1.25)+ 
