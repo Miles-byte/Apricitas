@@ -33,6 +33,7 @@ CPIServicesLessRent <- fredr(series_id = "CUSR0000SASL2RS",observation_start = a
 CPIRENTmonth <- fredr(series_id = "CUSR0000SEHA",observation_start = as.Date("2019-01-01"), units = "pch")
 CPIOERmonth <- fredr(series_id = "CUSR0000SEHC",observation_start = as.Date("2019-01-01"), units = "pch")
 
+?fredr()
 
 CPIRENT$calculations <- str_sub(CPIRENT$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
 CPIRENT$calculations <- as.numeric(CPIRENT$calculations)
@@ -114,10 +115,8 @@ CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:24)) #the sequen
 #manually adding 4% personal income and outlays growth trend line for later chart on personal income and outlays
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 16622.8*1.003274^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 15328.8*1.003274^(0:25))
-
-NGDPPerCapita <- fredr(series_id = "A939RC0Q052SBEA",realtime_start = NULL, realtime_end = NULL, units = "pc1") #NGDP per capita
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-01-01"), "months")), trend = 16622.8*1.003274^(0:24)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-01-01"), "months")), trend = 15328.8*1.003274^(0:24))
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -126,18 +125,6 @@ apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 CPI_SERV_DURABLE <- merge(CPIDURABLE,CPISERVICE, by = "date") #merging cpi services and durables data
-
-NGDPPerCapita_Graph <- ggplot() + #plotting initial claims
-  geom_line(data=NGDPPerCapita, aes(x=date,y=value/100,color= "NGDP Per Capita Growth"), size = 1.25)+ 
-  xlab("Date") +
-  ylab("%") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.1,0.2), breaks = c(-0.1,0,0.1,0.2), expand = c(0,0)) +
-  ggtitle("Is it the 1970s Again?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "NGDP Per Capita Growth Was High and Sustained Throughout the 1970%, Pushing Up Inflation") +
-  theme_apricitas + theme(legend.position = c(.45,.85)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1947-01-01")-(.1861*27171), xmax = as.Date("1947-01-01")-(0.049*27171), ymin = -0.1-(.3*0.3), ymax = -0.1) +
-  coord_cartesian(clip = "off")
 
 PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services
   geom_line(data=PCE, aes(x=date,y= (value/141.04) ,color= "Total Personal Consumption Expenditures"), size = 1.25) +
@@ -294,13 +281,13 @@ CPI_GAS <- ggplot() + #plotting gasoline price index against WTI prices
   geom_line(data=CPIGAS, aes(x=date,y= (value/201)*100 ,color= "CPI: Gasoline"), size = 1.25) +
   geom_line(data=WTI, aes(x=date,y= (close/46.5)*100 ,color= "Crude Oil (WTI)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(50,250), breaks = c(50,75,100,125,150,175,200,225,250), expand = c(0,0)) +
+  scale_y_continuous(limits = c(50,225), breaks = c(50,75,100,125,150,175,200,225), expand = c(0,0)) +
   ylab("Index, January 2019 = 100") +
   ggtitle("The Energy Crunch") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Oil and Gas Prices Continue Increasing") +
   theme_apricitas + theme(legend.position = c(.50,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 50-(.3*250), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 50-(.3*175), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 CPI_Wheat <- ggplot() + #plotting bread/cereal products price index against wheat prices
@@ -362,7 +349,6 @@ ggsave(dpi = "retina",plot = PCE_Graph, "PCE.png", type = "cairo-png", width = 9
 ggsave(dpi = "retina",plot = Rent_LessRent_Graph, "Rent and Services Less Rent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Wheat, "Wheat.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Rent_Month, "CPI Rent Month.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = NGDPPerCapita_Graph, "NGDP Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

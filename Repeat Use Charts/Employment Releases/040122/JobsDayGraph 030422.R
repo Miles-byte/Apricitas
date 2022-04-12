@@ -15,8 +15,8 @@ OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = 2022, S
 OwnIllnessPartTime=OwnIllnessPartTime[order(nrow(OwnIllnessNoWork):1),]
 OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
 
-PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
-Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
+PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-03-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201,2514))
+Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-03-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399,15803))
 
 EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP55Plus=EPOP55Plus[order(nrow(EPOP55Plus):1),]
@@ -29,17 +29,28 @@ UnpaidAbsences$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
 
+ICSA <- fredr(series_id = "ICSA",  realtime_end = NULL) #weekly initial claims data
+
+LF <- fredr(series_id = "CLF16OV",  realtime_end = NULL) #civilian labor force level data
+
+LF <- do.call("rbind", lapply(1:nrow(LF), function(i) #converting monthly to daily data for merge
+  data.frame(date = seq(LF$date[i], 
+                        (seq(LF$date[i],length=2,by="months") - 1)[2], by = "1 days"), 
+             value = LF$value[i])))
+
+ICSAmerge <- merge(ICSA,LF, by = "date") #merging ICSA
+
 Layoffs_TNSPT_WARE <- bls_api("JTU480099000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
 Layoffs_TNSPT_WARE=Layoffs_TNSPT_WARE[order(nrow(Layoffs_TNSPT_WARE):1),]
-Layoffs_TNSPT_WARE$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
+Layoffs_TNSPT_WARE$date <- seq(as.Date("2017-01-01"), as.Date("2022-02-01"), "months")
 
 Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
 Layoffs_RETAIL=Layoffs_RETAIL[order(nrow(Layoffs_RETAIL):1),]
-Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
+Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2022-02-01"), "months")
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
-Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-01-01"), "months")
+Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
@@ -258,7 +269,7 @@ Total_Layoffs_Graph <- ggplot() + #plotting total discharges
   xlab("Date") +
   ylab("Millions of Employees") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3), limits = c(0,3), expand = c(0,0)) +
-  ggtitle("The Labor Market Recovery") +
+  ggtitle("Don't Leave Me, Okay?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Layoffs and Discharges Have Hit Record Lows") +
   theme_apricitas + theme(legend.position = c(.55,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
@@ -315,6 +326,31 @@ U1RATE_Graph <- ggplot() + #plotting u1 unemployment rate
   theme_apricitas + theme(legend.position = c(.35,.98)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0.0-(.3*0.055), ymax = 0.0) +
+  coord_cartesian(clip = "off")
+
+ICSA_Graph <- ggplot() + #plotting initial claims
+  geom_line(data=ICSAmerge, aes(x=date,y= (value.x/1000)/value.y,color= "Weekly Initial Unemployment Claims, % of Labor Force"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0.0,0.01), expand = c(0,0)) +
+  ggtitle("Layoffs are at Historic Lows") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Initial Unemployment Claims are Near All Time Lows") +
+  theme_apricitas + theme(legend.position = c(.45,.78)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1967-01-01")-(.1861*20171), xmax = as.Date("1967-01-01")-(0.049*20171), ymin = 0.0-(.3*0.01), ymax = 0.0) +
+  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Initial Claims Hit 6M", x = as.Date("2000-06-01"), y = .005, color ="white", size = 4, alpha = 0.75) +
+  coord_cartesian(clip = "off")
+
+ICSA_NoDiscontinuity_Graph <- ggplot() + #plotting initial claims
+  geom_line(data=ICSAmerge, aes(x=date,y= (value.x/1000)/value.y,color= "Weekly Initial Unemployment Claims, % of Labor Force"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0.0,0.04), expand = c(0,0)) +
+  ggtitle("Layoffs are at Historic Lows") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Initial Unemployment Claims are Near All Time Lows") +
+  theme_apricitas + theme(legend.position = c(.45,.78)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1967-01-01")-(.1861*20171), xmax = as.Date("1967-01-01")-(0.049*20171), ymin = 0.0-(.3*0.04), ymax = 0.0) +
   coord_cartesian(clip = "off")
 
 PARTTIME_Graph <- ggplot() + #plotting employed part time for economic reasons 
@@ -455,6 +491,8 @@ ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png
 ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = ICSA_Graph, "ICSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = ICSA_NoDiscontinuity_Graph, "ICSA No Discontinuity.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

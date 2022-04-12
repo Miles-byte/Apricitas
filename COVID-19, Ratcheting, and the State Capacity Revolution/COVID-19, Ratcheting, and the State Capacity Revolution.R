@@ -49,7 +49,7 @@ SWAPS_GRAPH <- ggplot() + #plotting Liquidity Swaps
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = (1)),limits = c(0,750), breaks = c(0,250,500,750), expand = c(0,0)) +
   ylab("Billions of Dollars, Level") +
   ggtitle("Swapping Over") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Central Bank Liquidity Swaps Spiked During the Pandemic") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Central Bank Liquidity Swaps Spiked During the Pandemic") +
   theme_apricitas + theme(legend.position = c(.60,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-06-01")-(.1861*5334), xmax = as.Date("2007-06-01")-(0.049*5334), ymin = 0-(.3*750), ymax = 0) +

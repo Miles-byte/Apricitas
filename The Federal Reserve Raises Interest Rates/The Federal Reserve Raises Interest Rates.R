@@ -12,13 +12,17 @@ NFCICREDIT <- fredr(series_id = "NFCICREDIT",observation_start = as.Date("2019-0
 ICECORPORATE <- fredr(series_id = "BAMLC0A0CM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECORPORATE <- drop_na(ICECORPORATE)
 
-ICECCCCORPORATE <- fredr(series_id = "BAMLH0A3HYC",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+ICECCCCORPORATE <- fredr(series_id = "BAMLH0A0HYM2EY",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECCCCORPORATE <- drop_na(ICECCCCORPORATE)
 
 Corp_Issuance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/CORP_ISSUANCE.csv")
 Corp_Issuance$Date <- as.Date(Corp_Issuance$Date)
 
 Yield_Curve <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/YIELD_CURVE.csv")
+
+WORKINGAGEPOP <- fredr(series_id = "LNU00000060",realtime_start = NULL, realtime_end = NULL, frequency = "a", aggregation_method = "avg")
+
+Top1pct <- fredr(series_id = "WFRBST01108",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 
 IORB <- fredr(series_id = "IORB",realtime_start = NULL, realtime_end = NULL)
@@ -69,16 +73,16 @@ ICECORPORATE_Graph <- ggplot() + #plotting ice corporate index
   coord_cartesian(clip = "off")
 
 ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
-  geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA CCC & Lower US High Yield Index Option-Adjusted Spread"), size = 1.25) +
+  geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA US High Yield Index Effective Yield"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.225), breaks = c(0,0.05,0.1,0.15,0.2), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
   ylab("Spread, %") +
   ggtitle("Tightening Up") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.225), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 
@@ -129,7 +133,29 @@ Yield_Curve_Graph <- ggplot() + #plotting national financial conditions indexes
   annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*30), xmax = 0-(0.049*30), ymin = 0-(.3*.03), ymax = 0) +
   coord_cartesian(clip = "off")
 
+Workingagepop_Graph <- ggplot() + #plotting corporate bond issuance
+  geom_line(data=WORKINGAGEPOP, aes(x=date,y=value/1000,color= "US Working Age (25-54) Population"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"), limits = c(50,150), breaks = c(50,100,150), expand = c(0,0)) +
+  ylab("Millions") +
+  ggtitle("How High Can Rates Go?") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "America's Working Age Population is Not Growing Anymore") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1948-01-01")-(.1861*26664), xmax = as.Date("1948-01-01")-(0.049*26664), ymin = 50-(.3*100), ymax = 50) +
+  coord_cartesian(clip = "off")
 
+Top1Pct_Graph <- ggplot() + #plotting top 1% share of total assets
+  geom_line(data=Top1pct, aes(x=date,y= value/100,color= "Share of Total Assets Held by the Top 1%"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.2,.3), breaks = c(.2,.25,.3), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("How High Can Rates Go?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Wealth and Income Inequality is Rising, Which Keeps Real Rates Down") +
+  theme_apricitas + theme(legend.position = c(.50,.94)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*11323), xmax = as.Date("1990-01-01")-(0.049*11323), ymin = .20-(.3*.1), ymax = .20) +
+  coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NFCI_Graph, "NFCI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = IOER_IORB_Graph, "IOER IORB.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -138,6 +164,8 @@ ggsave(dpi = "retina",plot = ICECORPORATE_Graph, "ICE Corporate.png", type = "ca
 ggsave(dpi = "retina",plot = ICECCCCORPORATE_Graph, "ICE CCC Corporate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Corp_Issuance_Graph, "Corporate Issuance.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Yield_Curve_Graph, "Yield Curve.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Workingagepop_Graph, "Working Age Population.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Top1Pct_Graph, "Top 1 pct.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
