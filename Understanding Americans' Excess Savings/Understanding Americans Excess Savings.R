@@ -35,7 +35,7 @@ CUMSUMPOUTmerge$trend <- cumsum(CUMSUMPOUTmerge$trend/12)
 
 Taxes <- fredr(series_id = "W055RC1",observation_start = as.Date("2018-01-01")) 
 #3.50% annual growth rate trend
-TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 2251.3*1.002871^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 2251.3*1.002871^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Taxesmerge <- merge(Taxes, TaxesTrend, by = "date")
 Taxesmerge$value <- cumsum(Taxesmerge$value/12)
 Taxesmerge$trend <- cumsum(Taxesmerge$trend/12)
@@ -43,7 +43,7 @@ Taxesmerge <- data.frame(date = Taxesmerge$date, savings = Taxesmerge$value-Taxe
 
 GovInsurance <- fredr(series_id = "A061RC1",observation_start = as.Date("2018-01-01"))
 #4.50% annual growth rate trend
-GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 1474.9*1.003675^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 1474.9*1.003675^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 GovInsurancemerge <- merge(GovInsurance, GovInsuranceTrend, by = "date")
 GovInsurancemerge$value <- cumsum(GovInsurancemerge$value/12)
 GovInsurancemerge$trend <- cumsum(GovInsurancemerge$trend/12)
@@ -53,7 +53,7 @@ TaxesGovInsurancemerge <- data.frame(date = GovInsurancemerge$date, savings = Ta
 
 Compensation <- fredr(series_id = "W209RC1",observation_start = as.Date("2018-01-01"))
 #4.4% annual growth rate trend
-CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 11790.9*1.003595^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 11790.9*1.003595^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Compensationmerge <- merge(Compensation, CompensationTrend, by = "date")
 Compensationmerge$value <- cumsum(Compensationmerge$value/12)
 Compensationmerge$trend <- cumsum(Compensationmerge$trend/12)
@@ -62,7 +62,7 @@ Compensationmerge <- data.frame(date = Compensationmerge$date, savings = Compens
 
 Proprietor <- fredr(series_id = "A041RC1",observation_start = as.Date("2018-01-01"))
 #2.6% annual growth rate trend
-ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 1656.3*1.002141^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 1656.3*1.002141^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Proprietormerge <- merge(Proprietor, ProprietorTrend, by = "date")
 Proprietormerge$value <- cumsum(Proprietormerge$value/12)
 Proprietormerge$trend <- cumsum(Proprietormerge$trend/12)
@@ -70,7 +70,7 @@ Proprietormerge <- data.frame(date = Proprietormerge$date, savings = Proprietorm
 
 Int_Dividend <- fredr(series_id = "PIROA",observation_start = as.Date("2018-01-01"))
 #4.3% annual growth rate trend
-Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 2984.6*1.003515^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 2984.6*1.003515^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Int_Dividendmerge <- merge(Int_Dividend, Int_DividendTrend, by = "date")
 Int_Dividendmerge$value <- cumsum(Int_Dividendmerge$value/12)
 Int_Dividendmerge$trend <- cumsum(Int_Dividendmerge$trend/12)
@@ -81,7 +81,7 @@ ProprietorInt_Dividendmerge <- data.frame(date = GovInsurancemerge$date, savings
 
 TransferReceived <- fredr(series_id = "PCTR",observation_start = as.Date("2018-01-01"))
 #4.00% annual growth rate trend
-TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 3208.8*1.003274^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 3208.8*1.003274^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferReceivedmerge <- merge(TransferReceived, TransferReceivedTrend, by = "date")
 TransferReceivedmerge$value <- cumsum(TransferReceivedmerge$value/12)
 TransferReceivedmerge$trend <- cumsum(TransferReceivedmerge$trend/12)
@@ -90,7 +90,7 @@ TransferReceivedmerge <- data.frame(date = TransferReceivedmerge$date, savings =
 
 PCE <- fredr(series_id = "PCE",observation_start = as.Date("2018-01-01")) 
 #4.2% annual growth rate trend
-PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 14769.9*1.003434^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 14769.9*1.003434^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 PCEmerge <- merge(PCE, PCETrend, by = "date")
 PCEmerge$value <- cumsum(PCEmerge$value/12)
 PCEmerge$trend <- cumsum(PCEmerge$trend/12)
@@ -99,7 +99,7 @@ PCEmerge <- data.frame(date = PCEmerge$date, savings = PCEmerge$value-PCEmerge$t
 
 InterestPaid <- fredr(series_id = "B069RC1",observation_start = as.Date("2018-01-01"))
 #6.3% annual growth rate trend
-InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 346.3*1.005104^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 346.3*1.005104^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 InterestPaidmerge <- merge(InterestPaid, InterestPaidTrend, by = "date")
 InterestPaidmerge$value <- cumsum(InterestPaidmerge$value/12)
 InterestPaidmerge$trend <- cumsum(InterestPaidmerge$trend/12)
@@ -108,7 +108,7 @@ InterestPaidmerge <- data.frame(date = InterestPaidmerge$date, savings = Interes
 
 TransferPaid <- fredr(series_id = "W211RC1",observation_start = as.Date("2018-01-01")) 
 #3.4% annual growth rate trend
-TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 212.6*1.002790^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 212.6*1.002790^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferPaidmerge <- merge(TransferPaid, TransferPaidTrend, by = "date")
 TransferPaidmerge$value <- cumsum(TransferPaidmerge$value/12)
 TransferPaidmerge$trend <- cumsum(TransferPaidmerge$trend/12)
@@ -257,6 +257,7 @@ ggsave(dpi = "retina",plot = DFAconsumercredit_Graph, "Consumer Credit.png", typ
 ggsave(dpi = "retina",plot = LiquidAssets_Barplot_Graph, "Liquid Assets.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Savings_Component_Graph, "Savings Component.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PSAVert_Graph, "Personal Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 cat("\014")  # ctrl+L

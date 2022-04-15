@@ -109,7 +109,7 @@ TRIMMEDPCEPI <- fredr(series_id = "PCETRIM12M159SFRBDAL",observation_start = as.
 PCEPIIND <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #pcepi index data
 
 #manually adding 2% CPI growth trend for later chart on above-trend CPI
-CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:24)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
+CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:25)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
 
 #manually adding 4% personal income and outlays growth trend line for later chart on personal income and outlays
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
@@ -126,6 +126,10 @@ apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 CPI_SERV_DURABLE <- merge(CPIDURABLE,CPISERVICE, by = "date") #merging cpi services and durables data
+
+CPILFESL_Monthly <- fredr(series_id = "CPILFESL",observation_start = as.Date("2019-01-01"), units = "pch")
+CPIAUCSL_Monthly <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2019-01-01"), units = "pch")
+
 
 NGDPPerCapita_Graph <- ggplot() + #plotting initial claims
   geom_line(data=NGDPPerCapita, aes(x=date,y=value/100,color= "NGDP Per Capita Growth"), size = 1.25)+ 
@@ -266,6 +270,20 @@ CPI_Rent_Month <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Gr
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.0075), ymax = 0.00) +
   coord_cartesian(clip = "off")
 
+CPI_Core_Month <- ggplot() + #plotting core and headline monthly Price Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=CPIAUCSL_Monthly, aes(x=date,y= (value/100) ,color= "CPI: Monthly Percentage Growth"), size = 1.25) +
+  geom_line(data=CPILFESL_Monthly, aes(x=date,y= (value/100) ,color= "CPI Less Food and Energy: Monthly Percentage Growth"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(-0.01,.0125), breaks = c(-0.01,-0.005,0,.005,.01), expand = c(0,0)) +
+  ylab("Monthly Percent Growth, %") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Energy-Drvien Jump in Headline Inflation Disguised a Slowdown in Core Inflation") +
+  theme_apricitas + theme(legend.position = c(.40,.92)) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("CPI: Monthly Percentage Growth","CPI Less Food and Energy: Monthly Percentage Growth")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = -0.01-(.3*0.0225), ymax = -0.01) +
+  coord_cartesian(clip = "off")
+
 CPI_Lodging_Graph <- ggplot() + #plotting lodging away from home
   geom_line(data=CPILODGINGHOME, aes(x=date,y= (value/162)*100 ,color= "CPI: Lodging Away From Home"), size = 1.25) +
   xlab("Date") +
@@ -337,13 +355,13 @@ Rent_LessRent_Graph <- ggplot() +
   geom_line(data = CPIRent, aes(x = date, y = value/100, color = "CPI: Rent of Primary Residences"), size = 1.25) +
   geom_line(data = CPIServicesLessRent, aes(x = date, y = value/100, color = "CPI: Services Less Rent of Shelter"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,0.05), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.06), breaks = c(0,.01,.02,.03,.04,0.05,0.06), expand = c(0,0)) +
   ylab("Change from Year Ago, %") +
   ggtitle("Services Price Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation is Becoming More Broad Based as Prices for Rent and Other Services Jump") +
   theme_apricitas + theme(legend.position = c(.50,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1100), xmax = as.Date("2019-01-01")-(0.049*1100), ymin = 0-(.3*.05), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1100), xmax = as.Date("2019-01-01")-(0.049*1100), ymin = 0-(.3*.06), ymax = 0) +
   coord_cartesian(clip = "off")
 
 #Saving png images of all graphs
@@ -363,6 +381,7 @@ ggsave(dpi = "retina",plot = Rent_LessRent_Graph, "Rent and Services Less Rent.p
 ggsave(dpi = "retina",plot = CPI_Wheat, "Wheat.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Rent_Month, "CPI Rent Month.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = NGDPPerCapita_Graph, "NGDP Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_Core_Month, "CPI Core Month.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
