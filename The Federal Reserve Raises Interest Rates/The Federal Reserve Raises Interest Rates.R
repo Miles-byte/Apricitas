@@ -12,7 +12,7 @@ NFCICREDIT <- fredr(series_id = "NFCICREDIT",observation_start = as.Date("2019-0
 ICECORPORATE <- fredr(series_id = "BAMLC0A0CM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECORPORATE <- drop_na(ICECORPORATE)
 
-ICECCCCORPORATE <- fredr(series_id = "BAMLH0A0HYM2EY",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+ICECCCCORPORATE <- fredr(series_id = "BAMLH0A0HYM2",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECCCCORPORATE <- drop_na(ICECCCCORPORATE)
 
 Corp_Issuance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/CORP_ISSUANCE.csv")
@@ -40,10 +40,10 @@ NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
   scale_y_continuous(limits = c(-1,1), breaks = c(-1,-0.5,0,0.5,1), expand = c(0,0)) +
   ylab("Index, 0 = Average, Higher Numbers are Tighter") +
   ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = -1-(.3*2), ymax = -1) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -1-(.3*2), ymax = -1) +
   coord_cartesian(clip = "off")
 
 Corp_Issuance_Graph <- ggplot() + #plotting corporate bond issuance
@@ -69,20 +69,20 @@ ICECORPORATE_Graph <- ggplot() + #plotting ice corporate index
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.045), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.045), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
-  geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA US High Yield Index Effective Yield"), size = 1.25) +
+  geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA US High Yield Index Option-Adjusted Spread"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
   ylab("Spread, %") +
   ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raised Interest Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.13), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 

@@ -26,7 +26,7 @@ GLI_BLS <- pivot_wider(GLI_BLS, names_from = series_id, values_from = value) #co
 GLI_BLS <- subset(GLI_BLS, select = c("date","AWHAETP","CES0500000003","PAYEMS")) #cleaning up data frame
 colnames(GLI_BLS) <- c("date","hours","wage","NFP") #renaming columns for ease of use 
 
-GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-01-01"), "months")), trend = 100*1.003274^(0:24)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 100*1.003274^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 
 AHE <- fredr(series_id = "CES0500000003",observation_start = as.Date("2018-01-01"), units = "pc1") #downloading "Average Hourly Earnings of All Employees, Total Private" data from Fred to calculate Gross Labor Income using a third method
 ECIPRIVWAGPCT18 <- fredr(series_id = "ECIWAG",observation_start = as.Date("2018-01-01"), units = "pc1") #downloading "Wages and Salaries: Private Industry Workers" data from Fred to calculate Gross Labor Income using a third method
@@ -62,14 +62,14 @@ GLI_Graph <- ggplot() +
   geom_line(data = GLI_BLS, aes(x=date, y = NFP*wage*hours/148450832.866*100, color = "Nominal Gross Labor Income: NFP Method"), size = 1.25) +
   geom_line(data = GLITrend, aes(x=date, y = trend, color = "Pre-Covid 4% Annual GLI Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(limits = c(85,112), breaks = c(85,90,95,100,105,110), expand = c(0,0)) +
+  scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
   ylab("Index, January 2020 = 100") +
   ggtitle("Falling Short?") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income Looks on Trend, But Using ECI Reveals Possible Room for Improvement") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,1,2), lwd = c(1.25,1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 85-(.3*27), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 85-(.3*30), ymax = 85) +
   coord_cartesian(clip = "off")
 
 WAGE_AHE_GROWTH_GRAPH <- ggplot() +
@@ -88,13 +88,13 @@ WAGE_AHE_GROWTH_GRAPH <- ggplot() +
 WAGE_GROWTH_GRAPH <- ggplot() +
   geom_line(data = drop_na(ECIPRIVWAGPCT), aes(x=date, y = value/100, color = "ECI: Wages and Salaries: Private Industry Workers"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.05), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.055), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
   ylab("Year-on-Year Growth, Percent") +
   ggtitle("What's Going On With Wages?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Private Sector Wage Growth is at Multi-Decade Highs") +
   theme_apricitas + theme(legend.position = c(.46,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*7305), xmax = as.Date("2002-01-01")-(0.049*7305), ymin = 0-(.3*0.05), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*7305), xmax = as.Date("2002-01-01")-(0.049*7305), ymin = 0-(.3*0.055), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ALL_CIV_COMP_GRAPH <- ggplot() +

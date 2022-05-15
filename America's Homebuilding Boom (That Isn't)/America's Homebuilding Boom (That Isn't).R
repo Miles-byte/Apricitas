@@ -19,9 +19,18 @@ HOUSING_UNITS_SFH <- fredr(series_id = "HOUST1F", observation_start = as.Date("2
 THIRTY_YR_FIXED <- fredr(series_id = "MORTGAGE30US", observation_start = as.Date("2000-01-01")) #Single Family Home
 
 RENTAL_VACANCY_RATE <- fredr(series_id = "RRVRUSQ156N", observation_start = as.Date("2000-01-01")) #Single Family Home
+HOMEOWNER_VACANCY_RATE <- fredr(series_id = "RHVRUSQ156N", observation_start = as.Date("2000-01-01")) #Single Family Home
+
 AUTHORIZED_NOT_STARTED <- fredr(series_id = "AUTHNOTTSA", observation_start = as.Date("2000-01-01")) #Single Family Home
 
+CPI_SF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/Construction_Price_Index_SF.csv")
+CPI_MF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/Construction_Price_Index_MF.csv")
 
+colnames(CPI_MF) <- c("Date", "Multifamily", "Annual_Growth")
+colnames(CPI_SF) <- c("Date", "Singlefamily", "Annual_Growth")
+
+CPI_SF$Date <- as.Date(CPI_SF$Date,"%Y-%m-%d")
+CPI_MF$Date <- as.Date(CPI_MF$Date, "%m/%d/%Y")
 
 POPULATION <- fredr(series_id = "POPTHM") #population
 
@@ -64,15 +73,31 @@ TOTAL_HOUSING_GROWTH_Graph <- ggplot() + #plotting growth in total housing units
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-04-01")-(.1861*8250), xmax = as.Date("2000-04-01")-(0.049*8250), ymin = 0-(.3*.02), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+SF_MF_CPI_Graph <- ggplot() + #plotting growth in total housing units
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=CPI_SF, aes(x=Date,y= Annual_Growth, color= "Construction Price Index: Single Family"), size = 1.25) +
+  geom_line(data=CPI_MF, aes(x=Date,y= Annual_Growth, color= "Construction Price Index: Multi-Family"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.08,.15),breaks = c(-0.05,0,0.05,0.1,0.15), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2022-01-01")))+
+  ylab("Percent Change From Year Ago, %") +
+  ggtitle("Under Construction") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Construction Costs are Rising Rapidly, Especially for Single-Family Homes") +
+  theme_apricitas + theme(legend.position = c(.27,.90)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Construction Price Index: Single Family","Construction Price Index: Multi-Family")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*12250), xmax = as.Date("1990-01-01")-(0.049*12250), ymin = -0.08-(.3*.23), ymax = -0.08) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
 VACANCY_RATE_Graph <- ggplot() + #plotting rental vacancy rate
   geom_line(data=RENTAL_VACANCY_RATE, aes(x=date,y= value/100, color= "Rental Vacancy Rate"), size = 1.25) +
+  geom_line(data=HOMEOWNER_VACANCY_RATE, aes(x=date,y= value/100, color= "Homeowner Vacancy Rate"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5), limits = c(0,.12),breaks = c(0,0.04,0.08,0.12), expand = c(0,0)) +
-  ylab("Percent Change From Year Ago, %") +
+  ylab("Vacancy Rate, %") +
   ggtitle("No Vacancies") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Rental Vacancies are at the Lowest Level in Decades") +
-  theme_apricitas + theme(legend.position = c(.7,.80)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Vacancy Rates are at the Lowest Level in Decades") +
+  theme_apricitas + theme(legend.position = c(.75,.80)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Rental Vacancy Rate","Homeowner Vacancy Rate")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*.12), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -148,6 +173,7 @@ ggsave(dpi = "retina",plot = STARTS_PERCAPITA_Graph, "Starts Per Capita.png", ty
 ggsave(dpi = "retina",plot = STARTS_Graph, "Starts.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = AUTHORIZED_NOT_STARTED_Graph, "Authorized Not Started.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = VACANCY_RATE_Graph, "Vacancy Rate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SF_MF_CPI_Graph, "SF MF CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
