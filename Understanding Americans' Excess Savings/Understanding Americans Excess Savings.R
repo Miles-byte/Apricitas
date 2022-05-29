@@ -2,8 +2,8 @@ pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethi
 
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 16622.8*1.003274^(0:22)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2021-11-01"), "months")), trend = 15328.8*1.003274^(0:22))
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 16622.8*1.003274^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 15328.8*1.003274^(0:27))
 
 Corporate_Savings <- fredr(series_id = "B057RC1Q027SBEA",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
 PSAVert <- fredr(series_id = "PSAVert",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
@@ -35,7 +35,7 @@ CUMSUMPOUTmerge$trend <- cumsum(CUMSUMPOUTmerge$trend/12)
 
 Taxes <- fredr(series_id = "W055RC1",observation_start = as.Date("2018-01-01")) 
 #3.50% annual growth rate trend
-TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 2251.3*1.002871^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 2251.3*1.002871^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Taxesmerge <- merge(Taxes, TaxesTrend, by = "date")
 Taxesmerge$value <- cumsum(Taxesmerge$value/12)
 Taxesmerge$trend <- cumsum(Taxesmerge$trend/12)
@@ -43,7 +43,7 @@ Taxesmerge <- data.frame(date = Taxesmerge$date, savings = Taxesmerge$value-Taxe
 
 GovInsurance <- fredr(series_id = "A061RC1",observation_start = as.Date("2018-01-01"))
 #4.50% annual growth rate trend
-GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 1474.9*1.003675^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 1474.9*1.003675^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 GovInsurancemerge <- merge(GovInsurance, GovInsuranceTrend, by = "date")
 GovInsurancemerge$value <- cumsum(GovInsurancemerge$value/12)
 GovInsurancemerge$trend <- cumsum(GovInsurancemerge$trend/12)
@@ -53,7 +53,7 @@ TaxesGovInsurancemerge <- data.frame(date = GovInsurancemerge$date, savings = Ta
 
 Compensation <- fredr(series_id = "W209RC1",observation_start = as.Date("2018-01-01"))
 #4.4% annual growth rate trend
-CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 11790.9*1.003595^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 11790.9*1.003595^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Compensationmerge <- merge(Compensation, CompensationTrend, by = "date")
 Compensationmerge$value <- cumsum(Compensationmerge$value/12)
 Compensationmerge$trend <- cumsum(Compensationmerge$trend/12)
@@ -62,7 +62,7 @@ Compensationmerge <- data.frame(date = Compensationmerge$date, savings = Compens
 
 Proprietor <- fredr(series_id = "A041RC1",observation_start = as.Date("2018-01-01"))
 #2.6% annual growth rate trend
-ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 1656.3*1.002141^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 1656.3*1.002141^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Proprietormerge <- merge(Proprietor, ProprietorTrend, by = "date")
 Proprietormerge$value <- cumsum(Proprietormerge$value/12)
 Proprietormerge$trend <- cumsum(Proprietormerge$trend/12)
@@ -70,7 +70,7 @@ Proprietormerge <- data.frame(date = Proprietormerge$date, savings = Proprietorm
 
 Int_Dividend <- fredr(series_id = "PIROA",observation_start = as.Date("2018-01-01"))
 #4.3% annual growth rate trend
-Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 2984.6*1.003515^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 2984.6*1.003515^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Int_Dividendmerge <- merge(Int_Dividend, Int_DividendTrend, by = "date")
 Int_Dividendmerge$value <- cumsum(Int_Dividendmerge$value/12)
 Int_Dividendmerge$trend <- cumsum(Int_Dividendmerge$trend/12)
@@ -81,7 +81,7 @@ ProprietorInt_Dividendmerge <- data.frame(date = GovInsurancemerge$date, savings
 
 TransferReceived <- fredr(series_id = "PCTR",observation_start = as.Date("2018-01-01"))
 #4.00% annual growth rate trend
-TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 3208.8*1.003274^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 3208.8*1.003274^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferReceivedmerge <- merge(TransferReceived, TransferReceivedTrend, by = "date")
 TransferReceivedmerge$value <- cumsum(TransferReceivedmerge$value/12)
 TransferReceivedmerge$trend <- cumsum(TransferReceivedmerge$trend/12)
@@ -90,7 +90,7 @@ TransferReceivedmerge <- data.frame(date = TransferReceivedmerge$date, savings =
 
 PCE <- fredr(series_id = "PCE",observation_start = as.Date("2018-01-01")) 
 #4.2% annual growth rate trend
-PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 14769.9*1.003434^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 14769.9*1.003434^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 PCEmerge <- merge(PCE, PCETrend, by = "date")
 PCEmerge$value <- cumsum(PCEmerge$value/12)
 PCEmerge$trend <- cumsum(PCEmerge$trend/12)
@@ -99,7 +99,7 @@ PCEmerge <- data.frame(date = PCEmerge$date, savings = PCEmerge$value-PCEmerge$t
 
 InterestPaid <- fredr(series_id = "B069RC1",observation_start = as.Date("2018-01-01"))
 #6.3% annual growth rate trend
-InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 346.3*1.005104^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 346.3*1.005104^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 InterestPaidmerge <- merge(InterestPaid, InterestPaidTrend, by = "date")
 InterestPaidmerge$value <- cumsum(InterestPaidmerge$value/12)
 InterestPaidmerge$trend <- cumsum(InterestPaidmerge$trend/12)
@@ -108,7 +108,7 @@ InterestPaidmerge <- data.frame(date = InterestPaidmerge$date, savings = Interes
 
 TransferPaid <- fredr(series_id = "W211RC1",observation_start = as.Date("2018-01-01")) 
 #3.4% annual growth rate trend
-TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-02-01"), "months")), trend = 212.6*1.002790^(0:25)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 212.6*1.002790^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferPaidmerge <- merge(TransferPaid, TransferPaidTrend, by = "date")
 TransferPaidmerge$value <- cumsum(TransferPaidmerge$value/12)
 TransferPaidmerge$trend <- cumsum(TransferPaidmerge$trend/12)
@@ -125,13 +125,13 @@ Savings_Component <- data.frame(date = TransferPaidmerge$date,
 Savings_Component <- pivot_longer(Savings_Component, cols = Compensation:InterestPaid)
 
 Savings_Component_Graph <- ggplot() + #plotting components of excess savings
-  geom_area(data = Savings_Component, aes(x = date, y = value/1000, fill = name, color = NULL), size = 0) +
+  geom_area(data = Savings_Component, aes(x = date, y = value/1000, fill = name), color = NA, size = 0) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1,3.5), breaks = c(-1,0,1,2,3), expand = c(0,0)) +
   ylab("Contribution to Excess Savings, Trillions of Dollars") +
   ggtitle("A Penny Saved...") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Transfers and Spending Cutbacks Buoyed Savings Despite Lower Labor and Capital Income") +
-  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  theme_apricitas + theme(legend.position = c(.25,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED"), breaks = c("TransferReceived","PCE","Compensation","ProprietorInt_Dividend","InterestPaid","TaxesGovInsurance"), labels = c("Government Transfers","Personal Consumption Expenditures","Labor Income","Capital/Proprietors' Income","Interest Payments","Taxes")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*720), xmax = as.Date("2020-01-01")-(0.049*720), ymin = -1-(.3*4.5), ymax = -1) +
   coord_cartesian(clip = "off")
@@ -153,17 +153,19 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 12.5-(.3*10), ymax = 12.5) +
   coord_cartesian(clip = "off")
 
+CUMSUMDSPImerge$total <- (CUMSUMDSPImerge$value-CUMSUMDSPImerge$trend)-(CUMSUMPOUTmerge$value-CUMSUMPOUTmerge$trend) #graphing total excess savings
+
 Cumulative_Savings_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
   geom_area(data = CUMSUMDSPImerge, aes(x = date, y = (value-trend)/1000, fill = "Increased Income", color = NULL), size = 0) +
   geom_area(data = CUMSUMPOUTmerge, aes(x = date, y = (value-trend)/1000, fill = "Decreased Spending", color = NULL), size = 0) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1.5,1.5), breaks = c(-1.5,-1,-0.5,0,0.5,1,1.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1.5,1.75), breaks = c(-1.5,-1,-0.5,0,0.5,1,1.5), expand = c(0,0)) +
   ylab("Cumulative Deviation from Trend, Trillions of Dollars") +
   ggtitle("A Penny Saved...") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "With Less Spending and More Income, Americans Have Saved Trillions of Dollars") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"), breaks = c("Increased Income", "Decreased Spending")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*720), xmax = as.Date("2020-01-01")-(0.049*720), ymin = -1.5-(.3*3), ymax = -1.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*720), xmax = as.Date("2020-01-01")-(0.049*720), ymin = -1.5-(.3*3.25), ymax = -1.5) +
   coord_cartesian(clip = "off")
 
 Undistributed_Profits_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines

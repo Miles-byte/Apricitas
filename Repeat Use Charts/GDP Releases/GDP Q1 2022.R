@@ -28,6 +28,10 @@ ContribQuarterlyBind$series_id <- gsub("A822RY2Q224SBEA", "Government", ContribQ
 
 LaborProductivity <- fredr(series_id = "OPHNFB",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pca") #labor productivity
 
+TradeDeficit <- fredr(series_id = "BOPGTB",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #trade deficit
+
+Port_Throughput <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/021022/PortThroughput.csv")
+Port_Throughput$Date <- as.Date(Port_Throughput$Date, "%m/%d/%Y")
 
 #Graphing GDP
 RGDP_Graph <- ggplot() +
@@ -97,8 +101,31 @@ LaborProductivity_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7000), xmax = as.Date("2000-01-01")-(0.049*7000), ymin = -0.09-(.3*.20), ymax = -0.09) +
   coord_cartesian(clip = "off")
 
-CHINA IMPORTS NSA AND SA
-INITIAL CLAIMS and CONTINUING CLAIMS
+TradeDeficit_Graph <- ggplot() + 
+  geom_line(data = TradeDeficit, aes(x=date, y = -value/1000, color = "US Goods Trade Deficit, Balance of Payments Basis"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,140), breaks = c(0,50,100), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Trading Up") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The US Trade Deficit Hit A Record High in March") +
+  theme_apricitas + theme(legend.position = c(.50,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7200), xmax = as.Date("2000-01-01")-(0.049*7200), ymin = 0-(.3*140), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+Port_Throughput_Graph <- ggplot() + 
+  geom_line(data = Port_Throughput, aes(x = Date, y = LA/1000, color = "Los Angeles"), size = 1.25) +
+  geom_line(data = Port_Throughput, aes(x = Date, y = LB/1000, color = "Long Beach"), size = 1.25) +
+  geom_line(data = Port_Throughput, aes(x = Date, y = NYNJ/1000, color = "New York/New Jersey"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"),limits = c(0,610), breaks = c(0,200,400,600), expand = c(0,0)) +
+  ylab("Loaded Imports, TEUs") +
+  ggtitle("A Crisis of Abundance") +
+  labs(caption = "Graph created by @JosephPolitano using LA,LB,and NY/NJ Port data",subtitle = "Import Throughput Has Jumped up at Major Ports During March") +
+  theme_apricitas + theme(legend.position = c(.45,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = 0-(.3*610), ymax = 0) +
+  coord_cartesian(clip = "off")
 
 
 ggsave(dpi = "retina",plot = GDPMonthlyContrib_Graph, "Monthly GDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -106,6 +133,8 @@ ggsave(dpi = "retina",plot = RFSALEDOMPRIV_Graph, "Real Final Private Sales.png"
 ggsave(dpi = "retina",plot = RealPrivateInventories_Graph, "Real Private Inventories.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RGDP_Graph, "RGDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LaborProductivity_Graph, "Labor Productivity Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = TradeDeficit_Graph, "Trade Deficit Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Port_Throughput_Graph, "Port Throughput.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

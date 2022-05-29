@@ -3,7 +3,7 @@ pacman::p_load(magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio
 Inventory <- fredr(series_id = "MRTSIM441USS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 Capacity_Util <- fredr(series_id = "CAPUTLG33611S",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 Assemblies <- fredr(series_id = "MVATOTASSS",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
-
+AssembliesNSA <- fredr(series_id = "MVATOTASSN",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 Total_Car_Sales <- fredr(series_id = "TOTALSA",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 Auto_Car_Sales <- fredr(series_id = "LAUTOSA",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -122,14 +122,15 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
 
 Assemblies_Graph <- ggplot() + #plotting auto assemblies
   geom_line(data=Assemblies, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies"), size = 1.25)+ 
+  geom_line(data=AssembliesNSA, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies (NSA)"), size = 1.25)+ 
   xlab("Date") +
-  ylab("Motor Vehicle Assemblies, Millions") +
+  ylab("Motor Vehicle Assemblies, Millions, Annual Rate") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Some Assembly Required") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "There is Still a Major Shortfall in Motor Vehicle Assemblies") +
-  theme_apricitas + theme(legend.position = c(0.40,0.92)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9")) +
+  theme_apricitas + theme(legend.position = c(0.25,0.32)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(1430)), xmax = as.Date("2018-01-01")-(0.049*(1430)), ymin = 0-(.3*14), ymax = 0) +

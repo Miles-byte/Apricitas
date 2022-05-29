@@ -24,6 +24,15 @@ WORKINGAGEPOP <- fredr(series_id = "LNU00000060",realtime_start = NULL, realtime
 
 Top1pct <- fredr(series_id = "WFRBST01108",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL)
 
+T5 <- fredr(series_id = "DGS5",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #5 year nominal interest rates
+T5IE <- fredr(series_id = "T5YIE",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #5 year inflation expectations
+T5RL <- fredr(series_id = "DFII5",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+
+T5Bind <- rbind(T5IE,T5RL) #binding real yields and inflation expectations
+T5Bind <- drop_na(T5Bind)
+T5Bind$series_id <- gsub("T5YIE","5-Year Breakeven Inflation Expectations",T5Bind$series_id)
+T5Bind$series_id <- gsub("DFII5","5-Year Real Bond Yield",T5Bind$series_id)
+T5 <- drop_na(T5)
 
 IORB <- fredr(series_id = "IORB",realtime_start = NULL, realtime_end = NULL)
 IOER <- fredr(series_id = "IOER",observation_start = as.Date("2010-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -33,6 +42,23 @@ TENYRREAL <- fredr(series_id = "DFII10",realtime_start = NULL, realtime_end = NU
 TENYR <- drop_na(TENYR)
 TENYRREAL <- drop_na(TENYRREAL)
 
+SPY <- tq_get("VOO", from = "2019-01-01")
+
+T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) + 
+  geom_area(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = T5, aes(x=date, y = value/100, color = "5-Year Nominal Bond Yield"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.02,0.04), breaks = c(-0.02,-.01,0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
+  ylab("%") +
+  ggtitle("The Effects of Monetary Tightening") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Rising and Inflation Expectations are Falling as the Fed Tightens") +
+  theme_apricitas + theme(legend.position = c(.42,.87), legend.spacing.y = unit(-0.2, "cm")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("5-Year Real Bond Yield","5-Year Breakeven Inflation Expectations")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -.02-(.3*0.06), ymax = -0.02) +
+  coord_cartesian(clip = "off")
+
 NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
   geom_line(data=NFCI, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index"), size = 1.25) +
   geom_line(data=NFCICREDIT, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index: Credit Subindex"), size = 1.25) +
@@ -40,10 +66,22 @@ NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
   scale_y_continuous(limits = c(-1,1), breaks = c(-1,-0.5,0,0.5,1), expand = c(0,0)) +
   ylab("Index, 0 = Average, Higher Numbers are Tighter") +
   ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raises Interest Rates") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -1-(.3*2), ymax = -1) +
+  coord_cartesian(clip = "off")
+
+SPY_Graph <- ggplot() + #plotting SPY
+  geom_line(data=SPY, aes(x=date,y= (close/230)-1,color= "S&P 500"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.1,1), breaks = c(0,.25,.5,0.75,1), expand = c(0,0)) +
+  ylab("Total Return") +
+  ggtitle("Risk and Reward") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "The S&P 500 is Down in 2022-Possibly Indicating a Rising Equity Premium") +
+  theme_apricitas + theme(legend.position = c(.40,.65)) +
+  scale_color_manual(name= "Total Return Since Jan 2019",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -.1-(.3*1.1), ymax = -.1) +
   coord_cartesian(clip = "off")
 
 Corp_Issuance_Graph <- ggplot() + #plotting corporate bond issuance
@@ -166,6 +204,8 @@ ggsave(dpi = "retina",plot = Corp_Issuance_Graph, "Corporate Issuance.png", type
 ggsave(dpi = "retina",plot = Yield_Curve_Graph, "Yield Curve.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Workingagepop_Graph, "Working Age Population.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Top1Pct_Graph, "Top 1 pct.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = T5RATES_Graph, "T5 Rates.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SPY_Graph, "SPY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
