@@ -150,7 +150,7 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   scale_fill_manual(name = NULL, values = c("#EE6055","#A7ACD9")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1400), xmax = as.Date("2018-01-01")-(0.049*1400), ymin = 12.5-(.3*10), ymax = 12.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1600), xmax = as.Date("2018-01-01")-(0.049*1600), ymin = 12.5-(.3*10), ymax = 12.5) +
   coord_cartesian(clip = "off")
 
 CUMSUMDSPImerge$total <- (CUMSUMDSPImerge$value-CUMSUMDSPImerge$trend)-(CUMSUMPOUTmerge$value-CUMSUMPOUTmerge$trend) #graphing total excess savings
@@ -166,6 +166,18 @@ Cumulative_Savings_Graph <- ggplot() + #plotting personal income and outlays aga
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"), breaks = c("Increased Income", "Decreased Spending")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*720), xmax = as.Date("2020-01-01")-(0.049*720), ymin = -1.5-(.3*3.25), ymax = -1.5) +
+  coord_cartesian(clip = "off")
+
+Total_Excess_Savings_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = CUMSUMDSPImerge, aes(x = date, y = total/1000, color = "Estimated Excess Savings"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.5), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Breaking the (Piggy) Bank") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down $150 Billion as Americans Spend More Money") +
+  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*800), xmax = as.Date("2020-01-01")-(0.049*800), ymin = 0-(.3*2.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Undistributed_Profits_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
@@ -259,6 +271,7 @@ ggsave(dpi = "retina",plot = DFAconsumercredit_Graph, "Consumer Credit.png", typ
 ggsave(dpi = "retina",plot = LiquidAssets_Barplot_Graph, "Liquid Assets.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Savings_Component_Graph, "Savings Component.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PSAVert_Graph, "Personal Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Total_Excess_Savings_Graph, "Total Excess Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 

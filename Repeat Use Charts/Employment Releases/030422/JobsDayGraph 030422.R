@@ -39,7 +39,7 @@ Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
-Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-01-01"), "months")
+Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-04-01"), "months")
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
@@ -263,7 +263,7 @@ Total_Layoffs_Graph <- ggplot() + #plotting total discharges
   theme_apricitas + theme(legend.position = c(.55,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2019-06-01"), y = 1.525, color ="white", size = 4, alpha = 0.75) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1395), ymin = 0-(.3*3), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1495), xmax = as.Date("2018-01-01")-(0.049*1495), ymin = 0-(.3*3), ymax = 0) +
   coord_cartesian(clip = "off")
 
 EPOP_SA_NSA_Graph <- ggplot() + #plotting total discharges
