@@ -152,7 +152,7 @@ PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as P
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending on Goods Shot Up after the Pandemic Hit, but is Now Stalling") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 83-(.3*47), ymax = 83) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 83-(.3*57), ymax = 83) +
   coord_cartesian(clip = "off")
 
 AIRFARES_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services

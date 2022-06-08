@@ -187,7 +187,7 @@ Undistributed_Profits_Graph <- ggplot() + #plotting personal income and outlays 
   ylab("Trillions of Dollars") +
   ggtitle("Rainy Day Funds") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Corporate America is Saving Money Too, Given Pandemic-Induced Risks") +
-  theme_apricitas + theme(legend.position = c(.50,.90)) +
+  theme_apricitas + theme(legend.position = c(.45,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = 0-(.3*1.5), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -263,6 +263,193 @@ DFAconsumercredit_Graph <- ggplot() + #plotting personal income and outlays agai
   coord_cartesian(clip = "off")
 
 
+
+
+
+SHED_2020 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202020.csv")
+SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
+SHED_2021 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202021.csv")
+
+
+SHED_2019$ppincimp <- gsub("Less than \\$5,000","<$10k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$5,000 to \\$7,499","<$10k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$7,500 to \\$9,999","<$10k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$10,000 to \\$12,499","$10k-$25k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$12,500 to \\$14,999","$10k-$25k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$15,000 to \\$19,999","$10k-$25k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$20,000 to \\$24,999","$10k-$25k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$25,000 to \\$29,999","$25k-$50k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$30,000 to \\$34,999","$25k-$50k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$35,000 to \\$39,999","$25k-$50k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$40,000 to \\$49,999","$25k-$50k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$50,000 to \\$59,999","$50k-$75k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$60,000 to \\$74,999","$50k-$75k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$75,000 to \\$84,999","$75k-$100k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$85,000 to \\$99,999","$75k-$100k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$100,000 to \\$124,999","$100k-$150k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$125,000 to \\$149,999","$100k-$150k",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$150,000 to \\$174,999","$150k+",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$175,000 to \\$199,999","$150k+",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$200,000 to \\$249,999","$150k+",SHED_2019$ppincimp)
+SHED_2019$ppincimp <- gsub("\\$250,000 or more","$150k+",SHED_2019$ppincimp)
+
+SHED_2020$ppincimp <- gsub("Less than \\$5,000","<$10k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$5,000 to \\$7,499","<$10k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$7,500 to \\$9,999","<$10k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$10,000 to \\$12,499","$10k-$25k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$12,500 to \\$14,999","$10k-$25k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$15,000 to \\$19,999","$10k-$25k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$20,000 to \\$24,999","$10k-$25k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$25,000 to \\$29,999","$25k-$50k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$30,000 to \\$34,999","$25k-$50k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$35,000 to \\$39,999","$25k-$50k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$40,000 to \\$49,999","$25k-$50k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$50,000 to \\$59,999","$50k-$75k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$60,000 to \\$74,999","$50k-$75k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$75,000 to \\$84,999","$75k-$100k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$85,000 to \\$99,999","$75k-$100k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$100,000 to \\$124,999","$100k-$150k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$125,000 to \\$149,999","$100k-$150k",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$150,000 to \\$174,999","$150k+",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$175,000 to \\$199,999","$150k+",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$200,000 to \\$249,999","$150k+",SHED_2020$ppincimp)
+SHED_2020$ppincimp <- gsub("\\$250,000 or more","$150k+",SHED_2020$ppincimp)
+
+
+SHED_2019 <- select(SHED_2019, ppincimp, EF1, weight)
+SHED_2020 <- select(SHED_2020, ppincimp, EF1, weight)
+
+Emergency_Expenses21 <- crosstab(df = SHED_2021, x = ppinc7, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+Emergency_Expenses20 <- crosstab(df = SHED_2020, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+Emergency_Expenses19 <- crosstab(df = SHED_2019, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+
+levels(Emergency_Expenses21$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                            "$10k-$25k" = "$10,000 to $24,999",
+                                            "$25k-$50k" = "$25,000 to $49,999",
+                                            "$50k-$75k" = "$50,000 to $74,999",
+                                            "$75k-$100k" = "$75,000 to $99,999",
+                                            "$100k-$150k" = "$100,000 to $149,999",
+                                            "$150k+" = "$150,000 or more")
+
+
+levels(Emergency_Expenses21$EF1) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
+
+
+levels(Emergency_Expenses20$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                               "$10k-$25k"="$10k-$25k",
+                                               "$25k-$50k"="$25k-$50k",
+                                               "$50k-$75k"="$50k-$75k",
+                                               "$75k-$100k"="$75k-$100k",
+                                               "$100k-$150k"="$100k-$150k",
+                                               "$150k+"="$150k+")
+
+
+levels(Emergency_Expenses20$EF1) <- list( "Refused to Answer" = "Refused","No" = "No","Yes"="Yes" #renaming and reordering the answers
+)
+levels(Emergency_Expenses19$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                               "$10k-$25k"="$10k-$25k",
+                                               "$25k-$50k"="$25k-$50k",
+                                               "$50k-$75k"="$50k-$75k",
+                                               "$75k-$100k"="$75k-$100k",
+                                               "$100k-$150k"="$100k-$150k",
+                                               "$150k+"="$150k+")
+
+
+levels(Emergency_Expenses19$EF1) <- list( "Refused to Answer" = "Refused","No" = "No","Yes"="Yes" #renaming and reordering the answers
+)
+
+Emergency_Expenses_2020_Graph <- ggplot(Emergency_Expenses20, aes(x = ppincimp,pct/100, fill = EF1))+
+  geom_bar(stat = "identity", color = NA) +
+  xlab("Household Income Bin") +
+  ylab("") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Do You Have Emergency Funds That Could Cover 3 Months' Expenses?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Responses by Household Income, Weighted, 2020") +
+  theme_economist() +
+  scale_fill_economist(name="")
+
+Emergency_Expenses_2019_Graph <- ggplot(Emergency_Expenses19, aes(x = ppincimp,pct/100, fill = EF1))+
+  geom_bar(stat = "identity", color = NA) +
+  xlab("Household Income Bin") +
+  ylab("") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Do You Have Emergency Funds That Could Cover 3 Months' Expenses?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Responses by Household Income, Weighted, 2019") +
+  theme_economist() +
+  scale_fill_economist(name="")
+
+Emergency_Expenses_2021_Graph <- ggplot(Emergency_Expenses21, aes(x = ppinc7,pct/100, fill = EF1))+
+  geom_bar(stat = "identity", color = NA) +
+  xlab("Household Income Bin") +
+  ylab("") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Do You Have Emergency Funds That Could Cover 3 Months' Expenses?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Responses by Household Income, Weighted, 2021") +
+  theme_economist() +
+  scale_fill_economist(name="")
+
+Emergency_Expenses19 <- subset(Emergency_Expenses19, EF1 == "Yes")
+Emergency_Expenses20 <- subset(Emergency_Expenses20, EF1 == "Yes")
+Emergency_Expenses21 <- subset(Emergency_Expenses21, EF1 == "Yes")
+
+Merge1920 <- merge(Emergency_Expenses19,Emergency_Expenses20, by = "ppincimp")
+Merge1920 <- select(Merge1920, c(ppincimp, pct.x, pct.y))
+colnames(Emergency_Expenses21) <- c("ppincimp", "EF1", "pct", "n")
+colnames(Merge1920) <- c("ppincimp", "2019", "2020")
+Merge192021 <- merge(Merge1920,Emergency_Expenses21, by = "ppincimp")
+Merge192021 <- select(Merge192021, c(ppincimp, "2019", "2020", pct))
+colnames(Merge192021) <- c("ppincimp", "2019", "2020", "2021")
+
+Merge192021 <- pivot_longer(Merge192021, cols = c("2019","2020","2021"), names_to = "Year")
+
+Emergency_Expenses_Merge_192021 <- ggplot(data = Merge192021, aes(x = ppincimp, y = value/100, fill = Year)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percentage") +
+  ggtitle("Share of Households With a 3 Month Emergency Fund") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Aggregate Savings Have Improved Financial Security-Marginally") +
+  theme_apricitas + theme(legend.position = c(.20,.60), plot.title = element_text(size = 20, color = "white")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+  
+Credit_Cards <- fredr(series_id = "REVOLSL",observation_start = as.Date("2018-01-01")) #downloading credit card balances
+
+FedDeficit <- fredr(series_id = "MTSDS133FMS",observation_start = as.Date("2017-01-01")) #downloading credit card balances
+FedDeficit$rollmean <- c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(FedDeficit$value, 12))
+
+Credit_Cards_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = Credit_Cards, aes(x = date, y = value/1000, color = "Revolving Consumer Credit Owned and Securitized"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.005),limits = c(.960,1.125), breaks = c(.975,1,1.025,1.05,1.075,1.1,1.125), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Swipe Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Credit Card Balances are Returning to Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.45,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = .960-(.3*0.160), ymax = .960) +
+  coord_cartesian(clip = "off")
+
+FedDeficit <- subset(FedDeficit, date > as.Date("2017-12-31"))
+
+Fed_Deficit_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = FedDeficit, aes(x = date, y = value/1000000, color = "Monthly Federal Deficit/Surplus"), size = 1.25) +
+  geom_line(data = FedDeficit, aes(x = date, y = rollmean/1000000, color = "Monthly Federal Deficit/Surplus (12M Moving Average)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.25),limits = c(-1,0.5), breaks = c(-1,-0.75,-0.5,-0.25,0,0.25,0.5), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Tax and Spend") +
+  labs(caption = "Graph created by @JosephPolitano using Treasury data",subtitle = "The Federal Deficit is Rapidly Shrinking") +
+  theme_apricitas + theme(legend.position = c(.45,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = -1-(.3*1.5), ymax = -1) +
+  coord_cartesian(clip = "off")
+  
 ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Cumulative_Savings_Graph, "Cumulative Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Undistributed_Profits_Graph, "Undistributed Profits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -272,6 +459,11 @@ ggsave(dpi = "retina",plot = LiquidAssets_Barplot_Graph, "Liquid Assets.png", ty
 ggsave(dpi = "retina",plot = Savings_Component_Graph, "Savings Component.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PSAVert_Graph, "Personal Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Total_Excess_Savings_Graph, "Total Excess Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Emergency_Expenses_Merge_192021, "Emergency Expenses Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Credit_Cards_Graph, "Credit Card Spending.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Fed_Deficit_Graph , "Fed Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 
 

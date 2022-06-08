@@ -262,7 +262,7 @@ Total_Layoffs_Graph <- ggplot() + #plotting total discharges
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Layoffs and Discharges Have Hit Record Lows") +
   theme_apricitas + theme(legend.position = c(.55,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2019-06-01"), y = 1.525, color ="white", size = 4, alpha = 0.75) +
+  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2019-04-01"), y = 1.525, color ="white", size = 4, alpha = 0.75) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1495), xmax = as.Date("2018-01-01")-(0.049*1495), ymin = 0-(.3*3), ymax = 0) +
   coord_cartesian(clip = "off")
 

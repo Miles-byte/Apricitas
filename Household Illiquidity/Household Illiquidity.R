@@ -2,12 +2,29 @@ pacman::p_load(pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,f
 
 SHED_2020 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202020.csv")
 SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
+SHED_2021 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202021.csv")
+
 Delinquencies <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/Delinquency.csv")
+
+Emergency_Expenses21 <- crosstab(df = SHED_2021, x = ppinc7, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
 
 Emergency_Expenses20 <- crosstab(df = SHED_2020, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
 Emergency_Expenses_2020
 
 Emergency_Expenses19 <- crosstab(df = SHED_2019, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+
+levels(Emergency_Expenses21$ppinc7) <- list("<10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                              "10k-25k" = "$10,000 to $24,999",
+                                              "25k-50k" = "$25,000 to $49,999",
+                                              "50k-75k" = "$50,000 to $74,999",
+                                              "75k-100k" = "$75,000 to $99,999",
+                                              "100k-150k" = "$100,000 to $149,999",
+                                              "150k+" = "$150,000 or more")
+
+
+levels(Emergency_Expenses21$EF1) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
+
 
 levels(Emergency_Expenses20$ppincimp) <- list("<5k" ="Less than $5,000", #renaming household income so it fits on the chart
                                                       "7k" = "$5,000 to $7,499",
@@ -61,7 +78,7 @@ levels(Emergency_Expenses19$EF1) <- list( "Refused to Answer" = "Refused","No" =
 )
 
 Emergency_Expenses_2020_Graph <- ggplot(Emergency_Expenses20, aes(x = ppincimp,pct/100, fill = EF1))+
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", color = NA) +
   xlab("Household Income Bin") +
   ylab("") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
@@ -71,12 +88,22 @@ Emergency_Expenses_2020_Graph <- ggplot(Emergency_Expenses20, aes(x = ppincimp,p
   scale_fill_economist(name="")
 
 Emergency_Expenses_2019_Graph <- ggplot(Emergency_Expenses19, aes(x = ppincimp,pct/100, fill = EF1))+
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity", color = NA) +
   xlab("Household Income Bin") +
   ylab("") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Do You Have Emergency Funds That Could Cover 3 Months' Expenses?") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Responses by Household Income, Weighted, 2019") +
+  theme_economist() +
+  scale_fill_economist(name="")
+
+Emergency_Expenses_2021_Graph <- ggplot(Emergency_Expenses21, aes(x = ppinc7,pct/100, fill = EF1))+
+  geom_bar(stat = "identity", color = NA) +
+  xlab("Household Income Bin") +
+  ylab("") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Do You Have Emergency Funds That Could Cover 3 Months' Expenses?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Responses by Household Income, Weighted, 2021") +
   theme_economist() +
   scale_fill_economist(name="")
 
@@ -254,6 +281,7 @@ Delinquencies_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = Emergency_Expenses_2019_Graph, "2019 SHED Emergency Funds.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_2020_Graph, "2020 SHED Emergency Funds.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Emergency_Expenses_2021_Graph, "2021 SHED Emergency Funds.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_19_Borrow_Graph, "2019 SHED Emergency Funds Borrowing.png",height = 5.76, width = 9.25, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Emergency_Expenses_19_Borrow_Graph_No, "2019 SHED Emergency Funds Borrowing pctNo.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Surprise_Expense_Crosstab_Graph, "$400 Emergency Expense Crosstab Graph.png",height = 5.76, width = 9.5, type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

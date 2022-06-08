@@ -176,6 +176,19 @@ Total_Quits_Graph <- ggplot() + #plotting total quits
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 2-(.3*3), ymax = 2) +
   coord_cartesian(clip = "off")
 
+Total_Quits_Graph <- ggplot() + #plotting total quits and layoffs
+  geom_line(data=Total_Quits, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
+  geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(2,3,4,5), limits = c(2,5), expand = c(0,0)) +
+  ggtitle("The Great Reshuffling") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "A Record Number of Americans are Quitting Their Jobs") +
+  theme_apricitas + theme(legend.position = c(.65,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 2-(.3*3), ymax = 2) +
+  coord_cartesian(clip = "off")
+
 Race_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=UNRATEWhite, aes(x=date,y= value/100,color= "Unemployment Rate - White"), size = 1.25)+ 
   geom_line(data=UNRATEBlack, aes(x=date,y= value/100,color= "Unemployment Rate - Black or African American"), size = 1.25)+ 
