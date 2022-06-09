@@ -20,6 +20,47 @@ US_Nat_Gas <- fredr(series_id = "PNGASUSUSDM",observation_start = as.Date("2019-
 
 ICE_HY_SPREAD_EURO <- fredr(series_id = "BAMLHE00EHYIOAS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
 
+EURO_NGDP <- fredr(series_id = "EUNNGDP",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US NGDP
+US_NGDP <- fredr(series_id = "GDP",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU NGDP
+
+GDPTrend <- data.frame(date = c(seq(as.Date("2019-10-01"), as.Date("2022-01-01"), "months")), trend = 21694.46*1.003274^(0:27))
+
+GRETENYR <- fredr(series_id = "IRLTLT01GRM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+ITATENYR <- fredr(series_id = "IRLTLT01ITM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+PORTENYR <- fredr(series_id = "IRLTLT01PTM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+GERTENYR <- fredr(series_id = "IRLTLT01DEM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+
+SpreadsRbind <- pivot_wider(rbind(GRETENYR,ITATENYR,PORTENYR,GERTENYR), names_from = series_id)
+
+EU_Spreads_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
+  geom_line(data=SpreadsRbind, aes(x=date,y= (IRLTLT01GRM156N-IRLTLT01DEM156N)/100, color= "Greece"), size = 1.25) +
+  geom_line(data=SpreadsRbind, aes(x=date,y= (IRLTLT01ITM156N-IRLTLT01DEM156N)/100, color= "Italy"), size = 1.25) +
+  geom_line(data=SpreadsRbind, aes(x=date,y= (IRLTLT01PTM156N-IRLTLT01DEM156N)/100, color= "Portugal"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.05), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
+  ylab("Spreads with German Bonds, %") +
+  ggtitle("European Financial Tightening") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "Financial Tightening is Increasing Eurozone Bond Spreads Again") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= "Spreads Between 10 Year German Government Bonds",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.05), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+US_EU_NGDP_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = EURO_NGDP, aes(x=date, y = value/30252.62, color = "US NGDP"), size = 1.25) + 
+  geom_line(data = US_NGDP, aes(x=date, y = value/216.9446 , color = "Euro Area NGDP"), size = 1.25) + 
+  geom_line(data = GDPTrend, aes(x=date, y = trend/216.9446, color = "4% NGDP Growth Trend"), size = 1.25, linetype = "dashed") + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
+  ylab("Index, Q4 2019 = 100") +
+  ggtitle("The EU's Different Inflation Problem") +
+  labs(caption = "Graph created by @JosephPolitano using BEA and EuroStat data",subtitle = "Aggregate Spending is Above Trend in the US-But Not in the EU") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),breaks = c("US NGDP","Euro Area NGDP","4% NGDP Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 85-(.3*30), ymax = 85) +
+  coord_cartesian(clip = "off")
+
 US_EU_NAT_GAS_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   geom_line(data=US_Nat_Gas, aes(x=date,y= value, color= "US Natural Gas"), size = 1.25) +
   geom_line(data=EU_Nat_Gas, aes(x=date,y= value, color= "EU Natural Gas"), size = 1.25) +
@@ -33,13 +74,14 @@ US_EU_NAT_GAS_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*35), ymax = 0) +
   coord_cartesian(clip = "off")
 
+#using getcensus to import data on us exports of nat gas by weight
 US_NAT_GAS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "VES_WGT_MO", "E_COMMODITY", "CTY_CODE"), 
   time = "from 2016 to 2022",
-  E_COMMODITY = "2711110000",
-  CTY_CODE = "4XXX",
-  CTY_CODE = "-"
+  E_COMMODITY = "2711110000", #nat gas commodity code
+  CTY_CODE = "4XXX", # europe country code
+  CTY_CODE = "-" #world country code
 )
 
 US_NAT_GAS_EXPORTS$time <- as.Date(as.yearmon(US_NAT_GAS_EXPORTS$time))
@@ -61,6 +103,8 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting components of excess savings
 
 ggsave(dpi = "retina",plot = US_EU_NAT_GAS_Graph, "US EU NAT GAS PRICES.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US NAT GAS EXPORTS.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_NGDP_Graph, "US EU NGDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EU_Spreads_Graph, "EU Spreads.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons
