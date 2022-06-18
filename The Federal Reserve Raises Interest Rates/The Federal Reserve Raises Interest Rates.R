@@ -1,4 +1,4 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggpubr,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -12,7 +12,7 @@ NFCICREDIT <- fredr(series_id = "NFCICREDIT",observation_start = as.Date("2019-0
 ICECORPORATE <- fredr(series_id = "BAMLC0A0CM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECORPORATE <- drop_na(ICECORPORATE)
 
-ICECCCCORPORATE <- fredr(series_id = "BAMLH0A0HYM2",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+ICECCCCORPORATE <- fredr(series_id = "BAMLH0A0HYM2",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 ICECCCCORPORATE <- drop_na(ICECCCCORPORATE)
 
 Corp_Issuance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/CORP_ISSUANCE.csv")
@@ -42,7 +42,120 @@ TENYRREAL <- fredr(series_id = "DFII10",realtime_start = NULL, realtime_end = NU
 TENYR <- drop_na(TENYR)
 TENYRREAL <- drop_na(TENYRREAL)
 
+FIVEYEARTIPS <- fredr(series_id = "DFII5",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+FIVEYEARTIPS <- drop_na(FIVEYEARTIPS)
+
+SEVENYEARTIPS <- fredr(series_id = "DFII7",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+SEVENYEARTIPS <- drop_na(SEVENYEARTIPS)
+
+TENYEARTIPS <- fredr(series_id = "DFII10",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+TENYEARTIPS <- drop_na(TENYEARTIPS)
+
+TWENTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+TWENTYYEARTIPS <- drop_na(TWENTYYEARTIPS)
+
+#collecting vintages of the SEP Projections, subsetting to 2022 onward, converting dates to month char, and correcting factors
+SEPUNRATE2022 <- fredr(series_id = "UNRATEMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01"))
+SEPUNRATE2022$realtime_start <- as.character(SEPUNRATE2022$realtime_start) %>% { gsub("2022-03-16","March SEP",.) } %>% { gsub("2022-06-15","June SEP",.) } %>% factor(levels = c("March SEP","June SEP"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+
+SEPGDP2022 <- fredr(series_id = "GDPC1MD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01"))
+SEPGDP2022$realtime_start <- as.character(SEPGDP2022$realtime_start) %>% { gsub("2022-03-16","March SEP",.) } %>% { gsub("2022-06-15","June SEP",.) } %>% factor(levels = c("March SEP","June SEP"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+
+SEPPCEPI2022 <- fredr(series_id = "PCECTPIMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01"))
+SEPPCEPI2022$realtime_start <- as.character(SEPPCEPI2022$realtime_start) %>% { gsub("2022-03-16","March SEP",.) } %>% { gsub("2022-06-15","June SEP",.) } %>% factor(levels = c("March SEP","June SEP"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+
+SEPFFR2022 <- fredr(series_id = "FEDTARMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01"))
+SEPFFR2022 $realtime_start <- as.character(SEPFFR2022$realtime_start) %>% { gsub("2022-03-16","March SEP",.) } %>% { gsub("2022-06-15","June SEP",.) } %>% factor(levels = c("March SEP","June SEP"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+
 SPY <- tq_get("VOO", from = "2019-01-01")
+
+#downloading the MOVE interest rate volatility index
+MOVE <- tq_get("^MOVE", from = "2018-01-01")
+MOVE <- drop_na(MOVE) 
+
+MOVE_Graph <- ggplot() + #plotting MOVE
+  geom_line(data=MOVE, aes(x=date,y= close,color= "MOVE Interest Rate Volatility Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  ylab("Index") +
+  ggtitle("Lacking Forward Guidance") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Rapidly Rising as Fed Communication Remains Unclear") +
+  theme_apricitas + theme(legend.position = c(.25,.65)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+SEPUNRATE2022_Graph <- ggplot(data = SEPUNRATE2022, aes(x = date, y = value/100, fill = realtime_start)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0525), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Unemployment Rate") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC"), breaks = c("March SEP","June SEP")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
+
+SEPGDP2022_Graph <- ggplot(data = SEPGDP2022, aes(x = date, y = value/100, fill = realtime_start)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0525), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Real GDP Growth") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC"), breaks = c("March SEP","June SEP")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
+
+SEPPCEPI2022_Graph <- ggplot(data = SEPPCEPI2022, aes(x = date, y = value/100, fill = realtime_start)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0525), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Inflation (PCEPI)") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC"), breaks = c("March SEP","June SEP")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
+
+SEPFFR2022_Graph <- ggplot(data = SEPFFR2022, aes(x = date, y = value/100, fill = realtime_start)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0525), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Interest Rates (FFR)") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC"), breaks = c("March SEP","June SEP")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
+
+#arranging the SEP graphs into one items and adding background and border colors to match the theme
+SEP_ARRANGE_GRAPH <- ggarrange(SEPUNRATE2022_Graph, SEPPCEPI2022_Graph, SEPGDP2022_Graph, SEPFFR2022_Graph,  ncol = 2, nrow = 2, heights = 20, widths = 10, common.legend = TRUE, legend = "bottom") + bgcolor("#252A32") + border("#252A32")
+
+REAL_RATES_GRAPH <- ggplot() + #plotting inflation breakevens
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=FIVEYEARTIPS, aes(x=date,y= value/100 ,color= "5-Year Real Treasury Yield"), size = 1.25) +
+  geom_line(data=SEVENYEARTIPS, aes(x=date,y= value/100 ,color= "7-Year Real Treasury Yield (Fitted)"), size = 1.25) +
+  geom_line(data=TENYEARTIPS, aes(x=date,y= value/100 ,color= "10-Year Real Treasury Yield"), size = 1.25) +
+  geom_line(data=TWENTYYEARTIPS, aes(x=date,y= value/100 ,color= "20-Year Real Treasury Yield (Fitted)"), size = 1.25) +
+  geom_line(data=THIRTYYEARTIPS, aes(x=date,y= value/100 ,color= "30-Year Real Treasury Yield"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.02), breaks = c(-0.02,-0.01,0,0.01,0.02), expand = c(0,0)) +
+  ylab("TIPS Yield, %") +
+  ggtitle("Here's A Tip:") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates Shot Up in the Last Week") +
+  theme_apricitas + theme(legend.position = c(.62,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("5-Year Real Treasury Yield","7-Year Real Treasury Yield (Fitted)","10-Year Real Treasury Yield","20-Year Real Treasury Yield (Fitted)","30-Year Real Treasury Yield")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -0.02-(.3*.04), ymax = -0.02) +
+  coord_cartesian(clip = "off")
 
 T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) + 
   geom_area(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
@@ -120,7 +233,7 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.13), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1600), xmax = as.Date("2018-01-01")-(0.049*1600), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 
@@ -206,6 +319,9 @@ ggsave(dpi = "retina",plot = Workingagepop_Graph, "Working Age Population.png", 
 ggsave(dpi = "retina",plot = Top1Pct_Graph, "Top 1 pct.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = T5RATES_Graph, "T5 Rates.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SPY_Graph, "SPY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = REAL_RATES_GRAPH, "Real Rates.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SEP_ARRANGE_GRAPH, "SEP Arrange.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = MOVE_Graph, "MOVE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

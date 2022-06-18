@@ -157,7 +157,7 @@ THIRTY_YEAR_FIXED_Graph <- ggplot() + #plotting growth in total housing units
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.09),breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("%") +
   ggtitle("Adjusting Rates") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Mortgage Rates Have Rapidly Rebounded to 5%") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Mortgage Rates Have Rapidly Rebounded to Nearly 6%") +
   theme_apricitas + theme(legend.position = c(.5,.90)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7250), xmax = as.Date("2000-01-01")-(0.049*7250), ymin = 0-(.3*.09), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

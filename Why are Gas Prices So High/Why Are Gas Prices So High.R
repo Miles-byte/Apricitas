@@ -81,9 +81,28 @@ Petrol_Profits$Date <- as.Date(Petrol_Profits$Date)
 Capital_Discipline <- data.frame(answer = c("Capital Discipline","Other","ESG Issues","Lack of Access to Financing","Government Regulations"), percent = c(.59,.15,.11,.08,.06))
 Capital_Discipline$answer <- factor(Capital_Discipline$answer, levels = c("Government Regulations","Lack of Access to Financing","ESG Issues","Other","Capital Discipline"), ordered = TRUE)
 
+#modeled crude production and real production data
+Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W", start = "2019")
+Crude_ProductionWeekly <- as.data.frame(Crude_ProductionWeekly$data)
+Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
+Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
 
-Crude_Production <- eia_series("PET.WCRFPUS2.W", start = "2006")
-Crude_Production <- as.data.frame(Crude_Production$data)
+#crude, gas, and diesel prices
+WTIEIA <- eia_series("PET.RWTC.D", start = "2019")
+WTIEIA <- as.data.frame(WTIEIA$data)
+GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019")
+GASEIA <- as.data.frame(GASEIA$data)
+DIESELEIA <- eia_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D", start = "2019")
+DIESELEIA <- as.data.frame(DIESELEIA$data)
+DIESELEIA <- subset(DIESELEIA, date != as.Date("2022-02-21"))
+KEROSENEEIA <- eia_series("PET.EER_EPJK_PF4_RGC_DPG.D", start = "2019")
+KEROSENEEIA <- as.data.frame(KEROSENEEIA$data)
+
+REFINERY_CAPACITY <- eia_series("PET.MOCLEUS2.M", start = "2019")
+REFINERY_CAPACITY <- as.data.frame(REFINERY_CAPACITY$data)
+
+REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019")
+REFINERY_OPERATING_CAPACITY <- as.data.frame(REFINERY_OPERATING_CAPACITY$data)
 
 
 VMT_Graph <- ggplot() + #plotting VMT
@@ -113,15 +132,29 @@ XOP_Graph <- ggplot() + #plotting returns to XOP
   coord_cartesian(clip = "off")
 
 Crude_Production_Graph <- ggplot() + #plotting US Crude Production
-  geom_line(data=Crude_Production, aes(x=date,y= value/1000, color= "US Crude Oil Production Per Day"), size = 1.25) +
+  geom_line(data=Crude_ProductionMonthly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Monthly Official)"), size = 1.25) +
+  geom_line(data=Crude_ProductionWeekly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Weekly Estimates)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(3,14),breaks = c(4,8,12), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(9,14),breaks = c(9,10,11,12,13,14), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
   ggtitle("Sand Trap") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production has not Recovered to Pre-Pandemic Levels, Despite the Jump in Prices") +
-  theme_apricitas + theme(legend.position = c(.5,.90)) +
+  theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*5948), xmax = as.Date("2006-01-01")-(0.049*5948), ymin = 3-(.3*11), ymax = 3) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 9-(.3*5), ymax = 9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+Refinery_Capacity_Graph <- ggplot() + #plotting US Crude Production
+  geom_line(data=REFINERY_CAPACITY, aes(x=date,y= value/1000, color= "U.S. Crude Oil Distillation Capacity"), size = 1.25) +
+  geom_line(data=REFINERY_OPERATING_CAPACITY, aes(x=date,y= value/1000, color= "U.S. Crude Oil Distillation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(15,19),breaks = c(15,16,17,18,19), expand = c(0,0)) +
+  ylab("Mbbl Per Day") +
+  ggtitle("Unrefined Results") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refinery Capacity Has Shrunk During the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.35,.42)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 15-(.3*4), ymax = 15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 Petroleum_Profits_Graph <- ggplot() + #plotting US Crude Production
@@ -162,6 +195,21 @@ GASREGW_Graph <- ggplot() + #plotting Gas Prices
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-08-20")-(.1861*11000), xmax = as.Date("1990-08-20")-(0.049*11561), ymin = 0-(.3*5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+SPREADS_Graph <- ggplot() + #plotting Gas Prices
+  geom_line(data=drop_na(WTIEIA), aes(x=date,y= value, color= "Crude Oil (WTI)"), size = 1.25) +
+  geom_line(data=drop_na(GASEIA), aes(x=date,y= value*42, color= "Gas (Regular)"), size = 1.25) +
+  geom_line(data=drop_na(DIESELEIA), aes(x=date,y= value*42, color= "Diesel"), size = 1.25) +
+  geom_line(data=drop_na(KEROSENEEIA), aes(x=date,y= value*42, color= "Kerosene Type Jet Fuel"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(0,225), expand = c(0,0)) +
+  ylab("Dollars Per Barrel") +
+  ggtitle("Dawn of the Spread") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are High as the World Runs into a Refining Capacity Shortage") +
+  theme_apricitas + theme(legend.position = c(.7,.80)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
 Capital_Discipline_Graph <- ggplot(Capital_Discipline, aes(x = answer, y = percent))+
   geom_bar(aes(fill = answer), position = "dodge", stat = "identity", width = 0.7, color = NA) +
   scale_y_continuous(labels = scales::percent_format(),limits = c(0,.6), breaks = c(0,.1,.2,.3,.4,.5,.6), expand = c(0,0)) + #adding % format
@@ -194,6 +242,8 @@ ggsave(dpi = "retina",plot = WTI_Baker_Graph, "WTI Baker.png", type = "cairo-png
 ggsave(dpi = "retina",plot = GASREGW_Graph, "Gas.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Capital_Discipline_Graph, "Capital Discipline.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GAS_EXPENDITURE_Graph, "Gas Expenditure.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SPREADS_Graph, "Spreads.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Refinery_Capacity_Graph, "Refinery Capacity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

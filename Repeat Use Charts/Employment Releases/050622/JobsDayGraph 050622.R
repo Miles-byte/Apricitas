@@ -39,7 +39,7 @@ Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
-Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-01-01"), "months")
+Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-04-01"), "months")
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
@@ -82,6 +82,7 @@ UNRATEAsian <- fredr(series_id = "LNU04032183",observation_start = as.Date("2019
 
 UNRATETeens <- fredr(series_id = "LNS14000012",observation_start = as.Date("1945-01-01"),realtime_start = NULL, realtime_end = NULL) 
 Total_Quits <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("2019-01-01")) #downloading quits data
+Total_Quits18 <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("2018-01-01")) #downloading quits data
 
 UNLEVEL <- fredr(series_id = c("UNEMPLOY"), observation_start = as.Date("2019-01-01")) #unemployment data
 NILFWJN <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2019-01-01")) #NILF want jobs now
@@ -176,17 +177,18 @@ Total_Quits_Graph <- ggplot() + #plotting total quits
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 2-(.3*3), ymax = 2) +
   coord_cartesian(clip = "off")
 
-Total_Quits_Graph <- ggplot() + #plotting total quits and layoffs
-  geom_line(data=Total_Quits, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
-  geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+ 
+Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
+  geom_line(data=Total_Quits18, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
+  geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+
+  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2019-03-01"), y = 1.525, color ="white", size = 4, alpha = 0.75) +
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(2,3,4,5), limits = c(2,5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("The Great Reshuffling") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "A Record Number of Americans are Quitting Their Jobs") +
-  theme_apricitas + theme(legend.position = c(.65,.87)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is at a Record High; the Number of Layoffs is at a Record Low") +
+  theme_apricitas + theme(legend.position = c(.30,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 2-(.3*3), ymax = 2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1619), xmax = as.Date("2018-01-01")-(0.049*1619), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Race_Graph <- ggplot() + #plotting u1 unemployment rate
@@ -560,6 +562,8 @@ ggsave(dpi = "retina",plot = NILFUnemploy_Graph, "Not In Labor Force vs Unemploy
 ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 
 

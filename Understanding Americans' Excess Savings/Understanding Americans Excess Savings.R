@@ -145,7 +145,7 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("The Bottom Line") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income and Outlays are on Trend, But Consumers Have Significant Excess Savings") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income is on Trend, But Consumers Are Spending Down Their Excess Savings") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   scale_fill_manual(name = NULL, values = c("#EE6055","#A7ACD9")) +

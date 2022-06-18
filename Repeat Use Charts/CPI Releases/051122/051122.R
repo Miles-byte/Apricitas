@@ -120,7 +120,7 @@ PCEPIIND <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),
 AIRFARES <- fredr(series_id = "CUSR0000SETG01",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #pcepi index data
 
 #manually adding 2% CPI growth trend for later chart on above-trend CPI
-CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:26)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
+CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:27)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
 
 #manually adding 4% personal income and outlays growth trend line for later chart on personal income and outlays
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data

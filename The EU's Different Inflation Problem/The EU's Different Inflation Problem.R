@@ -6,11 +6,11 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-EU_CORE_CPI <- fredr(series_id = "EA19CPALTT01GYM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU inflation
-US_CORE_CPI <- fredr(series_id = "CPHPTT01EZM659N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US inflation
+EU_CPI <- fredr(series_id = "EA19CPALTT01GYM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU inflation
+US_CPI <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #US inflation
 
 EU_CORE_CPI <- fredr(series_id = "EA19CPGRLE01GYM",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU core inflation
-US_CORE_CPI <- fredr(series_id = "CPGRLE01USM659N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US core inflation
+US_CORE_CPI <- fredr(series_id = "CPILFESL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #US core inflation
 
 EU_EMP <- fredr(series_id = "LREM25TTEZQ156S",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU prime age epop
 US_EMP <- fredr(series_id = "LREM25TTUSQ156S",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
@@ -30,6 +30,26 @@ ITATENYR <- fredr(series_id = "IRLTLT01ITM156N",observation_start = as.Date("201
 PORTENYR <- fredr(series_id = "IRLTLT01PTM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
 GERTENYR <- fredr(series_id = "IRLTLT01DEM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
 
+AHEUS <- fredr(series_id = "CES0500000003",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+AHEEU <- fredr(series_id = "LCEAPR01EZQ661S",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+AHEND <- fredr(series_id = "LCWRPR01NLM661S",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+AHEAT <- fredr(series_id = "LCWRIN01ATM661N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
+
+ITA10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20EU's%20Different%20Inflation%20Problem/ITALY10YR.csv")
+GER10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20EU's%20Different%20Inflation%20Problem/GERMANY10YR.csv")
+GRE10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20EU's%20Different%20Inflation%20Problem/GREECE10YR.csv")
+
+ITA10YR$ï..Date <- as.Date(ITA10YR$ï..Date, "%m/%d/%Y")
+GER10YR$ï..Date <- as.Date(GER10YR$ï..Date, "%m/%d/%Y")
+GRE10YR$ï..Date <- as.Date(GRE10YR$ï..Date, "%m/%d/%Y")
+
+colnames(ITA10YR) <- c("date","value")
+colnames(GER10YR) <- c("date","value")
+colnames(GRE10YR) <- c("date","value")
+
+ITASPREADS <- merge(ITA10YR,GER10YR, by = "date")
+GRESPREADS <- merge(GRE10YR,GER10YR, by = "date")
+
 SpreadsRbind <- pivot_wider(rbind(GRETENYR,ITATENYR,PORTENYR,GERTENYR), names_from = series_id)
 
 EU_Spreads_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
@@ -43,12 +63,66 @@ EU_Spreads_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "Financial Tightening is Increasing Eurozone Bond Spreads Again") +
   theme_apricitas + theme(legend.position = c(.50,.80)) +
   scale_color_manual(name= "Spreads Between 10 Year German Government Bonds",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.05), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+US_EU_CPI_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=EU_CPI, aes(x=date,y= (value)/100, color= "Eurozone CPI"), size = 1.25) +
+  geom_line(data=US_CPI, aes(x=date,y= (value)/100, color= "US CPI"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.01,0.09), breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
+  ylab("Change From Year Ago, %") +
+  ggtitle("The Global Inflation Problem?") +
+  labs(caption = "Graph created by @JosephPolitano using OECD and BLS data",subtitle = "Headline Inflation is High in the Eurozone and US") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -0.01-(.3*0.1), ymax = -0.01) +
+  coord_cartesian(clip = "off")
+
+US_EU_CORE_CPI_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=EU_CORE_CPI, aes(x=date,y= (value)/100, color= "Eurozone Core CPI"), size = 1.25) +
+  geom_line(data=US_CORE_CPI, aes(x=date,y= (value)/100, color= "US Core CPI"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.01,0.09), breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
+  ylab("Change From Year Ago, %") +
+  ggtitle("The Global Inflation Problem?") +
+  labs(caption = "Graph created by @JosephPolitano using OECD and BLS data",subtitle = "Core Inflation Remains Much Weaker in the Eurozone") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -0.01-(.3*0.1), ymax = -0.01) +
+  coord_cartesian(clip = "off")
+
+US_EU_EPOP_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
+  geom_line(data=EU_EMP, aes(x=date,y= (value)/100, color= "Eurozone Prime Age (25-54) Employment Rate"), size = 1.25) +
+  geom_line(data=US_EMP, aes(x=date,y= (value)/100, color= "US Prime Age (25-54) Employment Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.71,.84), breaks = c(0.72,0.74,0.76,0.78,0.80,0.82,0.84), expand = c(0,0)) +
+  ylab("EmploymenT Rate, %") +
+  ggtitle("Job Retention Schemes") +
+  labs(caption = "Graph created by @JosephPolitano using OECD and BLS data",subtitle = "Job Retention Schemes Kept Employment From Falling in the EU") +
+  theme_apricitas + theme(legend.position = c(.50,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0.71-(.3*0.12), ymax = 0.71) +
+  coord_cartesian(clip = "off")
+
+EU_Spreads_Graph_2 <- ggplot() + #plotting bond spreads in the EU
+  geom_line(data=GRESPREADS, aes(x=date,y= (value.x-value.y)/100, color= "Greece"), size = 1.25) +
+  geom_line(data=ITASPREADS, aes(x=date,y= (value.x-value.y)/100, color= "Italy"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.05), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
+  ylab("Spreads with German Bonds, %") +
+  ggtitle("When All You Have is A Hammer...") +
+  labs(caption = "Graph created by @JosephPolitano using Investing.com data",subtitle = "Financial Tightening is Increasing Eurozone Bond Spreads Again") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= "Spreads Between 10 Year German Government Bonds",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*0.05), ymax = 0) +
   coord_cartesian(clip = "off")
 
 US_EU_NGDP_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
-  geom_line(data = EURO_NGDP, aes(x=date, y = value/30252.62, color = "US NGDP"), size = 1.25) + 
-  geom_line(data = US_NGDP, aes(x=date, y = value/216.9446 , color = "Euro Area NGDP"), size = 1.25) + 
+  geom_line(data = EURO_NGDP, aes(x=date, y = value/30252.62, color = "Eurozone NGDP"), size = 1.25) + 
+  geom_line(data = US_NGDP, aes(x=date, y = value/216.9446 , color = "US NGDP"), size = 1.25) + 
   geom_line(data = GDPTrend, aes(x=date, y = trend/216.9446, color = "4% NGDP Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
   scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
@@ -56,10 +130,36 @@ US_EU_NGDP_Graph <- ggplot() + #plotting personal income and outlays against inc
   ggtitle("The EU's Different Inflation Problem") +
   labs(caption = "Graph created by @JosephPolitano using BEA and EuroStat data",subtitle = "Aggregate Spending is Above Trend in the US-But Not in the EU") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),breaks = c("US NGDP","Euro Area NGDP","4% NGDP Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),breaks = c("US NGDP","Eurozone NGDP","4% NGDP Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 85-(.3*30), ymax = 85) +
   coord_cartesian(clip = "off")
+
+US_EU_Wage_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = AHEUS, aes(x=date, y = value/.2843, color = "Average Hourly Earnings: Private Sector: US"), size = 1.25) + 
+  geom_line(data = AHEND, aes(x=date, y = value/1.095978, color = "Average Wage Rate: Private Sector: Netherlands"), size = 1.25) + 
+  geom_line(data = AHEAT, aes(x=date, y = value/1.118094, color = "Average Wage Rate: Industry: Austria"), size = 1.25) + 
+  geom_line(data = AHEEU, aes(x=date, y = value/1.109704 , color = "Average Hourly Earnings: Private Sector: Eurozone"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(95,115), breaks = c(95,100,105,110,115), expand = c(0,0)) +
+  ylab("Index, Jan 2020 = 100") +
+  ggtitle("A Tale of Two Labor Markets") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and OECD data",subtitle = "Nominal Wages Are Rising Rapidly in the US-but not in the EU") +
+  theme_apricitas + theme(legend.position = c(.40,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Average Hourly Earnings: Private Sector: US","Average Hourly Earnings: Private Sector: Eurozone","Average Wage Rate: Private Sector: Netherlands","Average Wage Rate: Industry: Austria")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 95-(.3*20), ymax = 95) +
+  coord_cartesian(clip = "off")
+
+TTF_FUTURES <- tq_get("TTFQ22.NYM", from = "2019-01-01") #Dutch TTF Futures
+HENRY_HUB <- tq_get("NGQ22.NYM", from = "2019-01-01") #US Nat Gas Futures
+USDEUEX <- fredr(series_id = "DEXUSEU", observation_start = as.Date("2019-01-01")) #US Euro Exchange Rate
+USDEUEX <- tq_get("USDEUR=X", from = "2019-01-01") #US Euro Exchange Rate
+
+
+TTF_USD <- merge(TTF_FUTURES, USDEUEX, by = "date")
+TTF_USD <- select(TTF_USD, c("date","close.x","close.y"))
+colnames(TTF_USD) <- c("date","TTF","EUUSD")
+TTF_USD <- transmute(TTF_USD, date, TTFUSD = (TTF/EUUSD)/3.639)
 
 US_EU_NAT_GAS_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   geom_line(data=US_Nat_Gas, aes(x=date,y= value, color= "US Natural Gas"), size = 1.25) +
@@ -72,6 +172,19 @@ US_EU_NAT_GAS_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1000), xmax = as.Date("2019-01-01")-(0.049*1000), ymin = 0-(.3*35), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+US_EU_NAT_GAS_FUTURES_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
+  geom_line(data=HENRY_HUB, aes(x=date,y= close, color= "US Natural Gas (Henry Hub)"), size = 1.25) +
+  geom_line(data=TTF_USD, aes(x=date,y= TTFUSD, color= "EU Natural Gas (TTF)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(0,40), breaks = c(0,10,20,30,40), expand = c(0,0)) +
+  ylab("US Dollars per MMBtu") +
+  ggtitle("The EU's Different Inflation Problem") +
+  labs(caption = "Graph created by @JosephPolitano using IMF data",subtitle = "Energy Prices Are Spiking in the EU, Pulling Up Inflation") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "August 2022 Futures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1300), xmax = as.Date("2019-01-01")-(0.049*1300), ymin = 0-(.3*40), ymax = 0) +
   coord_cartesian(clip = "off")
 
 #using getcensus to import data on us exports of nat gas by weight
@@ -105,6 +218,12 @@ ggsave(dpi = "retina",plot = US_EU_NAT_GAS_Graph, "US EU NAT GAS PRICES.png", ty
 ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US NAT GAS EXPORTS.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = US_EU_NGDP_Graph, "US EU NGDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EU_Spreads_Graph, "EU Spreads.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EU_Spreads_Graph_2, "EU Spreads 2.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_Wage_Graph, "US EU Wage.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_NAT_GAS_FUTURES_Graph, "US EU Nat Gas Futures.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_CORE_CPI_Graph, "US EU Core CPI.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_CPI_Graph, "US EU CPI.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_EU_EPOP_Graph, "US EU EPOP.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

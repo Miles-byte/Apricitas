@@ -72,9 +72,9 @@ Wage_Growth_Quartile_Graph <- ggplot() + #plotting wage growth by quartile
   geom_line(data=Wage_Growth_Quartile, aes(x=date,y= X3rd/100,color= "3rd"), size = 1.25)+ 
   geom_line(data=Wage_Growth_Quartile, aes(x=date,y= X4th/100,color= "4th"), size = 1.25)+ 
   xlab("Date") +
-  ylab("Wage Growth Rate, %") +
+  ylab("Median Annual Wage Growth, 3 Month Moving Average %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.02,.04,.06), limits = c(0,.07), expand = c(0,0)) +
-  ggtitle("Show Me the Money!") +
+  ggtitle("The Rising Tide") +
   labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Wage Growth is Highest for Low-Income Workers, as is Often the Case in Tight Labor Markets") +
   theme_apricitas + theme(legend.position = c(.7,.8),legend.title=element_text(size=14)) +
   scale_color_manual(name= "Wage Growth by Quartile",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
