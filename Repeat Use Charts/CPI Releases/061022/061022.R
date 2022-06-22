@@ -1,4 +1,4 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("quantmod")
 install.packages("cli")
 install_github("keberwein/blscrapeR")
@@ -121,6 +121,13 @@ PCEPIIND <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),
 
 AIRFARES <- fredr(series_id = "CUSR0000SETG01",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #pcepi index data
 
+#downloading aggregate PCE and PCE durable/nondurable goods for spending comparisons graph
+PCE2 <- fredr(series_id = "PCE",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE
+PCEDG <- fredr(series_id = "PCEDG",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE durable goods
+PCEND <- fredr(series_id = "PCEND",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE nondurable goods
+PCEDGmerge <- merge(PCE2, PCEDG, by = "date")
+PCENDmerge <- merge(PCE2, PCEND, by = "date")
+
 #manually adding 2% CPI growth trend for later chart on above-trend CPI
 CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:27)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
 
@@ -143,6 +150,10 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 CPI_SERV_DURABLE <- merge(CPIDURABLE,CPISERVICE, by = "date") #merging cpi services and durables data
 
+WTIEIA <- eia_series("PET.RWTC.D", start = "2019")
+WTIEIA <- as.data.frame(WTIEIA$data)
+
+
 PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services
   geom_line(data=PCE, aes(x=date,y= (value/141.04) ,color= "Total Personal Consumption Expenditures"), size = 1.25) +
   geom_line(data=PCEGD, aes(x=date,y= (value/43.46) ,color= "Goods Personal Consumption Expenditures"), size = 1.25) +
@@ -151,10 +162,23 @@ PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as P
   scale_y_continuous(limits = c(83,140), breaks = c(90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Personal Consumption Expenditures: January 2019 = 100") +
   ggtitle("Good to Go?") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending on Goods Shot Up after the Pandemic Hit, but is Now Stalling") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending on Goods Shot Up after the Pandemic Hit, and Has Remained High") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 83-(.3*57), ymax = 83) +
+  coord_cartesian(clip = "off")
+
+PCE_Goods_Graph <- ggplot() + #plotting nondurable and durable share of PCE
+  geom_line(data=PCEDGmerge, aes(x=date,y= (value.y/value.x) ,color= "Durable Goods"), size = 1.25) +
+  geom_line(data=PCENDmerge, aes(x=date,y= (value.y/value.x) ,color= "Nondurable Goods"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.090,.230), breaks = c(.10,.15,.2,.25), expand = c(0,0)) +
+  ylab("Personal Consumption Expenditures: January 2019 = 100") +
+  ggtitle("Good to Go?") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending on Goods Shot Up after the Pandemic Hit, and has Remained High") +
+  theme_apricitas + theme(legend.position = c(.35,.40)) +
+  scale_color_manual(name= "Share of Total Personal Consumption Expenditures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = .090-(.3*.140), ymax = 0.090) +
   coord_cartesian(clip = "off")
 
 AIRFARES_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services
@@ -362,7 +386,7 @@ CPI_PIPED_GAS <- ggplot() + #plotting piped gas price index
   coord_cartesian(clip = "off")
 
 CPI_GAS <- ggplot() + #plotting gasoline price index against WTI prices
-  geom_line(data=WTI, aes(x=date,y= (close/46.5)*100 ,color= "Crude Oil (WTI)"), size = 1.25) +
+  geom_line(data=WTIEIA, aes(x=date,y= (value/46.31)*100 ,color= "Crude Oil (WTI)"), size = 1.25) +
   geom_line(data=US_Regular_All_Form_Gas, aes(x=date,y= (value/2.24)*100 ,color= "US Regular All Formulations Gas Price"), size = 1.25) +
   geom_line(data=CPIGAS, aes(x=date,y= (value/201)*100 ,color= "CPI: Gasoline"), size = 1.25) +
   xlab("Date") +
@@ -439,6 +463,7 @@ ggsave(dpi = "retina",plot = CPI_Rent_Month, "CPI Rent Month.png", type = "cairo
 ggsave(dpi = "retina",plot = CPI_Core_Month, "CPI Core Month.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = AIRFARES_Graph, "Airfares Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PPIPCT_Graph, "PPI PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PCE_Goods_Graph, "PCE Goods Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
