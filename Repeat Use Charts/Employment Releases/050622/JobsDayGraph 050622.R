@@ -49,6 +49,26 @@ EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = 2022, Sys.geten
 EPOP_L_NSA=EPOP_L_NSA[order(nrow(EPOP_L_NSA):1),]
 EPOP_L_NSA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
+#have to split black epop into two separate dataframes because BLS API only allows 10 years of data at a time
+Black_Epop1 <- bls_api("LNU02300066", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
+Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = 2022, Sys.getenv("BLS_KEY")) %>% select(-latest)
+
+#binding black epops together and creating date
+Black_Epop <- rbind(Black_Epop1,Black_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
+
+White_Epop1 <- bls_api("LNU02300063", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
+White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = 2022, Sys.getenv("BLS_KEY")) %>% select(-latest)
+
+White_Epop <- rbind(White_Epop1,White_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
+
+Black_White_Epop <- rbind(Black_Epop %>% mutate(race = "Black"),White_Epop %>% mutate(race = "White")) %>%
+  select(value,date,race) %>%
+  pivot_wider(names_from = race, values_from = value) %>%
+  mutate(gap = White-Black)
+
+EPOP_L_NSA=EPOP_L_NSA[order(nrow(EPOP_L_NSA):1),]
+EPOP_L_NSA$date <- seq(as.Date("1994-01-01"), as.Date("2022-05-01"), "months")
+
 
 EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
 #note: this section is only for when FRED does not update, and the dates must be changed each month
@@ -111,7 +131,30 @@ UNRATE <- fredr(series_id = c("UNRATE"), observation_start = as.Date("1950-01-01
 PERMJOBLOSERS <- fredr(series_id = c("LNS13026638"), observation_start = as.Date("2000-01-01")) #permanent job losers
 LAYOFFJOBLOSERS <- fredr(series_id = c("LNS13023653"), observation_start = as.Date("2000-01-01")) #temporary job losers
 
+Black_White_Employment_Graph <- ggplot() + #plotting black-white unemployment graph
+  geom_line(data=Black_White_Epop, aes(x=date,y= gap/100,color= "Black-White Prime Age (25-54) Employment Gap"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.125),breaks = c(0,0.025,0.05,0.075,0.1,0.125), expand = c(0,0)) +
+  ggtitle("A Stronger Labor Market") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Black Employment Gap is at a Record Low") +
+  theme_apricitas + theme(legend.position = c(.35,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = 0-(.3*.125), ymax = 0) +
+  coord_cartesian(clip = "off")
 
+Black_White_Epop <- ggplot() + #plotting black-white unemployment graph
+  geom_line(data=Black_White_Epop, aes(x=date,y= Black/100,color= "Black"), size = 1.25)+ 
+  geom_line(data=Black_White_Epop, aes(x=date,y= White/100,color= "White"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.64,.85),breaks = c(.65,.70,.75,.80,.85), expand = c(0,0)) +
+  ggtitle("A Stronger Labor Market") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Black Employment Gap is at a Record Low") +
+  theme_apricitas + theme(legend.position = c(.77,.85)) +
+  scale_color_manual(name= "Prime Age (25-54) Employment Population Ratio",breaks = c("White","Black"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = .64-(.3*.21), ymax = .64) +
+  coord_cartesian(clip = "off")
 
 PERM_TEMP_JOBLOSS_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data=PERMJOBLOSERS, aes(x=date,y= value/1000,color= "Permanent Job Losers"), size = 1.25)+ 
@@ -563,16 +606,8 @@ ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png
 ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
-
-
-
-
-
-
-
-
-
-
+ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Black_White_Epop, "Black White Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 p_unload(all)  # Remove all add-ons
 

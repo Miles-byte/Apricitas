@@ -100,17 +100,21 @@ Wheat <- tq_get("KE=F", from = "2005-01-01")
 Corn <- tq_get("ZC=F", from = "2020-01-01")
 Palladium <- tq_get("PA=F", from = "2020-01-01")
 
-ECISERV <- fredr(series_id = "CIS201S000000000I",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading Employment Cost Index (ECI) services data
-ECIGOOD <- fredr(series_id = "CIU201G000000000I",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading ECI goods data
-PCESERV <- fredr(series_id = "DSERRG3M086SBEA",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading PCE services
-PCEGOOD <- fredr(series_id = "DGDSRG3M086SBEA",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading PCE goods
+#ECISERV <- fredr(series_id = "CIS201S000000000I",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading Employment Cost Index (ECI) services data
+#ECIGOOD <- fredr(series_id = "CIU201G000000000I",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading ECI goods data
+#PCESERV <- fredr(series_id = "DSERRG3M086SBEA",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading PCE services
+#PCEGOOD <- fredr(series_id = "DGDSRG3M086SBEA",observation_start = as.Date("2018-01-01"),observation_end = as.Date("2021-10-30"), units = "pc1") #downloading PCE goods
 
-Wage_Price_Merge <- do.call("rbind", list(ECISERV,ECIGOOD,PCESERV,PCEGOOD)) #binding ECI and PCE data for service and goods sector
+CPI_SERVICES <- fredr(series_id = "CUSR0000SAS",observation_start = as.Date("2018-01-01"))
+CPI_SERVICESTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(CPI_SERVICES$date, n=1), "months")), trend = 330.424*1.002466^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(CPI_SERVICES$date, n=1), by = 'month')) - 1))) #3% annual trend variable
+         
+         
+#Wage_Price_Merge <- do.call("rbind", list(ECISERV,ECIGOOD,PCESERV,PCEGOOD)) #binding ECI and PCE data for service and goods sector
 #renaming series IDs in the merged data set to plain language explanations
-Wage_Price_Merge$series_id <- gsub("CIS201S000000000I","Services Compensation (ECI)",Wage_Price_Merge$series_id)
-Wage_Price_Merge$series_id <- gsub("CIU201G000000000I","Goods Compensation (ECI)",Wage_Price_Merge$series_id)
-Wage_Price_Merge$series_id <- gsub("DSERRG3M086SBEA","Services Prices (PCE)",Wage_Price_Merge$series_id)
-Wage_Price_Merge$series_id <- gsub("DGDSRG3M086SBEA","Goods Prices (PCE)",Wage_Price_Merge$series_id)
+#Wage_Price_Merge$series_id <- gsub("CIS201S000000000I","Services Compensation (ECI)",Wage_Price_Merge$series_id)
+#Wage_Price_Merge$series_id <- gsub("CIU201G000000000I","Goods Compensation (ECI)",Wage_Price_Merge$series_id)
+#Wage_Price_Merge$series_id <- gsub("DSERRG3M086SBEA","Services Prices (PCE)",Wage_Price_Merge$series_id)
+#Wage_Price_Merge$series_id <- gsub("DGDSRG3M086SBEA","Goods Prices (PCE)",Wage_Price_Merge$series_id)
 
 
 PCEPIPCT <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #PCEPI yoy percent growth data
@@ -122,11 +126,12 @@ PCEPIIND <- fredr(series_id = "PCEPI",observation_start = as.Date("2019-01-01"),
 AIRFARES <- fredr(series_id = "CUSR0000SETG01",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #pcepi index data
 
 #downloading aggregate PCE and PCE durable/nondurable goods for spending comparisons graph
-PCE2 <- fredr(series_id = "PCE",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE
-PCEDG <- fredr(series_id = "PCEDG",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE durable goods
-PCEND <- fredr(series_id = "PCEND",observation_start = as.Date("2019-01-01"),observation_end = as.Date("2021-10-30")) #downloading PCE nondurable goods
+PCE2 <- fredr(series_id = "PCE",observation_start = as.Date("2019-01-01")) #downloading PCE
+PCEDG <- fredr(series_id = "PCEDG",observation_start = as.Date("2019-01-01")) #downloading PCE durable goods
+PCEND <- fredr(series_id = "PCEND",observation_start = as.Date("2019-01-01")) #downloading PCE nondurable goods
 PCEDGmerge <- merge(PCE2, PCEDG, by = "date")
 PCENDmerge <- merge(PCE2, PCEND, by = "date")
+
 
 #manually adding 2% CPI growth trend for later chart on above-trend CPI
 CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:27)) #the sequence of zeroes is for the part of the chart where the trendline is excluded, and the second sequence is compounding CPI monthly at a 2% annual rate
@@ -134,8 +139,8 @@ CPI$CPITREND <- c(seq(0,0,length.out = 13), 258.824*1.001652^(0:27)) #the sequen
 #manually adding 4% personal income and outlays growth trend line for later chart on personal income and outlays
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-03-01"), "months")), trend = 16622.8*1.003274^(0:26)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-03-01"), "months")), trend = 15328.8*1.003274^(0:26))
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(DSPI$date, n=1), "months")), trend = 16622.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(DSPI$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(POUT$date, n=1), "months")), trend = 15328.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(POUT$date, n=1), by = 'month')) - 1)))
 
 CPIPCT <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #CPI pct 
 CPILFEPCT <- fredr(series_id = "CPILFESL",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #CPI lfe
@@ -169,16 +174,16 @@ PCE_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as P
   coord_cartesian(clip = "off")
 
 PCE_Goods_Graph <- ggplot() + #plotting nondurable and durable share of PCE
-  geom_line(data=PCEDGmerge, aes(x=date,y= (value.y/value.x) ,color= "Durable Goods"), size = 1.25) +
-  geom_line(data=PCENDmerge, aes(x=date,y= (value.y/value.x) ,color= "Nondurable Goods"), size = 1.25) +
+  geom_line(data=PCEDGmerge, aes(x=date,y= (value.y/value.x) ,color= "Durable Goods (lhs)"), size = 1.25) +
+  geom_line(data=PCENDmerge, aes(x=date,y= (value.y/value.x)-.1 ,color= "Nondurable Goods (rhs)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.090,.230), breaks = c(.10,.15,.2,.25), expand = c(0,0)) +
-  ylab("Personal Consumption Expenditures: January 2019 = 100") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.095,.145), breaks = c(.09,.10,.11,.12,.13,.14), expand = c(0,0), sec.axis = sec_axis(~.+.1, name="Share of Total PCE", labels = scales::percent_format(accuracy = 1))) +
+  ylab("Share of Total PCE") +
   ggtitle("Good to Go?") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending on Goods Shot Up after the Pandemic Hit, and has Remained High") +
-  theme_apricitas + theme(legend.position = c(.35,.40)) +
+  theme_apricitas + theme(legend.position = c(.35,.85)) +
   scale_color_manual(name= "Share of Total Personal Consumption Expenditures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = .090-(.3*.140), ymax = 0.090) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1100), xmax = as.Date("2019-01-01")-(0.049*1100), ymin = .095-(.3*.050), ymax = 0.095) +
   coord_cartesian(clip = "off")
 
 AIRFARES_Graph <- ggplot() + #plotting Personal Consumption Expenditures as well as PCE Goods/Services
@@ -264,14 +269,28 @@ CPI_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 100-(.3*17.5), ymax = 100) +
   coord_cartesian(clip = "off")
 
+CPI_SERVICES_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  geom_line(data=CPI_SERVICES, aes(x=date,y= (value/3.12717) ,color= "CPI: Services"), size = 1.25) +
+  geom_line(data=CPI_SERVICESTrend, aes(x=date,y= trend/3.12717,color= "3% Pre-COVID Trend"), size = 1.25, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(limits = c(100,117.5), breaks = c(100,105,110,115,120), expand = c(0,0)) +
+  ylab("Consumer Price Index: January 2019 = 100") +
+  ggtitle("The Inflation Miscalculation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Services Prices-The Core Driver of 'Normal' Inflation, Has Overshot the Pre-COVID Trend") +
+  theme_apricitas + theme(legend.position = c(.40,.60)) +
+  scale_color_manual(name= NULL,breaks = c("CPI: Services","3% Pre-COVID Trend"),values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,2), lwd = c(1.25,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 100-(.3*20), ymax = 100) +
+  coord_cartesian(clip = "off")
+
 CPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   geom_line(data=CPIPCT, aes(x=date,y= (value/100) ,color= "CPI"), size = 1.25) +
   geom_line(data=CPILFEPCT, aes(x=date,y= value/100 ,color= "Core CPI"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.09), breaks = c(0,0.03,0.06,0.09), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
-  ggtitle("Peak Inflation?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Has Inflation Peaked?") +
+  ggtitle("The Inflation Miscalculation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation Has Hit a 40 Year High") +
   theme_apricitas + theme(legend.position = c(.40,.50)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.09), ymax = 0) +
@@ -422,7 +441,7 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("The Bottom Line") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income and Outlays are on Trend, But Consumers Have Significant Excess Savings") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income Remains on Trend, But Spending is Above Trend as Excess Savings Decrease") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
@@ -464,6 +483,7 @@ ggsave(dpi = "retina",plot = CPI_Core_Month, "CPI Core Month.png", type = "cairo
 ggsave(dpi = "retina",plot = AIRFARES_Graph, "Airfares Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PPIPCT_Graph, "PPI PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PCE_Goods_Graph, "PCE Goods Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_SERVICES_Graph, "CPI Services Trend.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

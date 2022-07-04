@@ -670,6 +670,18 @@ Ukraine_Pipeline_Import_Graph <- ggplot() + #plotting Ukraine Gas pipeline impor
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*3.25), ymax = 0) +
   coord_cartesian(clip = "off")
 
+Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline imports
+  geom_line(data=subset(Russia_Pipeline_Imports) , aes(x=periodFrom,y= Total/1000000000, color = "Russian Natural Gas Exports to the EU"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Daily Import Volumes, Weekly Average, TWh") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,7), breaks = c(0,2,4,6), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),today())) +
+  ggtitle("Europe's Natural Gas Crisis") +
+  labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through Key Russian Gas Pipelines Are Declining Significantly") +
+  theme_apricitas + theme(legend.position = c(0.63,0.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*7), ymax = 0) +
+  coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NordStream_Pipeline_Import_Graph, "Nord Stream Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = LNG_Import_Graph, "LNG Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -677,6 +689,7 @@ ggsave(dpi = "retina",plot = LNG_Pipeline_Import_Graph, "LNG Pipeline Imports.pn
 ggsave(dpi = "retina",plot = Russia_Pipeline_Import_Graph, "Russia Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Ukraine_Pipeline_Import_Graph, "Ukraine Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_NAT_GAS_FUTURES_Graph, "EU Nat Gas Futures.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Russia_Total_Pipeline_Import_Graph, "Russia Total Live Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons

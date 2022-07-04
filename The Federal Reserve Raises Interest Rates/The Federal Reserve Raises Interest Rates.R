@@ -54,6 +54,10 @@ TENYEARTIPS <- drop_na(TENYEARTIPS)
 TWENTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
 TWENTYYEARTIPS <- drop_na(TWENTYYEARTIPS)
 
+THIRTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+THIRTYYEARTIPS <- drop_na(THIRTYYEARTIPS)
+
+
 #collecting vintages of the SEP Projections, subsetting to 2022 onward, converting dates to month char, and correcting factors
 SEPUNRATE2022 <- fredr(series_id = "UNRATEMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01"))
 SEPUNRATE2022$realtime_start <- as.character(SEPUNRATE2022$realtime_start) %>% { gsub("2022-03-16","March SEP",.) } %>% { gsub("2022-06-15","June SEP",.) } %>% factor(levels = c("March SEP","June SEP"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
@@ -72,6 +76,31 @@ SPY <- tq_get("VOO", from = "2019-01-01")
 #downloading the MOVE interest rate volatility index
 MOVE <- tq_get("^MOVE", from = "2018-01-01")
 MOVE <- drop_na(MOVE) 
+
+#Downloading FFR futures for Jan 23, 24, and 25
+FFR_JAN_23 <- tq_get("ZQF23.CBT", from = "2021-01-01")
+FFR_JAN_23 <- drop_na(FFR_JAN_23) %>% mutate(Future = "Jan23")
+FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01")
+FFR_JAN_24 <- drop_na(FFR_JAN_24) %>% mutate(Future = "Jan24")
+FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01")
+FFR_JAN_25 <- drop_na(FFR_JAN_25) %>% mutate(Future = "Jan25")
+
+FFR_MERGE <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% select(date, close, Future) %>% pivot_wider(names_from = Future, values_from = close)
+FFR_MERGE <- drop_na(FFR_MERGE)
+
+FFR_MERGE_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=FFR_MERGE, aes(x=date,y= (Jan24-Jan23)/-100,color= "2023 FFR Rate Change"), size = 1.25) +
+  geom_line(data=FFR_MERGE, aes(x=date,y= (Jan25-Jan24)/-100,color= "2024 FFR Rate Change"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.006,0.01), breaks = c(-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("An Inverted Curve") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 as Recession Risks Increase") +
+  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*1500), xmax = as.Date("2021-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
+  coord_cartesian(clip = "off")
 
 MOVE_Graph <- ggplot() + #plotting MOVE
   geom_line(data=MOVE, aes(x=date,y= close,color= "MOVE Interest Rate Volatility Index"), size = 1.25) +
@@ -322,6 +351,7 @@ ggsave(dpi = "retina",plot = SPY_Graph, "SPY.png", type = "cairo-png", width = 9
 ggsave(dpi = "retina",plot = REAL_RATES_GRAPH, "Real Rates.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SEP_ARRANGE_GRAPH, "SEP Arrange.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = MOVE_Graph, "MOVE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = FFR_MERGE_Graph, "FFR Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

@@ -88,15 +88,15 @@ Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
 Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
 
 #crude, gas, and diesel prices
-WTIEIA <- eia_series("PET.RWTC.D", start = "2019")
-WTIEIA <- as.data.frame(WTIEIA$data)
+WTIEIA <- eia_series("PET.RWTC.D", start = "2019") 
+WTIEIA <- as.data.frame(WTIEIA$data) %>% mutate(product = "Crude")
 GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019")
-GASEIA <- as.data.frame(GASEIA$data)
+GASEIA <- as.data.frame(GASEIA$data) %>% mutate(product = "Gasoline")
 DIESELEIA <- eia_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D", start = "2019")
-DIESELEIA <- as.data.frame(DIESELEIA$data)
-DIESELEIA <- subset(DIESELEIA, date != as.Date("2022-02-21"))
+DIESELEIA <- as.data.frame(DIESELEIA$data) %>% mutate(product = "Diesel")
+DIESELEIA <- subset(DIESELEIA, date != as.Date("2022-02-21")) #random date has a 0 here, likely due to some error in EIA
 KEROSENEEIA <- eia_series("PET.EER_EPJK_PF4_RGC_DPG.D", start = "2019")
-KEROSENEEIA <- as.data.frame(KEROSENEEIA$data)
+KEROSENEEIA <- as.data.frame(KEROSENEEIA$data)  %>% mutate(product = "Kerosene_Jet")
 
 REFINERY_CAPACITY <- eia_series("PET.MOCLEUS2.M", start = "2019")
 REFINERY_CAPACITY <- as.data.frame(REFINERY_CAPACITY$data)
@@ -210,6 +210,23 @@ SPREADS_Graph <- ggplot() + #plotting Gas Prices
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+Spreads_Rbind <- rbind(WTIEIA, GASEIA, DIESELEIA, KEROSENEEIA) %>% pivot_wider(names_from = product, values_from = value)
+
+SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
+  geom_line(data=drop_na(Spreads_Rbind), aes(x=date,y= (Diesel*42)-Crude, color= "Diesel"), size = 1.25) +
+  geom_line(data=drop_na(Spreads_Rbind), aes(x=date,y= (Kerosene_Jet*42)-Crude, color= "Kerosene Type Jet Fuel"), size = 1.25) +
+  geom_line(data=drop_na(Spreads_Rbind), aes(x=date,y= (Gasoline*42)-Crude, color= "Gas (Regular)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(-10,125), expand = c(0,0)) +
+  ylab("Dollars Per Barrel") +
+  ggtitle("Dawn of the Spread") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are High as the World Runs into a Refining Capacity Shortage") +
+  theme_apricitas + theme(legend.position = c(.7,.80)) +
+  scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = -10-(.3*135), ymax = -10) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
 Capital_Discipline_Graph <- ggplot(Capital_Discipline, aes(x = answer, y = percent))+
   geom_bar(aes(fill = answer), position = "dodge", stat = "identity", width = 0.7, color = NA) +
   scale_y_continuous(labels = scales::percent_format(),limits = c(0,.6), breaks = c(0,.1,.2,.3,.4,.5,.6), expand = c(0,0)) + #adding % format
@@ -243,6 +260,7 @@ ggsave(dpi = "retina",plot = GASREGW_Graph, "Gas.png", type = "cairo-png", width
 ggsave(dpi = "retina",plot = Capital_Discipline_Graph, "Capital Discipline.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GAS_EXPENDITURE_Graph, "Gas Expenditure.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SPREADS_Graph, "Spreads.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SPREADS_DISGraph, "Spreads Disagg.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Refinery_Capacity_Graph, "Refinery Capacity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
