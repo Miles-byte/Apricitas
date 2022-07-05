@@ -2,8 +2,8 @@ pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethi
 
 DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
 POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 16622.8*1.003274^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 15328.8*1.003274^(0:27))
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(DSPI$date, n=1), "months")), trend = 16622.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(DSPI$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(POUT$date, n=1), "months")), trend = 15328.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(POUT$date, n=1), by = 'month')) - 1)))
 
 Corporate_Savings <- fredr(series_id = "B057RC1Q027SBEA",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
 PSAVert <- fredr(series_id = "PSAVert",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays

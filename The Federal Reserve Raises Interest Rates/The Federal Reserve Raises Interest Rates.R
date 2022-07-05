@@ -1,4 +1,4 @@
-pacman::p_load(ggpubr,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(stringi,ggpubr,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -85,13 +85,35 @@ FFR_JAN_24 <- drop_na(FFR_JAN_24) %>% mutate(Future = "Jan24")
 FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01")
 FFR_JAN_25 <- drop_na(FFR_JAN_25) %>% mutate(Future = "Jan25")
 
-FFR_MERGE <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% select(date, close, Future) %>% pivot_wider(names_from = Future, values_from = close)
-FFR_MERGE <- drop_na(FFR_MERGE)
+FFR_MERGE_23_25 <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% select(date, close, Future) %>% pivot_wider(names_from = Future, values_from = close)
+FFR_MERGE_23_25 <- drop_na(FFR_MERGE)
 
-FFR_MERGE_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
+EFFR <- fredr(series_id = "EFFR",observation_start = as.Date("2019-01-01"), frequency = "m", aggregation_method = "avg")
+
+FFR_FUTURES_MEGA_MERGE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/FFR_FUTURES.csv") %>%
+  mutate(Contract = stri_sub(Contract, 8, 14)) %>%
+  mutate(Contract = gsub("'","20",Contract)) %>%
+  mutate(Contract = as.Date(as.yearmon(Contract)))
+
+
+FFR_FUTURES_MEGA_MERGE_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
+  geom_line(data=FFR_FUTURES_MEGA_MERGE, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path"), size = 1.25) +
+  geom_line(data=EFFR, aes(x=date,y= value/100,color= "Effective Federal Funds Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0,0.04), breaks = c(0.01,0.02,0,.03,.04), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("An Inverted Curve") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve and CME data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 as Recession Risks Increase") +
+  theme_apricitas + theme(legend.position = c(.28,.93)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*3500), xmax = as.Date("2019-01-01")-(0.049*3500), ymin = 0-(.3*.04), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+FFR_MERGE_23_25_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=FFR_MERGE, aes(x=date,y= (Jan24-Jan23)/-100,color= "2023 FFR Rate Change"), size = 1.25) +
-  geom_line(data=FFR_MERGE, aes(x=date,y= (Jan25-Jan24)/-100,color= "2024 FFR Rate Change"), size = 1.25) +
+  geom_line(data=FFR_MERGE_23_25, aes(x=date,y= (Jan24-Jan23)/-100,color= "2023 FFR Rate Change"), size = 1.25) +
+  geom_line(data=FFR_MERGE_23_25, aes(x=date,y= (Jan25-Jan24)/-100,color= "2024 FFR Rate Change"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.006,0.01), breaks = c(-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
   ylab("Percent") +
@@ -99,7 +121,7 @@ FFR_MERGE_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 as Recession Risks Increase") +
   theme_apricitas + theme(legend.position = c(.25,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*1500), xmax = as.Date("2021-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*600), xmax = as.Date("2021-01-01")-(0.049*600), ymin = -0.006-(.3*.016), ymax = -0.006) +
   coord_cartesian(clip = "off")
 
 MOVE_Graph <- ggplot() + #plotting MOVE
@@ -180,7 +202,7 @@ REAL_RATES_GRAPH <- ggplot() + #plotting inflation breakevens
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.02), breaks = c(-0.02,-0.01,0,0.01,0.02), expand = c(0,0)) +
   ylab("TIPS Yield, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates Shot Up in the Last Week") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Flattening") +
   theme_apricitas + theme(legend.position = c(.62,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("5-Year Real Treasury Yield","7-Year Real Treasury Yield (Fitted)","10-Year Real Treasury Yield","20-Year Real Treasury Yield (Fitted)","30-Year Real Treasury Yield")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -0.02-(.3*.04), ymax = -0.02) +
@@ -351,7 +373,8 @@ ggsave(dpi = "retina",plot = SPY_Graph, "SPY.png", type = "cairo-png", width = 9
 ggsave(dpi = "retina",plot = REAL_RATES_GRAPH, "Real Rates.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SEP_ARRANGE_GRAPH, "SEP Arrange.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = MOVE_Graph, "MOVE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = FFR_MERGE_Graph, "FFR Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = FFR_MERGE_23_25_Graph, "FFR Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = FFR_FUTURES_MEGA_MERGE_Graph, "FFR Futures Mega Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
