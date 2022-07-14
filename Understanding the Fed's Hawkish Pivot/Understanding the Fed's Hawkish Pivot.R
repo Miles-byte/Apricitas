@@ -15,14 +15,13 @@ PPIINTPRO <- fredr(series_id = "WPSID62",observation_start = as.Date("2019-01-01
 PPIFINAL <- fredr(series_id = "WPSFD49207",observation_start = as.Date("2019-01-01"))
 
 GDP <- fredr(series_id = "GDP",observation_start = as.Date("2018-01-01")) #downloading GDP goods
-
 ECI <- fredr(series_id = "ECIWAG",observation_start = as.Date("2018-01-01")) #downloading "Employment Cost Index - Wages and Salaries for Private Industry workers" data from Fred to calculate Gross Labor Income using a second method
 EPOP <- fredr(series_id = "LNS12300060",observation_start = as.Date("2018-01-01"))#downloading "Employment Population Ratio - 25-54 Yrs" data from Fred to calculate Gross Labor Income using a second method
 GLI_CPS_NCS <- merge(ECI,EPOP, by = "date") #merging ECI and EPOP data for the GLI calculation method
 GLI_CPS_NCS <- subset(GLI_CPS_NCS, select = c("date","value.x","value.y")) #cleaning up data frame
 colnames(GLI_CPS_NCS) <- c("date","ECI","EPOP") #renaming columns for ease of use
 
-GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-01-01"), "months")), trend = 100*1.003274^(0:24)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 100*1.003274^(0:27)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -98,14 +97,14 @@ GLI_GDP_Graph <- ggplot() +
   geom_line(data = GDP, aes(x=date + 90, y = value/216.9446, color = "Nominal Gross Domestic Product"), size = 1.25) + 
   geom_line(data = GLITrend, aes(x=date, y = trend, color = "4% Pre-Pandemic Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(limits = c(85,112), breaks = c(85,90,95,100,105,110), expand = c(0,0)) +
+  scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
   ylab("Index, January 2020 = 100") +
   ggtitle("Nominal Trends") +
-  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "NGDP is Above Trend, as but GLI is Below Trend") +
+  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "NGDP is Above Trend, and GLI is Likely to Go Above Trend Soon") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#A7ACD9","#9A348E","#EE6055"),breaks = c("Nominal Gross Domestic Product","Nominal Gross Labor Income: ECI Method","4% Pre-Pandemic Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-04-01")-(.1861*1400), xmax = as.Date("2018-04-01")-(0.049*1400), ymin = 85-(.3*27), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-04-01")-(.1861*1400), xmax = as.Date("2018-04-01")-(0.049*1400), ymin = 85-(.3*30), ymax = 85) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TWOYR_Graph, "Two Year Treasury Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

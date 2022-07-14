@@ -152,7 +152,7 @@ US_EU_Wage_Graph <- ggplot() + #plotting personal income and outlays against inc
 
 TTF_FUTURES <- tq_get("TTFQ22.NYM", from = "2019-01-01") #Dutch TTF Futures
 HENRY_HUB <- tq_get("NGQ22.NYM", from = "2019-01-01") #US Nat Gas Futures
-USDEUEX <- fredr(series_id = "DEXUSEU", observation_start = as.Date("2019-01-01")) #US Euro Exchange Rate
+#USDEUEX <- fredr(series_id = "DEXUSEU", observation_start = as.Date("2019-01-01")) #US Euro Exchange Rate
 USDEUEX <- tq_get("USDEUR=X", from = "2019-01-01") #US Euro Exchange Rate
 
 
@@ -160,6 +160,7 @@ TTF_USD <- merge(TTF_FUTURES, USDEUEX, by = "date")
 TTF_USD <- select(TTF_USD, c("date","close.x","close.y"))
 colnames(TTF_USD) <- c("date","TTF","EUUSD")
 TTF_USD <- transmute(TTF_USD, date, TTFUSD = (TTF/EUUSD)/3.639)
+TTF_USD <- drop_na(TTF_USD)
 
 US_EU_NAT_GAS_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   geom_line(data=US_Nat_Gas, aes(x=date,y= value, color= "US Natural Gas"), size = 1.25) +
@@ -178,7 +179,7 @@ US_EU_NAT_GAS_FUTURES_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
   geom_line(data=HENRY_HUB, aes(x=date,y= close, color= "US Natural Gas (Henry Hub)"), size = 1.25) +
   geom_line(data=TTF_USD, aes(x=date,y= TTFUSD, color= "EU Natural Gas (TTF)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(), limits = c(0,40), breaks = c(0,10,20,30,40), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(0,60), breaks = c(0,10,20,30,40,50,60), expand = c(0,0)) +
   ylab("US Dollars per MMBtu") +
   ggtitle("The EU's Different Inflation Problem") +
   labs(caption = "Graph created by @JosephPolitano using IMF data",subtitle = "Energy Prices Are Spiking in the EU, Pulling Up Inflation") +

@@ -77,6 +77,10 @@ SPY <- tq_get("VOO", from = "2019-01-01")
 MOVE <- tq_get("^MOVE", from = "2018-01-01")
 MOVE <- drop_na(MOVE) 
 
+#downloading DXY index
+DXY <- tq_get("DX-Y.NYB", from = "2018-01-01")
+DXY <- drop_na(DXY) 
+
 #Downloading FFR futures for Jan 23, 24, and 25
 FFR_JAN_23 <- tq_get("ZQF23.CBT", from = "2021-01-01")
 FFR_JAN_23 <- drop_na(FFR_JAN_23) %>% mutate(Future = "Jan23")
@@ -134,6 +138,18 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   theme_apricitas + theme(legend.position = c(.25,.65)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+DXY_Graph <- ggplot() + #plotting DXY
+  geom_line(data=DXY, aes(x=date,y= close,color= "DXY US Dollar Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(85,110), breaks = c(85,90,95,100,105,110), expand = c(0,0)) +
+  ylab("Index") +
+  ggtitle("Dollar Dominance") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "The Dollar Has Been Appreciating Against a Basket of Currencies as Monetary Policy Tightens") +
+  theme_apricitas + theme(legend.position = c(.25,.65)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 85-(.3*25), ymax = 85) +
   coord_cartesian(clip = "off")
 
 SEPUNRATE2022_Graph <- ggplot(data = SEPUNRATE2022, aes(x = date, y = value/100, fill = realtime_start)) +
@@ -275,6 +291,8 @@ ICECORPORATE_Graph <- ggplot() + #plotting ice corporate index
   coord_cartesian(clip = "off")
 
 ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
+  annotate("hline", y = 0.089, yintercept = 0.089, color = "#EE6055", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "2016/2012 Cycle Peak", x = as.Date("2019-01-01"), y = 0.095, color ="#EE6055", size = 5) +
   geom_line(data=ICECCCCORPORATE, aes(x=date,y= value/100,color= "ICE BofA US High Yield Index Option-Adjusted Spread"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
@@ -284,7 +302,7 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1600), xmax = as.Date("2018-01-01")-(0.049*1600), ymin = 0-(.3*0.13), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 
@@ -375,6 +393,7 @@ ggsave(dpi = "retina",plot = SEP_ARRANGE_GRAPH, "SEP Arrange.png", type = "cairo
 ggsave(dpi = "retina",plot = MOVE_Graph, "MOVE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = FFR_MERGE_23_25_Graph, "FFR Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = FFR_FUTURES_MEGA_MERGE_Graph, "FFR Futures Mega Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = DXY_Graph, "DXY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

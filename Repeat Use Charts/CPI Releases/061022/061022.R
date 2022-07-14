@@ -155,7 +155,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 CPI_SERV_DURABLE <- merge(CPIDURABLE,CPISERVICE, by = "date") #merging cpi services and durables data
 
-WTIEIA <- eia_series("PET.RWTC.D", start = "2019")
+WTIEIA <- eia_series("PET.RWTC.D", start = "2019", end = today())
 WTIEIA <- as.data.frame(WTIEIA$data)
 
 

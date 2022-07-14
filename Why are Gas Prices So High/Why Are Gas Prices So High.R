@@ -88,20 +88,20 @@ Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
 Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
 
 #crude, gas, and diesel prices
-WTIEIA <- eia_series("PET.RWTC.D", start = "2019") 
+WTIEIA <- eia_series("PET.RWTC.D", start = 2019, end = today())
 WTIEIA <- as.data.frame(WTIEIA$data) %>% mutate(product = "Crude")
-GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019")
+GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019", end = today())
 GASEIA <- as.data.frame(GASEIA$data) %>% mutate(product = "Gasoline")
-DIESELEIA <- eia_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D", start = "2019")
+DIESELEIA <- eia_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D", start = "2019", end = today())
 DIESELEIA <- as.data.frame(DIESELEIA$data) %>% mutate(product = "Diesel")
 DIESELEIA <- subset(DIESELEIA, date != as.Date("2022-02-21")) #random date has a 0 here, likely due to some error in EIA
-KEROSENEEIA <- eia_series("PET.EER_EPJK_PF4_RGC_DPG.D", start = "2019")
+KEROSENEEIA <- eia_series("PET.EER_EPJK_PF4_RGC_DPG.D", start = "2019", end = today())
 KEROSENEEIA <- as.data.frame(KEROSENEEIA$data)  %>% mutate(product = "Kerosene_Jet")
 
-REFINERY_CAPACITY <- eia_series("PET.MOCLEUS2.M", start = "2019")
+REFINERY_CAPACITY <- eia_series("PET.MOCLEUS2.M", start = "2019", end = today())
 REFINERY_CAPACITY <- as.data.frame(REFINERY_CAPACITY$data)
 
-REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019")
+REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019", end = today())
 REFINERY_OPERATING_CAPACITY <- as.data.frame(REFINERY_OPERATING_CAPACITY$data)
 
 
@@ -197,15 +197,15 @@ GASREGW_Graph <- ggplot() + #plotting Gas Prices
 
 SPREADS_Graph <- ggplot() + #plotting Gas Prices
   geom_line(data=drop_na(WTIEIA), aes(x=date,y= value, color= "Crude Oil (WTI)"), size = 1.25) +
-  geom_line(data=drop_na(GASEIA), aes(x=date,y= value*42, color= "Gas (Regular)"), size = 1.25) +
   geom_line(data=drop_na(DIESELEIA), aes(x=date,y= value*42, color= "Diesel"), size = 1.25) +
   geom_line(data=drop_na(KEROSENEEIA), aes(x=date,y= value*42, color= "Kerosene Type Jet Fuel"), size = 1.25) +
+  geom_line(data=drop_na(GASEIA), aes(x=date,y= value*42, color= "Gas (Regular)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(), limits = c(0,225), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are High as the World Runs into a Refining Capacity Shortage") +
-  theme_apricitas + theme(legend.position = c(.7,.80)) +
+  theme_apricitas + theme(legend.position = c(.6,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -223,7 +223,7 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are High as the World Runs into a Refining Capacity Shortage") +
   theme_apricitas + theme(legend.position = c(.7,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = -10-(.3*135), ymax = -10) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 
