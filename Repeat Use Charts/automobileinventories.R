@@ -143,6 +143,8 @@ Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Aut
 
 Assemblies_Graph <- ggplot() + #plotting auto assemblies
   geom_line(data=Assemblies, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies"), size = 1.25)+ 
+  annotate(geom = "hline", y = 10.91, yintercept = 10.91, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 11.5, color ="#FFE98F") +
   #geom_line(data=AssembliesNSA, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies (NSA)"), size = 1.25)+ 
   xlab("Date") +
   ylab("Motor Vehicle Assemblies, Millions, Annual Rate") +
@@ -152,9 +154,7 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "There is Still a Major Shortfall in Motor Vehicle Assemblies") +
   theme_apricitas + theme(legend.position = c(0.25,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(1430)), xmax = as.Date("2018-01-01")-(0.049*(1430)), ymin = 0-(.3*14), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Assemblies_Auto_Truck_Graph <- ggplot() + #plotting auto assemblies
