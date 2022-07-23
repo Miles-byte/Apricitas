@@ -105,7 +105,7 @@ AUTHORIZED_NOT_STARTED_Graph <- ggplot() + #plotting authorized not started
   geom_line(data=AUTHORIZED_NOT_STARTED, aes(x=date,y= value, color= "New Privately-Owned Housing Units Authorized but Not Started"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "K", accuracy = 1), limits = c(0,300), expand = c(0,0)) +
-  ylab("Units, Thousands, Seasonally Adjusted Annual Rate") +
+  ylab("Units, Thousands, Seasonally Adjusted") +
   ggtitle("Under Construction") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The Number of Authorized Units that Haven't Broke Ground is at the Highest Level in Decades") +
   theme_apricitas + theme(legend.position = c(.45,.9)) +
@@ -130,7 +130,7 @@ UNDER_CONSTRUCTION_Graph <- ggplot() + #plotting SF and MF housing
   geom_line(data=TOTAL_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Under Construction"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
-  ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
+  ylab("Units, Millions, Seasonally Adjusted") +
   ggtitle("Under Construction") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Supply Chain Issues Have Meant that Many Housing Starts Haven't Been Finished") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
