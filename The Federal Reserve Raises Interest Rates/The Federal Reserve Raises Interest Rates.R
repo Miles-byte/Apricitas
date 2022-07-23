@@ -328,7 +328,6 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
