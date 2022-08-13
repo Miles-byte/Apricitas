@@ -634,7 +634,7 @@ LNG_Pipeline_Import_Graph <- ggplot() + #plotting LNG pipeline imports
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,7), breaks = c(0,1,2,3,4,5,6,7), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2019-01-01"),today())) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "LNG Imports Have Increased Significantly As Europe Tries to Replace Russian Gas") +
   theme_apricitas + theme(legend.position = c(0.41,0.84), legend.text = element_text(size = 14, color = "white")) +
@@ -649,7 +649,7 @@ Russia_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline imports
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 0.5), limits = c(0,2), breaks = c(0,.5,1,1.5,2), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2021-01-01"),today())) +
+  scale_x_date(limits = c(as.Date("2021-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through Key Russian Gas Pipelines Are Declining Significantly") +
   theme_apricitas + theme(legend.position = c(0.23,0.68)) +
@@ -662,7 +662,7 @@ Ukraine_Pipeline_Import_Graph <- ggplot() + #plotting Ukraine Gas pipeline impor
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 0.5), limits = c(0,3.25), breaks = c(0,.5,1,1.5,2,2.5,3), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2019-01-01"),today())) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Russian Gas Flows Through Ukraine are Down 80%-And Declined Before the War") +
   theme_apricitas + theme(legend.position = c(0.63,0.68)) +
@@ -675,12 +675,12 @@ Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline impo
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,7), breaks = c(0,2,4,6), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2019-01-01"),today())) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through Key Russian Gas Pipelines Are Declining Significantly") +
   theme_apricitas + theme(legend.position = c(0.63,0.88)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*7), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*7), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NordStream_Pipeline_Import_Graph, "Nord Stream Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

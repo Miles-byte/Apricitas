@@ -226,6 +226,18 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
   coord_cartesian(clip = "off")
 
+WTI_Graph <- ggplot() + #plotting Crude Futures
+  geom_line(data=drop_na(WTI), aes(x=date,y= close, color= "Crude Oil (WTI)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(), limits = c(0,125), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),as.Date(today()))) +
+  ylab("Dollars Per Barrel") +
+  ggtitle("Price Pullback") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Oil Prices Have Given Up Most of Their Post-War Gains, But Remain High") +
+  theme_apricitas + theme(legend.position = c(.6,.80)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*125), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
 Capital_Discipline_Graph <- ggplot(Capital_Discipline, aes(x = answer, y = percent))+
   geom_bar(aes(fill = answer), position = "dodge", stat = "identity", width = 0.7, color = NA) +
@@ -262,6 +274,7 @@ ggsave(dpi = "retina",plot = GAS_EXPENDITURE_Graph, "Gas Expenditure.png", type 
 ggsave(dpi = "retina",plot = SPREADS_Graph, "Spreads.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SPREADS_DISGraph, "Spreads Disagg.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Refinery_Capacity_Graph, "Refinery Capacity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = WTI_Graph, "WTI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

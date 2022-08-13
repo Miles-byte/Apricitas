@@ -39,7 +39,7 @@ Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
-Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-04-01"), "months")
+Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-06-01"), "months")
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
@@ -69,6 +69,10 @@ Black_White_Epop <- rbind(Black_Epop %>% mutate(race = "Black"),White_Epop %>% m
 EPOP_L_NSA=EPOP_L_NSA[order(nrow(EPOP_L_NSA):1),]
 EPOP_L_NSA$date <- seq(as.Date("1994-01-01"), as.Date("2022-05-01"), "months")
 
+PAYEMS <- fredr(series_id = "PAYEMS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
+ELEV <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Employment Levels
+CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpiadj
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
 #note: this section is only for when FRED does not update, and the dates must be changed each month
@@ -572,6 +576,31 @@ PWD_Graph <- ggplot() + #plotting employment of people with disabilities
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = .15-(.3*.06), ymax = .15) +
   coord_cartesian(clip = "off")
 
+Employment_Index_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = PAYEMS, aes(x=date, y = value/1521.28, color = "Nonfarm Payrolls (Establishment Survey)"), size = 1.25) + 
+  geom_line(data = ELEV, aes(x=date, y = value/1586.53, color = "Employment Level (Household Survey)"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(82,105), breaks = c(85,90,95,100,105), expand = c(0,0)) +
+  ylab("Index, Jan 2020 = 100") +
+  ggtitle("Are We In A Recession?") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The Establishment Survey Shows Positive Growth, but the Household Survey Shows a Stall") +
+  theme_apricitas + theme(legend.position = c(.50,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 82-(.3*23), ymax = 82) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+Employment_Graph <- ggplot() + #CPS with NFP adjusted concepts
+  geom_line(data = PAYEMS, aes(x=date, y = value/1000, color = "Nonfarm Payrolls (Establishment Survey)"), size = 1.25) + 
+  geom_line(data = CPSADJ, aes(x=date, y = value/1000, color = "Employment Ajusted to Nonfarm Payrolls Concepts (Household Survey)"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(120,160), breaks = c(120,130,140,150,160), expand = c(0,0)) +
+  ylab("Payrolls/Employees, Millions") +
+  ggtitle("Are We In A Recession?") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The Establishment Survey Shows Positive Growth, but the Household Survey Shows a Stall") +
+  theme_apricitas + theme(legend.position = c(.50,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 120-(.3*40), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing

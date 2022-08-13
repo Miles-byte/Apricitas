@@ -6,6 +6,9 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
 TOTAL_HOUSING_GROWTH <- fredr(series_id = "ETOTALUSQ176N", units = "pc1") #downloading total housing growth
 TOTAL_HOUSING_STARTS <- fredr(series_id = "HOUST") #downloading total housing starts
 TOTAL_HOUSING_STARTS_SUBSET <- fredr(series_id = "HOUST", observation_start = as.Date("2000-01-01")) #downloading total housing starts
@@ -13,8 +16,9 @@ TOTAL_HOUSING_STARTS_SUBSET <- fredr(series_id = "HOUST", observation_start = as
 TOTAL_HOUSING_COMPLETIONS <- fredr(series_id = "COMPUTSA", observation_start = as.Date("2000-01-01")) #downloading total completions
 TOTAL_HOUSING_UNDERCONSTRUCTION <- fredr(series_id = "UNDCONTSA", observation_start = as.Date("2000-01-01")) #total under construction
 
-HOUSING_UNITS_5PLUS <- fredr(series_id = "HOUST5F", observation_start = as.Date("2000-01-01")) #5 or More Units
-HOUSING_UNITS_SFH <- fredr(series_id = "HOUST1F", observation_start = as.Date("2000-01-01")) #Single Family Home
+HOUSING_STARTS_5PLUS <- fredr(series_id = "HOUST5F", observation_start = as.Date("2000-01-01")) #5 or More Units
+HOUSING_STARTS_SFH <- fredr(series_id = "HOUST1F", observation_start = as.Date("2000-01-01")) #Single Family Home
+HOUSING_COMPS_SFH <- fredr(series_id = "COMPU1USA", observation_start = as.Date("2000-01-01")) #Single Family Home
 
 THIRTY_YR_FIXED <- fredr(series_id = "MORTGAGE30US", observation_start = as.Date("2000-01-01")) #Single Family Home
 
@@ -22,6 +26,8 @@ RENTAL_VACANCY_RATE <- fredr(series_id = "RRVRUSQ156N", observation_start = as.D
 HOMEOWNER_VACANCY_RATE <- fredr(series_id = "RHVRUSQ156N", observation_start = as.Date("2000-01-01")) #Single Family Home
 
 AUTHORIZED_NOT_STARTED <- fredr(series_id = "AUTHNOTTSA", observation_start = as.Date("2000-01-01")) #Single Family Home
+
+PRIV_CONS_SPEND <- fredr(series_id = "PRRESCONS", observation_start = as.Date("2000-01-01")) #Total Private Construction Spending
 
 CPI_SF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/Construction_Price_Index_SF.csv")
 CPI_MF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/Construction_Price_Index_MF.csv")
@@ -36,6 +42,78 @@ POPULATION <- fredr(series_id = "POPTHM") #population
 
 Starts_Population_Merge <- merge(TOTAL_HOUSING_STARTS, POPULATION, by = "date")
 
+LISTINGS_CUT <- fredr(series_id = "PRIREDCOUUS") #Active Lisings with Price Reduced
+LISTINGS_TOTAL <- fredr(series_id = "ACTLISCOUUS") #Total Active Listings
+
+LISTINGS_MEDIAN <- fredr(series_id = "MEDLISPRIPERSQUFEEUS", units = "pc1") %>% drop_na() #Percent Growth in Median Listing Price
+
+LISTINGS_CUT_SHARE <- merge(LISTINGS_CUT, LISTINGS_TOTAL, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+PERMIT <- fredr(series_id = "PERMIT", observation_start = as.Date("2000-01-01"))
+#employment levels for NDP credit intermediation and residential building
+NDP_CREDIT_INTERMEDIATION <- bls_api("CES5552220001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+RESIDENTIAL_BUILDING <- bls_api("CES2023610001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+TSY_MBS_SPREAD <- fredr(series_id = "MORTGAGE30US") %>% #calculating treasury spreads
+  merge(., fredr(series_id = "DGS30"), by = "date") %>%
+  transmute(date, value = value.x-value.y) %>%
+  subset(date > as.Date("1996-12-31")) %>%
+  group_by(yw = paste(year(date), month(date))) %>%
+  drop_na() %>%
+  mutate_if(is.numeric, ~mean(.))
+
+CREDIT_RESIDENTIAL_Graph <- ggplot() + #plotting authorized not started
+  geom_line(data=NDP_CREDIT_INTERMEDIATION, aes(x=date,y= value, color= "All Employees, Nondepository Credit Intermediation"), size = 1.25) +
+  geom_line(data=RESIDENTIAL_BUILDING, aes(x=date,y= value, color= "All Employees, Residential Building"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "K", accuracy = 1), limits = c(550,950), expand = c(0,0)) +
+  ylab("Thousands") +
+  ggtitle("Under Construction") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "June Saw the First Emplyoment Decreases in Housing Related Sectors Since Rates Increased") +
+  theme_apricitas + theme(legend.position = c(.40,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Employees, Residential Building","All Employees, Nondepository Credit Intermediation")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 550-(.3*400), ymax = 550) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+LISTINGS_CUT_SHARE_Graph<- ggplot() + #plotting total listings
+  geom_line(data=LISTINGS_CUT_SHARE, aes(x=date,y= value, color= "Share of Total Active Listings With a Price Cut"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.50), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Housing Bust?") +
+  labs(caption = "Graph created by @JosephPolitano using Realtor.com data",subtitle = "Price Cuts are More Common as Mortgage Rates Rise") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-07-01")-(.1861*(today()-as.Date("2016-07-01"))), xmax = as.Date("2016-07-01")-(0.049*(today()-as.Date("2016-07-01"))), ymin = 0-(.3*.50), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+LISTINGS_MEDIAN_Graph<- ggplot() + #plotting total listings
+  geom_line(data=LISTINGS_MEDIAN, aes(x=date,y= value/100, color= "Median Listing Price per Square Feet"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.25), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Housing Bust?") +
+  labs(caption = "Graph created by @JosephPolitano using Realtor.com data",subtitle = "Listing Prices Have Grown Dramatically During the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-07-01")-(.1861*(today()-as.Date("2017-07-01"))), xmax = as.Date("2017-07-01")-(0.049*(today()-as.Date("2017-07-01"))), ymin = 0-(.3*.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+TSY_MBS_Graph <- ggplot() + #plotting spread
+  geom_line(data=TSY_MBS_SPREAD, aes(x=date,y= value/100, color= "30 Year Fixed Mortgage Spread Over Treasuries"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.03), expand = c(0,0)) +
+  ylab("Percent, Monthly Average") +
+  ggtitle("Mind the Gap") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Spread Between Mortgage Rates and Treasuries Has Increased") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1996-12-01")-(.1861*(today()-as.Date("1996-12-01"))), xmax = as.Date("1996-12-01")-(0.049*(today()-as.Date("1996-12-01"))), ymin = 0-(.3*.03), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
 STARTS_Graph <- ggplot() + #plotting new housing starts
   geom_line(data=TOTAL_HOUSING_STARTS, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started"), size = 1.25) +
@@ -47,6 +125,30 @@ STARTS_Graph <- ggplot() + #plotting new housing starts
   theme_apricitas + theme(legend.position = c(.65,.9)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("New Privately-Owned Housing Units Started","New Privately-Owned Housing Units Completed")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1960-01-01")-(.1861*28000), xmax = as.Date("1960-01-01")-(0.049*28000), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+PERMITS_Graph <- ggplot() + #plotting permits
+  geom_line(data=PERMIT, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Authorized in Permit-Issuing Places"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,3), expand = c(0,0)) +
+  ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
+  ggtitle("The Housing Bust?") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Permits are Down More Than 10% from Their Recent Highs") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+PRIV_CONS_SPEND_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=PRIV_CONS_SPEND , aes(x=date,y= value/1000, color= "Private Residential Construction Spending"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,1000), expand = c(0,0)) +
+  ylab("Dollar, Billions, Seasonally Adjusted Annual Rate") +
+  ggtitle("The Housing Boom?") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Rising Prices and Increasing Starts Has Pushed Construction Spending Higher") +
+  theme_apricitas + theme(legend.position = c(.35,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1000), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 STARTS_PERCAPITA_Graph <- ggplot() + #plotting new housing starts
@@ -114,8 +216,8 @@ AUTHORIZED_NOT_STARTED_Graph <- ggplot() + #plotting authorized not started
   coord_cartesian(clip = "off")
 
 SFH_MF_Graph <- ggplot() + #plotting SF and MF housing
-  geom_line(data=HOUSING_UNITS_5PLUS, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started: Units in Buildings with 5 Units or More"), size = 1.25) +
-  geom_line(data=HOUSING_UNITS_SFH, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started: Single-Family Units"), size = 1.25) +
+  geom_line(data=HOUSING_STARTS_5PLUS, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started: Units in Buildings with 5 Units or More"), size = 1.25) +
+  geom_line(data=HOUSING_STARTS_SFH, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started: Single-Family Units"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
@@ -124,6 +226,19 @@ SFH_MF_Graph <- ggplot() + #plotting SF and MF housing
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+SFH_STARTS_COMPS_Graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=HOUSING_COMPS_SFH, aes(x=date,y= value/1000, color= "Single-Family Housing Completions"), size = 1.25) +
+  geom_line(data=HOUSING_STARTS_SFH, aes(x=date,y= value/1000, color= "Single-Family Housing Starts"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
+  ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
+  ggtitle("Demand Destruction") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped Nearly 20% as Mortgage Rates Rose") +
+  theme_apricitas + theme(legend.position = c(.5,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Single-Family Housing Starts","Single-Family Housing Completions")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 UNDER_CONSTRUCTION_Graph <- ggplot() + #plotting SF and MF housing
@@ -174,6 +289,13 @@ ggsave(dpi = "retina",plot = STARTS_Graph, "Starts.png", type = "cairo-png", wid
 ggsave(dpi = "retina",plot = AUTHORIZED_NOT_STARTED_Graph, "Authorized Not Started.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = VACANCY_RATE_Graph, "Vacancy Rate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SF_MF_CPI_Graph, "SF MF CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SFH_STARTS_COMPS_Graph, "SF Starts Comps.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ggsave(dpi = "retina",plot = LISTINGS_MEDIAN_Graph, "Listings Median.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = LISTINGS_CUT_SHARE_Graph, "Cut Share.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = TSY_MBS_Graph, "TSY MBS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CREDIT_RESIDENTIAL_Graph, "Credit and Residential Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PERMITS_Graph, "Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

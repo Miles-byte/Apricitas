@@ -105,16 +105,16 @@ Recession_Graph <- ggplot() + #plotting google search trends for recession
   coord_cartesian(clip = "off")
 
 CLAIMS_GRAPH <- ggplot() + #plotting initial and continued claims
-  geom_line(data=INITIAL_CLAIMS, aes(x=date,y= value/2240.00 ,color= "Initial Claims"), size = 1.25) +
-  geom_line(data=CONTINUED_CLAIMS, aes(x=date,y= value/17780.00 ,color= "Continued Claims"), size = 1.25) +
+  geom_line(data=INITIAL_CLAIMS, aes(x=date,y= value/2240.00 ,color= "Initial Unemployment Claims"), size = 1.25) +
+  geom_line(data=CONTINUED_CLAIMS, aes(x=date,y= value/17780.00 ,color= "Continued Unemployment Claims"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,110), breaks = c(70,80,90,100,110), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,120), breaks = c(70,80,90,100,110,120), expand = c(0,0)) +
   ylab("Index, Jan 2022 = 100") +
   ggtitle("Live From the Labor Market") +
-  labs(caption = "Graph created by @JosephPolitano using ETA data",subtitle = "Initial Claims Have Ticked Up, But not Continued Claims-Though Both Are Near Historical Lows") +
+  labs(caption = "Graph created by @JosephPolitano using ETA data",subtitle = "Initial Claims Have Ticked Up, and Continued Claims are Starting to Follow") +
   theme_apricitas + theme(legend.position = c(.45,.75)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("Initial Claims","Continued Claims")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 70-(.3*40), ymax = 70) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("Initial Unemployment Claims","Continued Unemployment Claims")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 70-(.3*50), ymax = 70) +
   coord_cartesian(clip = "off")
 
 T10Y2Y_Graph <- ggplot() + #yield curve
