@@ -324,8 +324,8 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
   ylab("Spread, %") +
-  ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
+  ggtitle("Recession Watch") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "High Yield Credit Spreads are Down Significantly From Their Peak") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +

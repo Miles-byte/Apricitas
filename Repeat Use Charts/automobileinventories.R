@@ -150,8 +150,8 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   ylab("Motor Vehicle Assemblies, Millions, Annual Rate") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
-  ggtitle("Some Assembly Required") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "There is Still a Major Shortfall in Motor Vehicle Assemblies") +
+  ggtitle("Fixing the Assembly Line") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Have Climbed Back to Their Pre-Pandemic Average") +
   theme_apricitas + theme(legend.position = c(0.25,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
@@ -183,7 +183,6 @@ ggsave(dpi = "retina",plot = VMT_Graph, "VMT.png", type = "cairo-png") #CAIRO GE
 ggsave(dpi = "retina",plot = Auto_Industrial_Capacity_Graph, "Auto Industrial Capacity.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Assemblies_Graph, "Auto Assemblies.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Assemblies_Auto_Truck_Graph, "Auto Truck Assemblies.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-
 ggsave(dpi = "retina",plot = Auto_Utilized_Capacity_Graph, "Auto Production Capacity.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 p_unload(all)  # Remove all add-ons

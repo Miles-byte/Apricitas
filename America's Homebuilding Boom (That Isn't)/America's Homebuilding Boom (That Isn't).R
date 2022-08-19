@@ -235,7 +235,7 @@ SFH_STARTS_COMPS_Graph <- ggplot() + #plotting SF and MF housing
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
   ggtitle("Demand Destruction") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped Nearly 20% as Mortgage Rates Rose") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped Nearly 25% as Mortgage Rates Rose") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Single-Family Housing Starts","Single-Family Housing Completions")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -290,7 +290,6 @@ ggsave(dpi = "retina",plot = AUTHORIZED_NOT_STARTED_Graph, "Authorized Not Start
 ggsave(dpi = "retina",plot = VACANCY_RATE_Graph, "Vacancy Rate.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SF_MF_CPI_Graph, "SF MF CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = SFH_STARTS_COMPS_Graph, "SF Starts Comps.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
 ggsave(dpi = "retina",plot = LISTINGS_MEDIAN_Graph, "Listings Median.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = LISTINGS_CUT_SHARE_Graph, "Cut Share.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = TSY_MBS_Graph, "TSY MBS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

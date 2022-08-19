@@ -246,7 +246,7 @@ CPI_CONTRIBUTION_MONTHLY_GRAPH <- ggplot() + #plotting components of monthly inf
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.01,.015), breaks = c(-.01,-0.005,0,0.005,.01,.015), expand = c(0,0)) +
   ylab("Monthly Inflation, Percent") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Monthly Price Growth is Concentrated in Energy, But Core Services Prices are Growing") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Energy Prices Pulled Inflation Down In July") +
   theme_apricitas + theme(legend.position = c(.45,.80)) +
   scale_fill_manual(name= "Contributions to Monthly CPI Inflation (NSA)",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services_LE","Goods_LFE","Energy","Food"), labels = c("Core Services","Core Goods","Energy","Food")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.01-(.3*.025), ymax = -0.01) +
@@ -451,7 +451,7 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   subset(RegionName == "United States") %>%
   transpose() %>%
   `colnames<-`(.[1, ]) %>%
-  mutate(date = c(seq(as.Date("2013-12-01"), as.Date("2022-07-01"), "months"))) %>%
+  mutate(date = c(seq(as.Date("2013-12-01"), as.Date("2022-06-01"), "months"))) %>%
   .[-1, ] %>%
   mutate(`United States` = as.numeric(`United States`)) %>%
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))
@@ -460,11 +460,11 @@ CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "CPI Rent: Annual Percentage Growth"), size = 1.25) +
   geom_line(data=CPIORENT, aes(x=date,y= (calculations/100) ,color= "CPI Owner's Equivalent Rent: Annual Percentage Growth"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.06), breaks = c(0,.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.07), breaks = c(0,.01,0.02,0.03,0.04,0.05,0.06,0.07), expand = c(0,0)) +
   ylab("Percent Change From a Year Ago, %") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Housing Price Growth Had Slowed, But is Rebounding") +
-  theme_apricitas + theme(legend.position = c(.40,.30)) +
+  theme_apricitas + theme(legend.position = c(.40,.20)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent: Annual Percentage Growth","CPI Owner's Equivalent Rent: Annual Percentage Growth")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.06), ymax = 0.00) +
   coord_cartesian(clip = "off")
@@ -528,13 +528,13 @@ CPI_Lodging_Graph <- ggplot() + #plotting lodging away from home
 CPI_PIPED_GAS <- ggplot() + #plotting piped gas price index
   geom_line(data=CPIPIPEDGAS, aes(x=date,y= (value/176)*100 ,color= "CPI: Utility (Piped) Gas Service in U.S. City Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(94,150), breaks = c(100,120,140), expand = c(0,0)) +
+  scale_y_continuous(limits = c(94,160), breaks = c(100,120,140,160), expand = c(0,0)) +
   ylab("Index, January 2019 = 100") +
   ggtitle("The Energy Crunch") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices for Utility Gas Service Have Jumped for the First Time in a Decade") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices for Utility Gas Service Are Near Record Highs") +
   theme_apricitas + theme(legend.position = c(.45,.72)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 94-(.3*56), ymax = 94) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 94-(.3*66), ymax = 94) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 CPI_GAS <- ggplot() + #plotting gasoline price index against WTI prices

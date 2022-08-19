@@ -220,7 +220,7 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   scale_y_continuous(labels = scales::dollar_format(), limits = c(-10,125), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are High as the World Runs into a Refining Capacity Shortage") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refining Spreads are Lowering as Capacity Shortages Ease") +
   theme_apricitas + theme(legend.position = c(.7,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
