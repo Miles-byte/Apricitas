@@ -112,7 +112,6 @@ FFR_FUTURES_MEGA_MERGE <- read.csv("https://raw.githubusercontent.com/Miles-byte
   mutate(Contract = as.Date(as.yearmon(Contract)))
 
 
-
 FFR_FUTURES_MEGA_MERGE_COMPARISON_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   geom_line(data=FFR_FUTURES_MEGA_MERGE_7_5, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path July 5th"), size = 1.25) +
   geom_line(data=FFR_FUTURES_MEGA_MERGE, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path July 15th"), size = 1.25) +

@@ -71,7 +71,13 @@ EPOP_L_NSA$date <- seq(as.Date("1994-01-01"), as.Date("2022-05-01"), "months")
 
 PAYEMS <- fredr(series_id = "PAYEMS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
 ELEV <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Employment Levels
-CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpiadj
+CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpSadj
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+DISCOURAGED <- bls_api("LNS15026645", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+MARGINALLYATTACHED <- bls_api("LNS15026642", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
@@ -110,6 +116,7 @@ Total_Quits18 <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("201
 
 UNLEVEL <- fredr(series_id = c("UNEMPLOY"), observation_start = as.Date("2019-01-01")) #unemployment data
 NILFWJN <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2019-01-01")) #NILF want jobs now
+NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
 
 #Flows data
 UNEMPLOYEMPLOY <- fredr(series_id = c("LNU07100000"), observation_start = as.Date("2000-01-01")) #unemployment flows to employment
@@ -209,7 +216,32 @@ NILFUnemploy_Graph <- ggplot() + #plotting total quits
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "About as Many People are Not in the Labor Force but Want a Job as are Unemployed") +
   theme_apricitas + theme(legend.position = c(.70,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Unemployed","Not in Labor Force, Want a Job Now")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*960), xmax = as.Date("2019-01-01")-(0.049*960), ymin = 0-(.3*25), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+NILF_Graph <- ggplot() + #plotting total quits
+  geom_line(data=NILFWJN_2002, aes(x=date,y= value/1000,color= "Not in Labor Force, Want a Job Now"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of People") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,2,4,6,8,10), limits = c(0,10), expand = c(0,0)) +
+  ggtitle("Workers in Waiting") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "About 1M More People Are Outside the Labor Force But Want A Job Now Than Pre-Pandemic") +
+  theme_apricitas + theme(legend.position = c(.60,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*10), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+MARGINAL_DISCOURAGED_GRAPH <- ggplot() + #plotting total quits
+  geom_line(data=MARGINALLYATTACHED, aes(x=date,y= value/1000,color= "NILF, Marginally Attached"), size = 1.25)+ 
+  geom_line(data=DISCOURAGED, aes(x=date,y= value/1000,color= "NILF, Marginally Attached, Discouraged Workers"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of People") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3), limits = c(0,3), expand = c(0,0)) +
+  ggtitle("Workers in Waiting") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Discouraged and Marginally Attached Workers is Near Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.60,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*3), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Total_Quits_Graph <- ggplot() + #plotting total quits
@@ -637,6 +669,10 @@ ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo
 ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Black_White_Epop, "Black White Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 p_unload(all)  # Remove all add-ons
 
