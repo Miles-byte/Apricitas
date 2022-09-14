@@ -63,12 +63,118 @@ STATDISC <- fredr(series_id = "A030RC1Q027SBEA",observation_start = as.Date("194
 
 STATDISC_MERGE <- merge(NGDP1947,STATDISC, by = "date")
 
-FINSLC1 <- fredr(series_id = "FINSLC1",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+#disposable personal income and spending
+DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
+POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(DSPI$date, n=1), "months")), trend = 16622.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(DSPI$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(POUT$date, n=1), "months")), trend = 15328.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(POUT$date, n=1), by = 'month')) - 1)))
+
+#Corporate Profits With IvA
+CORP_PROFITS_IVA <- fredr(series_id = "A445RC1Q027SBEA",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
+CORP_PROFITS <- fredr(series_id = "A446RC1Q027SBEA",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
 
 #GDI Wages vs PCE
 GDI_Employees <- fredr(series_id = "A4102C1Q027SBEA",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
 PCE <- fredr(series_id = "PCEC",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
- 
+
+#CIPI
+CIPI <- fredr(series_id = "CBI",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+INVENTORIES_NOMINAL_CHANGE <- fredr(series_id = "A371RC1Q027SBEA",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, units = "chg")
+
+#Gross Output and Industrial Production
+GROSS_OUTPUT_MANUFACTURING <- fredr(series_id = "GOQIMA",observation_start = as.Date("2005-01-01"),realtime_start = NULL, realtime_end = NULL)
+INDUSTRIAL_PRODUCTION_MANUFACTURING <- fredr(series_id = "IPMAN",observation_start = as.Date("2005-01-01"),realtime_start = NULL, realtime_end = NULL, aggregation_method = "sum", frequency = "q")
+
+#fixed investment
+FIXED_SOFTWARE <- fredr(series_id = "B985RC1Q027SBEA",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+FIXED_RD <- fredr(series_id = "Y006RC1Q027SBEA",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+FIXED_COMPUTER <- fredr(series_id = "Y034RC1Q027SBEA",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+  
+Personal_Income_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = DSPI, aes(x=date, y = value/1000, color = "Personal Income"), size = 1.25) + 
+  geom_line(data = POUT, aes(x=date, y = value/1000 , color = "Personal Outlays"), size = 1.25) + 
+  geom_line(data = DSPITrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Personal Income Growth Trend"), size = 1.25, linetype = "dashed") + 
+  geom_line(data = POUTTrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Personal Outlays Growth Trend"), size = 1.25, linetype = "dashed") + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("The Bottom Line") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income Remains on Trend, But Spending is Above Trend as Excess Savings Decrease") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1600), xmax = as.Date("2018-01-01")-(0.049*1600), ymin = 12.5-(.3*10), ymax = 12.5) +
+  coord_cartesian(clip = "off")
+
+STAT_DISC_Graph <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = STATDISC_MERGE, aes(x=date, y = (value.y/value.x), color = "GDP v GDI Statistical Discrepancy, % of GDP"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.040,0.040), breaks = c(-0.04,-.03,-0.02,-0.01,0,0.01,0.020,0.03,0.04), expand = c(0,0)) +
+  ylab("Continuously Compounded Annual Change") +
+  ggtitle("Anomaly Detected") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The GDP/GDI Discrepancy is Historically Large (With the Caveat that Recent Data is Unrevised)") +
+  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1947-01-01")-(.1861*(today()-as.Date("1947-01-01"))), xmax = as.Date("1947-01-01")-(0.049*(today()-as.Date("1947-01-01"))), ymin = -0.040-(.3*0.080), ymax = -0.040) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+#Corp Profits
+Profits_Graph <- ggplot() +
+  geom_line(data = CORP_PROFITS, aes(x=date, y = value/1000, color = "Pretax Corporate Profits of Domestic Business"), size = 1.25) + 
+  geom_line(data = CORP_PROFITS_IVA, aes(x=date, y = value/1000, color = "Pretax Corporate Profits of Domestic Business with IVA and CCADJ"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 1),limits = c(0,3), breaks = c(0,1,2,3), expand = c(0,0)) +
+  ylab("Trillions of US Dollars") +
+  ggtitle("The Trillion Dollar Mystery") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Overestimation of Corporate Profits Could be Contributing to the GDP-GDI Gap") +
+  theme_apricitas + theme(legend.position = c(.45,.4)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+CIPI_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = CIPI, aes(x=date, y = value, color = "Drawdown or Accumulation of Inventories"), size = 1.25) + 
+  geom_line(data = INVENTORIES_NOMINAL_CHANGE, aes(x=date, y = value, color = "Change In Value for Existing Inventories Plus Inventory Drawdown/Accumulation"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-300,350), breaks = c(-300,-150,0,150,300), expand = c(0,0)) +
+  ylab("Brillions of US Dollars") +
+  ggtitle("The Trillion Dollar Mystery") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Underestimation of Inventory Growth Could be Contributing to the GDP-GDI Gap") +
+  theme_apricitas + theme(legend.position = c(.52,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D"), breaks = c("Drawdown or Accumulation of Inventories","Change In Value for Existing Inventories Plus Inventory Drawdown/Accumulation")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -300-(.3*650), ymax = -300) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+MANUFACTURING_Graph <- ggplot() +
+  geom_line(data = GROSS_OUTPUT_MANUFACTURING, aes(x=date, y = value/1.03, color = "BEA: Real Gross Output, Manufacturing"), size = 1.25) + 
+  geom_line(data = INDUSTRIAL_PRODUCTION_MANUFACTURING, aes(x=date, y = value/2.95, color = "FRB: Industrial Production, Manufacturing"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(80,110), breaks = c(80,90,100,110), expand = c(0,0)) +
+  ylab("Index, Q1 2005 = 100") +
+  ggtitle("The Trillion Dollar Mystery") +
+  labs(caption = "Graph created by @JosephPolitano using BEA/FRB data",subtitle = "Misestimation of Manufacturing Data Could be Reducing GDP Data") +
+  theme_apricitas + theme(legend.position = c(.52,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 80-(.3*30), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+FIXED_INVESTMENT <- ggplot() +
+  geom_line(data = FIXED_COMPUTER, aes(x=date, y = value, color = "Fixed Investment: Information Processing Equipment"), size = 1.25) + 
+  geom_line(data = FIXED_SOFTWARE, aes(x=date, y = value, color = "Fixed Investment: Intellectual Property: Software"), size = 1.25) + 
+  geom_line(data = FIXED_RD, aes(x=date, y = value, color = "Fixed Investment: Intellectual Property: R&D"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(300,700), breaks = c(300,400,500,600,700), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("The Trillion Dollar Mystery") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Nominal Spending on Tech Investment has Been Strong, But Not Spectacular") +
+  theme_apricitas + theme(legend.position = c(.40,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 300-(.3*400), ymax = 300) +
+  coord_cartesian(clip = "off")
+
 #Graphing GDP
 NGDP_Graph <- ggplot() +
   geom_line(data = NGDP, aes(x=date, y = value/1000, color = "Nominal GDP"), size = 1.25) + 
@@ -90,7 +196,7 @@ GDI_PCE <- ggplot() +
   scale_y_continuous(limits = c(85,120), breaks = c(90,100,110,120), expand = c(0,0)) +
   ylab("Index Q4 2019 = 100") +
   ggtitle("Core Divergence") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Even the Least Volatile Aspects of GDP/GDI Are Diverging a Bit") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Even the Least Volatile Aspects of GDP/GDI Are Diverging") +
   theme_apricitas + theme(legend.position = c(.45,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 85-(.3*35), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -160,6 +266,7 @@ Employment_Graph <- ggplot() + #CPS with NFP adjusted concepts
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 120-(.3*40), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
 
 #Real Final Sales to Domestic Final Purchasers
 RFSALEDOMPRIV_Graph <- ggplot() + 
@@ -301,6 +408,8 @@ FIXED_INVESTMENT_Index_Graph <- ggplot() + #indexed employment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*45), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+
+
 ggsave(dpi = "retina",plot = GDPMonthlyContrib_Graph, "Monthly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RFSALEDOMPRIV_Graph, "Real Final Private Sales.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RFSALEDOMPRIV_PCT_Graph, "Real Final Private Sales PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -314,10 +423,16 @@ ggsave(dpi = "retina",plot = Employment_Index_Graph, "Employment Indexed.png", t
 ggsave(dpi = "retina",plot = REAL_GAS_Graph, "Real Gas.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = INDUSTRIAL_PRODUCTION_Index_Graph, "Industrial Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = FIXED_INVESTMENT_Index_Graph, "Real Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
 ggsave(dpi = "retina",plot = NGDP_Graph, "NGDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RGDO_Graph, "RGDO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = GDI_PCE, "GDI PCE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = STAT_DISC_Graph, "Stat Disc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ggsave(dpi = "retina",plot = CIPI_Graph, "CIPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Profits_Graph, "Corp Profits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = MANUFACTURING_Graph, "Manufacturing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = FIXED_INVESTMENT, "Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

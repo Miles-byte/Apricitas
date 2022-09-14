@@ -37,9 +37,8 @@ Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2
 Layoffs_RETAIL=Layoffs_RETAIL[order(nrow(Layoffs_RETAIL):1),]
 Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
 
-Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
-Total_Layoffs=Total_Layoffs[order(nrow(Total_Layoffs):1),]
-Total_Layoffs$date <- seq(as.Date("2018-01-01"), as.Date("2022-06-01"), "months")
+Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
@@ -87,7 +86,7 @@ EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"
 
 LAH <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Leisure and Hospitality Data
 U1RATE <- fredr(series_id = "U1RATE",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #u1Rate Extended Unemployment Data
-LGOVED <- fredr(series_id = "CEU9093161101",observation_start = as.Date("2019-10-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
+LGOVED <- fredr(series_id = "CES9093161101",observation_start = as.Date("2019-10-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
 PARTTIME <- fredr(series_id = "LNS12032194",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #Part Time For Economic Reasons Level
 TRNSPT <- fredr(series_id = "CES4300000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Transportation and Warehousing, All Employees
 FOODSERV <- fredr(series_id = "CES7072000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
@@ -117,6 +116,32 @@ Total_Quits18 <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("201
 UNLEVEL <- fredr(series_id = c("UNEMPLOY"), observation_start = as.Date("2019-01-01")) #unemployment data
 NILFWJN <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2019-01-01")) #NILF want jobs now
 NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
+
+#taking prime age epop for men and women. 
+EPOP_MALE_1990 <- bls_api("LNS12300061", startyear = 1990) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2000 <- bls_api("LNS12300061", startyear = 2000) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2010 <- bls_api("LNS12300061", startyear = 2010) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2020 <- bls_api("LNS12300061", startyear = 2020) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest)
+
+EPOP_MALE <- rbind(EPOP_MALE_1990,EPOP_MALE_2000,EPOP_MALE_2010,EPOP_MALE_2020)
+
+EPOP_FEMALE_1990 <- bls_api("LNS12300062", startyear = 1990) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2000 <- bls_api("LNS12300062", startyear = 2000) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2010 <- bls_api("LNS12300062", startyear = 2010) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2020 <- bls_api("LNS12300062", startyear = 2020) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest)
+
+EPOP_FEMALE <- rbind(EPOP_FEMALE_1990,EPOP_FEMALE_2000,EPOP_FEMALE_2010,EPOP_FEMALE_2020)
+
 
 #Flows data
 UNEMPLOYEMPLOY <- fredr(series_id = c("LNU07100000"), observation_start = as.Date("2000-01-01")) #unemployment flows to employment
@@ -165,6 +190,19 @@ Black_White_Epop <- ggplot() + #plotting black-white unemployment graph
   theme_apricitas + theme(legend.position = c(.77,.85)) +
   scale_color_manual(name= "Prime Age (25-54) Employment Population Ratio",breaks = c("White","Black"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = .64-(.3*.21), ymax = .64) +
+  coord_cartesian(clip = "off")
+
+Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
+  geom_line(data=EPOP_FEMALE, aes(x=date,y= value/100,color= "Women"), size = 1.25)+ 
+  geom_line(data=EPOP_MALE, aes(x=date,y= value/100,color= "Men"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.63,.90),breaks = c(.65,.70,.75,.80,.85,.90), expand = c(0,0)) +
+  ggtitle("A Stronger Labor Market") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Gender Employment Gap is Near a Record Low") +
+  theme_apricitas + theme(legend.position = c(.40,.50)) +
+  scale_color_manual(name= "Prime Age (25-54) Employment Population Ratio",breaks = c("Women","Men"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = .63-(.3*.27), ymax = .63) +
   coord_cartesian(clip = "off")
 
 PERM_TEMP_JOBLOSS_Graph <- ggplot() + #plotting permanent and temporary job losers
@@ -264,7 +302,7 @@ Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
   ylab("Millions of Employees") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("The Great Reshuffling") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is at a Record High; the Number of Layoffs is at a Record Low") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Near a Record High; the Number of Layoffs is at a Record Low") +
   theme_apricitas + theme(legend.position = c(.30,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1619), xmax = as.Date("2018-01-01")-(0.049*1619), ymin = 0-(.3*5), ymax = 0) +
@@ -511,16 +549,16 @@ PARTTIME_Graph <- ggplot() + #plotting employed part time for economic reasons
   coord_cartesian(clip = "off")
 
 LGOVED_Graph <- ggplot() + #plotting local government education employment
-  geom_line(data=LGOVED, aes(x=date,y= value/1000,color= "All Employees, Local Government Education (NSA)"), size = 1.25)+ 
+  geom_line(data=LGOVED, aes(x=date,y= value/1000,color= "All Employees, Local Government Education"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(6,7,8,9), limits = c(6,9), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(7,7.5,8,8.5), limits = c(7,8.5), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2021-10-01"))) +
   ggtitle("Back to School?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Revisions Show That Public Sector Educational Employment Hasn't Shrunk That Much") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Local Government Education Employment Still Lags") +
   theme_apricitas + theme(legend.position = c(.65,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-10-01")-(.1861*700), xmax = as.Date("2019-10-01")-(0.049*700), ymin = 6-(.3*3), ymax = 6) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-10-01")-(.1861*(today()-as.Date("2019-10-01"))), xmax = as.Date("2019-10-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 7-(.3*1.5), ymax = 7) +
   coord_cartesian(clip = "off")
 
 FOODSERV_Graph <- ggplot() + #plotting food service and accommodation employment
@@ -673,6 +711,7 @@ ggsave(dpi = "retina",plot = Black_White_Epop, "Black White Epop.png", type = "c
 ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
+ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 p_unload(all)  # Remove all add-ons
 

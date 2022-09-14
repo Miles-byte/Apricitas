@@ -44,13 +44,13 @@ CPI_Graph <- ggplot() +
 TWOYR_Graph <- ggplot() + 
   geom_line(data = TWOYR, aes(x = date, y = value/100, color = "Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(0,.02), breaks = c(0,.005,.01,.01,.015,.02), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.04), breaks = c(0,.01,.02,.03,.04), expand = c(0,0)) +
   ylab("Yield, %") +
   ggtitle("The Fed's Pivot") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Yield on 2YR Treasury Notes Has Rapidly Returned to Pre-Pandemic Levels") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Yield on 2YR Treasury Notes Has Rapidly Exceeded Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.50,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-11-04")-(.1861*780), xmax = as.Date("2019-11-04")-(0.049*780), ymin = 0-(.3*.02), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-11-04")-(.1861*(today()-as.Date("2019-11-04"))), xmax = as.Date("2019-11-04")-(0.049*(today()-as.Date("2019-11-04"))), ymin = 0-(.3*0.04), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Rent_LessRent_Graph <- ggplot() + 

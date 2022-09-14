@@ -41,6 +41,48 @@ POWER_SOLAR <- as.data.frame(POWER_SOLAR$data) %>%
 
 POWER_RBIND <- rbind(POWER_NAT_GAS,POWER_COAL,POWER_NUCLEAR,POWER_WIND,POWER_HYDRO,POWER_SOLAR)
 
+CPI_ELECTRICITY <- fredr(series_id = "CUSR0000SEHF01",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
+CPI_UTILITY_GAS <- fredr(series_id = "CUSR0000SEHF02",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
+CPI_GASOLINE <- fredr(series_id = "CUSR0000SETB01",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+TOTAL_POWER_Graph <- ggplot(data = POWER_RBIND, aes(x = date, y = value/1000, fill = power)) + #plotting power generation
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 31) +
+  xlab("Date") +
+  ylab("Monthly Power Generation, GWh") +
+  scale_y_continuous(labels = scales::number_format(suffix = "GWh", accuracy = 1), breaks = c(0,200,400,600), limits = c(0,650), expand = c(0,0)) +
+  ggtitle("Power Play") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The US is Slowly Transitioning to Better Power Sources-But Total Output is Stagnant") +
+  theme_apricitas + theme(legend.position = c(.15,.79)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*650), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
+  geom_line(data=CPI_ELECTRICITY, aes(x=date,y= (value/2.14475) ,color= "Electricity"), size = 1.25) +
+  geom_line(data=CPI_UTILITY_GAS, aes(x=date,y= (value/1.70689) ,color= "Utility (Piped) Gas Service"), size = 1.25) +
+  geom_line(data=CPI_GASOLINE, aes(x=date,y= (value/2.36591) ,color= "Gasoline"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(0,180), breaks = c(0,50,100,150), expand = c(0,0)) +
+  ylab("CPI: January 2020 = 100") +
+  ggtitle("The Energy Crisis") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices for a Variety of Energy Commodities are Spiking") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "Consumer Price Index:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*160), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+TOTAL_POWER_Graph <- ggplot(data = POWER_RBIND, aes(x = date, y = value/1000, fill = power)) + #plotting power generation
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 31) +
+  xlab("Date") +
+  ylab("Monthly Power Generation, GWh") +
+  scale_y_continuous(labels = scales::number_format(suffix = "GWh", accuracy = 1), breaks = c(0,200,400,600), limits = c(0,650), expand = c(0,0)) +
+  ggtitle("Power Play") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "The US is Slowly Transitioning to Betterr Power Sources-But Total Output is Stagnant") +
+  theme_apricitas + theme(legend.position = c(.15,.79)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*650), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 SPR_LEVEL_Graph <- ggplot() + #plotting US SPR Crude Oil Stocks
   geom_line(data=SPR_LEVEL, aes(x=date,y= value/1000, color= "Stocks of Crude Oil in the Strategic Petroleum Reserve"), size = 1.25) +
   xlab("Date") +
@@ -65,21 +107,11 @@ CRUDE_CURVE_Graph <- ggplot() + #plotting Crude Curve
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-08-01")-(.1861*3600), xmax = as.Date("2022-08-01")-(0.049*3600), ymin = 0-(.3*100), ymax = 0) +
   coord_cartesian(clip = "off")
 
-CRUDE_CURVE_Graph <- ggplot() + #plotting Crude Curve
-  geom_line(data=CRUDE_CURVE, aes(x=Contract,y= Last,color= "Crude Oil (WTI) Futures Curve"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1),limits = c(0,100), breaks = c(0,25,50,75,100), expand = c(0,0)) +
-  ylab("Percent") +
-  ggtitle("Back to Backwardation") +
-  labs(caption = "Graph created by @JosephPolitano using CME data",subtitle = "Crude Oil Markets Remain Highly Backwardated") +
-  theme_apricitas + theme(legend.position = c(.45,.90)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-08-01")-(.1861*3600), xmax = as.Date("2022-08-01")-(0.049*3600), ymin = 0-(.3*100), ymax = 0) +
-  coord_cartesian(clip = "off")
-
 
 ggsave(dpi = "retina",plot = SPR_LEVEL_Graph, "SPR Level.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CRUDE_CURVE_Graph, "Crude Curve Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = TOTAL_POWER_Graph, "Total Power Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_ENERGY_Graph, "CPI Energy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

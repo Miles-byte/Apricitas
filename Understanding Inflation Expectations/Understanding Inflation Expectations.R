@@ -30,6 +30,8 @@ FIVEYEARFWDBREAKEVEN2019 <- fredr(series_id = "T5YIFR",observation_start = as.Da
 FIVEYEARBREAKEVEN2019 <- drop_na(FIVEYEARBREAKEVEN2019)
 FIVEYEARFWDBREAKEVEN2019 <- drop_na(FIVEYEARFWDBREAKEVEN2019)
 
+ICE_INF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/ICE_USD_Inflation_Expectations_Index_Family.csv") %>%
+  mutate(date = as.Date(date, "%m/%d/%Y"))
 
 UMICH_BUYING_Graph <- ggplot() + #plotting total quits
   annotate("hline", y = 0, yintercept = 100, color = "white", size = .5) +
@@ -105,7 +107,7 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.0225, ymax = 0.0275, fill = "#EE6055", color = NA, alpha = 0.4) +
   geom_line(data=FIVEYEARBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year Inflation Breakevens"), size = 1.25) +
   geom_line(data=FIVEYEARFWDBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year, 5 Year Forward Inflation Breakevens"), size = 1.25) +
-  annotate("text", label = "Breakevens Approximately Consistent With 2% Inflation Target", x = as.Date("2020-01-01"), y = 0.0287, color = "#EE6055", alpha = 0.6, size = 4) +
+  annotate("text", label = "Breakevens Approximately Consistent With 2% Inflation Target", x = as.Date("2020-05-01"), y = 0.0287, color = "#EE6055", alpha = 0.6, size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
@@ -117,12 +119,27 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ICE_INF_Graph <- ggplot() + #plotting total quits
+  geom_line(data=subset(ICE_INF, date > as.Date("2021-12-31")), aes(x=date,y= X1Y/100,color= "Next 12 Months"), size = 1.25)+ 
+  geom_line(data=subset(ICE_INF, date > as.Date("2021-12-31")), aes(x=date,y= CurrentCalendarYear/100,color= "Calendar Year 2022"), size = 1.25)+ 
+  geom_line(data=subset(ICE_INF, date > as.Date("2021-12-31")), aes(x=date,y= NextCalendarYear/100,color= "Calendar Year 2023"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08), limits = c(0,.08), expand = c(0,0)) +
+  ggtitle("Expect the Unexpected") +
+  labs(caption = "Graph created by @JosephPolitano using ICE data", subtitle = "Market Based Measures of Inflation Expectations Expect Price Rises to Fade in 2023") +
+  theme_apricitas + theme(legend.position = c(.20,.84)) +
+  scale_color_manual(name= "ICE US Inflation Expectations",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-04")-(.1861*(today()-as.Date("2022-01-04"))), xmax = as.Date("2022-01-04")-(0.049*(today()-as.Date("2022-01-04"))), ymin = 0-(.3*.08), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 ggsave(dpi = "retina",plot = UMICH_BUYING_Graph, "UMICH BUYING.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = UMICH_BIAP_Graph, "UMICH BIAP GRAPH.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = UMICH_BIAP_IE_Graph, "UMICH BIAP IE.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = BIE_Graph, "BIE Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = SOFIE_Graph, "SoFIE Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = T5YIE2019, "T5YIE2019.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = ICE_INF_Graph, "ICE INF Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons
