@@ -1,9 +1,8 @@
-pacman::p_load(RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("quantmod")
 install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
-
 
 CPI <- bls_api("CUSR0000SA0", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
@@ -186,28 +185,28 @@ CPI_SERV_LE <- fredr(series_id = "CUUR0000SASLE",observation_start = as.Date("20
   select(date,value,Category)
 
 CPI_Indices <- rbind(CPI_ALL,CPI_FOOD,CPI_ENERGY,CPI_COM_LFE,CPI_SERV_LE) %>%
-  mutate(Indicator = "Index")
+  mutate(Indicator = "Index_NSA")
 
 CPI_CONTRIBUTION <- rbind(CPI_Indices,Relative_Importance) %>%
   pivot_wider(names_from = "Indicator") %>%
-  mutate_cond(Category == "All" & date < as.Date("2020-01-01") & date > as.Date("2018-01-01"), Relative_Importance = Index/246.524*100) %>%
-  mutate_cond(Category == "All" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index/256.974*100) %>%
-  mutate_cond(Category == "All" & date > as.Date("2022-01-01"), Relative_Importance = Index/278.802*100) %>%
-  mutate_cond(Category == "Food" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index/251.238*13.38400) %>%
-  mutate_cond(Category == "Food" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index/259.823*13.771) %>%
-  mutate_cond(Category == "Food" & date > as.Date("2022-01-01"), Relative_Importance = Index/286.966*13.37) %>%
-  mutate_cond(Category == "Energy" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index/206.598*7.513) %>%
-  mutate_cond(Category == "Energy" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index/212.982*6.706) %>%
-  mutate_cond(Category == "Energy" & date > as.Date("2022-01-01"), Relative_Importance = Index/256.207*7.348) %>%
-  mutate_cond(Category == "Goods_LFE" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index/142.647*19.849000) %>%
-  mutate_cond(Category == "Goods_LFE" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index/142.920*20.137000) %>%
-  mutate_cond(Category == "Goods_LFE" & date > as.Date("2022-01-01"), Relative_Importance = Index/160.850*21.699000) %>%
-  mutate_cond(Category == "Services_LE" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index/322.250*59.254000) %>%
-  mutate_cond(Category == "Services_LE" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index/341.347*59.387) %>%
-  mutate_cond(Category == "Services_LE" & date > as.Date("2022-01-01"), Relative_Importance = Index/359.559*57.583)
+  mutate_cond(Category == "All" & date < as.Date("2020-01-01") & date > as.Date("2018-01-01"), Relative_Importance = Index_NSA/246.524*100) %>%
+  mutate_cond(Category == "All" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/256.974*100) %>%
+  mutate_cond(Category == "All" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/278.802*100) %>%
+  mutate_cond(Category == "Food" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index_NSA/251.238*13.38400) %>%
+  mutate_cond(Category == "Food" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/259.823*13.771) %>%
+  mutate_cond(Category == "Food" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/286.966*13.37) %>%
+  mutate_cond(Category == "Energy" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index_NSA/206.598*7.513) %>%
+  mutate_cond(Category == "Energy" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/212.982*6.706) %>%
+  mutate_cond(Category == "Energy" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/256.207*7.348) %>%
+  mutate_cond(Category == "Goods_LFE" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index_NSA/142.647*19.849000) %>%
+  mutate_cond(Category == "Goods_LFE" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/142.920*20.137000) %>%
+  mutate_cond(Category == "Goods_LFE" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/160.850*21.699000) %>%
+  mutate_cond(Category == "Services_LE" & date < as.Date("2020-01-01")& date > as.Date("2018-01-01"), Relative_Importance = Index_NSA/322.250*59.254000) %>%
+  mutate_cond(Category == "Services_LE" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/341.347*59.387) %>%
+  mutate_cond(Category == "Services_LE" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/359.559*57.583)
 
 #making updated relative importance calculations
-CPI_RI_FINAL_CALCULATIONS <- pivot_wider(select(CPI_CONTRIBUTION, - Index), names_from = "Category", values_from = Relative_Importance) %>%
+CPI_RI_FINAL_CALCULATIONS <- pivot_wider(select(CPI_CONTRIBUTION, - Index_NSA), names_from = "Category", values_from = Relative_Importance) %>%
   mutate(Food = Food/All*100) %>%
   mutate(Energy = Energy/All*100) %>%
   mutate(Goods_LFE = Goods_LFE/All*100) %>%
@@ -218,11 +217,31 @@ CPI_RI_FINAL_CALCULATIONS <- pivot_wider(select(CPI_CONTRIBUTION, - Index), name
 
 CPI_CONTRIBUTION$Relative_Importance <- CPI_RI_FINAL_CALCULATIONS$value
 
+#adding seasonally adjusted data for seasonally adjusted monthly charts
+CPI_ALL_SA <- fredr(series_id = "CPIAUCSL",observation_start = as.Date("2017-12-01")) %>%
+  mutate(Category = "All") %>%
+  select(date,value,Category)
+CPI_FOOD_SA <- fredr(series_id = "CPIUFDSL",observation_start = as.Date("2017-12-01")) %>%
+  mutate(Category = "Food")%>%
+  select(date,value,Category)
+CPI_ENERGY_SA <- fredr(series_id = "CPIENGSL",observation_start = as.Date("2017-12-01"))%>%
+  mutate(Category = "Energy")%>%
+  select(date,value,Category)
+CPI_COM_LFE_SA <- fredr(series_id = "CUSR0000SACL1E",observation_start = as.Date("2017-12-01"))%>%
+  mutate(Category = "Goods_LFE")%>%
+  select(date,value,Category)
+CPI_SERV_LE_SA <- fredr(series_id = "CUSR0000SASLE",observation_start = as.Date("2017-12-01"))%>%
+  mutate(Category = "Services_LE")%>%
+  select(date,value,Category)
+
+CPI_Indices_SA <- rbind(CPI_ALL_SA,CPI_FOOD_SA,CPI_ENERGY_SA,CPI_COM_LFE_SA,CPI_SERV_LE_SA)
 
 #NOTE: NEED TO RECALCULATE TO ACCOUNT FOR SLIGHT ADJUSTMENTS MADE BY BIANNUAL WEIGHT REBALANCING
 CPI_CONTRIBUTION_FINAL <- CPI_CONTRIBUTION %>%
-  mutate(Monthly_Contribution = (Index/lag(Index))*lag(Relative_Importance)-lag(Relative_Importance)) %>%
-  mutate(Yearly_Contribution = (Index/lag(Index,12))*lag(Relative_Importance,12)-lag(Relative_Importance,12)) %>%
+  mutate(Index_SA = CPI_Indices_SA$value) %>%
+  mutate(Monthly_Contribution_NSA = (Index_NSA/lag(Index_NSA))*lag(Relative_Importance)-lag(Relative_Importance)) %>%
+  mutate(Monthly_Contribution_SA = (Index_SA/lag(Index_SA))*lag(Relative_Importance)-lag(Relative_Importance)) %>%
+  mutate(Yearly_Contribution = (Index_NSA/lag(Index_NSA,12))*lag(Relative_Importance,12)-lag(Relative_Importance,12)) %>%
   drop_na() %>%
   subset(date >= as.Date("2019-01-01"))
 
@@ -239,16 +258,29 @@ CPI_CONTRIBUTION_ANNUAL_GRAPH <- ggplot() + #plotting components of annual infla
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.025-(.3*.125), ymax = -0.025) +
   coord_cartesian(clip = "off")
 
-CPI_CONTRIBUTION_MONTHLY_GRAPH <- ggplot() + #plotting components of monthly inflation
-  geom_bar(data = subset(CPI_CONTRIBUTION_FINAL, Category != "All"), aes(x = date, y = Monthly_Contribution/100, fill = Category), color = NA, size = 0, stat= "identity") +
+CPI_CONTRIBUTION_MONTHLY_NSA_GRAPH <- ggplot() + #plotting components of monthly inflation
+  geom_bar(data = subset(CPI_CONTRIBUTION_FINAL, Category != "All"), aes(x = date, y = Monthly_Contribution_NSA/100, fill = Category), color = NA, size = 0, stat= "identity") +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.01,.015), breaks = c(-.01,-0.005,0,0.005,.01,.015), expand = c(0,0)) +
   ylab("Monthly Inflation, Percent") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Energy Prices Pulled Inflation Down In July") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Energy Prices Pulled Inflation Down In August") +
   theme_apricitas + theme(legend.position = c(.45,.80)) +
   scale_fill_manual(name= "Contributions to Monthly CPI Inflation (NSA)",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services_LE","Goods_LFE","Energy","Food"), labels = c("Core Services","Core Goods","Energy","Food")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.01-(.3*.025), ymax = -0.01) +
+  coord_cartesian(clip = "off")
+
+CPI_CONTRIBUTION_MONTHLY_SA_GRAPH <- ggplot() + #plotting components of monthly inflation
+  geom_bar(data = subset(CPI_CONTRIBUTION_FINAL, Category != "All"), aes(x = date, y = Monthly_Contribution_SA/100, fill = Category), color = NA, size = 0, stat= "identity") +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.01,.015), breaks = c(-.01,-0.005,0,0.005,.01,.015), expand = c(0,0)) +
+  ylab("Monthly Inflation, Percent") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Energy Prices Pulled Inflation Down In August But Core Inflation Remained Strong") +
+  theme_apricitas + theme(legend.position = c(.45,.80)) +
+  scale_fill_manual(name= "Contributions to Monthly CPI Inflation",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services_LE","Goods_LFE","Energy","Food"), labels = c("Core Services","Core Goods","Energy","Food")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.01-(.3*.025), ymax = -0.01) +
   coord_cartesian(clip = "off")
 
@@ -433,6 +465,24 @@ PCE_Inflation_Rates_Graph <- ggplot() + #plotting PCE Inflation Rates
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
+#downloading stock and watson cyclically sensitive inflation
+Stock_Watson <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/stockwatson.csv") %>%
+  mutate(date = as.Date(ï..DATE))
+
+Stock_Watson_Graph <- ggplot() + #plotting Stock Watson
+  geom_line(data=Stock_Watson, aes(x=date,y= CSI1_12M/100 ,color= "Cyclically Sensitive PCE Inflation (Stock and Watson 2019)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,.07), breaks = c(0,.02,.04,0.06), expand = c(0,0)) +
+  ylab("Percent Change from One Year Ago") +
+  ggtitle("The Cyclical Jump") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data",subtitle = "Cyclical Inflation is at the Highest Level in 30 Years") +
+  theme_apricitas + theme(legend.position = c(.50,.70)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E"))+
+  annotate(geom = "hline",y = 0.02,yintercept = 0.02, size = 1.25,linetype = "dashed",color = "white") +#annotating 2% target inflation
+  annotate(geom = "text", label = as.character("2% Inflation Target"),x = as.Date("2014-05-01"),y = 0.023,color = "white") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*10950), xmax = as.Date("1990-01-01")-(0.049*10950), ymin = 0-(.3*0.07), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "New Vehicles" price Indexes
   geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/141)*100 ,color= "Used Cars and Trucks"), size = 1.25) +
   geom_line(data=CPINEWCARS, aes(x=date,y= (value/146)*100 ,color= "New Vehicles"), size = 1.25) +
@@ -441,9 +491,25 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
   ylab("Index, January 2019 = 100") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Used Cars and Trucks Experienced Unprecedented Price Increases") +
-  theme_apricitas + theme(legend.position = c(.50,.70)) +
+  theme_apricitas + theme(legend.position = c(.45,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/mannheim.csv") %>%
+  mutate(date = as.Date(date))
+
+CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
+  geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/141)*100 ,color= "CPI: Used Cars and Trucks"), size = 1.25) +
+  geom_line(data=subset(Mannheim, date > as.Date("2018-12-31")), aes(x=date,y= (mannheim/135.4)*100 ,color= "Mannheim Used Vehicles Value Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(80,180), breaks = c(90,120,150), expand = c(0,0)) +
+  ylab("Index, January 2019 = 100") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Mannheim Wholesale Data Could Be Giving Early Indications of a Fall in Used Car Prices") +
+  theme_apricitas + theme(legend.position = c(.30,.70)) +
+  scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 80-(.3*100), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_sm_month.csv?t=1663023183") %>%
@@ -455,6 +521,9 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   .[-1, ] %>%
   mutate(`United States` = as.numeric(`United States`)) %>%
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))
+
+ApartmentList <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/apartmentlist.csv") %>%
+  mutate(date = as.Date(ï..date))
   
 CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "CPI Rent: Annual Percentage Growth"), size = 1.25) +
@@ -472,15 +541,16 @@ CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
 CPI_Rent_Zillow <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "CPI Rent"), size = 1.25) +
   geom_line(data=CPIORENT, aes(x=date,y= (calculations/100) ,color= "CPI Owner's Equivalent Rent"), size = 1.25) +
-  geom_line(data=subset(ZORI, date > as.Date("2018-06-01")), aes(x=date+180,y= (`United States`) ,color= "Zillow Observed Rent Index, Lagged 6 Months"), size = 1.25) +
+  geom_line(data=subset(ZORI, date > as.Date("2018-03-01")), aes(x=date+270,y= (`United States`) ,color= "Zillow Observed Rent Index, Lagged 9 Months"), size = 1.25) +
+  geom_line(data=subset(ApartmentList, date > as.Date("2018-03-01")), aes(x=date+270,y= annualpct ,color= "ApartmentList Median New Lease, Lagged 9 Months"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.20), breaks = c(0,.05,0.1,0.15,0.2), expand = c(0,0)) +
   ylab("Percent Change From a Year Ago, %") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and Zillow data",subtitle = "Whether Rent Growth Actually Peaks Will Be Critical to Future Inflation Prints") +
+  labs(caption = "Graph created by @JosephPolitano using BLS,Zillow, and ApartmentList data",subtitle = "Whether Rent Growth Actually Peaks Will Be Critical to Future Inflation Prints") +
   theme_apricitas + theme(legend.position = c(.35,.70)) +
-  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent","CPI Owner's Equivalent Rent","Zillow Observed Rent Index, Lagged 6 Months")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*0.20), ymax = 0.00) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent","CPI Owner's Equivalent Rent","Zillow Observed Rent Index, Lagged 9 Months","ApartmentList Median New Lease, Lagged 9 Months")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+270-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+270-as.Date("2019-01-01"))), ymin = 0-(.3*0.20), ymax = 0.00) +
   coord_cartesian(clip = "off")
 
 CPI_Rent_Month <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
@@ -618,9 +688,12 @@ ggsave(dpi = "retina",plot = PPIPCT_Graph, "PPI PCT Graph.png", type = "cairo-pn
 ggsave(dpi = "retina",plot = PCE_Goods_Graph, "PCE Goods Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_SERVICES_Graph, "CPI Services Trend.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_ANNUAL_GRAPH, "CPI Contribution.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_GRAPH, "CPI Monthly Contribution.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_NSA_GRAPH, "CPI Monthly Contribution NSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_SA_GRAPH, "CPI Monthly Contribution SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Rent_Zillow, "CPI Rent Zillow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_PCEPI_PCT_Graph, "CPI PCEPI PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim Used Vehicles.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Stock_Watson_Graph, "Stock Watson.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
