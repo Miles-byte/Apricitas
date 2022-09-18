@@ -148,10 +148,10 @@ FFR_MERGE_23_25_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.008,0.01), breaks = c(-0.008,-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("An Inverted Curve") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 as Recession Risks Increase") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 Amidst Recession Risks") +
   theme_apricitas + theme(legend.position = c(.35,.25)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*600), xmax = as.Date("2021-01-01")-(0.049*600), ymin = -0.008-(.3*.018), ymax = -0.008) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = -0.008-(.3*.018), ymax = -0.008) +
   coord_cartesian(clip = "off")
 
 MOVE_Graph <- ggplot() + #plotting MOVE

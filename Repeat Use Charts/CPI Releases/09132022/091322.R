@@ -245,6 +245,8 @@ CPI_CONTRIBUTION_FINAL <- CPI_CONTRIBUTION %>%
   drop_na() %>%
   subset(date >= as.Date("2019-01-01"))
 
+write.csv(CPI_CONTRIBUTION_FINAL,"CPICONTRIBFINAL.csv")
+
 CPI_CONTRIBUTION_ANNUAL_GRAPH <- ggplot() + #plotting components of annual inflation
   geom_bar(data = subset(CPI_CONTRIBUTION_FINAL, Category != "All"), aes(x = date, y = Yearly_Contribution/100, fill = Category), color = NA, size = 0, stat= "identity") +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +

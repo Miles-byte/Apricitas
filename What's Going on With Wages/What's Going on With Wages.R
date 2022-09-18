@@ -62,7 +62,7 @@ GLI_Graph <- ggplot() +
   geom_line(data = GLI_BLS, aes(x=date, y = NFP*wage*hours/148450832.866*100, color = "Nominal Gross Labor Income: NFP Method"), size = 1.25) +
   geom_line(data = GLITrend, aes(x=date, y = trend, color = "Pre-Covid 4% Annual GLI Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(limits = c(85,120), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
   ylab("Index, January 2020 = 100") +
   ggtitle("Falling Short?") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income Looks on Trend, But Using ECI Reveals Possible Room for Improvement") +

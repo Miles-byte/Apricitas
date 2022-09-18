@@ -114,7 +114,7 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
   geom_line(data=Auto_Industrial_Capacity, aes(x=date,y= value, color = "Industrial Capacity: Automobile and Light Duty Motor Vehicles"), size = 1.25)+ 
   xlab("Date") +
   ylab("Industrial Capacity, 2017 = 100") +
-  scale_y_continuous(limits = c(60,140), breaks = c(60,80,100,120,140), expand = c(0,0)) +
+  scale_y_continuous(limits = c(60,160), breaks = c(60,80,100,120,140,160), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Capacity Failure") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Still Shows the Scars of 2008") +
