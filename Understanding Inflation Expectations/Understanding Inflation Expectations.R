@@ -19,6 +19,11 @@ BIE_1YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main
   mutate(date = as.Date(ï..date))
 BIE_5YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/ATL_BIE_5YR.csv") %>%
   mutate(date = as.Date(ï..date))
+
+BIE_LABOR_NONLABOR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/bielabornonlabor.csv") %>%
+  mutate(date = as.Date(ï..date))
+
+
 #adding Gorodnichenko firm inflation expectations
 SOFIE_1YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/SOFIE_1YR.csv") %>%
   mutate(date = as.Date(ï..date))
@@ -130,6 +135,19 @@ ICE_INF_Graph <- ggplot() + #plotting total quits
   labs(caption = "Graph created by @JosephPolitano using ICE data", subtitle = "Market Based Measures of Inflation Expectations Expect Price Rises to Fade in 2023") +
   theme_apricitas + theme(legend.position = c(.20,.84)) +
   scale_color_manual(name= "ICE US Inflation Expectations",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-04")-(.1861*(today()-as.Date("2022-01-04"))), xmax = as.Date("2022-01-04")-(0.049*(today()-as.Date("2022-01-04"))), ymin = 0-(.3*.08), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+BIE_LABOR_NONLABOR_Graph <- ggplot() + #plotting total quits
+  geom_line(data=subset(BIE_LABOR_NONLABOR), aes(x=date,y= labor,color= "Labor"), size = 1.25)+ 
+  geom_line(data=subset(BIE_LABOR_NONLABOR), aes(x=date,y= nonlabor,color= "Non-Labor"), size = 1.25)+
+  xlab("Date") +
+  ylab("Diffusion Index") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,20,40,60,80), limits = c(0,80), expand = c(0,0)) +
+  ggtitle("Expect the Unexpected") +
+  labs(caption = "Graph created by @JosephPolitano using ICE data", subtitle = "Market Based Measures of Inflation Expectations Expect Price Rises to Fade in 2023") +
+  theme_apricitas + theme(legend.position = c(.20,.84)) +
+  scale_color_manual(name= "Future Influence of Costs on Prices, Next Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-04")-(.1861*(today()-as.Date("2022-01-04"))), xmax = as.Date("2022-01-04")-(0.049*(today()-as.Date("2022-01-04"))), ymin = 0-(.3*.08), ymax = 0) +
   coord_cartesian(clip = "off")
 

@@ -657,13 +657,13 @@ Rent_LessRent_Graph <- ggplot() +
   geom_line(data = CPIRent, aes(x = date, y = value/100, color = "CPI: Rent of Primary Residences"), size = 1.25) +
   geom_line(data = CPIServicesLessRent, aes(x = date, y = value/100, color = "CPI: Services Less Rent of Shelter"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.07), breaks = c(0,.01,.02,.03,.04,0.05,0.06,0.07), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.08), breaks = c(0,.01,.02,.03,.04,0.05,0.06,0.07,0.08), expand = c(0,0)) +
   ylab("Change from Year Ago, %") +
   ggtitle("Services Price Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation is Becoming More Broad Based as Prices for Rent and Other Services Jump") +
   theme_apricitas + theme(legend.position = c(.50,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*.07), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*.08), ymax = 0) +
   coord_cartesian(clip = "off")
 
 #Saving png images of all graphs

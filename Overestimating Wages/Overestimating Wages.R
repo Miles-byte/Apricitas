@@ -23,7 +23,7 @@ QCEW_PAYROLL_PRIVATE_INDEX <- bls_api("ENUUS00030510", startyear = 2019) %>% #QC
   mutate(date = seq(as.Date("2019-01-01"), as.Date("2022-01-01"), "3 months")) %>%
   mutate(value= value/19299130.62)
 
-
+usethis::edit_r_environ()
 
 BEA_QCEW_Graph <- ggplot() + #plotting permanent and temporary job losers
   #geom_line(data=CES_PAYROLL_INDEX, aes(x=date,y= value/1.42,color= "CES Private Payroll (NSA)"), size = 1.25)+ 
@@ -73,6 +73,59 @@ BEA_QCEW_CES_PrivateGraph <- ggplot() + #plotting permanent and temporary job lo
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
   coord_cartesian(clip = "off")
+
+
+#Comparing QCEW to CES data
+CES_PAYROLL_PRIVATE_ANNUAL <- fredr(series_id = "CEU0500000017",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "a", aggregation_method = "sum") %>%
+  mutate(value = value/13.08)
+BEA_PAYROLL_PRIVATE_ANNUAL <- fredr(series_id = "A132RC1",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "a", aggregation_method = "sum") %>%
+  mutate(value = value/687.58)
+
+QCEW_PAYROLL_PRIVATE_ANNUAL <- bls_api("ENUUS00030510", startyear = 2012, calculations = TRUE, annualaverage = TRUE, catalog = TRUE) %>% #QCEW data
+  .[order(nrow(.):1),] %>%
+  group_by(year) %>%
+  mutate(value = AVERAGE(value)) %>%
+  filter(duplicated(year) == FALSE) %>%
+  ungroup() %>%
+  mutate(date = seq(as.Date("2012-01-01"), as.Date("2021-01-01"), "1 year")) %>%
+  mutate(value= value/13609515.96)
+
+CES_QCEW_PRIVATE PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
+  geom_line(data=CES_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "CES Aggregate Private Sector Wages"), size = 1.25)+ 
+  geom_line(data=BEA_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "BEA Aggregate Private Sector Wages"), size = 1.25)+ 
+  geom_line(data=QCEW_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "QCEW Aggregate Private Sector Wages"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Annual Total, Index, 2012 = 100") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130), limits = c(80,130), expand = c(0,0)) +
+  ggtitle("Aggregate Wages Discrepancy") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "Why is There a Discrepancy Between QCEW and CES Data?") +
+  theme_apricitas + theme(legend.position = c(.30,.89)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
+  coord_cartesian(clip = "off")
+
+QCEW_EMPLOYMENT <- bls_api("ENUUS00010010", startyear = 2012) %>% #QCEW data
+  rbind(.,bls_api("ENUUS00010010", startyear = 2019)) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(date = seq(as.Date("2012-01-01"), as.Date("2021-12-01"), "1 month"))
+
+CES_EMPLOYMENT <- fredr(series_id = "PAYEMS",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+CES_PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
+  geom_line(data=CES_EMPLOYMENT, aes(x=date,y= value,color= "CES Aggregate Wages"), size = 1.25)+ 
+  geom_line(data=QCEW_EMPLOYMENT, aes(x=date,y= value/1000,color= "QCEW Aggregate Wages"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Annual Total, Index, 2012 = 100") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130), limits = c(80,130), expand = c(0,0)) +
+  ggtitle("Aggregate Wages Discrepancy") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "Why is There a Discrepancy Between QCEW and CES Data?") +
+  theme_apricitas + theme(legend.position = c(.30,.89)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
+  coord_cartesian(clip = "off")
+
+
+
 
 ggsave(dpi = "retina",plot = BEA_QCEW_Graph, "BEA QCEW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = QCEW_CES_PrivateGraph, "QCEW CES Private.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

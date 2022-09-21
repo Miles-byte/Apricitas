@@ -141,7 +141,7 @@ Crude_Production_Graph <- ggplot() + #plotting US Crude Production
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production has not Recovered to Pre-Pandemic Levels, Despite the Jump in Prices") +
   theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 9-(.3*5), ymax = 9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 9-(.3*5), ymax = 9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 Refinery_Capacity_Graph <- ggplot() + #plotting US Crude Production

@@ -30,7 +30,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Natural Gas Exports Are Helping Ease A European Energy Shortage") +
   theme_apricitas + theme(legend.position = c(.25,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*2250), xmax = as.Date("2016-01-01")-(0.049*2250), ymin = 0-(.3*8), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*8), ymax = 0) +
   coord_cartesian(clip = "off")
 
 US_RUSSIA_CRUDE_REFINED_IMPORTS <- getCensus(
