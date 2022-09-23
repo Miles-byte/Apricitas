@@ -9,6 +9,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
+
 TOTAL_HOUSING_GROWTH <- fredr(series_id = "ETOTALUSQ176N", units = "pc1") #downloading total housing growth
 TOTAL_HOUSING_STARTS <- fredr(series_id = "HOUST") #downloading total housing starts
 TOTAL_HOUSING_STARTS_SUBSET <- fredr(series_id = "HOUST", observation_start = as.Date("2000-01-01")) #downloading total housing starts
@@ -65,6 +66,154 @@ TSY_MBS_SPREAD <- fredr(series_id = "MORTGAGE30US") %>% #calculating treasury sp
   group_by(yw = paste(year(date), month(date))) %>%
   drop_na() %>%
   mutate_if(is.numeric, ~mean(.))
+
+#Downloading Rent data for class A and B/C cities
+CPIRENTA <- bls_api("CUSR0000SEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -3))) 
+CPIRENTBC <- bls_api("CUURN000SEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -3))) 
+
+#Downloading Rent data for Superstar vs Secondary Cities
+CPIRENTNY <- bls_api("CUURS12ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
+CPIRENTLA <- bls_api("CUURS49ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
+CPIRENTSF <- bls_api("CUURS49BSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4)))
+
+CPIRENTATL <- bls_api("CUURS35CSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
+CPIRENTMIA <- bls_api("CUURS35BSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
+CPIRENTPHO <- bls_api("CUURS48ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4)))
+
+RESIDENTIAL_BUILDING <- bls_api("CES2023610001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+Permits_California <- fredr(series_id = "CABPPRIVSA", observation_start = as.Date("2000-01-01"))
+Permits_Texas <- fredr(series_id = "TXBPPRIV", observation_start = as.Date("2000-01-01"))
+Permits_Florida <- fredr(series_id = "FLBPPRIV", observation_start = as.Date("2000-01-01"))
+Permits_NC <- fredr(series_id = "NCBPPRIVSA", observation_start = as.Date("2000-01-01"))
+Permits_Dallas <- fredr(series_id = "DALL148BPPRIVSA", observation_start = as.Date("2000-01-01"))
+
+
+Household_Equity <- fredr(series_id = "HOEREPHRE", observation_start = as.Date("2000-01-01"))
+
+REDFIN_RENT_OWN <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/redfin_rent_own.csv") %>%
+  mutate(Average_Rent = gsub(",","",.$Average_Rent)) %>%
+  mutate(Average_Rent = gsub("\\$","",.$Average_Rent)) %>%
+  mutate(Average_Mortgage = gsub(",","",.$Average_Mortgage)) %>%
+  mutate(Average_Mortgage = gsub("\\$","",.$Average_Mortgage)) %>%
+  mutate(Average_Mortgage = as.numeric(Average_Mortgage)) %>%
+  mutate(Average_Rent = as.numeric(Average_Rent)) %>%
+  mutate(date = as.Date(ï..Date))
+  
+
+RENT_ABC_Graph<- ggplot() + #plotting rent by A/B/C City Size
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=CPIRENTA, aes(x=date,y= calculations/100, color= "CPI Rent of Primary Residence: Largest Metro Areas"), size = 1.25) +
+  geom_line(data=CPIRENTBC, aes(x=date,y= calculations/100, color= "CPI Rent of Primary Residence: Medium/Small Metro Areas"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.08), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Superstar Upset") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices Growth in Smaller Metros Has Caught Up to Larger Metros") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.08), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+RENT_STAR_CITIES_Graph<- ggplot() + #plotting rent by A/B/C City Size
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=CPIRENTNY, aes(x=date,y= calculations/100, color= "New York"), size = 1.25) +
+  geom_line(data=CPIRENTLA, aes(x=date,y= calculations/100, color= "Los Angeles"), size = 1.25) +
+  geom_line(data=CPIRENTSF, aes(x=date,y= calculations/100, color= "San Francisco"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.01,.22), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Superstar Upset") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices Growth in Smaller Metros Has Caught Up to Larger Metros") +
+  theme_apricitas + theme(legend.position = c(.45,.65)) +
+  scale_color_manual(name= "CPI: Rent of Primary Residence by Metro Area" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -0.01-(.3*.22), ymax = -0.01) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+RENT_SMALL_CITIES_Graph<- ggplot() + #plotting rent by minor city
+  geom_line(data=CPIRENTATL, aes(x=date,y= calculations/100, color= "Atlanta"), size = 1.25) +
+  geom_line(data=CPIRENTMIA, aes(x=date,y= calculations/100, color= "Miami"), size = 1.25) +
+  geom_line(data=CPIRENTPHO, aes(x=date,y= calculations/100, color= "Phoenix"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.01,.22), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Superstar Upset") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices Growth in Smaller Metros Has Caught Up to Larger Metros") +
+  theme_apricitas + theme(legend.position = c(.45,.65)) +
+  scale_color_manual(name= "CPI: Rent of Primary Residence by Metro Area" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -0.01-(.3*.22), ymax = -0.01) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+#Graphing permits by state
+PERMITS_STATE_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=Permits_California, aes(x=date,y= value/1000, color= "California"), size = 1.25) +
+  geom_line(data=Permits_Texas, aes(x=date,y= value/1000, color= "Texas"), size = 1.25) +
+  geom_line(data=Permits_Florida, aes(x=date,y= value/1000, color= "Florida"), size = 1.25) +
+  geom_line(data=Permits_NC, aes(x=date,y= value/1000, color= "North Carolina"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,30), expand = c(0,0)) +
+  ylab("Permits, Monthly") +
+  ggtitle("Going South for the Winter") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Permits are Rising in States With Less-Restrictive Land Use Regulations") +
+  theme_apricitas + theme(legend.position = c(.65,.75)) +
+  scale_color_manual(name= "Private Housing Units Authorized by Permits" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*30), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+PERMITS_Dallas_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=Permits_California, aes(x=date,y= value/1000, color= "California"), size = 1.25) +
+  geom_line(data=Permits_Dallas, aes(x=date,y= value/1000, color= "Dallas Metropolitan Area"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,21), expand = c(0,0)) +
+  ylab("Permits, Monthly") +
+  ggtitle("Don't Texas My California") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "In July, More Housing Permits Were Issued in the Dallas MSA than in All of California") +
+  theme_apricitas + theme(legend.position = c(.65,.75)) +
+  scale_color_manual(name= "Private Housing Units Authorized by Permits" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*21), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+REDFIN_Graph <- ggplot() + #plotting redfin data
+  geom_line(data=REDFIN_RENT_OWN, aes(x=date,y= Average_Rent, color= "Average Monthly Rent"), size = 1.25) +
+  geom_line(data=REDFIN_RENT_OWN, aes(x=date,y= Average_Mortgage, color= "Average Monthly Mortgage Payment, 20% Down"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1), limits = c(0,2500), expand = c(0,0)) +
+  ylab("Dollars, Monthly") +
+  ggtitle("Rent to Buy") +
+  labs(caption = "Graph created by @JosephPolitano using Redfin data",subtitle = "Monthly Mortgage Payments are Rising") +
+  theme_apricitas + theme(legend.position = c(.55,.85)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*2500), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+Household_Equity <- ggplot() + #plotting spread
+  geom_line(data=Household_Equity, aes(x=date,y= value/100, color= "Owners' Equity in Real Estate as a Percentage of Household Real Estate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent, Monthly Average") +
+  ggtitle("Deleveraging") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "In Aggregate, Homeowners Have A Higher Equity Share of Their Homes") +
+  theme_apricitas + theme(legend.position = c(.5,.8)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
 CREDIT_RESIDENTIAL_Graph <- ggplot() + #plotting authorized not started
   geom_line(data=NDP_CREDIT_INTERMEDIATION, aes(x=date,y= value, color= "All Employees, Nondepository Credit Intermediation"), size = 1.25) +
@@ -295,6 +444,14 @@ ggsave(dpi = "retina",plot = LISTINGS_CUT_SHARE_Graph, "Cut Share.png", type = "
 ggsave(dpi = "retina",plot = TSY_MBS_Graph, "TSY MBS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CREDIT_RESIDENTIAL_Graph, "Credit and Residential Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PERMITS_Graph, "Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ggsave(dpi = "retina",plot = Household_Equity, "Household Equity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PERMITS_STATE_Graph, "Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RENT_ABC_Graph, "RENT ABC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RENT_STAR_CITIES_Graph, "RENT STAR.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RENT_SMALL_CITIES_Graph, "RENT SMALL.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = REDFIN_Graph, "REDFIN.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PERMITS_Dallas_Graph, "Dallas.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

@@ -90,7 +90,7 @@ QCEW_PAYROLL_PRIVATE_ANNUAL <- bls_api("ENUUS00030510", startyear = 2012, calcul
   mutate(date = seq(as.Date("2012-01-01"), as.Date("2021-01-01"), "1 year")) %>%
   mutate(value= value/13609515.96)
 
-CES_QCEW_PRIVATE PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
+CES_QCEW_PRIVATE_PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
   geom_line(data=CES_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "CES Aggregate Private Sector Wages"), size = 1.25)+ 
   geom_line(data=BEA_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "BEA Aggregate Private Sector Wages"), size = 1.25)+ 
   geom_line(data=QCEW_PAYROLL_PRIVATE_ANNUAL, aes(x=date,y= value,color= "QCEW Aggregate Private Sector Wages"), size = 1.25)+ 
@@ -104,28 +104,48 @@ CES_QCEW_PRIVATE PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
   coord_cartesian(clip = "off")
 
-QCEW_EMPLOYMENT <- bls_api("ENUUS00010010", startyear = 2012) %>% #QCEW data
-  rbind(.,bls_api("ENUUS00010010", startyear = 2019)) %>%
+QCEW_EMPLOYMENT <- bls_api("ENUUS00010010", startyear = 2012, registrationKey = "05f502635ea74660b551f3a420772ad8") %>% #QCEW data
   .[order(nrow(.):1),] %>%
-  mutate(date = seq(as.Date("2012-01-01"), as.Date("2021-12-01"), "1 month"))
+  mutate(date = seq(as.Date("2012-01-01"), as.Date("2022-03-01"), "1 month"))
 
-CES_EMPLOYMENT <- fredr(series_id = "PAYEMS",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL)
+CES_EMPLOYMENT <- fredr(series_id = "PAYNSA",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 CES_PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
-  geom_line(data=CES_EMPLOYMENT, aes(x=date,y= value,color= "CES Aggregate Wages"), size = 1.25)+ 
-  geom_line(data=QCEW_EMPLOYMENT, aes(x=date,y= value/1000,color= "QCEW Aggregate Wages"), size = 1.25)+ 
+  geom_line(data=CES_EMPLOYMENT, aes(x=date,y= value/1310.95,color= "CES Nonfarm Payrolls (NSA, Quarterly)"), size = 1.25)+ 
+  geom_line(data=QCEW_EMPLOYMENT, aes(x=date,y= value/1285146.90,color= "QCEW Total Employment (NSA)"), size = 1.25)+ 
   xlab("Date") +
   ylab("Annual Total, Index, 2012 = 100") +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130), limits = c(80,130), expand = c(0,0)) +
-  ggtitle("Aggregate Wages Discrepancy") +
+  ggtitle("Indexed Employment") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "Why is There a Discrepancy Between QCEW and CES Data?") +
   theme_apricitas + theme(legend.position = c(.30,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
   coord_cartesian(clip = "off")
 
+AWE_PRIVATE_NSA <- fredr(series_id = "CEU0500000011",observation_start = as.Date("2012-01-01"),realtime_start = NULL, realtime_end = NULL)
 
+QCEW_WEEKLY_WAGES <- bls_api("ENUUS00040510", startyear = 2012, registrationKey = "05f502635ea74660b551f3a420772ad8") %>% #QCEW data
+  .[order(nrow(.):1),] %>%
+  mutate(date = seq(as.Date("2012-01-01"), as.Date("2022-03-01"), "3 months"))
 
+QCEW_ANNUAL_WAGES <- bls_api("ENUUS00050510", startyear = 2012, registrationKey = "05f502635ea74660b551f3a420772ad8") %>% #QCEW data
+  .[order(nrow(.):1),] %>%
+  mutate(date = seq(as.Date("2012-01-01"), as.Date("2021-01-01"), "1 year"))
+
+CES_QCEW_PRIVATE_PAYROLL_Graph <- ggplot() + #plotting CES private payrolls
+  geom_line(data=AHE_PRIVATE_NSA, aes(x=date,y= value/.236,color= "CES Average Weekly Earnings, Total Private, NSA"), size = 1.25)+ 
+  geom_line(data=QCEW_WEEKLY_WAGES, aes(x=date,y= value/9.90,color= "QCEW Average Weekly Wages, Total Private, NSA"), size = 1.25)+ 
+  geom_line(data=QCEW_ANNUAL_WAGES, aes(x=date,y= value/492.00,color= "QCEW Average Annual Wages, Total Private"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Annual Total, Index, 2012 = 100") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130), limits = c(80,130), expand = c(0,0)) +
+  ggtitle("Wages Discrepancy") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA data", subtitle = "Why is There a Discrepancy Between QCEW and CES Data?") +
+  theme_apricitas + theme(legend.position = c(.34,.89)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 8-(.3*2.5), ymax = 8) +
+  coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BEA_QCEW_Graph, "BEA QCEW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = QCEW_CES_PrivateGraph, "QCEW CES Private.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
