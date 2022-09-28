@@ -53,10 +53,10 @@ CPSADJ_32022 <- subset(CPSADJ, date > as.Date("2022-02-01")) %>%
 
 #Merging nonfarm payrolls, cps adjusted to nonfarm payrolls, and employment levels growth since March 2022
 PAYEMS_ELEV_CPSADJ_32022 <- rbind(PAYEMS_32022,ELEV_32022,CPSADJ_32022) %>%
-  subset(date > as.Date(today()-60))
+  subset(date > as.Date(today()-90))
 
 DISCREPANCY_MEGA_MERGE <- rbind(PAYEMS_ELEV_CPSADJ_32022,MULTIPLE_32022,SELF_32022,AGRICULTURAL_32022) %>%
-  subset(date > as.Date(today()-60)) %>%
+  subset(date > as.Date(today()-90)) %>%
   select(date,CUMSUM,source) %>%
   pivot_wider(names_from=c(source), values_from = CUMSUM) %>%
   mutate(`Agriculture and Related Industries` = -`Employment Level, Agricultural and Related Industries`) %>%
@@ -65,7 +65,7 @@ DISCREPANCY_MEGA_MERGE <- rbind(PAYEMS_ELEV_CPSADJ_32022,MULTIPLE_32022,SELF_320
   mutate(`Unincorporated Self Employed` = -`Unincorporated Self Employed`)%>%
   select(-`Household Survey Adjusted to Nonfarm Payrolls Concepts`,-`Nonfarm Payrolls`,-`Employment Level`,-`Employment Level, Agricultural and Related Industries`) %>%
   pivot_longer(cols = c(`Multiple Jobholders`:`Other Concept Differences`)) %>%
-  mutate(factor = as.numeric(c("1","1","1","1","1"))) %>%
+  mutate(factor = as.numeric(c("1","1","1","1","1","2","2","2","2","2"))) %>%
   mutate(name = factor(name,levels = c("Remaining Discrepancy","Other Concept Differences","Unincorporated Self Employed","Multiple Jobholders","Agriculture and Related Industries")))
   
 PAYEMS_ELEV_CPSADJ_32022_Graph <- ggplot(data = PAYEMS_ELEV_CPSADJ_32022, aes(x = date, y = CUMSUM/1000, fill = source)) + #plotting permanent and temporary job losers
@@ -81,18 +81,18 @@ PAYEMS_ELEV_CPSADJ_32022_Graph <- ggplot(data = PAYEMS_ELEV_CPSADJ_32022, aes(x 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-07-01")-(0.049*(today()-as.Date("2022-07-01"))), ymin = -0.2-(.3*2.3), ymax = -0.2) +
   coord_cartesian(clip = "off")
 
-TOTAL_DISCREPANCY_32022_Graph <- ggplot(data = DISCREPANCY_MEGA_MERGE, aes(x = factor, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+TOTAL_DISCREPANCY_32022_Graph <- ggplot(data = DISCREPANCY_MEGA_MERGE, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_col(stat = "identity", position = "stack", color = NA, width = 0.5) +
+  geom_col(stat = "identity", position = "stack", color = NA, width = 15) +
   xlab("Date") +
-  ylab("Contribution to Gap") +
+  ylab("Contribution to Gap in Growth Rates Since March 2022") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0,.5,1,1.5,2), limits = c(-0.2,2.1), expand = c(0,0)) +
-  scale_x_continuous(limits = c(-0.5,2)) +
+  scale_x_date(limits = c(as.Date("2022-05-01"),as.Date("2022-08-15")), breaks = c(as.Date("2022-07-01"),as.Date("2022-08-01")), date_labels = c("July","August")) +
   ggtitle("Breaking Down the Gap") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Emerging Gap Between Employment and Payrolls is Primarily About Results, not Concepts") +
-  theme_apricitas + theme(legend.position = c(.25,.60), axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Discrepancy in Growth Between CPS and CES Since March Has Shrunk") +
+  theme_apricitas + theme(legend.position = c(.25,.60)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-07-01")-(0.049*(today()-as.Date("2022-07-01"))), ymin = -0.2-(.3*2.3), ymax = -0.2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-05-07")-(.1861*(today()-as.Date("2022-05-01"))), xmax = as.Date("2022-05-07")-(0.049*(today()-as.Date("2022-05-01"))), ymin = -0.2-(.3*2.3), ymax = -0.2) +
   coord_cartesian(clip = "off")
 
 
