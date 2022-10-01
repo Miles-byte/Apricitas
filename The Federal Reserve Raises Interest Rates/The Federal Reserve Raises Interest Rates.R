@@ -148,8 +148,8 @@ FFR_MERGE_23_25_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.008,0.01), breaks = c(-0.008,-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
   ylab("Percent") +
-  ggtitle("An Inverted Curve") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures are Forecasting Rate Cuts in 2023 and 2024 Amidst Recession Risks") +
+  ggtitle("Higher For Longer") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures Have Stopped Forecasting Rate Cuts in Calendar Year 2023") +
   theme_apricitas + theme(legend.position = c(.35,.25)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = -0.008-(.3*.018), ymax = -0.008) +
@@ -162,7 +162,7 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   ylab("Index") +
   ggtitle("Lacking Forward Guidance") +
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Rapidly Rising as Fed Communication Remains Unclear") +
-  theme_apricitas + theme(legend.position = c(.25,.65)) +
+  theme_apricitas + theme(legend.position = c(.25,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -170,13 +170,13 @@ MOVE_Graph <- ggplot() + #plotting MOVE
 DXY_Graph <- ggplot() + #plotting DXY
   geom_line(data=DXY, aes(x=date,y= close,color= "DXY US Dollar Index"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(85,110), breaks = c(85,90,95,100,105,110), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
   ylab("Index") +
   ggtitle("Dollar Dominance") +
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "The Dollar Has Been Appreciating Against a Basket of Currencies as Monetary Policy Tightens") +
   theme_apricitas + theme(legend.position = c(.25,.65)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 85-(.3*25), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 85-(.3*30), ymax = 85) +
   coord_cartesian(clip = "off")
 
 SEPUNRATE2022_Graph <- ggplot(data = SEPUNRATE2022, aes(x = date, y = value/100, fill = realtime_start)) +
@@ -245,10 +245,10 @@ REAL_RATES_GRAPH <- ggplot() + #plotting inflation breakevens
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.02), breaks = c(-0.02,-0.01,0,0.01,0.02), expand = c(0,0)) +
   ylab("TIPS Yield, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Flattening") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Inverted") +
   theme_apricitas + theme(legend.position = c(.62,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("5-Year Real Treasury Yield","7-Year Real Treasury Yield (Fitted)","10-Year Real Treasury Yield","20-Year Real Treasury Yield (Fitted)","30-Year Real Treasury Yield")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = -0.02-(.3*.04), ymax = -0.02) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.02-(.3*.04), ymax = -0.02) +
   coord_cartesian(clip = "off")
 
 T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) + 
@@ -256,14 +256,14 @@ T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data = T5, aes(x=date, y = value/100, color = "5-Year Nominal Bond Yield"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.02,0.04), breaks = c(-0.02,-.01,0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.02,0.045), breaks = c(-0.02,-.01,0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
   ylab("%") +
   ggtitle("The Effects of Monetary Tightening") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Rising and Inflation Expectations are Falling as the Fed Tightens") +
   theme_apricitas + theme(legend.position = c(.42,.87), legend.spacing.y = unit(-0.2, "cm")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("5-Year Real Bond Yield","5-Year Breakeven Inflation Expectations")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -.02-(.3*0.06), ymax = -0.02) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -.02-(.3*0.065), ymax = -0.02) +
   coord_cartesian(clip = "off")
 
 NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
@@ -336,13 +336,13 @@ IOER_IORB_Graph <- ggplot() + #plotting durables v services inflation
   geom_line(data=IORB, aes(x=date,y= value/100,color= "IORB"), size = 1.25) +
   geom_line(data=IOER, aes(x=date,y= value/100,color= "IOER"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.025), breaks = c(0,0.005,.01,.015,.02,.025), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.035), breaks = c(0,0.005,.01,.015,.02,.025,0.03,0.035), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("How High Can Rates Go?") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Federal Reserve Could not Sustain Rates Above 2% Pre-Pandemic") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Interest Rates are Now Well Above Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.50,.75)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*4150), xmax = as.Date("2010-01-01")-(0.049*4150), ymin = 0-(.3*.025), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*4150), xmax = as.Date("2010-01-01")-(0.049*4150), ymin = 0-(.3*.035), ymax = 0) +
   coord_cartesian(clip = "off")
 
 TenYR_Graph <- ggplot() + #plotting durables v services inflation
@@ -419,6 +419,37 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*.038), ymax = 0) +
   coord_cartesian(clip = "off")
 
+UNRATE <- fredr(series_id = c("UNRATE"), units ="ch1")
+
+
+UNRATE_Graph <- ggplot() + #yield curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = UNRATE, aes(x = date, y = value/100, color = "1-Year Change in the Unemployment Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5), limits = c(-0.10,0.125), breaks = c(-0.05,-.10,0,0.05,0.10), expand = c(0,0)) +
+  ylab("Yield, %") +
+  ggtitle("A Dire Forecast") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "A 1% Increase in the Unemployment Rate Has Only and Always Occurred in a Recession") +
+  theme_apricitas + theme(legend.position = c(.50,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1949-01-01")-(.1861*25889), xmax = as.Date("1949-01-01")-(0.049*25889), ymin = -0.10-(.3*0.225), ymax = -0.10) +
+  coord_cartesian(clip = "off") +
+  annotate("hline", y = 0.01, yintercept = 0.01, color = "white", size = 1.25, linetype = "dashed") +
+  annotate("rect", xmin = as.Date("1948-11-01"), xmax = as.Date("1949-10-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1953-07-01"), xmax = as.Date("1954-05-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1960-04-01"), xmax = as.Date("1961-02-28"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1969-12-01"), xmax = as.Date("1970-11-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1973-11-01"), xmax = as.Date("1975-03-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1980-01-01"), xmax = as.Date("1980-07-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1981-07-01"), xmax = as.Date("1982-11-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("1990-07-01"), xmax = as.Date("1991-03-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("2001-03-01"), xmax = as.Date("2001-11-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("2007-12-01"), xmax = as.Date("2009-06-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = as.Date("2020-02-01"), xmax = as.Date("2020-05-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", y = 0.035, x = as.Date("1994-01-01"), color = "white", label = ("1% Current Fed-Projected Increase"))
+  
+
+
 ggsave(dpi = "retina",plot = NFCI_Graph, "NFCI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = IOER_IORB_Graph, "IOER IORB.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = TenYR_Graph, "Ten Year.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -438,6 +469,7 @@ ggsave(dpi = "retina",plot = FFR_FUTURES_MEGA_MERGE_Graph, "FFR Futures Mega Mer
 ggsave(dpi = "retina",plot = DXY_Graph, "DXY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = T5YIE2019, "T5YIE2019.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = FFR_FUTURES_MEGA_MERGE_COMPARISON_Graph, "FFR MEGA COMPARISON.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
