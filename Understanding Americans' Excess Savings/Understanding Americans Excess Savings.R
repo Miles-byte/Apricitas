@@ -159,25 +159,25 @@ Cumulative_Savings_Graph <- ggplot() + #plotting personal income and outlays aga
   geom_area(data = CUMSUMDSPImerge, aes(x = date, y = (value-trend)/1000, fill = "Increased Income", color = NULL), size = 0) +
   geom_area(data = CUMSUMPOUTmerge, aes(x = date, y = (value-trend)/1000, fill = "Decreased Spending", color = NULL), size = 0) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1.5,1.75), breaks = c(-1.5,-1,-0.5,0,0.5,1,1.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1.5,2), breaks = c(-1.5,-1,-0.5,0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Cumulative Deviation from Trend, Trillions of Dollars") +
   ggtitle("A Penny Saved...") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "With Less Spending and More Income, Americans Have Saved Trillions of Dollars") +
-  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  theme_apricitas + theme(legend.position = c(.20,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"), breaks = c("Increased Income", "Decreased Spending")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1.5-(.3*3.25), ymax = -1.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1.5-(.3*3.5), ymax = -1.5) +
   coord_cartesian(clip = "off")
 
 Total_Excess_Savings_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
-  geom_line(data = CUMSUMDSPImerge, aes(x = date, y = total/1000, color = "Estimated Excess Savings"), size = 1.25) +
+  geom_line(data = CUMSUMDSPImerge, aes(x = date, y = total/1000, color = "Estimated 'Excess' Savings"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.5), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.75), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("Breaking the (Piggy) Bank") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down $250 Billion as Americans Spend More Money") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $500 Billion as Americans Spend More Money") +
   theme_apricitas + theme(legend.position = c(.25,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*2.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*2.75), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Undistributed_Profits_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
