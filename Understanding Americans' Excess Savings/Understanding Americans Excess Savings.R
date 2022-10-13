@@ -425,13 +425,13 @@ FedDeficit$rollmean <- c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(FedDeficit$va
 Credit_Cards_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
   geom_line(data = Credit_Cards, aes(x = date, y = value/1000, color = "Revolving Consumer Credit Owned and Securitized"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.005),limits = c(.960,1.125), breaks = c(.975,1,1.025,1.05,1.075,1.1,1.125), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.05),limits = c(0,1.5), breaks = c(0,.5,1,1.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("Swipe Up") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Credit Card Balances are Returning to Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.45,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = .960-(.3*0.160), ymax = .960) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*1.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 FedDeficit <- subset(FedDeficit, date > as.Date("2017-12-31"))
@@ -449,7 +449,77 @@ Fed_Deficit_Graph <- ggplot() + #plotting personal income and outlays against in
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = -1-(.3*1.5), ymax = -1) +
   coord_cartesian(clip = "off")
-  
+
+
+Checkable <- fredr(series_id = "CDCABSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Checkable Deposits and Currency")
+TimeSavings <- fredr(series_id = "TSDABSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Time and Savings Deposits")
+MoneyMarket <- fredr(series_id = "MMFSABSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Money Market Fund Shares")
+
+Total_Deposits <- rbind(Checkable, TimeSavings, MoneyMarket)
+
+Total_Deposits_Graph <- ggplot(data = Total_Deposits, aes(x = date, y = value/1000, fill = type)) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 1),limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Out of Time") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Household Assets of Deposits Have Increased-And Moved to Checking Accounts") +
+  theme_apricitas + theme(legend.position = c(.30,.84)) +
+  scale_fill_manual(name= "Households and Nonprofits' Cash Assets",values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*20), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+US_Households_Liabilities <- fredr(series_id = "TLBSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Total Liabilities") %>%
+  mutate(value = -1*value)
+US_Households_Financial <- fredr(series_id = "TFAABSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Financial Assets")
+US_Households_Consumer_Durables <- fredr(series_id = "BOGZ1LM152010005Q",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Nonfinancial Assets") %>%
+  mutate(value = value/1000)
+ 
+US_Households_Net_Worth <- fredr(series_id = "TNWBSHNO",observation_start = as.Date("2017-01-01")) %>%
+  mutate(type = "Net Worth")
+
+US_Household_Assets_Liabilities <- rbind(US_Households_Financial, US_Households_Consumer_Durables)
+
+
+Total_Assets_Graph <- ggplot(data = US_Household_Assets_Liabilities, aes(x = date, y = value/1000, fill = type)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  geom_line(data = US_Households_Net_Worth, aes(x=date, y = value/1000, color = "Net Worth"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Households' Assets and Net Worth") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Americans' Net Worth is Falling Thanks to Weak Financial Performance") +
+  theme_apricitas + theme(legend.position = c(.22,.87), legend.spacing.y = unit(-0.2, "cm")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Financial Assets","Nonfinancial Assets")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*200), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+#taking personal consumption expenditures growth in 3mo increments
+PCE3MO <- fredr(series_id = "PCE",observation_start = as.Date("2017-01-01")) %>%
+  mutate(pct = (value-lag(value,3))/(lag(value, 3)))
+
+PCE3MOGrowth <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("hline", y = 0.01, yintercept = 0.01, color = "white", size = 1.25, linetype = "dashed") +
+  annotate("text", label = "Pre-COVID Trend", x = as.Date("2019-09-01"), y = 0.0287, color = "white", size = 4) +
+  geom_line(data = PCE3MO, aes(x = date, y = pct, color = "Personal Consumption Expenditures: 3 Month Growth Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.2,0.22), breaks = c(-0.2,-0.1,0,0.1,0.2), expand = c(0,0)) +
+  ylab("Percent Growth") +
+  ggtitle("Excess Spending?") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending Growth Has Declined to About the Pre-COVID Trend") +
+  theme_apricitas + theme(legend.position = c(.45,.98)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -.2-(.3*.42), ymax = -.2) +
+  coord_cartesian(clip = "off")
+
 ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Cumulative_Savings_Graph, "Cumulative Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Undistributed_Profits_Graph, "Undistributed Profits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -462,6 +532,9 @@ ggsave(dpi = "retina",plot = Total_Excess_Savings_Graph, "Total Excess Savings.p
 ggsave(dpi = "retina",plot = Emergency_Expenses_Merge_192021, "Emergency Expenses Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Credit_Cards_Graph, "Credit Card Spending.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Fed_Deficit_Graph , "Fed Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Total_Deposits_Graph, "Total Deposits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Total_Assets_Graph, "Total Assets Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PCE3MOGrowth, "PCE3MOGraph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 
