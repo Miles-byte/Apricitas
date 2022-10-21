@@ -79,6 +79,8 @@ DISCOURAGED <- bls_api("LNS15026645", startyear = 2019) %>% #discouraged workers
 MARGINALLYATTACHED <- bls_api("LNS15026642", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
+WAREHOUSE <- fredr(series_id = "CES4349300001",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+
 EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
 #note: this section is only for when FRED does not update, and the dates must be changed each month
 #EPopBLS <- bls_api("LNS12300060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) #pulling most recent data from BLS API for EPOP
@@ -267,6 +269,18 @@ NILF_Graph <- ggplot() + #plotting total quits
   theme_apricitas + theme(legend.position = c(.60,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*10), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+WAREHOUSE_Graph <- ggplot() + #plotting total quits
+  geom_line(data=WAREHOUSE, aes(x=date,y= value/1000,color= "All Employees, Warehousing and Storage"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of People") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0.5,1,1.5,2), limits = c(0.5,2), expand = c(0,0)) +
+  ggtitle("Total Fulfillment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Warehousing Employment Growth Has Stalled This Year") +
+  theme_apricitas + theme(legend.position = c(.40,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0.5-(.3*1.5), ymax = 0.5) +
   coord_cartesian(clip = "off")
 
 MARGINAL_DISCOURAGED_GRAPH <- ggplot() + #plotting total quits
@@ -712,6 +726,8 @@ ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png") #c
 ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 p_unload(all)  # Remove all add-ons
 

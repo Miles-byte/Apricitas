@@ -52,6 +52,8 @@ LISTINGS_CUT_SHARE <- merge(LISTINGS_CUT, LISTINGS_TOTAL, by = "date") %>%
   transmute(date, value = value.x/value.y)
 
 PERMIT <- fredr(series_id = "PERMIT", observation_start = as.Date("2000-01-01"))
+PERMIT_SFH <- fredr(series_id = "PERMIT1", observation_start = as.Date("2000-01-01"))
+
 #employment levels for NDP credit intermediation and residential building
 NDP_CREDIT_INTERMEDIATION <- bls_api("CES5552220001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
@@ -190,6 +192,37 @@ PERMITS_Dallas_Graph <- ggplot() + #plotting new housing starts
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*21), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+PERMIT_SF <- fredr(series_id = "SANF806BPPRIVSA", observation_start = as.Date("2000-01-01"))
+PERMIT_Lakeland <- fredr(series_id = "LAKE412BPPRIVSA", observation_start = as.Date("2000-01-01"))
+PERMIT_Boise <- fredr(series_id = "BOIS216BPPRIVSA", observation_start = as.Date("2000-01-01"))
+
+PERMITS_SF_Boise_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=PERMIT_SF, aes(x=date,y= value/1000, color= "SF-Oakland-Berkeley, CA (MSA)"), size = 1.25) +
+  geom_line(data=PERMIT_Boise, aes(x=date,y= value/1000, color= "Boise City, ID (MSA)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,3), expand = c(0,0)) +
+  ylab("Permits, Monthly") +
+  ggtitle("Zoned Out") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Boise, ID Permits about as Much Housing as SF") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= "Private Housing Units Authorized by Permits" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("SF-Oakland-Berkeley, CA (MSA)","Boise City, ID (MSA)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+PERMITS_SF_Lakeland_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=PERMIT_SF, aes(x=date,y= value/1000, color= "SF-Oakland-Berkeley, CA (MSA)"), size = 1.25) +
+  geom_line(data=PERMIT_Lakeland, aes(x=date,y= value/1000, color= "Lakeland-Winter Haven, FL (MSA)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,3), expand = c(0,0)) +
+  ylab("Permits, Monthly") +
+  ggtitle("Zoned Out") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Lakeland, FL Permits About as Much Housing as SF") +
+  theme_apricitas + theme(legend.position = c(.55,.85)) +
+  scale_color_manual(name= "Private Housing Units Authorized by Permits" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("SF-Oakland-Berkeley, CA (MSA)","Lakeland-Winter Haven, FL (MSA)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
 REDFIN_Graph <- ggplot() + #plotting redfin data
   geom_line(data=REDFIN_RENT_OWN, aes(x=date,y= Average_Rent, color= "Average Monthly Rent"), size = 1.25) +
   geom_line(data=REDFIN_RENT_OWN, aes(x=date,y= Average_Mortgage, color= "Average Monthly Mortgage Payment, 20% Down"), size = 1.25) +
@@ -286,6 +319,18 @@ PERMITS_Graph <- ggplot() + #plotting permits
   theme_apricitas + theme(legend.position = c(.45,.9)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+PERMIT_SFH_Graph <- ggplot() + #plotting permits
+  geom_line(data=PERMIT_SFH, aes(x=date,y= value/1000, color= "New Single-Family Housing Units Authorized in Permit-Issuing Places"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2), expand = c(0,0)) +
+  ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
+  ggtitle("The Housing Bust?") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Permits are Down Significantly for Single-Family Units") +
+  theme_apricitas + theme(legend.position = c(.45,.95)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*2), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 PRIV_CONS_SPEND_Graph <- ggplot() + #plotting new housing starts
@@ -444,7 +489,7 @@ ggsave(dpi = "retina",plot = LISTINGS_CUT_SHARE_Graph, "Cut Share.png", type = "
 ggsave(dpi = "retina",plot = TSY_MBS_Graph, "TSY MBS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CREDIT_RESIDENTIAL_Graph, "Credit and Residential Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PERMITS_Graph, "Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
+ggsave(dpi = "retina",plot = PERMIT_SFH_Graph, "Permits SFH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Household_Equity, "Household Equity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PERMITS_STATE_Graph, "Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = RENT_ABC_Graph, "RENT ABC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -452,6 +497,10 @@ ggsave(dpi = "retina",plot = RENT_STAR_CITIES_Graph, "RENT STAR.png", type = "ca
 ggsave(dpi = "retina",plot = RENT_SMALL_CITIES_Graph, "RENT SMALL.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = REDFIN_Graph, "REDFIN.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = PERMITS_Dallas_Graph, "Dallas.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ggsave(dpi = "retina",plot = PERMITS_SF_Boise_Graph, "SF Boise.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PERMITS_SF_Lakeland_Graph, "SF Lakeland.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 p_unload(all)  # Remove all packages using the package manager
