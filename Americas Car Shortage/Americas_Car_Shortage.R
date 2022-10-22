@@ -211,7 +211,7 @@ Assemblies_Auto_Truck_Graph <- ggplot() + #plotting auto assemblies
   coord_cartesian(clip = "off")
 
 
-Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/mannheim.csv") %>%
+Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
   mutate(date = as.Date(date))
 
 CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
@@ -253,19 +253,19 @@ Employment_Graph <- ggplot() + #plotting auto assemblies
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*650), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = Vehicle_Inventory_Graph, "Vehicle Inventory.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Capacity_Utilization_Graph, "Automobile Capacity Utilization.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Auto_Sales_Graph, "Auto Sales Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Auto_Inventory_Sales_Ratio_Graph, "Auto Inventories Sales Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = VMT_Graph, "VMT.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Auto_Industrial_Capacity_Graph, "Auto Industrial Capacity.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Assemblies_Graph, "Auto Assemblies.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Assemblies_Auto_Truck_Graph, "Auto Truck Assemblies.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Auto_Utilized_Capacity_Graph, "Auto Production Capacity.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Plant_Underutilization_Graph, "Plant Underutilization.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Cumulative_Shortfall_Graph, "Cumulative Shortfall.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = Employment_Graph, "Employment Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Vehicle_Inventory_Graph, "Vehicle Inventory.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Capacity_Utilization_Graph, "Automobile Capacity Utilization.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Auto_Sales_Graph, "Auto Sales Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Auto_Inventory_Sales_Ratio_Graph, "Auto Inventories Sales Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = VMT_Graph, "VMT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Auto_Industrial_Capacity_Graph, "Auto Industrial Capacity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Assemblies_Graph, "Auto Assemblies.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Assemblies_Auto_Truck_Graph, "Auto Truck Assemblies.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Auto_Utilized_Capacity_Graph, "Auto Production Capacity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Plant_Underutilization_Graph, "Plant Underutilization.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Cumulative_Shortfall_Graph, "Cumulative Shortfall.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Employment_Graph, "Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 
