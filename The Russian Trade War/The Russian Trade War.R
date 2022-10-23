@@ -26,7 +26,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "B", accuracy = 1),limits = c(0,8), breaks = c(0,2,4,6,8), expand = c(0,0)) +
   ylab("Billions of kg") +
-  ggtitle("Arsenal of Democracy") +
+  ggtitle("Bridging the Gap") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Natural Gas Exports Are Helping Ease A European Energy Shortage") +
   theme_apricitas + theme(legend.position = c(.25,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +

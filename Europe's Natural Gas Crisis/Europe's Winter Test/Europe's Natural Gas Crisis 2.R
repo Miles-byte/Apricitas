@@ -1,9 +1,10 @@
 pacman::p_load(magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 #Creating a theme for charts
-theme_apricitas <- theme_ft_rc() +
-  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), plot.title = element_text(size = 28, color = "white")) #using the FT theme and white axis lines for a "theme_apricitas"
-apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing Apricitas Logo from github
+theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 #Pipeline Imports
@@ -91,8 +92,6 @@ BEREGDAROK_Pipeline_Imports <- rbind(BEREGDAROK1_Pipeline_Imports,BEREGDAROK_Vir
   transmute(periodFrom,value = Bereg + BeregVirtual) %>%
   mutate(location = "Beregdarok") %>%
   mutate(operatorLabel = "Beregdarok")
-
-
 
 #Downloading Romania import data
 MEDIESU_AURIT_Pipeline_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=ua-tso-0001itp-00084exit,ro-tso-0001itp-00084entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true") %>% 
@@ -586,19 +585,19 @@ TOTAL_LNG_Imports <- rbind(Spain_LNG_Imports,Portugal_LNG_Imports,France_LNG_Imp
   mutate_if(is.numeric, ~mean(.)) %>%
   mutate(Total = Spain + Portugal + France + Belgium + Netherlands + UK + Poland + Lithuania + Greece + Croatia + Italy)
 
-TTF_FUTURES <- tq_get("TTFQ22.NYM", from = "2019-01-01") #Dutch TTF Futures
+TTF_FUTURES <- tq_get("TTFZ22.NYM", from = "2019-01-01") #Dutch TTF Futures
 TTF_FUTURES <- drop_na(TTF_FUTURES)
 
 EU_NAT_GAS_FUTURES_Graph <- ggplot() + #plotting EU Nat Gas Prices
   geom_line(data=TTF_FUTURES, aes(x=date,y= close, color= "EU Natural Gas Prices (TTF)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(prefix = "???"), limits = c(0,210), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(prefix = "???"), limits = c(0,350), breaks = c(0,100,200,300), expand = c(0,0)) +
   ylab("Euros per MWh") +
-  ggtitle("The EU's Different Inflation Problem") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Energy Prices Are Spiking in the EU, Pulling Up Inflation") +
+  ggtitle("The EU's Other Inflation Problem") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Energy Prices Are Still Extremely High in the EU, Pushing Up Inflation") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
-  scale_color_manual(name= "August 2022 Futures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1300), xmax = as.Date("2019-01-01")-(0.049*1300), ymin = 0-(.3*200), ymax = 0) +
+  scale_color_manual(name= "December 2022 Futures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(.1861*(today()-as.Date("2019-01-01")))), ymin = 0-(.3*350), ymax = 0) +
   coord_cartesian(clip = "off")
 
 NordStream_Pipeline_Import_Graph <- ggplot() + #plotting norstream pipeline imports
@@ -607,10 +606,10 @@ NordStream_Pipeline_Import_Graph <- ggplot() + #plotting norstream pipeline impo
   ylab("Daily Import Volumes, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 0.5), limits = c(0,2), breaks = c(0,.5,1,1.5,2), expand = c(0,0)) +
   ggtitle("Europe's Natural Gas Crisis") +
-  labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through the Nord Stream Pipeline have Decreased Nearly 60%") +
+  labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through the Nord Stream Pipeline has Dropped to 0") +
   theme_apricitas + theme(legend.position = c(0.25,0.55)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-09-01")-(.1861*(300)), xmax = as.Date("2021-09-01")-(0.049*(300)), ymin = 0-(.3*2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-09-01")-(.1861*((today()-as.Date("2021-09-01")))), xmax = as.Date("2021-09-01")-(0.049*((today()-as.Date("2021-09-01")))), ymin = 0-(.3*2), ymax = 0) +
   coord_cartesian(clip = "off")
 
 LNG_Import_Graph <- ggplot() + #plotting LNG pipeline imports
@@ -618,11 +617,12 @@ LNG_Import_Graph <- ggplot() + #plotting LNG pipeline imports
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,6), breaks = c(0,1,2,3,4,5,6), expand = c(0,0)) +
+  scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "LNG Imports Have Increased Significantly As Europe Tries to Replace Russian Gas") +
   theme_apricitas + theme(legend.position = c(0.25,0.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*6), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*((today()-as.Date("2019-01-01")))), xmax = as.Date("2019-01-01")-(0.049*((today()-as.Date("2019-01-01")))), ymin = 0-(.3*6), ymax = 0) +
   coord_cartesian(clip = "off")
 
 LNG_Pipeline_Import_Graph <- ggplot() + #plotting LNG pipeline imports
@@ -637,9 +637,9 @@ LNG_Pipeline_Import_Graph <- ggplot() + #plotting LNG pipeline imports
   scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "LNG Imports Have Increased Significantly As Europe Tries to Replace Russian Gas") +
-  theme_apricitas + theme(legend.position = c(0.41,0.84), legend.text = element_text(size = 14, color = "white")) +
+  theme_apricitas + theme(legend.position = c(0.385,0.84), legend.text = element_text(size = 14, color = "white")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#EE6055","#9A348E"), breaks = c("Russia","LNG","Norway","North Africa","Azerbaijan")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*7), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*((today()-as.Date("2019-01-01")))), xmax = as.Date("2019-01-01")-(0.049*((today()-as.Date("2019-01-01")))), ymin = 0-(.3*7), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Russia_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline imports
@@ -652,9 +652,9 @@ Russia_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline imports
   scale_x_date(limits = c(as.Date("2021-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through Key Russian Gas Pipelines Are Declining Significantly") +
-  theme_apricitas + theme(legend.position = c(0.23,0.68)) +
+  theme_apricitas + theme(legend.position = c(0.15,0.68)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(600)), xmax = as.Date("2021-01-01")-(0.049*(600)), ymin = 0-(.3*2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*((today()-as.Date("2021-01-01")))), xmax = as.Date("2021-01-01")-(0.049*(600)), ymin = 0-(.3*2), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Ukraine_Pipeline_Import_Graph <- ggplot() + #plotting Ukraine Gas pipeline imports
@@ -667,11 +667,11 @@ Ukraine_Pipeline_Import_Graph <- ggplot() + #plotting Ukraine Gas pipeline impor
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Russian Gas Flows Through Ukraine are Down 80%-And Declined Before the War") +
   theme_apricitas + theme(legend.position = c(0.63,0.68)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(1200)), xmax = as.Date("2019-01-01")-(0.049*(1200)), ymin = 0-(.3*3.25), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*((today()-as.Date("2019-01-01")))), xmax = as.Date("2019-01-01")-(0.049*((today()-as.Date("2019-01-01")))), ymin = 0-(.3*3.25), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline imports
-  geom_line(data=subset(Russia_Pipeline_Imports) , aes(x=periodFrom,y= Total/1000000000, color = "Russian Natural Gas Exports to the EU"), size = 1.25)+ 
+  geom_line(data=subset(Russia_Pipeline_Imports) , aes(x=periodFrom,y= Total/1000000000, color = "Russian Natural Gas Pipeline Exports to the EU"), size = 1.25)+ 
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,7), breaks = c(0,2,4,6), expand = c(0,0)) +
@@ -683,6 +683,52 @@ Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline impo
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*7), ymax = 0) +
   coord_cartesian(clip = "off")
 
+US_Export_Capacity <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Europe's%20Natural%20Gas%20Crisis/Europe's%20Winter%20Test/US_LNG_Export_Capacity.csv") %>%
+  mutate(date = as.Date(ï..date))
+
+US_Export_Capacity_Projections <- select(US_Export_Capacity, date, Projections) %>%
+  drop_na()
+
+US_Export_Capacity_Graph <- ggplot() + #plotting US LNG Export Capacity
+  geom_line(data=US_Export_Capacity, aes(x=date,y= US_LNG_Capacity, color = "US LNG Export Capacity"), size = 1.25)+ 
+  geom_line(data=US_Export_Capacity_Projections, aes(x=date,y= Projections, color = "US LNG Export Capacity, Projections"), size = 1.25, linetype = "dashed")+ 
+  xlab("Date") +
+  ylab("Bcf/d") +
+  scale_y_continuous(labels = scales::number_format(suffix = "Bcf/d", accuracy = 1), limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  ggtitle("Bridging the Gap") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "US LNG Export Capacity is Projected to Increase Over the Next Couple Years") +
+  theme_apricitas + theme(legend.position = c(0.43,0.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#A7ACD9"), guide=guide_legend(override.aes=list(linetype=c(1,2), lwd = c(1.25,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()+(365*3)-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()+(365*3)-as.Date("2016-01-01"))), ymin = 0-(.3*20), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+EU_Storage_Levels <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Europe's%20Natural%20Gas%20Crisis/Europe's%20Winter%20Test/StorageData_GIE_2011-01-01_2022-10-20.csv") %>%
+  mutate(date = as.Date(ï..Gas.Day.Start)) %>%
+  mutate(year = year(date)) %>%
+  mutate(day = yday(date))
+  
+
+EU_Storage_Levels_Graph <- ggplot() + #plotting nondurable and durable share of PCE
+  geom_line(data=subset(EU_Storage_Levels, year == 2019), aes(x=day,y= Full/100 ,color= "2019"), size = 1.25) +
+  geom_line(data=subset(EU_Storage_Levels, year == 2020), aes(x=day,y= Full/100 ,color= "2020"), size = 1.25) +
+  geom_line(data=subset(EU_Storage_Levels, year == 2021), aes(x=day,y= Full/100 ,color= "2021"), size = 1.25) +
+  geom_line(data=subset(EU_Storage_Levels, year == 2022), aes(x=day,y= Full/100 ,color= "2022"), size = 1.25) +
+  xlab("Day of Year") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Share of Total Storage Capacity") +
+  ggtitle("Stocking Up") +
+  labs(caption = "Graph created by @JosephPolitano using GIE data",subtitle = "EU Natural Gas Storage Levels Have Improved Significantly This Year") +
+  theme_apricitas + theme(legend.position = c(.75,.25)) +
+  scale_color_manual(name= "Natural Gas Storage Levels",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*365), xmax = 0-(0.049*365), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+US_Export_Capacity_Projections <- select(US_Export_Capacity, date, Projections) %>%
+  drop_na()
+
+
+
 ggsave(dpi = "retina",plot = NordStream_Pipeline_Import_Graph, "Nord Stream Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = LNG_Import_Graph, "LNG Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = LNG_Pipeline_Import_Graph, "LNG Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -690,6 +736,8 @@ ggsave(dpi = "retina",plot = Russia_Pipeline_Import_Graph, "Russia Pipeline Impo
 ggsave(dpi = "retina",plot = Ukraine_Pipeline_Import_Graph, "Ukraine Pipeline Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_NAT_GAS_FUTURES_Graph, "EU Nat Gas Futures.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Russia_Total_Pipeline_Import_Graph, "Russia Total Live Imports.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = US_Export_Capacity_Graph, "Export Capacity Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = EU_Storage_Levels_Graph, "EU Storage Levels.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all add-ons
