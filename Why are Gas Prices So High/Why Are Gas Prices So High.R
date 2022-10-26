@@ -1,7 +1,8 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 pacman::p_load(eia)
+library(eia)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -104,6 +105,14 @@ REFINERY_CAPACITY <- as.data.frame(REFINERY_CAPACITY$data)
 REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019", end = today())
 REFINERY_OPERATING_CAPACITY <- as.data.frame(REFINERY_OPERATING_CAPACITY$data)
 
+#SPR Levels
+SPR_LEVEL <- eia_series("PET.WCSSTUS1.W", start = "2019", end = today())
+SPR_LEVEL <- as.data.frame(SPR_LEVEL$data)
+
+#STEO Crude Production, SPR Drawdowns and Forecasts
+STEO_Crude_Production <- eia_series("STEO.COPRPUS.M", start = "2019", end = "2026")
+STEO_SPR_Withdrawls <- eia_series("STEO.COPRPUS.M", start = "2019", end = "2026")
+
 
 VMT_Graph <- ggplot() + #plotting VMT
   geom_line(data=VMT, aes(x=date,y= value/1000, color= "Vehicle Miles Travelled"), size = 1.25) +
@@ -151,7 +160,7 @@ Refinery_Capacity_Graph <- ggplot() + #plotting US Crude Production
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(15,19),breaks = c(15,16,17,18,19), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
   ggtitle("Unrefined Results") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refinery Capacity Has Shrunk During the Pandemic") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refineries are Running at Nearly Full Capacity") +
   theme_apricitas + theme(legend.position = c(.35,.42)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 15-(.3*4), ymax = 15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -220,7 +229,7 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   scale_y_continuous(labels = scales::dollar_format(), limits = c(-10,125), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refining Spreads are Lowering as Capacity Shortages Ease") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Gasoline Spreads Have Eased-But Diesel and Jet Fuel Spreads Remain High") +
   theme_apricitas + theme(legend.position = c(.65,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
@@ -260,6 +269,18 @@ GAS_EXPENDITURE_Graph <- ggplot() + #plotting sales at gas stations as a share o
   theme_apricitas + theme(legend.position = c(.5,.40)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*11000), xmax = as.Date("1992-01-01")-(0.049*11000), ymin = 0-(.3*.15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+SPR_LEVEL_Graph <- ggplot() + #plotting US SPR Crude Oil Stocks
+  geom_line(data=SPR_LEVEL, aes(x=date,y= value/1000, color= "Stocks of Crude Oil in the Strategic Petroleum Reserve"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(0,675),breaks = c(0,150,300,450,600), expand = c(0,0)) +
+  ylab("Mbbl") +
+  ggtitle("Breaking the Emergency Glass") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "The Drawdown in the Strategic Petroleum Reserve is Historicly Large") +
+  theme_apricitas + theme(legend.position = c(.45,.78)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*675), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 
