@@ -666,8 +666,6 @@ Rent_LessRent_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1300), xmax = as.Date("2019-01-01")-(0.049*1300), ymin = 0-(.3*.09), ymax = 0) +
   coord_cartesian(clip = "off")
 
-usethis::edit_r_environ()
-
 #Saving png images of all graphs
 ggsave(dpi = "retina",plot = CPI_Graph, "CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 

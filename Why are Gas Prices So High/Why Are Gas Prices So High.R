@@ -1,4 +1,4 @@
-pacman::p_load(stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(quantmod,tidyquant,datetime,yearmon,lubridate,readr,stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 pacman::p_load(eia)
@@ -65,7 +65,8 @@ GAS_TOTAL_MERGE_MEDIAN <- subset(GAS_TOTAL_MERGE_MEDIAN,select = c(year, value.x
 colnames(GAS_TOTAL_MERGE_MEDIAN) <- c("year", "gas", "total")
 GAS_TOTAL_MERGE_MEDIAN$year <- ymd(GAS_TOTAL_MERGE_MEDIAN$year, truncated = 2L)
 
-
+install.packages("tidyquant")
+library(tidyquant)
 XOP <- tq_get("XOP", from = "2006-07-01") #downloading XOP returns
 SPY <- tq_get("SPY", from = "2006-07-01") #downloading SPY returns
 
@@ -85,7 +86,7 @@ Capital_Discipline <- data.frame(answer = c("Capital Discipline","Other","ESG Is
 Capital_Discipline$answer <- factor(Capital_Discipline$answer, levels = c("Government Regulations","Lack of Access to Financing","ESG Issues","Other","Capital Discipline"), ordered = TRUE)
 
 #modeled crude production and real production data
-Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W", start = "2019")
+Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W.", start = "2019")
 Crude_ProductionWeekly <- as.data.frame(Crude_ProductionWeekly$data)
 Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
 Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
@@ -108,7 +109,7 @@ REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019", end 
 REFINERY_OPERATING_CAPACITY <- as.data.frame(REFINERY_OPERATING_CAPACITY$data)
 
 #SPR Levels
-SPR_LEVEL <- eia_series("PET.WCSSTUS1.W", start = "2019", end = "2025")
+SPR_LEVEL <- eia_series("PET.WCSSTUS1.W", start = "2019")
 SPR_LEVEL <- as.data.frame(SPR_LEVEL$data)
 
 #STEO Crude Production, SPR Drawdowns and Forecasts
@@ -230,7 +231,7 @@ SPREADS_Graph <- ggplot() + #plotting Gas Prices
   scale_y_continuous(labels = scales::dollar_format(), limits = c(0,225), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are Declining as the Refinery Capacity Shortage Eases") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are Easing But Still High-Especially for Diesel and Jet Fuel") +
   theme_apricitas + theme(legend.position = c(.6,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -249,7 +250,7 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Gasoline Spreads Have Eased-But Diesel and Jet Fuel Spreads Remain High") +
   theme_apricitas + theme(legend.position = c(.65,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.13), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -10-(.3*135), ymax = -10) +
   coord_cartesian(clip = "off")
 
 WTI_Graph <- ggplot() + #plotting Crude Futures
@@ -266,11 +267,11 @@ WTI_Graph <- ggplot() + #plotting Crude Futures
   coord_cartesian(clip = "off")
 
 WTI_STEO_Graph <- ggplot() + #plotting Crude Futures
-  annotate("rect", xmin = FLOOR_MONTH(as.Date(today() -32)), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 20, color = "#EE6055", size = 5, alpha = 0.6) +
   annotate("text", label = "SPR Refill Target", x = as.Date("2023-03-25"), y = 78, color = "white", size = 5) +
-  annotate("segment", x = FLOOR_MONTH(as.Date(today() -40)), xend = as.Date("2023-12-01"), y = 72, yend = 72, linetype = "dashed", color = "white", size = 1.25) +
-  annotate("segment", x = FLOOR_MONTH(as.Date(today() -40)), xend = as.Date("2023-12-01"), y = 67, yend = 67, linetype = "dashed", color = "white", size = 1.25) +
+  annotate("segment", x = floor_date(as.Date(today() -33), "month"), xend = as.Date("2023-12-01"), y = 72, yend = 72, linetype = "dashed", color = "white", size = 1.25) +
+  annotate("segment", x = floor_date(as.Date(today() -33), "month"), xend = as.Date("2023-12-01"), y = 67, yend = 67, linetype = "dashed", color = "white", size = 1.25) +
   geom_line(data=drop_na(STEO_WTI), aes(x=date,y= value, color= "Crude Oil (WTI)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(), limits = c(0,125), expand = c(0,0)) +
@@ -318,7 +319,7 @@ SPR_LEVEL_Graph <- ggplot() + #plotting US SPR Crude Oil Stocks
   coord_cartesian(clip = "off")
 
 STEO_Prod_SPR_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = FLOOR_MONTH(as.Date(today() -33)), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 10.25, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=STEO_SPR_Prod, aes(x=date,y= value.x, color= "US Crude Oil Production"), size = 1.25) +
   geom_line(data=STEO_SPR_Prod, aes(x=date,y= value.x+value.y, color= "US Crude Oil Production With Net SPR Withdrawls"), size = 1.25) +
@@ -345,7 +346,7 @@ WTI_Curve_10_25_Graph <- ggplot() + #plotting Crude Futures
   labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "Oil Prices are Still in Backwardation, With Futures Prices Lower Through 2030") +
   theme_apricitas + theme(legend.position = c(.6,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI) Curve, 10/25")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+365-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+365-as.Date("2019-01-01"))), ymin = 0-(.3*125), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(3000)), xmax = as.Date("2023-01-01")-(0.049*(3000)), ymin = 50-(.3*40), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
@@ -362,22 +363,136 @@ CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*160), ymax = 0) +
   coord_cartesian(clip = "off")
 
-OPEC_Crude_Production <- eia_series("STEO.PAPR_OPEC.M", start = "2019", end = "2026")
-OPEC_Crude_Production <- as.data.frame(OPEC_Crude_Production$data)
+OPEC_Crude_Production_STEO <- eia_series("STEO.PAPR_OPEC.M", start = "2019", end = "2026")
+OPEC_Crude_Production_STEO <- as.data.frame(OPEC_Crude_Production$data)
 
-OPEC_Crude_Production_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = FLOOR_MONTH(as.Date(today() -33)), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 10.25, color = "#EE6055", size = 5, alpha = 0.6) +
+OPEC_Crude_Production_STEO_Graph <- ggplot() + #plotting US Crude Production
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 27.5, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=OPEC_Crude_Production, aes(x=date,y= value, color= "OPEC Crude Oil Production"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(25,40),breaks = c(25,30,35,40), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
-  ggtitle("Sand Trap") +
-  labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "OPEC Crude Productiion is Expected to Remain Below the Early 2019 Peak Through 2024") +
+  ggtitle("OPEC Production") +
+  labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "OPEC Crude Production is Expected to Remain Below the Early 2019 Peak Through 2024") +
   theme_apricitas + theme(legend.position = c(.35,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01")+365)), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01")+365)), ymin = 25-(.3*15), ymax = 25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+Large_Solar_Capacity_STEO <- eia_series("STEO.SOEPCAPX_US.M", start = "2019", end = "2026")
+Large_Solar_Capacity_STEO <- as.data.frame(Large_Solar_Capacity_STEO$data)
+
+Small_Solar_Capacity_STEO <- eia_series("STEO.SODTC_US.M", start = "2019", end = "2026")
+Small_Solar_Capacity_STEO <- as.data.frame(Small_Solar_Capacity_STEO$data)
+
+Solar_Merge_STEO <- merge(Small_Solar_Capacity_STEO,Large_Solar_Capacity_STEO,by = "date")
+
+Wind_Capacity_STEO <- eia_series("STEO.WNEPCAPX_US.M", start = "2019", end = "2026")
+Wind_Capacity_STEO <- as.data.frame(Wind_Capacity_STEO$data)
+
+US_Solar_Wind_Graph <- ggplot() + #plotting US Crude Production
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 35, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data=Wind_Capacity_STEO, aes(x=date,y= value/1000, color= "US Wind Power Capacity"), size = 1.25) +
+  geom_line(data=Solar_Merge_STEO, aes(x=date,y= (value.x + value.y)/1000, color= "US Large and Small Scale Solar Power Capacity"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " GW", accuracy = 1), limits = c(0,160),breaks = c(0,50,100,150), expand = c(0,0)) +
+  ylab("Mbbl Per Day") +
+  ggtitle("The Long Term Transition") +
+  labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "US Renewable Power Capacity is Growing Rapidly") +
+  theme_apricitas + theme(legend.position = c(.35,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01")+365)), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01")+365)), ymin = 0-(.3*160), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+Nat_Gas_STEO <- eia_series("STEO.NGMPPUS.M", start = "2019", end = "2026")
+Nat_Gas_STEO <- as.data.frame(Nat_Gas_STEO$data)
+  
+
+Crude_Russia <- eia_series("INTL.57-1-RUS-TBPD.M", start = "2019")
+Crude_Russia <- as.data.frame(Crude_Russia$data)
+Crude_Russia <- select(Crude_Russia,date, value) %>%
+  mutate(country = "Russia")
+
+Crude_US <- eia_series("INTL.57-1-USA-TBPD.M", start = "2019")
+Crude_US <- as.data.frame(Crude_US$data)
+Crude_US <- select(Crude_US,date, value) %>%
+  mutate(country = "United States")
+
+Crude_OPEC <- eia_series("INTL.57-1-OPEC-TBPD.M", start = "2019")
+Crude_OPEC <- as.data.frame(Crude_OPEC$data)
+Crude_OPEC <- select(Crude_OPEC,date, value) %>%
+  mutate(country = "OPEC")
+
+Crude_NoPEC <- eia_series("INTL.57-1-OPNO-TBPD.M", start = "2019")
+Crude_NoPEC <- as.data.frame(Crude_NoPEC$data)
+
+#crude that is not from OPEC, Russia, or the US
+Crude_NoPEC_ex_RU <- merge(Crude_NoPEC,Crude_Russia, by = "date") %>%
+  mutate(value = value.x-value.y) %>%
+  select(.,date, value)
+
+Crude_NoPEC_ex_RU_US <- merge(Crude_NoPEC_ex_RU,Crude_US, by = "date") %>%
+  mutate(value = value.x-value.y) %>%
+  select(.,date, value) %>%
+  mutate(country = "Rest of World")
+
+World_Oil_Merge <- rbind(Crude_OPEC,Crude_US,Crude_Russia,Crude_NoPEC_ex_RU_US)
+
+Crude_Russia_Change <- Crude_Russia %>% 
+  mutate(value = value - 10853.362)
+Crude_US_Change <- Crude_US %>%
+  mutate(value = value - 12859.767)
+Crude_OPEC_Change <- Crude_OPEC %>%
+  mutate(value = value - 31051.75)
+Crude_NoPEC_ex_RU_US_Change <- Crude_NoPEC_ex_RU_US %>% 
+  mutate(value = value - 28644.50)
+
+World_Oil_Merge_Change <- rbind(Crude_OPEC_Change,Crude_US_Change,Crude_Russia_Change,Crude_NoPEC_ex_RU_US_Change)
+
+World_Oil_Merge_Change_Graph <- ggplot(data = subset(World_Oil_Merge_Change, date > as.Date("2019-10-01")), aes(x = date, y = value/1000, fill = country)) + #plotting power generation
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Mbbl Per Day, Change Since Nov 2019") +
+  scale_y_continuous(labels = scales::number_format(suffix = "Mbbl", accuracy = 1), breaks = c(-10,-5,0,5), limits = c(-13.5,2.5), expand = c(0,0)) +
+  ggtitle("The Crude Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "'Missing' Barrels (Compared to Pre-Pandemic) Come From a Variety of Sources") +
+  theme_apricitas + theme(legend.position = c(.85,.29)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-11-01")-(.1861*(today()-as.Date("2019-11-01"))), xmax = as.Date("2019-11-01")-(0.049*(today()-as.Date("2019-11-01"))), ymin = -13.5-(.3*16), ymax = -13.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+World_Oil_Merge_Graph <- ggplot(data = World_Oil_Merge, aes(x = date, y = value/1000, fill = country)) + #plotting power generation
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Mbbl Per Day") +
+  scale_y_continuous(labels = scales::number_format(suffix = "Mbbl", accuracy = 1), breaks = c(0,25,50,75,100), limits = c(0,110), expand = c(0,0)) +
+  ggtitle("The Crude Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "'Missing' Barrels (Compared to Pre-Pandemic) Come From a Variety of Sources") +
+  theme_apricitas + theme(legend.position = c(.52,.87)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-120-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-120-as.Date("2019-01-01"))), ymin = 0-(.3*110), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+Nat_Gas_STEO <- as.data.frame(Nat_Gas_STEO$data)
+
+Nat_Gas_STEO_Graph <- ggplot() + #plotting US Crude Production
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 27.5, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data=Nat_Gas_STEO, aes(x=date,y= value, color= "US Natural Gas Production"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " Bcf", accuracy = 1), limits = c(93,110),breaks = c(95,100,105,110), expand = c(0,0)) +
+  ylab("Bcf Per Day") +
+  ggtitle("Pumping Up") +
+  labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "Fueled by Global Shortages, US Natural Gas Production is Crossing New Highs") +
+  theme_apricitas + theme(legend.position = c(.35,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01")+365)), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01")+365)), ymin = 93-(.3*17), ymax = 93) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
 
 ggsave(dpi = "retina",plot = VMT_Graph, "VMT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = XOP_Graph, "XOP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -396,7 +511,11 @@ ggsave(dpi = "retina",plot = STEO_Prod_SPR_Graph, "STEO Prod Graph.png", type = 
 ggsave(dpi = "retina",plot = WTI_STEO_Graph, "WTI STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = WTI_Curve_10_25_Graph, "WTI Curve 10 25.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_ENERGY_Graph, "CPI Energy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = OPEC_Crude_Production_Graph, "OPEC Crude Oil Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = OPEC_Crude_Production_STEO_Graph, "OPEC Crude Oil Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Nat_Gas_STEO_Graph, "Nat Gas STEO.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = US_Solar_Wind_Graph, "US Solar and Wind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = World_Oil_Merge_Change_Graph, "World Oil Merge Change.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = World_Oil_Merge_Graph, "World Oil Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

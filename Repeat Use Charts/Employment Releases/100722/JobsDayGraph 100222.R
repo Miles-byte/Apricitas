@@ -316,7 +316,7 @@ Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
   ylab("Millions of Employees") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("The Great Reshuffling") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Near a Record High; the Number of Layoffs is at a Record Low") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Coming Down From Record Highs") +
   theme_apricitas + theme(legend.position = c(.30,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1619), xmax = as.Date("2018-01-01")-(0.049*1619), ymin = 0-(.3*5), ymax = 0) +
@@ -724,6 +724,42 @@ ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
+GLI_BEA <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-01")) #downloading "Compensation of Employees, Received" data from Fred to calculate Gross Labor Income
+ECIPRIVWAG <- fredr(series_id = "ECIWAG",observation_start = as.Date("2017-10-01")) %>%
+  mutate(date = date %m+% months(3)) %>%
+  select(date, value)#downloading "Wages and Salaries: Private Industry Workers" data from Fred to calculate Gross Labor Income using a third method
+
+ECIPRIVWAG_Monthly <- seq(ECIPRIVWAG$date[1], tail(ECIPRIVWAG$date,1), by="month")
+ECIPRIVWAG_Monthly <- data.frame(date=ECIPRIVWAG_Monthly, value=spline(ECIPRIVWAG, method="fmm", xout=ECIPRIVWAG_Monthly)$y)
+
+ELEV_PRIVATE <- fredr(series_id = "LNS12032189",observation_start = as.Date("2017-10-01"), frequency = "m", aggregation_method = "eop") %>%
+  mutate(date = date %m+% months(3))#downloading "Employment Level - 25-54 Yrs" data from Fred to calculate Gross Labor Income using a second method
+GLI_BLS <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01")) #downloading "All Employees, Total Nonfarm" data from Fred to calculate Gross Labor Income using a third method
+
+GLI_CPS_NCS <- merge(ECIPRIVWAG_Monthly,ELEV_PRIVATE, by = "date") #merging ECI and EPOP data for the second GLI calculation method
+GLI_CPS_NCS <- subset(GLI_CPS_NCS, select = c("date","value.x","value.y")) #cleaning up data frame
+colnames(GLI_CPS_NCS) <- c("date","ECI","ELEV") #renaming columns for ease of use
+
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), as.Date("2022-04-01"), "months")), trend = 100*1.004074^(0:500)) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GLITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(GLI_BLS$date, n=1), "months")), trend = 100*1.004074^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(GLI_BLS$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+
+GLI_Graph <- ggplot() +
+  geom_line(data = GLI_BEA, aes(x=date, y = value/8144.8*100, color = "Nominal Private Sector Gross Labor Income: BEA Method"), size = 1.25) + 
+  geom_line(data = GLI_CPS_NCS, aes(x=date, y = ((ECI*ELEV)/17488899)*100, color = "Nominal Private Sector Gross Labor Income: ECI Method"), size = 1.25) + 
+  geom_line(data = GLI_BLS, aes(x=date, y = value/151.4*100, color = "Nominal Private Sector Gross Labor Income: NFP Method"), size = 1.25) +
+  geom_line(data = GLITrend, aes(x=date, y = trend, color = "Pre-Covid 5% Annual GLI Growth Trend"), size = 1.25, linetype = "dashed") + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(80,120), breaks = c(80,85,90,95,100,105,110,115), expand = c(0,0)) +
+  ylab("Index, January 2020 = 100") +
+  ggtitle("Gross Labor Income") +
+  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income is Likely Slightly Above Trend, but Growth is Slowing a Bit") +
+  theme_apricitas + theme(legend.position = c(.40,.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,1,2), lwd = c(1.25,1.25,1.25,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 80-(.3*40), ymax = 80) +
+  coord_cartesian(clip = "off")
+
+
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -767,6 +803,7 @@ ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "c
 ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 
