@@ -33,6 +33,44 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*8), ymax = 0) +
   coord_cartesian(clip = "off")
 
+US_NAT_GAS_EXPORTS_DOL <- getCensus(
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
+  time = "from 2016 to 2022",
+  E_COMMODITY = "2711110000", #nat gas commodity code
+  #CTY_CODE = "4XXX", # europe country code
+  CTY_CODE = "-" #world country code
+)
+
+US_NAT_GAS_EXPORTS_DOL$time <- as.Date(as.yearmon(US_NAT_GAS_EXPORTS_DOL$time))
+US_NAT_GAS_EXPORTS_DOL$ALL_VAL_MO <- as.numeric(US_NAT_GAS_EXPORTS_DOL$ALL_VAL_MO)
+US_NAT_GAS_EXPORTS_DOL$CTY_CODE <- gsub("-","US LNG Exports",US_NAT_GAS_EXPORTS_DOL$CTY_CODE)
+
+US_NAT_GAS_EXPORTS_DOL_Graph <- ggplot() + #plotting nat gas exports
+  geom_line(data = US_NAT_GAS_EXPORTS_DOL, aes(x = time, y = ALL_VAL_MO/1000000000, color = "US LNG Exports"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,5), breaks = c(0,1,2,3,4,5), expand = c(0,0)) +
+  ylab("Dollars") +
+  ggtitle("The Energy Shock") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The US is Taking in Nearly $5B a Month From LNG Exports as Global Prices Rise") +
+  theme_apricitas + theme(legend.position = c(.25,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
+  geom_area(data = US_NAT_GAS_EXPORTS, aes(x = time, y = VES_WGT_MO/1000000000, fill = CTY_CODE), color = NA, size = 0, position = "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "B", accuracy = 1),limits = c(0,8), breaks = c(0,2,4,6,8), expand = c(0,0)) +
+  ylab("Billions of kg") +
+  ggtitle("Bridging the Gap") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Natural Gas Exports Are Helping Ease A European Energy Shortage") +
+  theme_apricitas + theme(legend.position = c(.25,.80)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*8), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 US_RUSSIA_CRUDE_REFINED_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","VES_WGT_MO","GEN_VAL_MO","I_COMMODITY", "CTY_CODE"), 
@@ -65,6 +103,8 @@ test <- listCensusMetadata(
 
 ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US Nat Gas Exports.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = US_RUSSIA_CRUDE_REFINED_Graph, "US Russia Crude Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_DOL_Graph, "US Nat Gas Exports Dollars.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 p_unload(all)  # Remove all add-ons
 

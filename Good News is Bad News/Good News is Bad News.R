@@ -24,6 +24,11 @@ FFR_FUTURES_MEGA_MERGE_9_27 <- read.csv("https://raw.githubusercontent.com/Miles
   mutate(Contract = gsub("'","20",Contract)) %>%
   mutate(Contract = as.Date(as.yearmon(Contract)))
 
+FFR_FUTURES_MEGA_MERGE_11_2 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Good%20News%20is%20Bad%20News/30-day-fed-funds-prices-intraday-11-02-2022.csv") %>%
+  mutate(Contract = stri_sub(Contract, 8, 14)) %>%
+  mutate(Contract = gsub("'","20",Contract)) %>%
+  mutate(Contract = as.Date(as.yearmon(Contract)))
+
 CES_AGGREGATE_PAYROLLS <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"), frequency = "q", aggregation_method = "avg", units = "pca")
 ECIEPOP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Good%20News%20is%20Bad%20News/ECIEPOP.csv") %>%
   mutate(DATE = as.Date(DATE))
@@ -32,18 +37,19 @@ RETAIL_LESS_GAS_CARS <- fredr(series_id = "MARTSSM44W72USS",observation_start = 
 
 
 FFR_FUTURES_MEGA_MERGE_COMPARISON_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
+  geom_line(data=EFFR, aes(x=date,y= value/100,color= "Effective Federal Funds Rate"), size = 1.25) +
   geom_line(data=FFR_FUTURES_MEGA_MERGE_7_14, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path July 14th"), size = 1.25) +
   #geom_line(data=FFR_FUTURES_MEGA_MERGE_9_16, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path September 16th"), size = 1.25) +
   geom_line(data=FFR_FUTURES_MEGA_MERGE_9_27, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path September 27th"), size = 1.25) +
-  geom_line(data=EFFR, aes(x=date,y= value/100,color= "Effective Federal Funds Rate"), size = 1.25) +
+  geom_line(data=FFR_FUTURES_MEGA_MERGE_11_2, aes(x=Contract,y= (100-Last)/100,color= "Futures Implied Federal Funds Rate Path November 2nd"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0,0.0575), breaks = c(0.01,0.02,0,.03,.04,.05), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0,0.07), breaks = c(0.01,0.02,0,.03,.04,.05,.06,0.07), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Higher For Longer") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve and CME data",subtitle = "Federal Funds Futures Price In Higher Interest Rates-And a Longer Period of Tight Policy") +
-  theme_apricitas + theme(legend.position = c(.40,.92)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Effective Federal Funds Rate","Futures Implied Federal Funds Rate Path July 14th","Futures Implied Federal Funds Rate Path September 27th")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+1825-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+1825-as.Date("2019-01-01"))), ymin = 0-(.3*.0575), ymax = 0) +
+  theme_apricitas + theme(legend.position = c(.40,.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Effective Federal Funds Rate","Futures Implied Federal Funds Rate Path July 14th","Futures Implied Federal Funds Rate Path September 27th","Futures Implied Federal Funds Rate Path November 2nd")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+1825-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+1825-as.Date("2019-01-01"))), ymin = 0-(.3*.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
 AGGREGATE_WAGE_GROWTH_GRAPH <- ggplot() + #plotting FFR rate changes in 2023 and 2024
