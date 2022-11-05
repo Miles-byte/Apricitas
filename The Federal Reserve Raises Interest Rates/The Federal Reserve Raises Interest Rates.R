@@ -57,7 +57,6 @@ TWENTYYEARTIPS <- drop_na(TWENTYYEARTIPS)
 THIRTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
 THIRTYYEARTIPS <- drop_na(THIRTYYEARTIPS)
 
-
 #collecting vintages of the SEP Projections, subsetting to 2022 onward, converting dates to month char, and correcting factors
 #note-in 2023 change ending date to 2026 to include 2025 projections
 SEPUNRATE2022 <- fredr(series_id = "UNRATEMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2021-01-01")) %>% subset(date < as.Date("2025-01-01"))

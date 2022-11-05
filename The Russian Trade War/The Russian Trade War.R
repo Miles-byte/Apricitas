@@ -98,7 +98,7 @@ US_RUSSIA_CRUDE_REFINED_Graph <- ggplot() + #plotting crude and refined
   coord_cartesian(clip = "off")
 
 test <- listCensusMetadata(
-  name = "timeseries/intltrade/imports/hs", 
+  name = "timeseries/intltrade/exports/hs", 
   type = "variables")
 
 ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US Nat Gas Exports.png", type = "cairo-png") #cairo gets rid of anti aliasing
