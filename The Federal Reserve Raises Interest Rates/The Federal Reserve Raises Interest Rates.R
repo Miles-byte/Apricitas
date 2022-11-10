@@ -54,7 +54,7 @@ TENYEARTIPS <- drop_na(TENYEARTIPS)
 TWENTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
 TWENTYYEARTIPS <- drop_na(TWENTYYEARTIPS)
 
-THIRTYYEARTIPS <- fredr(series_id = "DFII20",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
+THIRTYYEARTIPS <- fredr(series_id = "DFII30",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #inflation-indexed real interest rates
 THIRTYYEARTIPS <- drop_na(THIRTYYEARTIPS)
 
 #collecting vintages of the SEP Projections, subsetting to 2022 onward, converting dates to month char, and correcting factors
@@ -160,7 +160,7 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Index") +
   ggtitle("Lacking Forward Guidance") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Rapidly Rising as Fed Communication Remains Unclear") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High as Economic Conditions Remain Unstable") +
   theme_apricitas + theme(legend.position = c(.25,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = 0-(.3*200), ymax = 0) +
