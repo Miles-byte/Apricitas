@@ -71,9 +71,9 @@ MANUFACT_DIFF_Graph <- ggplot() +
   ylab("Diffusion Index, Positive Number Indicates Growth") +
   ggtitle("Hiring Plans") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Manufacturing Employment Growth Forecasts are Decreasing as the Economy Weakens") +
-  theme_apricitas + theme(legend.position = c(.25,.20)) +
+  theme_apricitas + theme(legend.position = c(.22,.20)) +
   scale_color_manual(name= "Future Employment Diffusion Index",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED"), breaks = c("NY Manufacturing","TX Manufacturing","PHI Region Manufacturing")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = -40-(.3*100), ymax = -40) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1700), xmax = as.Date("2018-01-01")-(0.049*1700), ymin = -40-(.3*100), ymax = -40) +
   coord_cartesian(clip = "off")
 
 SERVICES_DIFF_Graph <- ggplot() + 
@@ -85,9 +85,9 @@ SERVICES_DIFF_Graph <- ggplot() +
   ylab("Diffusion Index, Positive Number Indicates Growth") +
   ggtitle("Hiring Plans") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Services Employment Growth Forecasts are Holding Up Better, Likely Due to Sectoral Rotations") +
-  theme_apricitas + theme(legend.position = c(.25,.20)) +
+  theme_apricitas + theme(legend.position = c(.22,.20)) +
   scale_color_manual(name= "Future Employment Diffusion Index",values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1500), xmax = as.Date("2018-01-01")-(0.049*1500), ymin = -40-(.3*100), ymax = -40) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1700), xmax = as.Date("2018-01-01")-(0.049*1700), ymin = -40-(.3*100), ymax = -40) +
   coord_cartesian(clip = "off")
 
 Recession_Graph <- ggplot() + #plotting google search trends for recession
@@ -196,6 +196,24 @@ EPOP_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-01-01")-(.1861*(today()-as.Date("1998-01-01"))), xmax = as.Date("1998-01-01")-(0.049*(today()-as.Date("1998-01-01"))), ymin = .69-(.3*.135), ymax = .69) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+CEI_LEI_data <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/111122/LEI_CEI_dataset.csv") %>%
+  mutate(LEI_date = as.Date(LEI_date)) %>%
+  mutate(CEI_date = as.Date(CEI_date)) %>%
+  subset(., LEI_date> as.Date("2012-01-01"))
+
+CEI_LEI_Graph <- ggplot() + #plotting CEI/LEI
+  geom_line(data=CEI_LEI_data, aes(x=CEI_date,y= (CEI),color= "Coincident Economic Index"), size = 1.25) +
+  geom_line(data=CEI_LEI_data, aes(x=LEI_date,y= (LEI),color= "Leading Economic Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(85,120), breaks = c(80,90,100,110,120,130,140,150.160), expand = c(0,0)) +
+  ylab("Index, January 2016 = 100") +
+  ggtitle("Loss Leaders") +
+  labs(caption = "Graph created by @JosephPolitano using Conference Board data",subtitle = "Leading Economic Indicators are Still Weak") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= "Conference Board Economic Indices",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 85-(.3*40), ymax = 85) +
+  coord_cartesian(clip = "off")
+
 ggsave(dpi = "retina",plot = Recession_Graph, "Recession.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = RGDP_RGDI_Graph, "RGDP RGDI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = T10Y2Y_Graph, "T10Y2Y.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -206,6 +224,7 @@ ggsave(dpi = "retina",plot = STARTS_Graph, "Starts Graph.png", type = "cairo-png
 ggsave(dpi = "retina",plot = EPOP_Graph, "EPOP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = TRUCK_SALES_Graph, "Truck Sales.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CLAIMS_GRAPH, "Claims.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CEI_LEI_Graph, "CEI_LEI_Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

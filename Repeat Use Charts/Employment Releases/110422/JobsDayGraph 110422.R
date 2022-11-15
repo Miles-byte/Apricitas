@@ -759,6 +759,21 @@ GLI_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 80-(.3*40), ymax = 80) +
   coord_cartesian(clip = "off")
 
+#all employees residential building
+RESIDENTIAL_BUILDING <- fredr(series_id = "CES2023610001",observation_start = as.Date("1998-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+RESIDENTIAL_BUILDING_Graph <- ggplot() + #plotting local government education employment
+  geom_line(data=RESIDENTIAL_BUILDING, aes(x=date,y= value/1000,color= "All Employees, Residential Building"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(0.5,0.6,0.7,0.8,0.9,1,1.1), limits = c(0.5,1.1), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2021-10-01"))) +
+  ggtitle("The Building Cycle") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Residential Construction Employment is Stalling, but not Falling Yet") +
+  theme_apricitas + theme(legend.position = c(.65,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-10-01")-(.1861*(today()-as.Date("1998-10-01"))), xmax = as.Date("1998-10-01")-(0.049*(today()-as.Date("1998-01-01"))), ymin = 0.5-(.3*0.6), ymax = 0.5) +
+  coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -804,6 +819,7 @@ ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png
 ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RESIDENTIAL_BUILDING_Graph, "Residential Building Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 

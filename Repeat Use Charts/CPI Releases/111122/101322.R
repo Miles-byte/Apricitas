@@ -280,7 +280,7 @@ CPI_CONTRIBUTION_MONTHLY_SA_GRAPH <- ggplot() + #plotting components of monthly 
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.01,.015), breaks = c(-.01,-0.005,0,0.005,.01,.015), expand = c(0,0)) +
   ylab("Monthly Inflation, Percent") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Energy Prices Pulled Inflation Down In August But Core Inflation Remained Strong") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Dropping Core Goods Prices Pulled Inflation Down in October") +
   theme_apricitas + theme(legend.position = c(.45,.80)) +
   scale_fill_manual(name= "Contributions to Monthly CPI Inflation",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services_LE","Goods_LFE","Energy","Food"), labels = c("Core Services","Core Goods","Energy","Food")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.01-(.3*.025), ymax = -0.01) +
@@ -469,7 +469,7 @@ PCE_Inflation_Rates_Graph <- ggplot() + #plotting PCE Inflation Rates
 
 #downloading stock and watson cyclically sensitive inflation
 Stock_Watson <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/stockwatson.csv") %>%
-  mutate(date = as.Date(ï..DATE))
+  mutate(date = as.Date(?..DATE))
 
 Stock_Watson_Graph <- ggplot() + #plotting Stock Watson
   geom_line(data=Stock_Watson, aes(x=date,y= CSI1_12M/100 ,color= "Cyclically Sensitive PCE Inflation (Stock and Watson 2019)"), size = 1.25) +
@@ -498,7 +498,7 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/09132022/mannheim.csv") %>%
+Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
   mutate(date = as.Date(date))
 
 CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
@@ -511,7 +511,7 @@ CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Truc
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Mannheim Wholesale Data Could Be Giving Early Indications of a Fall in Used Car Prices") +
   theme_apricitas + theme(legend.position = c(.30,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 80-(.3*100), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*100), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_sm_month.csv?t=1665666510") %>%
@@ -525,7 +525,7 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))
 
 ApartmentList <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/apartmentlist.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(date))
   
 CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "CPI Rent: Annual Percentage Growth"), size = 1.25) +
@@ -537,7 +537,7 @@ CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Housing Price Growth iS Extremely High") +
   theme_apricitas + theme(legend.position = c(.40,.20)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent: Annual Percentage Growth","CPI Owner's Equivalent Rent: Annual Percentage Growth")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.08), ymax = 0.00) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.08), ymax = 0.00) +
   coord_cartesian(clip = "off")
 
 CPI_Rent_Zillow <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
@@ -666,6 +666,48 @@ Rent_LessRent_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1300), xmax = as.Date("2019-01-01")-(0.049*1300), ymin = 0-(.3*.09), ymax = 0) +
   coord_cartesian(clip = "off")
 
+#Durables CPI
+FURNITURE_CPI <- bls_api("CUSR0000SEHJ", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+APPLIANCES_CPI <- bls_api("CUSR0000SEHK", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+DURABLES_Graph <- ggplot() + #plotting gasoline price index against WTI prices
+  geom_line(data=FURNITURE_CPI, aes(x=date,y= (value/1.12313),color= "Furniture and Bedding"), size = 1.25) +
+  geom_line(data=APPLIANCES_CPI, aes(x=date,y= (value/.78631),color= "Appliances"), size = 1.25) +
+  geom_line(data=CPINEWCARS, aes(x=date,y= (value/146)*100 ,color= "New Vehicles"), size = 1.25) +
+  geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/141)*100 ,color= "Used Cars and Trucks"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(90,160), breaks = c(90,100,110,120,130,140,150.160), expand = c(0,0)) +
+  ylab("Index, January 2019 = 100") +
+  ggtitle("Durable Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS",subtitle = "Prices For Some Key Durable Goods Declined in Recent Monthsâ€”Except New Cars") +
+  theme_apricitas + theme(legend.position = c(.40,.70)) +
+  scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 90-(.3*70), ymax = 90) +
+  coord_cartesian(clip = "off")
+
+CPI_LESS_ALL <- bls_api("CUSR0000SA0L12E4", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
+  subset(., date> as.Date("2018-12-31"))
+
+CPI_LESS_ALL_Graph <- ggplot() + 
+  geom_line(data = CPI_LESS_ALL, aes(x = date, y = yrpct, color = "Year-on-Year Growth"), size = 1.25) +
+  geom_line(data = CPI_LESS_ALL, aes(x = date, y = (1+qtrpct)^4-1, color = "3-Month Annualized Growth"), size = 1.25) +
+  annotate(geom = "text", label = "Discontinuity in May 2020, When 3-Month Annualized Growth hit -5%", x = as.Date("2021-10-01"), y = 0.004, color ="white", size = 4, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.09), breaks = c(0,.01,.02,.03,.04,0.05,0.06,0.07,0.08,0.09), expand = c(0,0)) +
+  ylab("Percent Growth %") +
+  ggtitle("Core Core Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "SuperCore Inflation Remains High") +
+  theme_apricitas + theme(legend.position = c(.40,.82)) +
+  scale_color_manual(name= "CPI: All Items Less Food, Shelter, Energy, Used Cars and Trucks",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC"), breaks = c("Year-on-Year Growth","3-Month Annualized Growth")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.09), ymax = 0.0) +
+  coord_cartesian(clip = "off")
+
 #Saving png images of all graphs
 ggsave(dpi = "retina",plot = CPI_Graph, "CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
@@ -696,6 +738,8 @@ ggsave(dpi = "retina",plot = CPI_Rent_Zillow, "CPI Rent Zillow.png", type = "cai
 ggsave(dpi = "retina",plot = CPI_PCEPI_PCT_Graph, "CPI PCEPI PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim Used Vehicles.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Stock_Watson_Graph, "Stock Watson.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = DURABLES_Graph, "Durables Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_LESS_ALL_Graph, "CPI LESS ALL EVERYTHING.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
