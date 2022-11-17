@@ -52,11 +52,11 @@ CPSADJ_32022 <- subset(CPSADJ, date > as.Date("2022-02-01")) %>%
   mutate(source = "Household Survey Adjusted to Nonfarm Payrolls Concepts")
 
 #Merging nonfarm payrolls, cps adjusted to nonfarm payrolls, and employment levels growth since March 2022
-PAYEMS_ELEV_CPSADJ_32022 <- rbind(PAYEMS_32022,ELEV_32022,CPSADJ_32022) %>%
-  subset(date > as.Date(today()-70))
+PAYEMS_ELEV_CPSADJ_32022 <- rbind(PAYEMS_32022,ELEV_32022,CPSADJ_32022)# %>%
+  #subset(date > as.Date(today()-70))
 
 DISCREPANCY_MEGA_MERGE <- rbind(PAYEMS_ELEV_CPSADJ_32022,MULTIPLE_32022,SELF_32022,AGRICULTURAL_32022) %>%
-  subset(date > as.Date(today()-70)) %>%
+  #subset(date > as.Date(today()-70)) %>%
   select(date,CUMSUM,source) %>%
   pivot_wider(names_from=c(source), values_from = CUMSUM) %>%
   mutate(`Agriculture and Related Industries` = -`Employment Level, Agricultural and Related Industries`) %>%
@@ -65,20 +65,20 @@ DISCREPANCY_MEGA_MERGE <- rbind(PAYEMS_ELEV_CPSADJ_32022,MULTIPLE_32022,SELF_320
   mutate(`Unincorporated Self Employed` = -`Unincorporated Self Employed`)%>%
   select(-`Household Survey Adjusted to Nonfarm Payrolls Concepts`,-`Nonfarm Payrolls`,-`Employment Level`,-`Employment Level, Agricultural and Related Industries`) %>%
   pivot_longer(cols = c(`Multiple Jobholders`:`Other Concept Differences`)) %>%
-  mutate(factor = as.numeric(c("1","1","1","1","1","2","2","2","2","2"))) %>%
+  mutate(factor = as.numeric(c("1","1","1","1","1","2","2","2","2","2","3","3","3","3","3","4","4","4","4","4","5","5","5","5","5","6","6","6","6","6","7","7","7","7","7"))) %>%#))) %>%#,"2","2","2","2","2"))) %>%
   mutate(name = factor(name,levels = c("Remaining Discrepancy","Other Concept Differences","Unincorporated Self Employed","Multiple Jobholders","Agriculture and Related Industries")))
   
-PAYEMS_ELEV_CPSADJ_32022_Graph <- ggplot(data = PAYEMS_ELEV_CPSADJ_32022, aes(x = date, y = CUMSUM/1000, fill = source)) + #plotting permanent and temporary job losers
+PAYEMS_ELEV_CPSADJ_32022_Graph <- ggplot(data = subset(PAYEMS_ELEV_CPSADJ_32022, date > as.Date(today()-70)), aes(x = date, y = CUMSUM/1000, fill = source)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = position_dodge(), color = NA) +
   xlab("Date") +
   ylab("Growth Since March 2022") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0,.5,1,1.5,2), limits = c(-0.2,2.1), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0,.5,1,1.5,2,2.5,3), limits = c(-0.2,3.1), expand = c(0,0)) +
   ggtitle("Growth Since March 2022") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Different Sources Give Wildly Different Stories of the Labor Market Since March") +
   theme_apricitas + theme(legend.position = c(.40,.90),axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-07-01")-(0.049*(today()-as.Date("2022-07-01"))), ymin = -0.2-(.3*2.3), ymax = -0.2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-10-01")-(.1861*(today()-as.Date("2022-10-01"))), xmax = as.Date("2022-10-01")-(0.049*(today()-as.Date("2022-10-01"))), ymin = -0.2-(.3*3.2), ymax = -0.2) +
   coord_cartesian(clip = "off")
 
 TOTAL_DISCREPANCY_32022_Graph <- ggplot(data = DISCREPANCY_MEGA_MERGE, aes(x = factor, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
@@ -86,15 +86,14 @@ TOTAL_DISCREPANCY_32022_Graph <- ggplot(data = DISCREPANCY_MEGA_MERGE, aes(x = f
   geom_col(stat = "identity", position = "stack", color = NA, width = 0.5) +
   xlab("Date") +
   ylab("Contribution to Gap") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0,.5,1,1.5,2), limits = c(-0.2,2.1), expand = c(0,0)) +
-  scale_x_continuous(limits = c(-0.5,2.25)) +
-  ggtitle("Breaking Down the Gap") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Gap Between Payrolls and Household Employment is Shrinking-as is the Discrepancy") +
-  theme_apricitas + theme(legend.position = c(.23,.60), axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0,.5,1,1.5,2,2.5), limits = c(-0.2,2.5), expand = c(0,0)) +
+  scale_x_continuous(limits = c(0.5,7.5), breaks = c(1,2,3,4,5,6,7), labels = c("April","May","June","July","August","September","October")) +
+  ggtitle("Breaking Down the Growth Gap") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Gap Between Payrolls and Household Employment Growth is Increasing Again") +
+  theme_apricitas + theme(legend.position = c(.23,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-07-01")-(0.049*(today()-as.Date("2022-07-01"))), ymin = -0.2-(.3*2.3), ymax = -0.2) +
+  annotation_custom(apricitas_logo_rast, xmin = 0.5-(.1861*7), xmax = 0.5-(0.049*7), ymin = -0.2-(.3*2.7), ymax = -0.2) +
   coord_cartesian(clip = "off")
-
 
 MULTIPLE_JOBHOLDERS_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data=MULTIPLE_JOBHOLDERS, aes(x=date,y= value/1000,color= "Multiple Jobholders"), size = 1.25)+ 
@@ -162,13 +161,65 @@ EMPLOYMENT_INDEX_Graph <- ggplot() + #indexed employment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 82-(.3*23), ymax = 82) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = MULTIPLE_JOBHOLDERS_Graph, "Multiple Jobholders.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+UNRATE <- fredr(series_id = "UNEMPLOY",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Unemployed")
+NILF <- fredr(series_id = "NILFWJN",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Not in Labor Force but Want a Job Now")
+PARTTIME <- fredr(series_id = "LNS12032194",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Part Time for Economic Reasons")
+LABOR_FORCE <- fredr(series_id = "CLF16OV",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Civilian Labor Force")
+
+UNDEREMPLOY <- rbind(UNRATE,NILF,PARTTIME,LABOR_FORCE) %>%
+  select(-series_id,-realtime_start,-realtime_end) %>%
+  pivot_wider() %>%
+  mutate(Unemployed = Unemployed/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  mutate(`Not in Labor Force but Want a Job Now` = `Not in Labor Force but Want a Job Now`/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  mutate(`Part Time for Economic Reasons` = `Part Time for Economic Reasons`/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  select(-`Civilian Labor Force`) %>%
+  #mutate(Aggregate = Unemployed + `Part Time for Economic Reasons` + `Not in Labor Force but Want a Job Now`) %>%
+  pivot_longer(cols = Unemployed:`Part Time for Economic Reasons`)
+  
+UNDEREMPLOY_Graph <- ggplot(data = UNDEREMPLOY, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Labor Force Plus and All Who Want a Job Now") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.05,.1,.15,.2,.25), limits = c(0,.27), expand = c(0,0)) +
+  ggtitle("Un and Under Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Looking at Underemployment Gives a Better Picture of the Labor Market") +
+  theme_apricitas + theme(legend.position = c(.43,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#00A99D","#A7ACD9","#3083DC"), breaks = c("Unemployed","Part Time for Economic Reasons","Not in Labor Force but Want a Job Now")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = 0-(.3*.27), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+  
+Immigrant_Arrivals <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/Employment%20Releases/110422/Labor%20Market%20Mystery/Immigrant_Arrivals.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  mutate(value = as.numeric(as.numeric(gsub(",","",Immigrant_Arrivals)))) %>%
+  drop_na()
+
+Immigrant_Arrivals_Graph <- ggplot() + #CPS with NFP adjusted concepts
+  geom_line(data = Immigrant_Arrivals, aes(x=Date, y = value/1000, color = "Immigrant Arrivals, Temporary Workers and Families"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "K"),limits = c(0,1250), breaks = c(0,250,500,750,1000,1250), expand = c(0,0)) +
+  ylab("Arrivals, Thousands, Quarterly") +
+  ggtitle("Coming Back") +
+  labs(caption = "Graph created by @JosephPolitano using ICE data",subtitle = "US Immigrant Arrivals are Increasing, Though Still Below Pre-COVID Levels") +
+  theme_apricitas + theme(legend.position = c(.65,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MULTIPLE_JOBHOLDERS_Graph, "Multiple Jobholders.png", type = "cairo-png",) #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = SELF_EMPLOYED_Graph, "Self Employed.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = AGRICULTURAL_Graph, "Agricultural.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EMPLOYMENT_Graph, "Employment.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EMPLOYMENT_INDEX_Graph, "Employment Indexed.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = PAYEMS_ELEV_CPSADJ_32022_Graph, "Payems Elev CPSADJ.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = TOTAL_DISCREPANCY_32022_Graph, "Total Discrepancy.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = Immigrant_Arrivals_Graph, "Immigrant Arrivals Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 
 p_unload(all)  # Remove all add-ons

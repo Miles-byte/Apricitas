@@ -775,6 +775,38 @@ RESIDENTIAL_BUILDING_Graph <- ggplot() + #plotting local government education em
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-10-01")-(.1861*(today()-as.Date("1998-10-01"))), xmax = as.Date("1998-10-01")-(0.049*(today()-as.Date("1998-01-01"))), ymin = 0.5-(.3*0.6), ymax = 0.5) +
   coord_cartesian(clip = "off")
 
+UNRATE <- fredr(series_id = "UNEMPLOY",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Unemployed")
+NILF <- fredr(series_id = "NILFWJN",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Not in Labor Force but Want a Job Now")
+PARTTIME <- fredr(series_id = "LNS12032194",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Part Time for Economic Reasons")
+LABOR_FORCE <- fredr(series_id = "CLF16OV",observation_start = as.Date("1995-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(name = "Civilian Labor Force")
+
+UNDEREMPLOY <- rbind(UNRATE,NILF,PARTTIME,LABOR_FORCE) %>%
+  select(-series_id,-realtime_start,-realtime_end) %>%
+  pivot_wider() %>%
+  mutate(Unemployed = Unemployed/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  mutate(`Not in Labor Force but Want a Job Now` = `Not in Labor Force but Want a Job Now`/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  mutate(`Part Time for Economic Reasons` = `Part Time for Economic Reasons`/(`Civilian Labor Force`+`Not in Labor Force but Want a Job Now`)) %>%
+  select(-`Civilian Labor Force`) %>%
+  #mutate(Aggregate = Unemployed + `Part Time for Economic Reasons` + `Not in Labor Force but Want a Job Now`) %>%
+  pivot_longer(cols = Unemployed:`Part Time for Economic Reasons`)
+
+UNDEREMPLOY_Graph <- ggplot(data = UNDEREMPLOY, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Labor Force Plus and All Who Want a Job Now") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.05,.1,.15,.2,.25), limits = c(0,.27), expand = c(0,0)) +
+  ggtitle("Un and Under Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Looking at Underemployment Gives a Better Picture of the Labor Market") +
+  theme_apricitas + theme(legend.position = c(.43,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#00A99D","#A7ACD9","#3083DC"), breaks = c("Unemployed","Part Time for Economic Reasons","Not in Labor Force but Want a Job Now")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = 0-(.3*.27), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -820,6 +852,7 @@ ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", w
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = RESIDENTIAL_BUILDING_Graph, "Residential Building Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 
