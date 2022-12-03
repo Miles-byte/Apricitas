@@ -179,6 +179,7 @@ TECH_LAYOFFS_Graph <- ggplot() + #plotting total quits and layoffs
 ggsave(dpi = "retina",plot = TECH_LAYOFFS_Graph, "Tech Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
+
 cat("\014")  # ctrl+L
 
 rm(list = ls())
