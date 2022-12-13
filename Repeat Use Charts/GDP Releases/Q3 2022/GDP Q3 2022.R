@@ -241,7 +241,7 @@ RGDO_Graph <- ggplot() +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 1),limits = c(17,21), breaks = c(17,18,19,20,21), expand = c(0,0)) +
   ylab("Trillions of 2012 US Dollars") +
   ggtitle("Is the US Economy Shrinking?") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "'Equivalent' Official Measures of Aggregate Output Are Diverging") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Measures of Output Show Extremely Weak Growth So Far This Year") +
   theme_apricitas + theme(legend.position = c(.40,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"), breaks = c("Real GDP","Real GDI","Real GDO (Average of GDP and GDI)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 17-(.3*4), ymax = 17) +

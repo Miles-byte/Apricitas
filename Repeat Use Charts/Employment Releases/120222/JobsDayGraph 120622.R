@@ -88,7 +88,7 @@ EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"
 
 LAH <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Leisure and Hospitality Data
 U1RATE <- fredr(series_id = "U1RATE",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #u1Rate Extended Unemployment Data
-LGOVED <- fredr(series_id = "CES9093161101",observation_start = as.Date("2019-10-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
+LGOVED <- fredr(series_id = "CES9093161101",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
 PARTTIME <- fredr(series_id = "LNS12032194",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #Part Time For Economic Reasons Level
 TRNSPT <- fredr(series_id = "CES4300000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Transportation and Warehousing, All Employees
 FOODSERV <- fredr(series_id = "CES7072000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
@@ -572,7 +572,7 @@ LGOVED_Graph <- ggplot() + #plotting local government education employment
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Local Government Education Employment Still Lags") +
   theme_apricitas + theme(legend.position = c(.65,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-10-01")-(.1861*(today()-as.Date("2019-10-01"))), xmax = as.Date("2019-10-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 7-(.3*1.5), ymax = 7) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 7-(.3*1.5), ymax = 7) +
   coord_cartesian(clip = "off")
 
 FOODSERV_Graph <- ggplot() + #plotting food service and accommodation employment
@@ -733,7 +733,7 @@ ECIPRIVWAG_Monthly <- seq(ECIPRIVWAG$date[1], tail(ECIPRIVWAG$date,1), by="month
 ECIPRIVWAG_Monthly <- data.frame(date=ECIPRIVWAG_Monthly, value=spline(ECIPRIVWAG, method="fmm", xout=ECIPRIVWAG_Monthly)$y)
 
 ELEV_PRIVATE <- fredr(series_id = "LNS12032189",observation_start = as.Date("2017-10-01"), frequency = "m", aggregation_method = "eop") #%>%
-  #mutate(date = date %m+% months(3))#downloading "Employment Level - 25-54 Yrs" data from Fred to calculate Gross Labor Income using a second method
+#mutate(date = date %m+% months(3))#downloading "Employment Level - 25-54 Yrs" data from Fred to calculate Gross Labor Income using a second method
 GLI_BLS <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01")) #downloading "All Employees, Total Nonfarm" data from Fred to calculate Gross Labor Income using a third method
 
 GLI_CPS_NCS <- merge(ECIPRIVWAG_Monthly,ELEV_PRIVATE, by = "date") #merging ECI and EPOP data for the second GLI calculation method
@@ -748,11 +748,11 @@ GLI_Graph <- ggplot() +
   geom_line(data = GLI_BLS, aes(x=date, y = value/151.4*100, color = "Nominal Private Sector Gross Labor Income: NFP Method"), size = 1.25) +
   geom_line(data = GLITrend, aes(x=date, y = trend, color = "Pre-Covid 5% Annual GLI Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(limits = c(80,120), breaks = c(80,85,90,95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(limits = c(80,120), breaks = c(80,85,90,95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index, January 2020 = 100") +
   ggtitle("Gross Labor Income") +
-  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income is Likely Slightly Above Trend, but Growth is Slowing a Bit") +
-  theme_apricitas + theme(legend.position = c(.40,.88)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "Gross Labor Income is Likely Slightly Above Trend, as is Growth") +
+  theme_apricitas + theme(legend.position = c(.37,.88)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,1,2), lwd = c(1.25,1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 80-(.3*40), ymax = 80) +
@@ -805,6 +805,173 @@ UNDEREMPLOY_Graph <- ggplot(data = UNDEREMPLOY, aes(x = date, y = value, fill = 
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#00A99D","#A7ACD9","#3083DC"), breaks = c("Unemployed","Part Time for Economic Reasons","Not in Labor Force but Want a Job Now")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = 0-(.3*.27), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+#Yoy Change in Employment
+EMPLOY_TRADE_TRANSP_UTIL <- fredr(series_id = "USTPU",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Trade, Transportation, and Utilities")
+EMPLOY_PROF_BUSINESS_SERVICES <- fredr(series_id = "USPBS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Professional and Business Services")
+EMPLOY_EDU_HEALTH_SERVICES <- fredr(series_id = "USEHS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Education and Health Services")
+EMPLOY_LEISURE_HOSPITALITY <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Leisure and Hospitality") 
+EMPLOY_GOODS <- fredr(series_id = "USGOOD",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Goods-Producing")
+EMPLOY_GOVT <- fredr(series_id = "USGOVT",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Government")
+EMPLOY_OTHER_SERVICES <- rbind(fredr(series_id = "USINFO",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
+                               fredr(series_id = "USFIRE",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
+                               fredr(series_id = "USSERV",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1")) %>%
+                        select(date,series_id,value) %>%
+                        pivot_wider(names_from = series_id) %>%
+                        transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info")
+
+EMPLOY_GROWTH_YOY <- rbind(EMPLOY_TRADE_TRANSP_UTIL,EMPLOY_PROF_BUSINESS_SERVICES,EMPLOY_EDU_HEALTH_SERVICES,EMPLOY_LEISURE_HOSPITALITY,EMPLOY_GOODS,EMPLOY_GOVT,EMPLOY_OTHER_SERVICES) %>%
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
+  
+EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Jobs Growth, YoY, Millions") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-10,0,10), limits = c(-20.5,15), expand = c(0,0)) +
+  ggtitle("The Shape of Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Job Growth is Broad-Based, With All Major Industries Posting Gains") +
+  theme_apricitas + theme(legend.position = c(.825,.30)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  theme(legend.text = element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -20-(.3*35.5), ymax = -20.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_YOY_graph, "Employ Growth YoY.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#Employ Index
+EMPLOY_TRADE_TRANSP_UTIL_IND <- fredr(series_id = "USTPU",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Trade, Transportation, and Utilities") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_PROF_BUSINESS_SERVICES_IND <- fredr(series_id = "USPBS",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Professional and Business Services") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_EDU_HEALTH_SERVICES_IND <- fredr(series_id = "USEHS",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Education and Health Services") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_LEISURE_HOSPITALITY_IND <- fredr(series_id = "USLAH",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Leisure and Hospitality") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_GOODS_IND <- fredr(series_id = "USGOOD",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Goods-Producing") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_GOVT_IND <- fredr(series_id = "USGOVT",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
+  select(date, value, series_id) %>%
+  mutate(series_id = "Government") %>%
+  mutate(value = (value-value[1]))
+EMPLOY_OTHER_SERVICES_IND <- rbind(fredr(series_id = "USINFO",observation_start = as.Date("2020-01-01"), realtime_end = NULL),
+                               fredr(series_id = "USFIRE",observation_start = as.Date("2020-01-01"), realtime_end = NULL),
+                               fredr(series_id = "USSERV",observation_start = as.Date("2020-01-01"), realtime_end = NULL)) %>%
+  select(date,series_id,value) %>%
+  pivot_wider(names_from = series_id) %>%
+  transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info") %>%
+  mutate(value = (value-value[1]))
+
+EMPLOY_GROWTH_IND <- rbind(EMPLOY_TRADE_TRANSP_UTIL_IND,EMPLOY_PROF_BUSINESS_SERVICES_IND,EMPLOY_EDU_HEALTH_SERVICES_IND,EMPLOY_LEISURE_HOSPITALITY_IND,EMPLOY_GOODS_IND,EMPLOY_GOVT_IND,EMPLOY_OTHER_SERVICES_IND) %>%
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
+
+EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Millions of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,5), expand = c(0,0)) +
+  ggtitle("The Shape of Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Most New Jobs are In Trade and Professional Services, Most Lost Jobs are in Leisure & Hospitality") +
+  theme_apricitas + theme(legend.position = c(.75,.35)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_IND_graph, "Employ Growth IND.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#CES CPS QCEW GRAPH
+
+CES_2022 <- bls_api("CEU0000000001", startyear = 2022) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1]))
+
+CPS_ADJ_2022 <- bls_api("LNU06000000", startyear = 2022) %>% #headline CPS NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1]))
+
+QCEW_2022 <- bls_api("ENUUS00010010", startyear = 2022) %>% #headline QCEW INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1]))
+
+CES_CPS_QCEW_Graph <- ggplot() +
+  geom_line(data = CES_2022, aes(x=date, y = value/1000, color = "CES"), size = 1.25) + 
+  geom_line(data = CPS_ADJ_2022, aes(x=date, y = value/1000, color = "CPS Adjusted to CES Concepts"), size = 1.25) + 
+  geom_line(data = QCEW_2022, aes(x=date, y = value/1000000, color = "QCEW"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(0,8), breaks = c(0,2,4,6,8), expand = c(0,0)) +
+  ylab("Growth Since Jan 2022, NSA") +
+  ggtitle("The Labor Market Mystery Deepens") +
+  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "QCEW Data, Broadly, Agrees with CES More than CPS So Far This Year") +
+  theme_apricitas + theme(legend.position = c(.40,.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-15")-(.1861*(today()-as.Date("2022-01-15"))), xmax = as.Date("2022-01-15")-(0.049*(today()-as.Date("2022-01-15"))), ymin = 0-(.3*8), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CES_CPS_QCEW_Graph, "CES CPS QCEW Comparison.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#truck and warehouse employment
+TRUCK_EMPLOY <- fredr(series_id = "CES4348400001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+WAREHOUSE_EMPLOY <- fredr(series_id = "CES4349300001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+TRUCK_WAREHOUSE_GRAPH <- ggplot() + #plotting local government education employment
+  geom_line(data=TRUCK_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Truck Transportation"), size = 1.25)+ 
+  geom_line(data=WAREHOUSE_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Warehousing and Storage"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8), limits = c(1.1,1.8), expand = c(0,0)) +
+  ggtitle("The Transport Taper") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Warehousing Employment is Falling and Trucking Employment is Stagnating") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.1-(.3*0.7), ymax = 1.1) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TRUCK_WAREHOUSE_GRAPH, "Truck Warehouse Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+#temp help services employment
+EMPLOY_TEMP_HELP_SERVICES <- fredr(series_id = "TEMPHELPS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+EMPLOY_TEMP_HELP_SERVICES_GRAPH <- ggplot() + #plotting local government education employment
+  geom_line(data=EMPLOY_TEMP_HELP_SERVICES, aes(x=date,y= value/1000,color= "All Employees, Temporary Help Services"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Millions of Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(2,2.5,3), limits = c(1.9,3.25), expand = c(0,0)) +
+  ggtitle("Temporary Trouble") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Temporary Help Services Employment, an Important Leading Indicator, is Slightly Dropping") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.9-(.3*1.35), ymax = 1.9) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing

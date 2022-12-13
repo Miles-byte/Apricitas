@@ -1,10 +1,8 @@
-pacman::p_load(quantmod,tidyquant,datetime,yearmon,lubridate,readr,stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(httr,quantmod,tidyquant,datetime,yearmon,lubridate,readr,stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 pacman::p_load(eia)
 library(eia)
-
-remove.packages("eia")
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -86,7 +84,7 @@ Capital_Discipline <- data.frame(answer = c("Capital Discipline","Other","ESG Is
 Capital_Discipline$answer <- factor(Capital_Discipline$answer, levels = c("Government Regulations","Lack of Access to Financing","ESG Issues","Other","Capital Discipline"), ordered = TRUE)
 
 #modeled crude production and real production data
-Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W.", start = "2019")
+Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W", start = "2019")
 Crude_ProductionWeekly <- as.data.frame(Crude_ProductionWeekly$data)
 Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
 Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
@@ -248,7 +246,7 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Gasoline Spreads Have Eased-But Diesel and Jet Fuel Spreads Remain High") +
-  theme_apricitas + theme(legend.position = c(.65,.80)) +
+  theme_apricitas + theme(legend.position = c(.6,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -10-(.3*135), ymax = -10) +
   coord_cartesian(clip = "off")

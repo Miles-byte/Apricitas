@@ -101,7 +101,7 @@ RUSSIA_BCI_CREDIT_graph <- ggplot() + #plotting Russian Credit Conditions
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
   ylab("Net Percent Improving") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.50,-.40,-.30,-.20,-.10,0,.10), limits = c(-.60,.15), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.60,-.50,-.40,-.30,-.20,-.10,0,.10), limits = c(-.60,.15), expand = c(0,0)) +
   ggtitle("Tightening Up") +
   labs(caption = "Graph created by @JosephPolitano using Central Bank of Russia Data", subtitle = "Russian Credit Conditions Collapsed When Sanctions Began, and Haven't Improved") +
   theme_apricitas + theme(legend.position = c(.38,.20)) +
@@ -134,11 +134,48 @@ RUSSIA_IDPRO_ANNUAL_COMPLEX_graph <- ggplot() + #plotting industrial production 
 
 ggsave(dpi = "retina",plot = RUSSIA_IDPRO_ANNUAL_COMPLEX_graph, "Russia IDPRO ANNUAL COMPLEX.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
-#Russia
-RUSSIA_IDPRO_MON_HEADLINE <- read.csv("https://github.com/Miles-byte/Apricitas/blob/main/Russia's%20Recession/RU_IDPRO_ANNUAL.csv") %>%
-  select(Name.OKVED2,Production.of.household.appliances,Production.of.vehicles,Production.of.components.and.accessories.for.vehicles,Production.of.vehicles.and.equipment.not.included.in.other.groups)
+#Russia IDPRO Headline Monthly
+RUSSIA_IDPRO_MON_HEADLINE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Russia's%20Recession/RU_IDPRO_MON.csv") %>%
+  select(Date,General.gas.production.and.gas.condensate,Oil.and.oil..associated..gas.production,Production.production) %>%
+  mutate(Date = as.Date(Date))
 
+RUSSIA_IDPRO_MON_HEADLINE_graph <- ggplot() + #plotting russian Monthly Industrial Production Data
+  geom_line(data=RUSSIA_IDPRO_MON_HEADLINE, aes(x=Date,y= General.gas.production.and.gas.condensate/100,color= "Natural Gas and Condensate"), size = 1.25)+ 
+  geom_line(data=RUSSIA_IDPRO_MON_HEADLINE, aes(x=Date,y= Oil.and.oil..associated..gas.production/100,color= "Oil"), size = 1.25)+ 
+  geom_line(data=RUSSIA_IDPRO_MON_HEADLINE, aes(x=Date,y= Production.production/100,color= "Manufacturing"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Year-on-Year Growth") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.15,-.10,-0.05,0,0.05,0.1,0.15,0.2,0.25), limits = c(-.175,.20), expand = c(0,0)) +
+  ggtitle("Russia's Recession") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Russian Oil, Gas, and Manufacturing Output are All Declining") +
+  theme_apricitas + theme(legend.position = c(.3,.17)) +
+  scale_color_manual(name= "Industrial Production, Change From Year Ago",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -.175-(.3*.375), ymax = -.175) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = RUSSIA_IDPRO_MON_HEADLINE_graph, "Russia IDPRO MON HEADLINE.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#Oil and Gas Revenues
+RUSSIA_OIL_GAS_REV <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/5488aefd7759ac03292b1469febfe9861a60bb45/Russia's%20Recession/Oil_Gas_Revenues.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  mutate(Oil_Gas_Rev = gsub(",","",Oil_Gas_Rev)) %>%
+  mutate(Oil_Gas_Rev = as.numeric(Oil_Gas_Rev))
+
+RUSSIA_OIL_GAS_REV_graph <- ggplot() + #plotting russian gas data
+  geom_line(data=RUSSIA_OIL_GAS_REV, aes(x=Date,y= Oil_Gas_Rev/1000000,color= "Volume of Shipped Russian Crude Oil and Natural Gas Production"), size = 1.25)+ 
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Trillions of 2016 Rubles") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.5, prefix = "₽", suffix = "T"), breaks = c(0,0.5,1,1.5,2,2.5), limits = c(0,2.75), expand = c(0,0)) +
+  ggtitle("The Russian Recession") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Ruble-Denominated Crude and Gas Revenues Have Fallen Near Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.42,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-02-01")-(.1861*(today()-as.Date("2017-02-01"))), xmax = as.Date("2017-02-01")-(0.049*(today()-as.Date("2017-02-01"))), ymin = 0-(.3*2.75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RUSSIA_OIL_GAS_REV_graph, "Russia Oil Gas Rev Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 cat("\014")  # ctrl+L
 
