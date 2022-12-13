@@ -495,11 +495,11 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Used Cars and Trucks Experienced Unprecedented Price Increases") +
   theme_apricitas + theme(legend.position = c(.45,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
-  mutate(date = as.Date(date))
+  mutate(date = as.Date(date, "%m/%d/%Y"))
 
 CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
   geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/141)*100 ,color= "CPI: Used Cars and Trucks"), size = 1.25) +
@@ -519,13 +519,13 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   subset(RegionName == "United States") %>%
   transpose() %>%
   `colnames<-`(.[1, ]) %>%
-  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2022-09-01"), "months"))) %>%
+  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2022-11-01"), "months"))) %>%
   .[-1, ] %>%
   mutate(`United States` = as.numeric(`United States`)) %>%
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))
 
 ApartmentList <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/apartmentlist.csv") %>%
-  mutate(date = as.Date(date))
+  mutate(date = as.Date(date, "%m/%d/%Y"))
   
 CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "CPI Rent: Annual Percentage Growth"), size = 1.25) +
@@ -559,13 +559,13 @@ CPI_Rent_Month <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Gr
   geom_line(data=CPIRENTmonth, aes(x=date,y= (value/100) ,color= "CPI Rent: Monthly Percentage Growth"), size = 1.25) +
   geom_line(data=CPIOERmonth, aes(x=date,y= (value/100) ,color= "CPI Owner's Equivalent Rent: Monthly Percentage Growth"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(0,.0080), breaks = c(0,.0025,0.005,.0075), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(0,.0090), breaks = c(0,.0025,0.005,.0075), expand = c(0,0)) +
   ylab("Monthly Percent Growth, %") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Housing Price Growth is Accelerating") +
   theme_apricitas + theme(legend.position = c(.40,.80)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("CPI Rent: Monthly Percentage Growth","CPI Owner's Equivalent Rent: Monthly Percentage Growth")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.0085), ymax = 0.00) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.009), ymax = 0.00) +
   coord_cartesian(clip = "off")
 
 CPI_Core_Month <- ggplot() + #plotting core and headline monthly Price Growth
@@ -618,7 +618,7 @@ CPI_GAS <- ggplot() + #plotting gasoline price index against WTI prices
   ylab("Index, January 2019 = 100") +
   ggtitle("The Energy Crunch") +
   labs(caption = "Graph created by @JosephPolitano using BLS, EIA, and Yahoo! Finance data",subtitle = "Oil and Gas Prices Are Pulling Back A Bit From Their Highs") +
-  theme_apricitas + theme(legend.position = c(.50,.70)) +
+  theme_apricitas + theme(legend.position = c(.30,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 50-(.3*225), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
