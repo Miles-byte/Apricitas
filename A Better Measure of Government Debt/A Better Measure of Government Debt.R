@@ -10,7 +10,7 @@ FedNet <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/
 JPNNGDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/JPNNGDP.csv")
 JPNDebtQE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/Japan_Debt_QE.csv")
 
-EnglandDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/England_Debt.csv")
+EnglandDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/England_Debt_1.csv")
 
 GermanDebt <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/A%20Better%20Measure%20of%20Government%20Debt/German_Debt.csv")
 

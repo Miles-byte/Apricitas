@@ -708,6 +708,55 @@ CPI_LESS_ALL_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.09), ymax = 0.0) +
   coord_cartesian(clip = "off")
 
+#PCE and Payrolls Index Graphs
+PCE1YR <- fredr(series_id = "PCE",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #PCE growth 1yr
+INDEXAGG1YR <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #Index Aggregate 1yr
+
+NOMINAL_GROWTH_YOY_graph <- ggplot() + #plotting spending
+  annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.035, ymax = 0.055, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE1YR, aes(x=date,y= value/100 ,color= "Personal Consumption Expenditures"), size = 1.25) +
+  geom_line(data=INDEXAGG1YR, aes(x=date,y= value/100 ,color= "Index of Aggregate Weekly Payrolls"), size = 1.25) +
+  annotate("text", label = "Income/Spending Growth Approximately", x = as.Date("2019-06-01"), y = 0.11, color = "#EE6055", alpha = 0.6, size = 5) +
+  annotate("text", label = "Consistent With 2% Inflation Target", x = as.Date("2019-06-01"), y = 0.08, color = "#EE6055", alpha = 0.6, size = 5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.16,.31), breaks = c(-.15,-.10,-0.05,0,0.05,0.10,.15,.20,.25,.30), expand = c(0,0)) +
+  ylab("Year on Year Growth, %") +
+  ggtitle("Slowing the Pace of Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Tighter Monetary Policy is Pulling Down Growth in Income and Spending Aggregates") +
+  theme_apricitas + theme(legend.position = c(.30,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.16-(.3*0.47), ymax = -.16) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NOMINAL_GROWTH_YOY_graph, "Nominal Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+#3month annualized growth
+PCE3MOAN <- fredr(series_id = "PCE",observation_start = as.Date("2017-10-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(qtrpct = (1+(value-lag(value,3))/lag(value,3))^4-1)  #PCE growth
+INDEXAGG3MOANN <- fredr(series_id = "CES0500000017",observation_start = as.Date("2017-10-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(qtrpct = (1+(value-lag(value,3))/lag(value,3))^4-1) 
+  #Index Aggregate
+
+NOMINAL_GROWTH_3moann <- ggplot() + #plotting spending
+  annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.04, ymax = 0.05, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE3MOAN, aes(x=date,y= qtrpct ,color= "Personal Consumption Expenditures"), size = 1.25) +
+  geom_line(data=INDEXAGG3MOANN, aes(x=date,y= qtrpct ,color= "Index of Aggregate Weekly Payrolls"), size = 1.25) +
+  annotate("text", label = "Income/Spending Growth Approximately", x = as.Date("2019-06-01"), y = 0.11, color = "#EE6055", alpha = 0.6, size = 5) +
+  annotate("text", label = "Consistent With 2% Inflation Target", x = as.Date("2019-06-01"), y = 0.08, color = "#EE6055", alpha = 0.6, size = 5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.16,.31), breaks = c(-.15,-.10,-0.05,0,0.05,0.10,.15,.20,.25,.30), expand = c(0,0)) +
+  ylab("Year on Year Growth, %") +
+  ggtitle("Slowing the Pace of Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Tighter Monetary Policy is Pulling Down Growth in Income and Spending Aggregates") +
+  theme_apricitas + theme(legend.position = c(.30,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.16-(.3*0.47), ymax = -.16) +
+  coord_cartesian(clip = "off")
+
+
 #Saving png images of all graphs
 ggsave(dpi = "retina",plot = CPI_Graph, "CPI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
