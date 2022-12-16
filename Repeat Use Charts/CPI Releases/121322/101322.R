@@ -205,6 +205,7 @@ CPI_CONTRIBUTION <- rbind(CPI_Indices,Relative_Importance) %>%
   mutate_cond(Category == "Services_LE" & date < as.Date("2022-01-01") & date > as.Date("2020-01-01"), Relative_Importance = Index_NSA/341.347*59.387) %>%
   mutate_cond(Category == "Services_LE" & date > as.Date("2022-01-01"), Relative_Importance = Index_NSA/359.559*57.583)
 
+write.csv(CPI_CONTRIBUTION, "RI and Contrib.csv")
 #making updated relative importance calculations
 CPI_RI_FINAL_CALCULATIONS <- pivot_wider(select(CPI_CONTRIBUTION, - Index_NSA), names_from = "Category", values_from = Relative_Importance) %>%
   mutate(Food = Food/All*100) %>%
@@ -236,7 +237,6 @@ CPI_SERV_LE_SA <- fredr(series_id = "CUSR0000SASLE",observation_start = as.Date(
 
 CPI_Indices_SA <- rbind(CPI_ALL_SA,CPI_FOOD_SA,CPI_ENERGY_SA,CPI_COM_LFE_SA,CPI_SERV_LE_SA)
 
-#NOTE: NEED TO RECALCULATE TO ACCOUNT FOR SLIGHT ADJUSTMENTS MADE BY BIANNUAL WEIGHT REBALANCING
 CPI_CONTRIBUTION_FINAL <- CPI_CONTRIBUTION %>%
   mutate(Index_SA = CPI_Indices_SA$value) %>%
   mutate(Monthly_Contribution_NSA = (Index_NSA/lag(Index_NSA))*lag(Relative_Importance)-lag(Relative_Importance)) %>%
@@ -716,7 +716,7 @@ NOMINAL_GROWTH_YOY_graph <- ggplot() + #plotting spending
   annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.035, ymax = 0.055, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data=PCE1YR, aes(x=date,y= value/100 ,color= "Personal Consumption Expenditures"), size = 1.25) +
-  geom_line(data=INDEXAGG1YR, aes(x=date,y= value/100 ,color= "Index of Aggregate Weekly Payrolls"), size = 1.25) +
+  geom_line(data=INDEXAGG1YR, aes(x=date,y= value/100 ,color= "Index of Aggregate Private Weekly Payrolls"), size = 1.25) +
   annotate("text", label = "Income/Spending Growth Approximately", x = as.Date("2019-06-01"), y = 0.11, color = "#EE6055", alpha = 0.6, size = 5) +
   annotate("text", label = "Consistent With 2% Inflation Target", x = as.Date("2019-06-01"), y = 0.08, color = "#EE6055", alpha = 0.6, size = 5) +
   xlab("Date") +
