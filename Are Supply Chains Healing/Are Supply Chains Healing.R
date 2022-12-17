@@ -14,7 +14,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 #adding NY Fed global supply chains index data
 GSCPI <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Are%20Supply%20Chains%20Healing/gscpi_data.csv") %>%
-  mutate(date = ï..date) %>%
+  mutate(date = ?..date) %>%
   mutate(date = as.Date(date))
 
 #adding OTI data
@@ -24,11 +24,11 @@ OTI <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Are
 
 #adding Atlanta Fed BIE data
 BIE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Are%20Supply%20Chains%20Healing/bie.csv") %>%
-  mutate(date = as.Date(ï..dates))
+  mutate(date = as.Date(?..dates))
 
 #adding GSPC data
 QSPC <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Are%20Supply%20Chains%20Healing/Compiled_QSPC.csv") %>%
-  mutate(date = paste(ï..Year,"Q",Quarter)) %>%
+  mutate(date = paste(Year,"Q",Quarter)) %>%
   mutate(date = as.Date(as.yearqtr(date, format = "%Y Q %q"))) %>%
   mutate(Value = as.numeric(Value))
 
@@ -146,7 +146,7 @@ QSPC_Demand_Graph <- ggplot() + #plotting BIE
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.90), breaks = c(0,.20,.40,.60,.80), expand = c(0,0)) +
   ylab("Index") +
   ggtitle("Supply and Demand Chains") +
-  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data",subtitle = "Firms Aren't Complaining About a Shortage of Orders As Much as Before the Pandemic") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Firms Aren't Complaining About a Shortage of Orders As Much as Before the Pandemic") +
   theme_apricitas + theme(legend.position = c(.50,.5)) +
   scale_color_manual(name= "Reasons for Plant Capacity Under-utilization",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-04-01")))), ymin = 0-(.3*.90), ymax = 0) +

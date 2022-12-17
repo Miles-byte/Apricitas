@@ -463,11 +463,11 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short and Long Term Inflation Expectations are Within a Level Consistent with the Fed's Target") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short and Long Term Inflation Expectations are Below a Level Consistent with the Fed's Target") +
   theme_apricitas + theme(legend.position = c(.40,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*.038), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today() - as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today() - as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) +
   coord_cartesian(clip = "off")
 
 UNRATE <- fredr(series_id = c("UNRATE"), units ="ch1")

@@ -266,8 +266,8 @@ WTI_Graph <- ggplot() + #plotting Crude Futures
 
 WTI_STEO_Graph <- ggplot() + #plotting Crude Futures
   annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 20, color = "#EE6055", size = 5, alpha = 0.6) +
-  annotate("text", label = "SPR Refill Target", x = as.Date("2023-03-25"), y = 78, color = "white", size = 5) +
+  annotate("text", label = "Forecast", x = as.Date("2022-05-30"), y = 20, color = "#EE6055", size = 5, alpha = 0.6) +
+  annotate("text", label = "SPR Refill Target", x = as.Date("2023-05-15"), y = 62, color = "white", size = 4.85) +
   annotate("segment", x = floor_date(as.Date(today() -33), "month"), xend = as.Date("2023-12-01"), y = 72, yend = 72, linetype = "dashed", color = "white", size = 1.25) +
   annotate("segment", x = floor_date(as.Date(today() -33), "month"), xend = as.Date("2023-12-01"), y = 67, yend = 67, linetype = "dashed", color = "white", size = 1.25) +
   geom_line(data=drop_na(STEO_WTI), aes(x=date,y= value, color= "Crude Oil (WTI)"), size = 1.25) +
@@ -362,12 +362,12 @@ CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
   coord_cartesian(clip = "off")
 
 OPEC_Crude_Production_STEO <- eia_series("STEO.PAPR_OPEC.M", start = "2019", end = "2026")
-OPEC_Crude_Production_STEO <- as.data.frame(OPEC_Crude_Production$data)
+OPEC_Crude_Production_STEO <- as.data.frame(OPEC_Crude_Production_STEO$data)
 
 OPEC_Crude_Production_STEO_Graph <- ggplot() + #plotting US Crude Production
   annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 27.5, color = "#EE6055", size = 5, alpha = 0.6) +
-  geom_line(data=OPEC_Crude_Production, aes(x=date,y= value, color= "OPEC Crude Oil Production"), size = 1.25) +
+  geom_line(data=OPEC_Crude_Production_STEO, aes(x=date,y= value, color= "OPEC Crude Oil Production"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(25,40),breaks = c(25,30,35,40), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
@@ -396,7 +396,7 @@ US_Solar_Wind_Graph <- ggplot() + #plotting US Crude Production
   geom_line(data=Solar_Merge_STEO, aes(x=date,y= (value.x + value.y)/1000, color= "US Large and Small Scale Solar Power Capacity"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " GW", accuracy = 1), limits = c(0,160),breaks = c(0,50,100,150), expand = c(0,0)) +
-  ylab("Mbbl Per Day") +
+  ylab("Capacity, GW") +
   ggtitle("The Long Term Transition") +
   labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "US Renewable Power Capacity is Growing Rapidly") +
   theme_apricitas + theme(legend.position = c(.35,.93)) +
