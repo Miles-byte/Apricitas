@@ -117,7 +117,7 @@ REDFIN_RENT_OWN <- read.csv("https://raw.githubusercontent.com/Miles-byte/Aprici
   mutate(Average_Mortgage = gsub("\\$","",.$Average_Mortgage)) %>%
   mutate(Average_Mortgage = as.numeric(Average_Mortgage)) %>%
   mutate(Average_Rent = as.numeric(Average_Rent)) %>%
-  mutate(date = as.Date(ï..Date))
+  mutate(date = as.Date(?..Date))
   
 
 RENT_ABC_Graph<- ggplot() + #plotting rent by A/B/C City Size
@@ -429,7 +429,7 @@ SFH_STARTS_COMPS_Graph <- ggplot() + #plotting SF and MF housing
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
   ggtitle("Demand Destruction") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped Nearly 25% as Mortgage Rates Rose") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped 30% as Mortgage Rates Rose") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Single-Family Housing Starts","Single-Family Housing Completions")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -471,6 +471,23 @@ THIRTY_YEAR_FIXED_Graph <- ggplot() + #plotting growth in total housing units
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7250), xmax = as.Date("2000-01-01")-(0.049*7250), ymin = 0-(.3*.09), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+#redfin list price graph
+REDFIN_LIST_PRICE <- fredr(series_id = "MEDLISPRIPERSQUFEEUS")
+
+REDFIN_LIST_PRICE_Graph <- ggplot() + #plotting redfin data
+  geom_line(data=REDFIN_LIST_PRICE, aes(x=date,y= value, color= "Redfin Median Listing Price per Square Feet in the United States"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1), limits = c(100,250), expand = c(0,0)) +
+  ylab("Dollars, Monthly") +
+  ggtitle("Cooling Off") +
+  labs(caption = "Graph created by @JosephPolitano using Redfin data",subtitle = "Listing Prices are Declining as Mortgage Rates Rise") +
+  theme_apricitas + theme(legend.position = c(.45,.92)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-07-01")-(.1861*(today()-as.Date("2016-07-01"))), xmax = as.Date("2016-07-01")-(0.049*(today()-as.Date("2016-07-01"))), ymin = 100-(.3*150), ymax = 100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REDFIN_LIST_PRICE_Graph, "Redfin Listing Prices.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ggsave(dpi = "retina",plot = THIRTY_YEAR_FIXED_Graph, "Thirty Year Fixed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

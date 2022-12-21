@@ -534,7 +534,7 @@ CPI_Rent <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.08), breaks = c(0,.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08), expand = c(0,0)) +
   ylab("Percent Change From a Year Ago, %") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Housing Price Growth iS Extremely High") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "CPI Housing Price Growth is Extremely High") +
   theme_apricitas + theme(legend.position = c(.40,.20)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent: Annual Percentage Growth","CPI Owner's Equivalent Rent: Annual Percentage Growth")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.08), ymax = 0.00) +
@@ -546,13 +546,13 @@ CPI_Rent_Zillow <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price G
   geom_line(data=subset(ZORI, date > as.Date("2018-03-01")), aes(x=date+365,y= (`United States`) ,color= "Zillow Observed Rent Index, Lagged 1 Year"), size = 1.25) +
   geom_line(data=subset(ApartmentList, date > as.Date("2018-03-01")), aes(x=date+365,y= annualpct ,color= "ApartmentList Median New Lease, Lagged 1 Year"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.20), breaks = c(0,.05,0.1,0.15,0.2), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.025,.20), breaks = c(0,.05,0.1,0.15,0.2), expand = c(0,0)) +
   ylab("Percent Change From a Year Ago, %") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS,Zillow, and ApartmentList data",subtitle = "Whether Rent Growth Actually Peaks Will Be Critical to Future Inflation Prints") +
   theme_apricitas + theme(legend.position = c(.35,.70)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent","CPI Owner's Equivalent Rent","Zillow Observed Rent Index, Lagged 1 Year","ApartmentList Median New Lease, Lagged 1 Year")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+365-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+365-as.Date("2019-01-01"))), ymin = 0-(.3*0.20), ymax = 0.00) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+365-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+365-as.Date("2019-01-01"))), ymin = -0.025-(.3*0.225), ymax = -0.025) +
   coord_cartesian(clip = "off")
 
 CPI_Rent_Month <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
