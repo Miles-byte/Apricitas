@@ -166,7 +166,7 @@ RUSSIA_OIL_GAS_REV_graph <- ggplot() + #plotting russian gas data
   geom_line(data=RUSSIA_OIL_GAS_REV, aes(x=Date,y= Oil_Gas_Rev/1000000,color= "Volume of Shipped Russian Crude Oil and Natural Gas Production"), size = 1.25)+ 
   geom_area(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Trillions of 2016 Rubles") +
+  ylab("Trillions of Rubles") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 0.5, prefix = "₽", suffix = "T"), breaks = c(0,0.5,1,1.5,2,2.5), limits = c(0,2.75), expand = c(0,0)) +
   ggtitle("The Russian Recession") +
   labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Ruble-Denominated Crude and Gas Revenues Have Fallen Near Pre-Pandemic Levels") +
