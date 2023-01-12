@@ -438,22 +438,30 @@ GATE_TERMINAL_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/ope
   mutate(import_type = "LNG") %>%
   mutate(location = "Gate_Terminal")
 
-Netherlands_LNG_Imports <- GATE_TERMINAL_LNG_Imports %>% 
-  drop_na() %>% 
-  select(value,periodFrom,location) %>% 
-  pivot_wider(names_from = location, values_from = value) %>%
-  mutate_if(is.integer, ~replace(., is.na(.), 0)) %>%
-  transmute(periodFrom, location = "Netherlands",value = Gate_Terminal)
-
-#UK LNG
-TEESSIDE_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=uk-lso-0006lng-00007exit,uk-lso-0005lng-00007exit,uk-tso-0001lng-00007entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
+EEMS_TERMINAL_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=nl-lso-0002lng-00068exit,nl-tso-0001lng-00068entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
   mutate(periodFrom = as.Date(periodFrom))%>%
   select("value","operatorLabel","periodFrom")%>%
   mutate(export_country = "LNG") %>%
-  mutate(import_country = "UK") %>%
+  mutate(import_country = "Netherlands") %>%
   mutate(import_type = "LNG") %>%
-  mutate(location = "Teesside") %>%
-  distinct(periodFrom, .keep_all = TRUE) #for some reason the UK data repeats in 2020 several times, this just removes duplicates
+  mutate(location = "EEMS_Terminal")
+
+Netherlands_LNG_Imports <- rbind(GATE_TERMINAL_LNG_Imports,EEMS_TERMINAL_LNG_Imports) %>% 
+  select(value,periodFrom,location) %>% 
+  pivot_wider(names_from = location, values_from = value) %>%
+  replace(is.na(.), 0) %>%
+  transmute(periodFrom, location = "Netherlands",value = Gate_Terminal + EEMS_Terminal)
+
+#UK LNG
+#Teeside is Actually Production not LNG Imports
+#TEESSIDE_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=uk-lso-0006lng-00007exit,uk-lso-0005lng-00007exit,uk-tso-0001lng-00007entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
+  #mutate(periodFrom = as.Date(periodFrom))%>%
+  #select("value","operatorLabel","periodFrom")%>%
+  #mutate(export_country = "LNG") %>%
+  #mutate(import_country = "UK") %>%
+  #mutate(import_type = "LNG") %>%
+  #mutate(location = "Teesside") %>%
+  #distinct(periodFrom, .keep_all = TRUE) #for some reason the UK data repeats in 2020 several times, this just removes duplicates
 
 MILFORD_HAVEN_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=uk-lso-0004lng-00049exit,uk-lso-0002lng-00049exit,uk-tso-0001lng-00049entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
   mutate(periodFrom = as.Date(periodFrom))%>%
@@ -473,12 +481,12 @@ ISLEOFGRAIN_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/opera
   mutate(location = "Isle_of_Grain") %>%
   distinct(periodFrom, .keep_all = TRUE) #for some reason the UK data repeats in 2020 several times, this just removes duplicates
 
-UK_LNG_Imports <- rbind(TEESSIDE_LNG_Imports,MILFORD_HAVEN_LNG_Imports,ISLEOFGRAIN_LNG_Imports) %>% 
+UK_LNG_Imports <- rbind(MILFORD_HAVEN_LNG_Imports,ISLEOFGRAIN_LNG_Imports) %>% 
   drop_na() %>% 
   select(value,periodFrom,location) %>% 
   pivot_wider(names_from = location, values_from = value) %>%
   mutate_if(is.integer, ~replace(., is.na(.), 0)) %>%
-  transmute(periodFrom, location = "UK", value = Teesside + Milford_Haven + Isle_of_Grain)
+  transmute(periodFrom, location = "UK", value = Milford_Haven + Isle_of_Grain)
 
 #Poland LNG
 SWINOUJSCIE_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=pl-lso-0002lng-00006exit,pl-tso-0002lng-00006entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
@@ -575,15 +583,31 @@ Italy_LNG_Imports <- rbind(CAVARZERE_LNG_Imports,LIVORNO_LNG_Imports,PANIGAGLIA_
   pivot_wider(names_from = location, values_from = value) %>%
   mutate_if(is.integer, ~replace(., is.na(.), 0)) %>%
   transmute(periodFrom, location = "Italy", value = Cavazere + Livorno + Panigaglia)
+#German LNG Imports
+Germany_LNG_Imports <- read.csv("https://transparency.entsog.eu/api/v1/operationalData.csv?forceDownload=true&pointDirection=de-tso-0009lng-00066entry&from=2019-01-01&indicator=Physical%20Flow&periodType=day&timezone=CET&limit=-1&dataset=1&directDownload=true")%>% 
+  mutate(periodFrom = as.Date(periodFrom))%>%
+  select("value","operatorLabel","periodFrom")%>%
+  mutate(export_country = "LNG") %>%
+  mutate(import_country = "Germany") %>%
+  mutate(import_type = "LNG") %>%
+  mutate(location = "Wilhemshaven")
 
-TOTAL_LNG_Imports <- rbind(Spain_LNG_Imports,Portugal_LNG_Imports,France_LNG_Imports,Belgium_LNG_Imports,Netherlands_LNG_Imports,UK_LNG_Imports,Poland_LNG_Imports,Lithuania_LNG_Imports,Greece_LNG_Imports,Croatia_LNG_Imports,Italy_LNG_Imports) %>% 
+Germany_LNG_Imports <-  Germany_LNG_Imports %>% 
+  drop_na() %>% 
+  select(value,periodFrom,location) %>% 
+  pivot_wider(names_from = location, values_from = value) %>%
+  mutate_if(is.integer, ~replace(., is.na(.), 0)) %>%
+  transmute(periodFrom, location = "Germany", value = Wilhemshaven)
+
+
+TOTAL_LNG_Imports <- rbind(Spain_LNG_Imports,Portugal_LNG_Imports,France_LNG_Imports,Belgium_LNG_Imports,Netherlands_LNG_Imports,UK_LNG_Imports,Poland_LNG_Imports,Lithuania_LNG_Imports,Greece_LNG_Imports,Croatia_LNG_Imports,Italy_LNG_Imports,Germany_LNG_Imports) %>% 
   drop_na() %>% 
   select(value,periodFrom,location) %>% 
   pivot_wider(names_from = location, values_from = value) %>%
   mutate_if(is.numeric, ~replace(., is.na(.), 0)) %>%
   group_by(yw = paste(year(periodFrom), week(periodFrom))) %>%
   mutate_if(is.numeric, ~mean(.)) %>%
-  mutate(Total = Spain + Portugal + France + Belgium + Netherlands + UK + Poland + Lithuania + Greece + Croatia + Italy)
+  mutate(Total = Spain + Portugal + France + Belgium + Netherlands + UK + Poland + Lithuania + Greece + Croatia + Italy + Germany)
 
 TTF_FUTURES <- tq_get("TTFZ22.NYM", from = "2019-01-01") #Dutch TTF Futures
 TTF_FUTURES <- drop_na(TTF_FUTURES)
@@ -637,7 +661,7 @@ LNG_Pipeline_Import_Graph <- ggplot() + #plotting LNG pipeline imports
   scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "LNG Imports Have Increased Significantly As Europe Tries to Replace Russian Gas") +
-  theme_apricitas + theme(legend.position = c(0.385,0.84), legend.text = element_text(size = 14, color = "white")) +
+  theme_apricitas + theme(legend.position = c(0.63,0.84), legend.text = element_text(size = 14, color = "white")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#EE6055","#9A348E"), breaks = c("Russia","LNG","Norway","North Africa","Azerbaijan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*((today()-as.Date("2019-01-01")))), xmax = as.Date("2019-01-01")-(0.049*((today()-as.Date("2019-01-01")))), ymin = 0-(.3*7), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -675,7 +699,7 @@ Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline impo
   xlab("Date") +
   ylab("Daily Import Volumes, Weekly Average, TWh") +
   scale_y_continuous(labels = scales::number_format(suffix = "TWh", accuracy = 1), limits = c(0,7), breaks = c(0,2,4,6), expand = c(0,0)) +
-  scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
+  #scale_x_date(limits = c(as.Date("2019-01-01"),today()-7)) +
   ggtitle("Europe's Natural Gas Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Entsog data with assistance from Bruegel", subtitle = "Imports Through Key Russian Gas Pipelines Are Declining Significantly") +
   theme_apricitas + theme(legend.position = c(0.63,0.88)) +
@@ -684,7 +708,7 @@ Russia_Total_Pipeline_Import_Graph <- ggplot() + #plotting Russian pipeline impo
   coord_cartesian(clip = "off")
 
 US_Export_Capacity <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Europe's%20Natural%20Gas%20Crisis/Europe's%20Winter%20Test/US_LNG_Export_Capacity.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 
 US_Export_Capacity_Projections <- select(US_Export_Capacity, date, Projections) %>%
   drop_na()
@@ -704,7 +728,7 @@ US_Export_Capacity_Graph <- ggplot() + #plotting US LNG Export Capacity
   coord_cartesian(clip = "off")
 
 EU_Storage_Levels <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Europe's%20Natural%20Gas%20Crisis/Europe's%20Winter%20Test/StorageData_GIE_2011-01-01_2022-10-20.csv") %>%
-  mutate(date = as.Date(ï..Gas.Day.Start)) %>%
+  mutate(date = as.Date(Gas.Day.Start)) %>%
   mutate(year = year(date)) %>%
   mutate(day = yday(date))
   
@@ -714,18 +738,19 @@ EU_Storage_Levels_Graph <- ggplot() + #plotting nondurable and durable share of 
   geom_line(data=subset(EU_Storage_Levels, year == 2020), aes(x=day,y= Full/100 ,color= "2020"), size = 1.25) +
   geom_line(data=subset(EU_Storage_Levels, year == 2021), aes(x=day,y= Full/100 ,color= "2021"), size = 1.25) +
   geom_line(data=subset(EU_Storage_Levels, year == 2022), aes(x=day,y= Full/100 ,color= "2022"), size = 1.25) +
+  geom_line(data=subset(EU_Storage_Levels, year == 2023), aes(x=day,y= Full/100 ,color= "2023"), size = 1.25) +
   xlab("Day of Year") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
   ylab("Share of Total Storage Capacity") +
   ggtitle("Stocking Up") +
   labs(caption = "Graph created by @JosephPolitano using GIE data",subtitle = "EU Natural Gas Storage Levels Have Improved Significantly This Year") +
   theme_apricitas + theme(legend.position = c(.75,.25)) +
-  scale_color_manual(name= "Natural Gas Storage Levels",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  scale_color_manual(name= "EU Natural Gas Storage Levels",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*365), xmax = 0-(0.049*365), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off")
 
-US_Export_Capacity_Projections <- select(US_Export_Capacity, date, Projections) %>%
-  drop_na()
+                        
+
 
 
 

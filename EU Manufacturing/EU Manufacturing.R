@@ -236,18 +236,25 @@ EU_US_RUSSIA_FUEL_IMPORTS_graph <- ggplot() + #EU machinery and transport equipm
   scale_y_continuous(labels = scales::number_format(accuracy = 1, prefix = "€", suffix = "B"),limits = c(0,15), breaks = c(0,5,10,15,20,25,30,35), expand = c(0,0)) +
   ylab("Billions of Euros, Monthly") +
   ggtitle("Import Substitution") +
-  labs(caption = "Graph created by @JosephPolitano using EuroStat data",subtitle = "EU Energy Imports from the US are Catching Up With Russia") +
-  theme_apricitas + theme(legend.position = c(.45,.85)) +
-  scale_color_manual(name= "EU-27 Imports of Mineral Fuels, Lubricants, and Related Materials",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  labs(caption = "Graph created by @JosephPolitano using EuroStat data",subtitle = "EU Energy Imports from the US Have Caught Up With Russia") +
+  theme_apricitas + theme(legend.position = c(.40,.85)) +
+  scale_color_manual(name= "EU-27 Energy Imports (Mineral Fuels, Lubricants, & Related)",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*15), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EU_US_RUSSIA_FUEL_IMPORTS_graph, "EU US Russia Energy Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 EU_RU_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
-                      filters=c("EU27_2020","RU","MIO_M3","G3000"),
-                      date_filter=">2018-01-01") %>%
-                      mutate(time = as.Date(as.yearmon(time)))
+  filters=c("EU27_2020","RU","UA","BY","MIO_M3","G3000"),
+  date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(BY:RU))) %>%
+  select(time,values) %>%
+  mutate(partner = "Russia (including via Ukraine and Belarus)")
 
 EU_US_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
                       filters=c("EU27_2020","US","MIO_M3","G3000"),
@@ -255,16 +262,16 @@ EU_US_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
                       mutate(time = as.Date(as.yearmon(time)))
 
 EU_US_RUSSIA_NAT_GAS_IMPORTS_graph <- ggplot() + #EU machinery and transport equipment
-  geom_line(data=EU_RU_GAS_IMPORTS, aes(x=time,y= values/1000,color= "Russia"), size = 1.25) +
+  geom_line(data=EU_RU_GAS_IMPORTS, aes(x=time,y= values/1000,color= "Russia (including via Ukraine and Belarus)"), size = 1.25) +
   geom_line(data=EU_US_GAS_IMPORTS, aes(x=time,y= values/1000,color= "United States"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B"),limits = c(0,10), breaks = c(0,5,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B"),limits = c(0,12), breaks = c(0,5,10), expand = c(0,0)) +
   ylab("Cubic Meters") +
   ggtitle("Import Substitution") +
   labs(caption = "Graph created by @JosephPolitano using EuroStat data",subtitle = "The EU Now Gets More Natural Gas from the US than Russia") +
   theme_apricitas + theme(legend.position = c(.35,.4)) +
   scale_color_manual(name= "EU-27 Imports of Natural Gas",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*10), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*12), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EU_US_RUSSIA_NAT_GAS_IMPORTS_graph, "EU US Russia Nat Gas Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -436,4 +443,109 @@ EU_27_IP_METALS_graph <- ggplot() + #EU Metals Industrial Production
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EU_27_IP_METALS_graph, "EU_27_IP_METALS_graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#Stacked Graph
+EU_RU_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","RU","UA","BY","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(BY:RU))) %>%
+  select(time,values) %>%
+  mutate(partner = "Russia, Ukraine, and Belarus")
+
+EU_US_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","US","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  select(partner, time, values) %>%
+  mutate(partner = "United States")
+
+EU_NO_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","NO","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values)%>%
+  mutate(partner = "Norway")
+
+EU_QA_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","QA","NG","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(QA:NG))) %>%
+  select(time,values) %>%
+  mutate(partner = "Qatar and Nigeria")
+
+EU_AL_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","DZ","MA","TN","LY","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(DZ:TN))) %>%
+  select(time,values) %>%
+  mutate(partner = "Algeria, Tunisia, Morocco, and Libya")
+
+EU_OTHER_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                          filters=c("EU27_2020","MIO_M3","G3000"),
+                                          date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  select(-TOTAL,-EUR_OTH,-BE,-BG,-CZ,-DK,-DE,-EE,-IE,-EL,-ES,-FR,-HR,-IT,-CY,-LV,-LT,-LU,-HU,-MT,-NL,-AT,-PL,-PT,-RO,-SI,-SK,-FI,-SE,-NO,-DZ,-US,-QA,-RU,-UA,-BY,-CH,-MA,-TN,-LY,-NG) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(AD:ZA))) %>%
+  select(time,values) %>%
+  mutate(partner = "Other (Including Re-Exports from UK/Turkey/etc)")
+
+EU_STACKED_GAS_IMPORTS <- rbind(EU_OTHER_GAS_IMPORTS,EU_AL_GAS_IMPORTS,EU_QA_GAS_IMPORTS,EU_NO_GAS_IMPORTS,EU_US_GAS_IMPORTS,EU_RU_GAS_IMPORTS) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  pivot_longer(cols = c(`Other (Including Re-Exports from UK/Turkey/etc)`:`Russia, Ukraine, and Belarus`)) %>%
+  mutate(name = factor(name,levels = c("Other (Including Re-Exports from UK/Turkey/etc)","United States","Qatar and Nigeria","Algeria, Tunisia, Morocco, and Libya","Norway","Russia, Ukraine, and Belarus")))
+
+EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = time, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Cubic Meters") +
+  ggtitle("EU-27 Natural Gas Imports") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40), limits = c(0,47.5), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "Imports Through Russia are Down Significantly, But the EU is Making Up the Difference") +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Russia, Ukraine, and Belarus","Norway","Algeria, Tunisia, Morocco, and Libya","Qatar and Nigeria","United States","Other (Including Re-Exports from UK/Turkey/etc)")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*47.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#Aggregate Energy Imports
+EU_NOMINAL_ENERGY <- get_eurostat_data("ext_st_eu27_2020sitc",
+                                                    filters=c("TRD_VAL_SCA","EXT_EU27_2020","SITC3","BAL_RT"),
+                                                    date_filter=">2018-01-01") %>%
+                                                    mutate(time = as.Date(as.yearmon(time)))
+
+EU_NOMINAL_ENERGY_graph <- ggplot() + #EU machinery and transport equipment
+  geom_line(data=EU_NOMINAL_ENERGY, aes(x=time,y= -values/1000,color= "EU-27 Net Energy Imports (Mineral Fuels, Lubricants, & Related)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, prefix = "€", suffix = "B"),limits = c(0,70), breaks = c(0,10,20,30,40,50,60,70), expand = c(0,0)) +
+  ylab("Billions of Euros, Monthly") +
+  ggtitle("Paying the Energy Bill") +
+  labs(caption = "Graph created by @JosephPolitano using EuroStat data",subtitle = "EU Energy Import Costs Rose to Record Levels and Remain Extremely High") +
+  theme_apricitas + theme(legend.position = c(.45,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*70), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_NOMINAL_ENERGY_graph, "EU Nominal Energy.png", type = "cairo-png") #cairo gets rid of anti aliasing
 

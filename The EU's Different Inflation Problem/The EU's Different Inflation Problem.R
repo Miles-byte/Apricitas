@@ -23,7 +23,7 @@ ICE_HY_SPREAD_EURO <- fredr(series_id = "BAMLHE00EHYIOAS",observation_start = as
 EURO_NGDP <- fredr(series_id = "EUNNGDP",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US NGDP
 US_NGDP <- fredr(series_id = "GDP",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #EU NGDP
 
-GDPTrend <- data.frame(date = c(seq(as.Date("2019-10-01"), as.Date("2022-01-01"), "months")), trend = 21694.46*1.003274^(0:27))
+GDPTrend <- data.frame(date = c(seq(as.Date("2019-10-01"), as.Date("2022-10-01"), "months")), trend = 21694.46*1.003274^(0:36))
 
 GRETENYR <- fredr(series_id = "IRLTLT01GRM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
 ITATENYR <- fredr(series_id = "IRLTLT01ITM156N",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #US prime age epop
@@ -39,9 +39,9 @@ ITA10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main
 GER10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20EU's%20Different%20Inflation%20Problem/GERMANY10YR.csv")
 GRE10YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20EU's%20Different%20Inflation%20Problem/GREECE10YR.csv")
 
-ITA10YR$ï..Date <- as.Date(ITA10YR$ï..Date, "%m/%d/%Y")
-GER10YR$ï..Date <- as.Date(GER10YR$ï..Date, "%m/%d/%Y")
-GRE10YR$ï..Date <- as.Date(GRE10YR$ï..Date, "%m/%d/%Y")
+ITA10YR$?..Date <- as.Date(ITA10YR$?..Date, "%m/%d/%Y")
+GER10YR$?..Date <- as.Date(GER10YR$?..Date, "%m/%d/%Y")
+GRE10YR$?..Date <- as.Date(GRE10YR$?..Date, "%m/%d/%Y")
 
 colnames(ITA10YR) <- c("date","value")
 colnames(GER10YR) <- c("date","value")
@@ -125,14 +125,14 @@ US_EU_NGDP_Graph <- ggplot() + #plotting personal income and outlays against inc
   geom_line(data = US_NGDP, aes(x=date, y = value/216.9446 , color = "US NGDP"), size = 1.25) + 
   geom_line(data = GDPTrend, aes(x=date, y = trend/216.9446, color = "4% NGDP Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(limits = c(85,115), breaks = c(85,90,95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(limits = c(85,120), breaks = c(85,90,95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index, Q4 2019 = 100") +
   ggtitle("The EU's Different Inflation Problem") +
   labs(caption = "Graph created by @JosephPolitano using BEA and EuroStat data",subtitle = "Aggregate Spending is Above Trend in the US-But Not in the EU") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),breaks = c("US NGDP","Eurozone NGDP","4% NGDP Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 85-(.3*30), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 85-(.3*40), ymax = 85) +
   coord_cartesian(clip = "off")
 
 US_EU_Wage_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
@@ -214,6 +214,93 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting components of excess savings
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*2250), xmax = as.Date("2016-01-01")-(0.049*2250), ymin = 0-(.3*8), ymax = 0) +
   coord_cartesian(clip = "off")
+
+#EU Stacked Nat Gas Imports
+
+EU_RU_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","RU","UA","BY","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(BY:RU))) %>%
+  select(time,values) %>%
+  mutate(partner = "Russia, Ukraine, and Belarus")
+
+EU_US_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","US","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  select(partner, time, values) %>%
+  mutate(partner = "United States")
+
+EU_NO_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","NO","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values)%>%
+  mutate(partner = "Norway")
+
+EU_QA_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","QA","NG","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(QA:NG))) %>%
+  select(time,values) %>%
+  mutate(partner = "Qatar and Nigeria")
+
+EU_AL_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                       filters=c("EU27_2020","DZ","MA","TN","LY","MIO_M3","G3000"),
+                                       date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(DZ:TN))) %>%
+  select(time,values) %>%
+  mutate(partner = "Algeria, Tunisia, Morocco, and Libya")
+
+EU_OTHER_GAS_IMPORTS <- get_eurostat_data("nrg_ti_gasm",
+                                          filters=c("EU27_2020","MIO_M3","G3000"),
+                                          date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  subset(geo == "EU27_2020") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  select(-TOTAL,-EUR_OTH,-BE,-BG,-CZ,-DK,-DE,-EE,-IE,-EL,-ES,-FR,-HR,-IT,-CY,-LV,-LT,-LU,-HU,-MT,-NL,-AT,-PL,-PT,-RO,-SI,-SK,-FI,-SE,-NO,-DZ,-US,-QA,-RU,-UA,-BY,-CH,-MA,-TN,-LY,-NG) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(AD:ZA))) %>%
+  select(time,values) %>%
+  mutate(partner = "Other (Including Re-Exports from UK/Turkey/etc)")
+
+EU_STACKED_GAS_IMPORTS <- rbind(EU_OTHER_GAS_IMPORTS,EU_AL_GAS_IMPORTS,EU_QA_GAS_IMPORTS,EU_NO_GAS_IMPORTS,EU_US_GAS_IMPORTS,EU_RU_GAS_IMPORTS) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  pivot_longer(cols = c(`Other (Including Re-Exports from UK/Turkey/etc)`:`Russia, Ukraine, and Belarus`)) %>%
+  mutate(name = factor(name,levels = c("Other (Including Re-Exports from UK/Turkey/etc)","United States","Qatar and Nigeria","Algeria, Tunisia, Morocco, and Libya","Norway","Russia, Ukraine, and Belarus")))
+
+EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = time, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Cubic Meters") +
+  ggtitle("EU-27 Natural Gas Imports") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40), limits = c(0,47.5), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "Imports Through Russia are Down Significantly, But the EU is Making Up the Difference") +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Russia, Ukraine, and Belarus","Norway","Algeria, Tunisia, Morocco, and Libya","Qatar and Nigeria","United States","Other (Including Re-Exports from UK/Turkey/etc)")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*47.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 ggsave(dpi = "retina",plot = US_EU_NAT_GAS_Graph, "US EU NAT GAS PRICES.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US NAT GAS EXPORTS.png", type = "cairo-png") #cairo gets rid of anti aliasing
