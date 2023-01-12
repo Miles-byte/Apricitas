@@ -4,6 +4,7 @@ install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
+
 CPI <- bls_api("CUSR0000SA0", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
@@ -519,7 +520,7 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   subset(RegionName == "United States") %>%
   transpose() %>%
   `colnames<-`(.[1, ]) %>%
-  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2022-11-01"), "months"))) %>%
+  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2022-12-01"), "months"))) %>%
   .[-1, ] %>%
   mutate(`United States` = as.numeric(`United States`)) %>%
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))
