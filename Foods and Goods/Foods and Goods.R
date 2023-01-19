@@ -144,13 +144,13 @@ Essentials_Graph <- ggplot() + #plotting Meat Prices
   geom_line(data=Salt, aes(x=date,y= pct1,color= "Salt and Other Seasonings"), size = 1.25) +
   geom_line(data=Flour, aes(x=date,y= pct1,color= "Flour and Prepared Flour Mixes"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.2,0.5), breaks = c(-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.2,0.6), breaks = c(-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("Ingredient Inflation") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices for Basic, Essential Ingredients are Rising Rapidly") +
   theme_apricitas + theme(legend.position = c(.325,.75)) +
   scale_color_manual(name= "CPI Price Growth",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Eggs","Butter","Flour and Prepared Flour Mixes","Sugar and Sugar Substitutes","Milk","Salt and Other Seasonings")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.2-(.3*.70), ymax = -0.2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.2-(.3*.80), ymax = -0.2) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Essentials_Graph, "Essentials.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -263,13 +263,13 @@ Durables_Graph <- ggplot() + #plotting Drink Prices
   geom_line(data=New_Vehicles, aes(x=date,y= pct1,color= "New Vehicles"), size = 1.25) +
   geom_line(data=Used_Vehicles, aes(x=date,y= pct1,color= "Used Cars and Trucks"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,0.5), breaks = c(0,0.1,0.2,0.3,0.4,0.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.10,0.5), breaks = c(0,0.1,0.2,0.3,0.4,0.5), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("Black Friday?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Price Growth for Durable Goods are Declining") +
   theme_apricitas + theme(legend.position = c(.375,.7)) +
   scale_color_manual(name= "CPI Price Growth",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Used Cars and Trucks","New Vehicles","Furniture and Bedding","Appliances")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.05-(.3*.55), ymax = -0.05) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.10-(.3*.60), ymax = -0.10) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Durables_Graph, "Durables Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

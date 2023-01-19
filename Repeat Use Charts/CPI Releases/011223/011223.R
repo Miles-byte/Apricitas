@@ -1,9 +1,8 @@
-pacman::p_load(readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("quantmod")
 install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
-
 
 CPI <- bls_api("CUSR0000SA0", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
@@ -395,7 +394,7 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   theme_apricitas + theme(legend.position = c(.40,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*.038), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 CPI_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
@@ -494,7 +493,7 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
   ylab("Index, January 2019 = 100") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Used Cars and Trucks Experienced Unprecedented Price Increases") +
-  theme_apricitas + theme(legend.position = c(.45,.70)) +
+  theme_apricitas + theme(legend.position = c(.25,.70)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -756,6 +755,126 @@ NOMINAL_GROWTH_3moann <- ggplot() + #plotting spending
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.16-(.3*0.47), ymax = -.16) +
   coord_cartesian(clip = "off")
+
+#CORE SERVICES EX HOUSING
+CPI_GARBAGE <- bls_api("CUSR0000SEHG", startyear = 2018, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) #cpi rent data
+CPI_GARBAGE$calculations <- str_sub(CPI_GARBAGE$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
+CPI_GARBAGE$calculations <- as.numeric(CPI_GARBAGE$calculations)
+
+CPI_MEDICAL_CARE <- bls_api("CUSR0000SAM2", startyear = 2018, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) #cpi owners equivalent rent
+CPI_MEDICAL_CARE$calculations <- str_sub(CPI_MEDICAL_CARE$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
+CPI_MEDICAL_CARE$calculations <- as.numeric(CPI_MEDICAL_CARE$calculations)
+
+
+CPI_RECREATION <- bls_api("CUSR0000SARS", startyear = 2018, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) #cpi owners equivalent rent
+CPI_RECREATION$calculations <- str_sub(CPI_RECREATION$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
+CPI_RECREATION$calculations <- as.numeric(CPI_RECREATION$calculations)
+
+CPI_EDUCATION <- bls_api("CUSR0000SAES", startyear = 2018, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) #cpi owners equivalent rent
+CPI_EDUCATION$calculations <- str_sub(CPI_EDUCATION$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
+CPI_EDUCATION$calculations <- as.numeric(CPI_EDUCATION$calculations)
+
+CPI_OTHER <- bls_api("CUUR0000SAGS", startyear = 2018, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) #cpi owners equivalent rent
+CPI_OTHER$calculations <- str_sub(CPI_OTHER$calculations, start= -3) #correcting percent growth calculations to remove excess data and convert to numeric
+CPI_OTHER$calculations <- as.numeric(CPI_OTHER$calculations)
+
+
+CPI_SERVICES_Graph <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
+  geom_line(data=CPI_GARBAGE, aes(x=date,y= (calculations/100) ,color= "Water, Sewer, and Trash Collection Services"), size = 1.25) +
+  geom_line(data=CPI_MEDICAL_CARE, aes(x=date,y= (calculations/100) ,color= "Medical Care Services"), size = 1.25) +
+  geom_line(data=CPI_RECREATION, aes(x=date,y= (calculations/100) ,color= "Recreation Services"), size = 1.25) +
+  geom_line(data=CPI_EDUCATION, aes(x=date,y= (calculations/100) ,color= "Education and Communication Services"), size = 1.25) +
+  geom_line(data=CPI_OTHER, aes(x=date,y= (calculations/100) ,color= "Other Personal Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.09), breaks = c(0,.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09), expand = c(0,0)) +
+  ylab("Percent Change From a Year Ago, %") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Growth in Non-Housing Core Services Prices Remains High") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*0.09), ymax = 0.00) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_SERVICES_Graph, "Services Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+#PCE data
+PCE_COMPONENTS_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U20404',
+  'Frequency' = 'M',
+  'Year' = '2017,2018,2019,2020,2021,2022,2023',
+  'ResultFormat' = 'json'
+)
+
+PCE_COMPONENTS_INFLATION <- beaGet(PCE_COMPONENTS_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2017-01-01"), length.out = nrow(.), by = "months"))) %>%
+  clean_names() %>%
+  mutate_if(is.numeric, funs((.-lag(.,12))/lag(.,12))) %>%
+  drop_na()
+  
+write.csv(PCE_COMPONENTS_INFLATION, "PCE.csv")
+
+PCE_NONCORE_SERVICES_Graph <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dfserg_233_food_services_fisher_price_index_level_0 ,color= "Food Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dtrsrg_188_transportation_services_fisher_price_index_level_0  ,color= "Transportation Services (Including Airfare)"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dmvsrg_189_motor_vehicle_services_fisher_price_index_level_0  ,color= "Motor Vehicle Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.03,.175), breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
+  ylab("Percent Change From a Year Ago, %") +
+  ggtitle("Getting to The Core of Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Growth in `Non-Core` Services is Still Elevated") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "Annual Growth, PCE Price Index",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Transportation Services (Including Airfare)","Food Services","Motor Vehicle Services")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.03-(.3*0.205), ymax = -0.03) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_NONCORE_SERVICES_Graph, "PCE NONCORE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+PCE_ADMINISTERED_SERVICES_Graph <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dfimrg_389_market_based_pce_financial_services_and_insurance_fisher_price_index_level_0 ,color= "Financial Services and Insurance"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dtedrg_288_education_services_fisher_price_index_level_0  ,color= "Education Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dcomrg_279_communication_fisher_price_index_level_0  ,color= "Communication Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dhlcrg_170_health_care_fisher_price_index_level_0  ,color= "Healthcare Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.125,.11), breaks = c(-.10,-0.05,0,0.05,0.1,0.15), expand = c(0,0)) +
+  ylab("Percent Change From a Year Ago, %") +
+  ggtitle("Getting to The Core of Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Several Service-Sector Indexes are Less Relevant Signals Thanks to Volatility or Price Regulations") +
+  theme_apricitas + theme(legend.position = c(.30,.19)) +
+  scale_color_manual(name= "Annual Growth, PCE Price Index",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Healthcare Services","Education Services","Financial Services and Insurance","Communication Services")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.125-(.3*0.235), ymax = -0.125) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_ADMINISTERED_SERVICES_Graph, "PCE ADMINISTERED Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+
+PCE_RELEVANT_SERVICES_Graph <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_drcarg_207_recreation_services_fisher_price_index_level_0 ,color= "Recreation Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dprsrg_296_professional_and_other_services_121_fisher_price_index_level_0 ,color= "Professional and Other Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dperrg_305_personal_care_and_clothing_services_14_and_parts_of_17_and_118_fisher_price_index_level_0 ,color= "Personal Care and Clothing Services"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dsocrg_313_social_services_and_religious_activities_120_fisher_price_index_level_0 ,color= "Social Services (Including Religious Services)"), size = 1.25) +
+  geom_line(data=PCE_COMPONENTS_INFLATION, aes(x=date,y= u20404_dhhmrg_325_household_maintenance_parts_of_31_33_and_36_fisher_price_index_level_0 ,color= "Household Maintenance"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.002,.11), breaks = c(0,.03,.06,.09), expand = c(0,0)) +
+  ylab("Percent Change From a Year Ago, %") +
+  ggtitle("Getting to The Core of Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Relevant Market-Based Core Services Price Growth Remain Elevated") +
+  theme_apricitas + theme(legend.position = c(.30,.78)) +
+  scale_color_manual(name= "Annual Growth, PCE Price Index",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Personal Care and Clothing Services","Professional and Other Services","Recreation Services","Social Services (Including Religious Services)","Household Maintenance")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.002-(.3*0.112), ymax = -0.002) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_RELEVANT_SERVICES_Graph, "PCE RELEVANT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 
 #Saving png images of all graphs

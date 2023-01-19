@@ -1,5 +1,4 @@
-
-
+p_load(eurostat,restatapi,stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 EU_MANU_SURVEY <- get_eurostat_data("EI_BSIN_Q_R2",
                                                  filters=c("EU27_2020","SA","BS-FLP1-PC","BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC"),
@@ -11,9 +10,9 @@ EU_MANU_SURVEY <- get_eurostat_data("EI_BSIN_Q_R2",
 
 EU_MANU_SURVEY_DEMAND_Materials_graph <- ggplot() + #plotting BIE
   geom_line(data=EU_MANU_SURVEY, aes(x=time,y= (`BS-FLP1-PC`+`BS-FLP2-PC`)/100,color= "None or Insufficient Demand"), size = 1.25) +
-  #geom_line(data=EU_MANU_SURVEY, aes(x=time,y= `BS-FLP3-PC`/100,color= "Shortage of Labor"), size = 1.25) +
+  geom_line(data=EU_MANU_SURVEY, aes(x=time,y= `BS-FLP3-PC`/100,color= "Shortage of Labor"), size = 1.25) +
   geom_line(data=EU_MANU_SURVEY, aes(x=time,y= `BS-FLP4-PC`/100,color= "Shortage of Materials and Equipment"), size = 1.25) +
-  #geom_line(data=EU_MANU_SURVEY, aes(x=time,y= (`BS-FLP5-PC`+`BS-FLP6-PC`)/100,color= "Other"), size = 1.25) +
+  geom_line(data=EU_MANU_SURVEY, aes(x=time,y= (`BS-FLP5-PC`+`BS-FLP6-PC`)/100,color= "Other"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
   ylab("Index") +

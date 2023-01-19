@@ -1,4 +1,4 @@
-pacman::p_load(censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ecb, eurostat,censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -132,7 +132,7 @@ US_EU_NGDP_Graph <- ggplot() + #plotting personal income and outlays against inc
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),breaks = c("US NGDP","Eurozone NGDP","4% NGDP Growth Trend"),guide=guide_legend(override.aes=list(linetype=c(1,1,2), lwd = c(1.25,1.25,.75)))) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 85-(.3*40), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 85-(.3*35), ymax = 85) +
   coord_cartesian(clip = "off")
 
 US_EU_Wage_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
@@ -154,7 +154,6 @@ TTF_FUTURES <- tq_get("TTFQ22.NYM", from = "2019-01-01") #Dutch TTF Futures
 HENRY_HUB <- tq_get("NGQ22.NYM", from = "2019-01-01") #US Nat Gas Futures
 #USDEUEX <- fredr(series_id = "DEXUSEU", observation_start = as.Date("2019-01-01")) #US Euro Exchange Rate
 USDEUEX <- tq_get("USDEUR=X", from = "2019-01-01") #US Euro Exchange Rate
-
 
 TTF_USD <- merge(TTF_FUTURES, USDEUEX, by = "date")
 TTF_USD <- select(TTF_USD, c("date","close.x","close.y"))
@@ -300,6 +299,293 @@ EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = ti
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#
+EA_MANU_SURVEY <- get_eurostat_data("EI_BSIN_Q_R2",
+                                    filters=c("EA19","SA","BS-FLP1-PC","BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC"),
+                                    date_filter=">2004-01-01") %>%
+  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
+  subset(geo == "EA19") %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
+EA_MANU_SURVEY_DEMAND_Materials_graph <- ggplot() + #plotting BIE
+  #geom_line(data=EU_MANU_SURVEY, aes(x=time,y= (`BS-FLP1-PC`+`BS-FLP2-PC`)/100,color= "None or Insufficient Demand"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP3-PC`/100,color= "Shortage of Labor"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP4-PC`/100,color= "Shortage of Materials and Equipment"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP6-PC`/100,color= "Financial Constraints"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP5-PC`/100,color= "Other (Including COVID)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.60), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Shortage Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Manufacturers Say Materials Constraints are Binding, but Easing") +
+  theme_apricitas + theme(legend.position = c(.45,.45)) +
+  scale_color_manual(name= "Factors Limiting Production in EA-19 Manufacturing Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials and Equipment","Other (Including COVID)","Financial Constraints")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.60), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_MANU_SURVEY_DEMAND_Materials_graph, "EA_MANU_SURVEY_DEMAND_MATERIALS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#
+EA_SERV_SURVEY <- get_eurostat_data("EI_BSSE_Q_R2",
+                                    filters=c("EA19","SA","BS-FLB1-PC","BS-FLB2-PC","BS-FLB3-PC","BS-FLB4-PC","BS-FLB5-PC","BS-FLB6-PC"),
+                                    date_filter=">2004-01-01") %>%
+  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
+  subset(geo == "EA19") %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
+EU_SERV_SURVEY_graph <- ggplot() + #plotting BIE
+  #geom_line(data=EA_SERV_SURVEY, aes(x=time,y= (`BS-FLB1-PC`+`BS-FLB2-PC`)/100,color= "None or Insufficient Demand"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB3-PC`/100,color= "Shortage of Labor"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB4-PC`/100,color= "Shortage of Materials, Equipment, or Space"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB5-PC`/100,color= "Financial Constraints"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB6-PC`/100,color= "Other (Including COVID)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.6), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Shortage Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Service Sector Firms Say Labor Constraints are Tight as COVID Constraints Ease") +
+  theme_apricitas + theme(legend.position = c(.50,.67)) +
+  scale_color_manual(name= "Factors Limiting Production in EA-19 Service Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials, Equipment, or Space","Other (Including COVID)","Financial Constraints")) + #, breaks = c("None or Insufficient Demand","Shortage of Materials, Equipment, or Space","Shortage of Labor","Financial Constraints","Other (Including COVID)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.6), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_SERV_SURVEY_graph, "EA_Serv Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Fin Constraints
+EA_FIN_CONSTRAINTS_graph <- ggplot() + #plotting BIE
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB5-PC`/100,color= "Service Sector"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP6-PC`/100,color= "Manufacturing Sector"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),breaks = c(0,.05,0.1,0.15,0.2), limits = c(0,.225), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Tightening Again") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EU Firms' Production is Being Hit By Rising Rates and Tightening Monetary Policy") +
+  theme_apricitas + theme(legend.position = c(.50,.89)) +
+  scale_color_manual(name= "Share of EA-19 Firms Citing Financial Constraints as an Impediment to Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Service Sector","Manufacturing Sector")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.23), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_FIN_CONSTRAINTS_graph, "EA Fin Constraints Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Lack of Demand
+EA_NO_DEMAND_graph <- ggplot() + #plotting BIE
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB2-PC`/100,color= "Service Sector"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP2-PC`/100,color= "Manufacturing Sector"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),breaks = c(0.2,0.4,0.6), limits = c(0,.65), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Demand Chains") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EU Firms Experienced Extremely High Demand in 2021—Especially in Manufacturing") +
+  theme_apricitas + theme(legend.position = c(.50,.15)) +
+  scale_color_manual(name= "Share of EA-19 Firms Citing Insufficient Demand as an Impediment to Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Service Sector","Manufacturing Sector")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.65), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_NO_DEMAND_graph, "EA Demand Constraints.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#INDPRO MOTOR VEHICLE
+EA_IND_PRO_VEHICLE <- get_eurostat_data("STS_INPR_M",
+                                    filters=c("EA19","SCA","C291","C2931","C2932","I15"),
+                                    date_filter=">2019-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(nace_r2, time, values) %>%
+  pivot_wider(names_from = nace_r2, values_from = values)
+
+EA_IND_PRO_VEHICLE_graph <- ggplot() + #plotting BIE
+  geom_line(data=EA_IND_PRO_VEHICLE, aes(x=time,y= C2932/C2932[1]*100,color= "Other Parts & Accessories for Motor Vehicles"), size = 1.25) +
+  geom_line(data=EA_IND_PRO_VEHICLE, aes(x=time,y= C2931/C2931[1]*100,color= "Electrical & Electronic Parts for Motor Vehicles"), size = 1.25) +
+  geom_line(data=EA_IND_PRO_VEHICLE, aes(x=time,y= C291/C291[1]*100,color= "Motor Vehicles"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),breaks = c(0,20, 40,60,80,100), limits = c(0,110), expand = c(0,0)) +
+  ylab("Index, Jan 2019 = 100") +
+  ggtitle("The Eurozone Car Shortage") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "European Auto Output Has Struggled Amidst the Chip Shortage and Energy Crisis") +
+  theme_apricitas + theme(legend.position = c(.69,.15)) +
+  scale_color_manual(name= "EA-19 Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Motor Vehicles","Electrical & Electronic Parts for Motor Vehicles","Other Parts & Accessories for Motor Vehicles")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(.1861*(today()-as.Date("2019-01-01")))), ymin = 0-(.3*110), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_IND_PRO_VEHICLE_graph, "EA INDPRO.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Durables, Vehicles, etc inflation
+HICP_DURABLES_CAR <- get_eurostat_data("PRC_HICP_MANR",
+                                        filters=c("EA19","IGD_NNRG_D","CP07111","CP07112"),
+                                        date_filter=">2018-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(coicop, time, values) %>%
+  pivot_wider(names_from = coicop, values_from = values)
+
+HICP_DURABLES_CAR_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data=HICP_DURABLES_CAR, aes(x=time,y= CP07111/100,color= "New Motor Cars"), size = 1.25) +
+  geom_line(data=HICP_DURABLES_CAR, aes(x=time,y= CP07112/100,color= "Second-hand Motor Cars"), size = 1.25) +
+  geom_line(data=HICP_DURABLES_CAR, aes(x=time,y= IGD_NNRG_D/100,color= "Durable Goods"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.025,.13), breaks = c(-.02,0,.02,.04,.06,.08,.1,.12), expand = c(0,0)) +
+  ylab("Annual Price Increase, Percent") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Durable Goods Inflation in the Eurozone is Extremely High") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "EA-19 HICP Price Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Durable Goods","New Motor Cars","Second-hand Motor Cars")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(.1861*(today()-as.Date("2018-01-01")))), ymin = -.025-(.3*.155), ymax = -.025) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HICP_DURABLES_CAR_graph, "HICP Durables.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#HICP rent
+
+HICP_RENT_SERVICES <- get_eurostat_data("PRC_HICP_MANR",
+                                       filters=c("EA19","CP041","SERV"),
+                                       date_filter=">2000-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(coicop, time, values) %>%
+  pivot_wider(names_from = coicop, values_from = values)
+
+HICP_RENT_SERVICES_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data=HICP_RENT_SERVICES, aes(x=time,y= SERV/100,color= "Services"), size = 1.25) +
+  geom_line(data=HICP_RENT_SERVICES, aes(x=time,y= CP041/100,color= "Actual Rentals for Housing"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ylab("Annual Price Increase, Percent") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Services Inflation in the Eurozone has Been Comparatively Muted but is Now Rising Rapidly") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "EA-19 HICP Price Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Services","Actual Rentals for Housing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(.1861*(today()-as.Date("2000-01-01")))), ymin = 0-(.3*.05), ymax = .0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HICP_RENT_SERVICES_graph, "HICP Rent Services.png", type = "cairo-png") #cairo gets rid of anti aliasing
+#Retail Sales and Services Turnover
+SERVICES_TURNOVER <- get_eurostat_data("STS_SETU_Q",
+                                        filters=c("EA19","PCH_SM","CA","H-N_STS"),
+                                        date_filter=">2000-01-01") %>%
+  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
+  select(nace_r2, time, values) %>%
+  pivot_wider(names_from = nace_r2, values_from = values)
+
+RETAIL_TURNOVER <- get_eurostat_data("STS_TRTU_Q",
+                                     filters=c("TOVT","EA19","PCH_SM","CA","G47_X_G473"),
+                                     date_filter=">2000-01-01") %>%
+  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
+  select(nace_r2, time, values) %>%
+  pivot_wider(names_from = nace_r2, values_from = values)
+
+RETAIL_SERVICES_TURNOVER_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data=SERVICES_TURNOVER, aes(x=time,y= `H-N_STS`/100,color= "Service Sales"), size = 1.25) +
+  geom_line(data=RETAIL_TURNOVER, aes(x=time,y= `G47_X_G473`/100,color= "Retail Sales Excluding Motor Vehicles and Fuel"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.25,.25), breaks = c(-.2,-.1,0,0.1,0.2), expand = c(0,0)) +
+  ylab("Annual Nominal Increase, Percent") +
+  ggtitle("The Spending Surge") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Nominal Spending Growth in the Eurozone is Extremely High") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= "EA-19 Turnover Growth, Year-on-Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Service Sales","Retail Sales Excluding Motor Vehicles and Fuel")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(.1861*(today()-as.Date("2000-01-01")))), ymin = -.25-(.3*.5), ymax = -.25) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RETAIL_SERVICES_TURNOVER_graph, "Retail Services Turnover.png", type = "cairo-png") #cairo gets rid of anti aliasing
+#Employment Expectations
+EMP_EXP_IND <- get_eurostat_data("EI_BSEE_M_R2",
+                                   filters=c("INX","EA19"),
+                                   date_filter=">2006-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(indic, time, values)
+
+EMP_EXP_BAL <- get_eurostat_data("EI_BSEE_M_R2",
+                                 filters=c("BAL","EA19"),
+                                 date_filter=">2006-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
+EMP_EXP_IND_graph <- ggplot() + #plotting BIE
+  geom_line(data=EMP_EXP_IND, aes(x=time,y= values,color= "EA-19 Firms' 3-Month Ahead Employment Growth Expectations"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),breaks = c(50,60,70,80,90,100,110,120), limits = c(50,120), expand = c(0,0)) +
+  ylab("Index, 100 = Normal") +
+  ggtitle("Eurozone Employment Expectations") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "European Firms' Employment Growth Expectations Have Fallen Back to Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.40,.15)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(.1861*(today()-as.Date("2006-01-01")))), ymin = 50-(.3*70), ymax = 50) +
+  coord_cartesian(clip = "off")
+
+EMP_EXP_BAL_graph <- ggplot() + #plotting BIE
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=EMP_EXP_BAL, aes(x=time,y= `BS-CEME-BAL`,color= "Construction"), size = 1.25) +
+  geom_line(data=EMP_EXP_BAL, aes(x=time,y= `BS-REM-BAL`,color= "Retail Trade"), size = 1.25) +
+  geom_line(data=EMP_EXP_BAL, aes(x=time,y= `BS-IEME-BAL`,color= "Industry"), size = 1.25) +
+  geom_line(data=EMP_EXP_BAL, aes(x=time,y= `BS-SEEM-BAL`,color= "Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),breaks = c(-40,-30,-20,-10,0,10,20), limits = c(-45,20), expand = c(0,0)) +
+  ylab("Balance, Increasing Minus Decreasing") +
+  ggtitle("Eurozone Employment Expectations") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "European Companies' Employment Growth Expectations Have Decreased Marginally") +
+  theme_apricitas + theme(legend.position = c(.54,.185)) +
+  scale_color_manual(name= "EA-19 Firms' 3M Employment Expectations",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Services","Industry","Construction","Retail Trade")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(.1861*(today()-as.Date("2006-01-01")))), ymin = -45-(.3*65), ymax = -45) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMP_EXP_BAL_graph, "Employment Expectations Balance.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EMP_EXP_IND_graph, "Employment Expectations Index.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#wage growth
+NEGOTIATED <- get_data("STS.Q.I8.N.INWR.000000.3.ANR", filter = list(startPeriod = "2000-Q1")) %>%
+  mutate(obstime = as.Date(as.yearqtr(obstime,"%Y-Q%q")))
+
+LCI <- get_eurostat_data("LC_LCI_R2_Q",
+                         filters=c("SCA","EA19","B-S","D1_D4_MD5","PCH_SM"),
+                         date_filter=">2006-01-01") %>%
+  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q")))
+
+NEGOTIATED_LCI_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data=LCI, aes(x=time,y= values/100, color= "EA-19 Labor Cost Index, Compensation, All Industries"), size = 1.25) +
+  geom_line(data=NEGOTIATED, aes(x=obstime,y= obsvalue/100,color= "EA-19 Negotiated Wage Growth"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.002,0.04), breaks = c(0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
+  ylab("Annual Nominal Increase, Percent") +
+  ggtitle("Eurozone Nominal Wage Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat and ECB data",subtitle = "Right Now, Eurozone Wage Growth Remains Just Slightly Above Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.35,.15)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EA-19 Labor Cost Index, Compensation, All Industries","EA-19 Negotiated Wage Growth")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(.1861*(today()-as.Date("2000-01-01")))), ymin = -.002-(.3*.042), ymax = -.002) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NEGOTIATED_LCI_graph, "Negotiated LCI.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+
+#HICP Contribution
+PRC_HICP_CTRB <- get_eurostat_data("PRC_HICP_CTRB",
+  filters=c("FOOD","IGD_NNRG","NRG","SERV"),
+  date_filter=">2001-01-01") %>%
+  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+  select(coicop, time, values) %>%
+  mutate(coicop = gsub("FOOD","Food, Alcohol, and Tobacco",coicop)) %>%
+  mutate(coicop = gsub("IGD_NNRG", "Non-Energy Industrial Goods",coicop)) %>%
+  mutate(coicop = gsub("NRG", "Energy",coicop)) %>%
+  mutate(coicop = gsub("SERV", "Services",coicop))
+  
+HICP_CONTRIBUTION <- ggplot() + #plotting components of annual inflation
+  geom_bar(data = PRC_HICP_CTRB, aes(x = time, y = values/100, fill = coicop), color = NA, width = 31, stat= "identity") +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.025,.11), breaks = c(-.025,0,.025,.05,.075,.1), expand = c(0,0)) +
+  ylab("Annual Inflation, Percent") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Eurozone Inflation is More About Supply Shocks to Food, Energy, and Goods") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_fill_manual(name= "Contributions to Eurozone HICP Inflation",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco"), labels = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = -0.025-(.3*.135), ymax = -0.025) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HICP_CONTRIBUTION, "HICP Contribution.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
 
 
 ggsave(dpi = "retina",plot = US_EU_NAT_GAS_Graph, "US EU NAT GAS PRICES.png", type = "cairo-png") #cairo gets rid of anti aliasing
