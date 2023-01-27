@@ -90,7 +90,7 @@ Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
 Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
 
 #crude, gas, and diesel prices
-WTIEIA <- eia_series("PET.RWTC.D", start = 2019, end = 2022)
+WTIEIA <- eia_series("PET.RWTC.D", start = 2019, end = today())
 WTIEIA <- as.data.frame(WTIEIA$data) %>% mutate(product = "Crude")
 GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019", end = today())
 GASEIA <- as.data.frame(GASEIA$data) %>% mutate(product = "Gasoline")
@@ -317,7 +317,7 @@ SPR_LEVEL_Graph <- ggplot() + #plotting US SPR Crude Oil Stocks
   coord_cartesian(clip = "off")
 
 STEO_Prod_SPR_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2024-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 10.25, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=STEO_SPR_Prod, aes(x=date,y= value.x, color= "US Crude Oil Production"), size = 1.25) +
   geom_line(data=STEO_SPR_Prod, aes(x=date,y= value.x+value.y, color= "US Crude Oil Production With Net SPR Withdrawls"), size = 1.25) +
@@ -390,18 +390,18 @@ Wind_Capacity_STEO <- eia_series("STEO.WNEPCAPX_US.M", start = "2019", end = "20
 Wind_Capacity_STEO <- as.data.frame(Wind_Capacity_STEO$data)
 
 US_Solar_Wind_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2024-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 35, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=Wind_Capacity_STEO, aes(x=date,y= value/1000, color= "US Wind Power Capacity"), size = 1.25) +
   geom_line(data=Solar_Merge_STEO, aes(x=date,y= (value.x + value.y)/1000, color= "US Large and Small Scale Solar Power Capacity"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = " GW", accuracy = 1), limits = c(0,160),breaks = c(0,50,100,150), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = " GW", accuracy = 1), limits = c(0,220),breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Capacity, GW") +
   ggtitle("The Long Term Transition") +
   labs(caption = "Graph created by @JosephPolitano using EIA STEO data",subtitle = "US Renewable Power Capacity is Growing Rapidly") +
   theme_apricitas + theme(legend.position = c(.35,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01")+365)), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01")+365)), ymin = 0-(.3*160), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01")+365)), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01")+365)), ymin = 0-(.3*220), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 

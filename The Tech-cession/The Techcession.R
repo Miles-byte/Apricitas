@@ -86,7 +86,7 @@ TECH_EMPLOYMENT_Graph <- ggplot() + #plotting weekly initial claims for 2014-201
   geom_line(data=SOFTWARE_PUBLISHERS, aes(x=date,y= value,color= "Software Publishers"), size = 1.25) + 
   geom_line(data=INTERNET_PUBLISHERS, aes(x=date,y= value,color= "Internet Publishing, Broadcasting, and Web Search Portals"), size = 1.25) + 
   xlab("Date") +
-  ylab("Initial Claims") +
+  ylab("All Employees") +
   scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,650), expand = c(0,0)) +
   ggtitle("Tech-Cession?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment is Still Rising in Key Digital Tech Sectors") +

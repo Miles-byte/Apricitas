@@ -819,7 +819,6 @@ PCE_COMPONENTS_INFLATION <- beaGet(PCE_COMPONENTS_SPECS, iTableStyle = FALSE) %>
   mutate_if(is.numeric, funs((.-lag(.,12))/lag(.,12))) %>%
   drop_na()
   
-write.csv(PCE_COMPONENTS_INFLATION, "PCE.csv")
 
 PCE_NONCORE_SERVICES_Graph <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +

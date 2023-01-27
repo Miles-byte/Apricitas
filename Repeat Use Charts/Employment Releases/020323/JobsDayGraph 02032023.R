@@ -929,55 +929,13 @@ CES_CPS_QCEW_Graph <- ggplot() +
   ylab("Growth Since Jan 2022, NSA") +
   ggtitle("The Labor Market Mystery Deepens") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "QCEW Data, Broadly, Agrees with CES More than CPS So Far This Year") +
-  theme_apricitas + theme(legend.position = c(.40,.85)) +
-  scale_color_manual(name= "Growth Since Jan 2022, NSA",values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  theme_apricitas + theme(legend.position = c(.40,.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-15")-(.1861*(today()-as.Date("2022-01-15"))), xmax = as.Date("2022-01-15")-(0.049*(today()-as.Date("2022-01-15"))), ymin = 0-(.3*8), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CES_CPS_QCEW_Graph, "CES CPS QCEW Comparison.png", type = "cairo-png") #cairo gets rid of anti aliasing
-
-ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
-  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
-  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
-  .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2022-09-01"), by = "quarter")))
-
-ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
-  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
-  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
-  .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2022-09-01"), by = "quarter")))
-
-ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
-  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
-  geom_line(data=ECI_WAG, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
-  ylab("Percent Change From Year Ago") +
-  ggtitle("Core Wage Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "ECI, Private Industry Wages and Salaries Growth Is Coming Off a Recent High") +
-  theme_apricitas + theme(legend.position = c(.50,.80)) +
-  scale_color_manual(name= "ECI Private Sector Wages and Salaries",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
-  coord_cartesian(clip = "off")
-
-ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
-  geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
-  geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized (NSA)"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
-  ylab("Percent Change From Year Ago") +
-  ggtitle("Core Wage Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "ECI, Private Industry Wages and Salaries Growth Was in Line With Expectations") +
-  theme_apricitas + theme(legend.position = c(.50,.80)) +
-  scale_color_manual(name= "ECI Private Sector Wages and Salaries Excluding Incentive Paid",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
 
 #truck and warehouse employment
 TRUCK_EMPLOY <- fredr(series_id = "CES4348400001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -1013,91 +971,6 @@ EMPLOY_TEMP_HELP_SERVICES_GRAPH <- ggplot() + #plotting local government educati
   coord_cartesian(clip = "off")
 
 
-OVERTIME_MANUFACTURING <- fredr(series_id = "CES3000000004")
-OVERTIME_NONDURABLE <- fredr(series_id = "CES3200000004")
-OVERTIME_FOOD <- bls_api(seriesid = "CES3231100004", startyear = 2006, endyear = 2015, registrationKey =  Sys.getenv("bd82b930b5444bd3954730ad80f639cc")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-OVERTIME_FOOD_2 <- bls_api(seriesid = "CES3231100004", startyear = 2016, endyear = 2023, registrationKey =  Sys.getenv("bd82b930b5444bd3954730ad80f639cc")) %>%
-  select(-latest) %>% 
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-OVERTIME_FOOD <- rbind(OVERTIME_FOOD,OVERTIME_FOOD_2)
-
-Overtime <- ggplot() + #plotting Wage Growth
-  geom_line(data=OVERTIME_MANUFACTURING, aes(x=date,y= value,color= "All Manufacturing"), size = 1.25) +
-  geom_line(data=OVERTIME_NONDURABLE, aes(x=date,y= value,color= "Nondurable Goods Manufacturing"), size = 1.25) +
-  #geom_line(data=OVERTIME_FOOD, aes(x=date,y= value,color= "Food Manufacturing"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.5),limits = c(2,4), expand = c(0,0)) +
-  ylab("Weekly Overtime Hours") +
-  ggtitle("Under-Time") +
-  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Overtime Hours at Manufacturing Firms are Declining, Especially in Nondurable/Food Manufacturing") +
-  theme_apricitas + theme(legend.position = c(.52,.22)) +
-  scale_color_manual(name= "Average Weekly Overtime Hours",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Manufacturing","Nondurable Goods Manufacturing","Food Manufacturing")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-03-01")-(.1861*(today()-as.Date("2006-03-01"))), xmax = as.Date("2006-03-01")-(0.049*(today()-as.Date("2006-03-01"))), ymin = 2-(.3*2), ymax = 2) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = Overtime, "Overtime.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-PRIME_AGE_EPOP <- fredr(series_id = "LNS12300060",observation_start = as.Date("1995-01-01"))
-EPOP_55_64 <- fredr(series_id = "LREM55TTUSM156S",observation_start = as.Date("1995-01-01"))
-EPOP_65_69_2022 <- bls_api("LNU02324938", startyear = 2015) %>%
-  transmute(year,period,periodName,value,footnotes,seriesID)
-EPOP_65_69 <- bls_api("LNU02324938", startyear = 1995) %>%
-  rbind(., bls_api("LNU02324938", startyear = 2005)) %>%
-  rbind(.,EPOP_65_69_2022) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-
-EPOP_20_24_2022 <- bls_api("LNS12300036", startyear = 2015) %>%
-  transmute(year,period,periodName,value,footnotes,seriesID)
-EPOP_20_24 <- bls_api("LNS12300036", startyear = 1995) %>%
-  rbind(., bls_api("LNS12300036", startyear = 2005)) %>%
-  rbind(., EPOP_20_24_2022) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-
-EPOP_graph <- ggplot() + #plotting Wage Growth
-  geom_line(data=PRIME_AGE_EPOP, aes(x=date,y= value/100,color= "25-54 (Prime Age)"), size = 1.25) +
-  geom_line(data=EPOP_55_64, aes(x=date,y= value/100,color= "55-64"), size = 1.25) +
-  geom_line(data=EPOP_65_69, aes(x=date,y= value/100,color= "65-69"), size = 1.25) +
-  geom_line(data=EPOP_20_24, aes(x=date,y= value/100,color= "20-24"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.90), expand = c(0,0)) +
-  ylab("Percent Growth, Year-on-Year") +
-  ggtitle("What Does A Labor Shortage Mean?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "US Employment Rates Have Largely Recovered to Pre-Pandemic Levels") +
-  theme_apricitas + theme(legend.position = c(.5,.50)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = 0-(.3*0.90), ymax = 0) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = EPOP_graph, "Epop graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-GLI_BLS_YOY <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"), units = "pc1")
-GLI_BEA_YOY <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-01"), units = "pc1")
-GLI_EPOP_YOY <- fredr(series_id = "LNS12300060",observation_start = as.Date("2017-01-01"), aggregation_method = "avg", frequency = "q") %>%
-  merge(.,fredr(series_id = "ECIWAG",observation_start = as.Date("2017-01-01")),by = "date") %>%
-  mutate(value = value.x*value.y) %>%
-  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
-  drop_na()
-
-
-GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
-  geom_line(data=GLI_BLS_YOY, aes(x=date,y= value/100,color= "Non-Farm Payrolls Data"), size = 1.25) +
-  geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100,color= "BEA Data"), size = 1.25) +
-  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "ECI * Prime Age Employment"), size = 1.25) +
-  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
-  annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
-  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-03-01"), y =0.042, color = "white", size = 4) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
-  ylab("Percent Growth, Year-on-Year") +
-  ggtitle("GLI Growth in Context") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth Looks to Be Declining Back to Pre-COVID Normal Levels") +
-  theme_apricitas + theme(legend.position = c(.33,.76)) +
-  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = GLI_GROWTH_graph, "GLI Growth graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 
