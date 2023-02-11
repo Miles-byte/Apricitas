@@ -118,7 +118,7 @@ Auto_Sales_Graph <- ggplot() + #plotting capacity utilization in Automobiles
   coord_cartesian(clip = "off")
 
 Cumulative_Shortfall_Graph <- ggplot(subset(Assemblies, date > as.Date("2020-01-01")), aes(x = date, y = Cumulative_Shortfall, fill = "Cumulative Shortfall in US Motor Vehicle Production")) + #plotting power generation
-  geom_bar(stat = "identity", position = "stack", color = NA, width = 31) +
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
   xlab("Date") +
   ylab("Millions of Motor Vehicles") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +

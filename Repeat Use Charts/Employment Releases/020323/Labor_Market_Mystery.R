@@ -13,10 +13,23 @@ MULTIPLE_JOBHOLDERS <- fredr(series_id = "LNS12026619",observation_start = as.Da
 SELF_EMPLOYED <- fredr(series_id = "LNS12027714",observation_start = as.Date("2018-01-01")) #downloading Self Employed data
 AGRICULTURAL <- fredr(series_id = "LNS12034560",observation_start = as.Date("2018-01-01")) #downloading Agricultural Workers
 
+#PAYEMS_OLD <- fredr(series_id = "PAYEMS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
+#ELEV_OLD <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Employment Levels
+#CPSADJ_OLD <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpiadj
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 PAYEMS <- fredr(series_id = "PAYEMS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
 ELEV <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Employment Levels
 CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpiadj
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+PAYEMS <- bls_api("CES0000000001", startyear = 2019) %>% #headline cpiadj
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
+write.csv(CPSADJ_OLD, "CPSADJ_OLD.csv")
+
+
 
 MULTIPLE_32022 <- fredr(series_id = "LNS12026619",observation_start = as.Date("2022-04-01"), units = "chg")%>%
   select(value,date) %>%
@@ -50,6 +63,29 @@ CPSADJ_32022 <- subset(CPSADJ, date > as.Date("2022-02-01")) %>%
   subset(date > as.Date("2022-03-01")) %>%
   mutate(CUMSUM = cumsum(value)) %>%
   mutate(source = "Household Survey Adjusted to Nonfarm Payrolls Concepts")
+
+EMPLOYMENT_Revisions_Graph <- ggplot() + #CPS with NFP adjusted concepts
+  geom_line(data = PAYEMS_OLD, aes(x=date, y = value/1000, color = "Nonfarm Payrolls—Unrevised"), linetype = "dashed", size = 1.5) + 
+  geom_line(data = PAYEMS, aes(x=date, y = value/1000, color = "Nonfarm Payrolls—Revised"), size = 1.25) + 
+  geom_line(data = CPSADJ, aes(x=date, y = value/1000, color = "Household Survey Adjusted to Nonfarm Payrolls Concepts—Revised"), size = 1.25) + 
+  geom_line(data = CPSADJ_OLD, aes(x=date, y = value/1000, color = "Household Survey Adjusted to Nonfarm Payrolls Concepts—Unrevised"), linetype = "dashed", size = 1.5) + 
+  #annotate(geom = "vline", x = as.Date("2022-03-01"), xintercept = as.Date("2022-03-01"), color = "white", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "March 2022", x = as.Date("2021-12-01"), y = 135, color ="white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(120,170), breaks = c(120,130,140,150,160,170), expand = c(0,0)) +
+  ylab("Payrolls/Employees, Millions") +
+  ggtitle("Labor Market Mystery Hour") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Revisions Have Changed Our Understanding of the Labor Market") +
+  theme_apricitas + theme(legend.position = c(.475,.87)) +
+  theme(legend.key.width =  unit(.81, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D"),guide=guide_legend(override.aes=list(linetype=c(1,2,1,2)), linewidth = c(1.25,0.75,1.25,0.75))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 120-(.3*50), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+?guide_legend()
+
+ggsave(dpi = "retina",plot = EMPLOYMENT_Revisions_Graph, "Employment Revisions.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 #Merging nonfarm payrolls, cps adjusted to nonfarm payrolls, and employment levels growth since March 2022
 PAYEMS_ELEV_CPSADJ_32022 <- rbind(PAYEMS_32022,ELEV_32022,CPSADJ_32022) #%>%

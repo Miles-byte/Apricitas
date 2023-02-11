@@ -174,8 +174,8 @@ Total_Excess_Savings_Graph <- ggplot() + #plotting personal income and outlays a
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.75), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("Breaking the (Piggy) Bank") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $500 Billion as Americans Spend More Money") +
-  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $750 Billion as Americans Spend More Money") +
+  theme_apricitas + theme(legend.position = c(.20,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*2.75), ymax = 0) +
   coord_cartesian(clip = "off")

@@ -1,4 +1,4 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -255,7 +255,7 @@ CREDIT_RESIDENTIAL_Graph <- ggplot() + #plotting authorized not started
   scale_y_continuous(labels = scales::number_format(suffix = "K", accuracy = 1), limits = c(550,950), expand = c(0,0)) +
   ylab("Thousands") +
   ggtitle("Under Construction") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "June Saw the First Emplyoment Decreases in Housing Related Sectors Since Rates Increased") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Residential Construction Employment Has Held Up Even With Higher Mortgage Rates") +
   theme_apricitas + theme(legend.position = c(.40,.9)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Employees, Residential Building","All Employees, Nondepository Credit Intermediation")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 550-(.3*400), ymax = 550) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -415,8 +415,8 @@ SFH_MF_Graph <- ggplot() + #plotting SF and MF housing
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
-  ggtitle("La Vie Boheme") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Multifamily Housing Starts Are Above Pre-2008 Levels, But Single Family Starts Aren't") +
+  ggtitle("Starting to Stop") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Have Dropped Significantly—But Multifamily Starts Held Up Better") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -466,7 +466,7 @@ THIRTY_YEAR_FIXED_Graph <- ggplot() + #plotting growth in total housing units
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.09),breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("%") +
   ggtitle("Adjusting Rates") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Mortgage Rates Have Rapidly Rebounded to Nearly 6%") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Mortgage Rates Have Fallen Slightly From 20-Year Highs, But Remain Elevated") +
   theme_apricitas + theme(legend.position = c(.5,.90)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7250), xmax = as.Date("2000-01-01")-(0.049*7250), ymin = 0-(.3*.09), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -487,9 +487,96 @@ REDFIN_LIST_PRICE_Graph <- ggplot() + #plotting redfin data
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-07-01")-(.1861*(today()-as.Date("2016-07-01"))), xmax = as.Date("2016-07-01")-(0.049*(today()-as.Date("2016-07-01"))), ymin = 100-(.3*150), ymax = 100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+SF_HOUSING_UNDERCONSTRUCTION <- fredr(series_id = "UNDCON1USA", observation_start = as.Date("2000-01-01")) #total under construction
+MF_HOUSING_UNDERCONSTRUCTION <- fredr(series_id = "UNDCON5MUSA", observation_start = as.Date("2000-01-01")) #total under construction
+
+SF_MF_UNDER_CONSTRUCTION_Graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=SF_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "Housing Units Under Construction: Single-Family Units"), size = 1.25) +
+  geom_line(data=MF_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "Housing Units Under Construction: Units in Buildings With 5 Units or More"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.25), limits = c(0,1.25), expand = c(0,0)) +
+  ylab("Units, Millions, Seasonally Adjusted") +
+  ggtitle("Under Construction") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single-Family Homes Under Construction Is Dropping as Multi-Family Hits New Highs") +
+  theme_apricitas + theme(legend.position = c(.5,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*1.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SF_MF_UNDER_CONSTRUCTION_Graph, "SF MF Under Construction.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+#plotting home price indices
+
+CASE_SHILLER <- fredr(series_id = "CSUSHPINSA", observation_start = as.Date("2000-01-01")) #total under construction
+ALL_TRANS <- fredr(series_id = "USSTHPI", observation_start = as.Date("2000-01-01")) #total under construction
+
+HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=CASE_SHILLER, aes(x=date,y= value/value[61]*100, color= "S&P/Case-Shiller US National Home Price Index"), size = 1.25) +
+  geom_line(data=ALL_TRANS, aes(x=date,y= value/value[21]*100, color= "US All-Transactions House Price Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(), limits = c(50,200), expand = c(0,0)) +
+  ylab("Index, Jan 2005 = 100") +
+  ggtitle("Price Pressures") +
+  labs(caption = "Graph created by @JosephPolitano using FHA & S&P data",subtitle = "Housing Prices Look to Be on the Decline for the First Time in Years") +
+  theme_apricitas + theme(legend.position = c(.5,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 50-(.3*150), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HOME_PRICE_graph, "Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+# for sale/sold
+SOLD <- fredr(series_id = "HSN1F", observation_start = as.Date("2000-01-01")) #total under construction
+FOR_SALE <- fredr(series_id = "HNFSEPUSSA", observation_start = as.Date("2000-01-01")) #total under construction
+
+
+SF_FOR_SALE_graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=SOLD, aes(x=date,y= value/1000, color= "New Single-Family Houses Sold (Annual Rate)"), size = 1.25) +
+  geom_line(data=FOR_SALE, aes(x=date,y= value/1000, color= "New Single-Family Houses For Sale"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.25), limits = c(0,1.5), expand = c(0,0)) +
+  ylab("Units, Millions, Seasonally Adjusted") +
+  ggtitle("Sell-Side") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Completed Single Family Sales are Falling—As Units For Sale Hits a Post-2008 Peak") +
+  theme_apricitas + theme(legend.position = c(.65,.93)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*1.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SF_FOR_SALE_graph, "SF for Sale Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+FIXED_RESI_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50406',
+  'Frequency' = 'Q',
+  'Year' = '2015,2016,2017,2018,2019,2020,2021,2022',
+  'ResultFormat' = 'json'
+)
+
+FIXED_RESI_INVEST <- beaGet(FIXED_RESI_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2015-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+FIXED_INVESTMENT_Residential_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = FIXED_RESI_INVEST, aes(x=date, y = u50406_a944rx_37_single_family_structures_chained_dollars_level_6/u50406_a944rx_37_single_family_structures_chained_dollars_level_6[1]*100, color = "Real Fixed Investment: Single-Family Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST, aes(x=date, y = u50406_a946rx_42_improvements_chained_dollars_level_6/u50406_a946rx_42_improvements_chained_dollars_level_6[1]*100, color = "Real Fixed Investment: Residential Improvements"), size = 1.25) + 
+  #geom_line(data = FIXED_INDUSTRIAL, aes(x=date, y = value/2.42, color = "Real Fixed Investment: Industrial Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(90,150), expand = c(0,0)) +
+  ylab("Index, Jan 2015 = 100") +
+  ggtitle("Unfixed Problems") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Fixed Investment in Single-Family Homes and Home Improvements are Declining") +
+  theme_apricitas + theme(legend.position = c(.60,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D"), breaks = c("Real Fixed Investment: Single-Family Structures","Real Fixed Investment: Residential Improvements")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 90-(.3*60), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIXED_INVESTMENT_Residential_Graph, "Fixed Investment Residential.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 ggsave(dpi = "retina",plot = REDFIN_LIST_PRICE_Graph, "Redfin Listing Prices.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-
 ggsave(dpi = "retina",plot = THIRTY_YEAR_FIXED_Graph, "Thirty Year Fixed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = STARTS_COMPLETIONS_Graph, "Starts Completions.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = UNDER_CONSTRUCTION_Graph, "Under Construction.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

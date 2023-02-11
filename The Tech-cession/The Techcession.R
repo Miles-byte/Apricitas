@@ -76,22 +76,26 @@ ggsave(dpi = "retina",plot = ADS_PPI_Graph, "ADS PPI Graph.png", type = "cairo-p
 #Tech Employment
 DATA_PROCESSING <- bls_api("CES5051800001", startyear = 2005, registrationKey = "BLS_KEY") %>% #data processing employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-SOFTWARE_PUBLISHERS <- bls_api("CES5051120001", startyear = 2005, registrationKey = "BLS_KEY") %>% #software employment
+SOFTWARE_PUBLISHERS <- bls_api("CES5051320001", startyear = 2005, registrationKey = "BLS_KEY") %>% #software employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-INTERNET_PUBLISHERS <- bls_api("CES5051913001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
+SEARCH_PORTALS <- bls_api("CES5051929001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+MEDIA_SOCIAL <- bls_api("CES5051620001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
+
 TECH_EMPLOYMENT_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
-  geom_line(data=DATA_PROCESSING, aes(x=date,y= value,color= "Data Processing, Hosting, and Related Activities"), size = 1.25)+ 
+  geom_line(data=DATA_PROCESSING, aes(x=date,y= value,color= "Computing Infrastructure, Data Processing, Web Hosting, & Related"), size = 1.25)+ 
   geom_line(data=SOFTWARE_PUBLISHERS, aes(x=date,y= value,color= "Software Publishers"), size = 1.25) + 
-  geom_line(data=INTERNET_PUBLISHERS, aes(x=date,y= value,color= "Internet Publishing, Broadcasting, and Web Search Portals"), size = 1.25) + 
+  geom_line(data=SEARCH_PORTALS, aes(x=date,y= value,color= "Web Search Portals and All Other Information Services"), size = 1.25) + 
+  geom_line(data=MEDIA_SOCIAL, aes(x=date,y= value,color= "Media Streaming Distribution Services, Social Networks, & Related"), size = 1.25) + 
   xlab("Date") +
   ylab("All Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,650), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,675), expand = c(0,0)) +
   ggtitle("Tech-Cession?") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment is Still Rising in Key Digital Tech Sectors") +
-  theme_apricitas + theme(legend.position = c(.38,.85)) +
-  scale_color_manual(name= "All Employees",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Software Publishers","Data Processing, Hosting, and Related Activities","Internet Publishing, Broadcasting, and Web Search Portals")) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment is Stalling in Key Digital Tech Sectors") +
+  theme_apricitas + theme(legend.position = c(.385,.835), legend.text = element_text(size = 13)) +
+  scale_color_manual(name= "All Employees",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Software Publishers","Computing Infrastructure, Data Processing, Web Hosting, & Related","Media Streaming Distribution Services, Social Networks, & Related","Web Search Portals and All Other Information Services")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -177,8 +181,6 @@ TECH_LAYOFFS_Graph <- ggplot() + #plotting total quits and layoffs
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TECH_LAYOFFS_Graph, "Tech Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
-
-
 
 cat("\014")  # ctrl+L
 

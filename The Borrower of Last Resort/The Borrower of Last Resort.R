@@ -1,6 +1,9 @@
 pacman::p_load(remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 Deficit <- fredr(series_id = "FYFSGDA188S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
+Interest <- fredr(series_id = "FYOIGDA188S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
+
+
 TENYRTIPS <- fredr(series_id = "DFII10",observation_start = as.Date("2003-01-02"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
 
 TENYRTIPS <- drop_na(TENYRTIPS)
@@ -65,6 +68,22 @@ Deficit_Graph <- ggplot() + #plotting federal deficit data
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7300), xmax = as.Date("2000-01-01")-(0.049*7300), ymin = -.16-(.3*.184), ymax = -.16) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+Deficit_Interest_Graph <- ggplot() + #plotting federal deficit data
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=Deficit, aes(x=date,y= value/100 ,color= "Federal Budget Deficit, % of GDP"), size = 1.25) +
+  geom_line(data=Interest, aes(x=date,y= -value/100 ,color= "Federal Interest Expenses, % of GDP"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.16,0.024), breaks = c(0,-0.05,-0.1,-0.15), expand = c(0,0)) +
+  ylab("Federal Budget Deficit, % of GDP") +
+  ggtitle("Deficit Finance") +
+  labs(caption = "Graph created by @JosephPolitano using Treasury data",subtitle = "Federal Budget Deficits Have Grown Since the Turn of the Millenium") +
+  theme_apricitas + theme(legend.position = c(.30,.25)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7300), xmax = as.Date("2000-01-01")-(0.049*7300), ymin = -.16-(.3*.184), ymax = -.16) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+
 InterestPct <- ggplot() + #plotting interest as a %of GDP
   geom_line(data=fyoint, aes(x=DATE,y=OINT/GDP,color= "Interest"), size = 1.25) +
   geom_line(data=fyoint, aes(x=DATE,y=(OINT-FRBREMIT)/GDP,color= "Interest Less Fed Remittances"), size = 1.25) +
@@ -124,6 +143,7 @@ TENYRTIPS_Graph <- ggplot() + #plotting TIPS
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Deficit_Graph, "Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+ggsave(dpi = "retina",plot = Deficit_Interest_Graph, "Deficit Interest Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = InterestPct, "InterestPct.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = JapanEUInterestGDP, "JPN EU Interest.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 ggsave(dpi = "retina",plot = Nominal_Growth, "Nominal Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 

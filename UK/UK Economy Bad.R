@@ -30,8 +30,8 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Back of the Pack") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The UK and Japan are the Only G7 Nations Whose Output Hasn't Fully Recovered") +
-  theme_apricitas + theme(legend.position = c(.25,.29)) +
-  scale_color_manual(name= "Real GDP Index, 2019 Q3 = 100",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
+  theme_apricitas + theme(legend.position = c(.22,.29)) +
+  scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")
 
@@ -75,28 +75,28 @@ EPOP_G7_Graph <- ggplot() + #EU chemical imports
 
 ggsave(dpi = "retina",plot = EPOP_G7_Graph, "G7epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-US_EPOP_PA <- fredr(series_id = "LNS12300060",observation_start = as.Date("2018-01-01"), frequency = "q")
-UK_EPOP_PA <- fredr(series_id = "LREM25TTGBQ156S",observation_start = as.Date("2018-01-01"))
-GER_EPOP_PA <- fredr(series_id = "LREM25TTDEQ156S",observation_start = as.Date("2018-01-01"))
-ITA_EPOP_PA <- fredr(series_id = "LREM25TTITQ156S",observation_start = as.Date("2018-01-01"))
-FRA_EPOP_PA <- fredr(series_id = "LREM25TTFRQ156S",observation_start = as.Date("2018-01-01"))
-JPN_EPOP_PA <- fredr(series_id = "LREM25TTJPM156S",observation_start = as.Date("2018-01-01"), frequency = "q")
-CAN_EPOP_PA <- fredr(series_id = "LREM25TTCAM156S",observation_start = as.Date("2018-01-01"), frequency = "q") 
+US_EPOP_PA <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"), frequency = "q")
+UK_EPOP_PA <- fredr(series_id = "LREM25TTGBQ156S",observation_start = as.Date("1990-01-01"))
+GER_EPOP_PA <- fredr(series_id = "LREM25TTDEQ156S",observation_start = as.Date("1990-01-01"))
+ITA_EPOP_PA <- fredr(series_id = "LREM25TTITQ156S",observation_start = as.Date("1990-01-01"))
+FRA_EPOP_PA <- fredr(series_id = "LREM25TTFRQ156S",observation_start = as.Date("1990-01-01"))
+JPN_EPOP_PA <- fredr(series_id = "LREM25TTJPM156S",observation_start = as.Date("1990-01-01"), frequency = "q")
+CAN_EPOP_PA <- fredr(series_id = "LREM25TTCAM156S",observation_start = as.Date("199-01-01"), frequency = "q") 
 
 EPOP_G7_PA_Graph <- ggplot() + #EU chemical imports
-  geom_line(data=US_EPOP_PA, aes(x=date,y= value,color= "United States"), size = 1.25) +
-  geom_line(data=UK_EPOP_PA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
-  geom_line(data=CAN_EPOP_PA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
-  geom_line(data=GER_EPOP_PA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
-  geom_line(data=ITA_EPOP_PA, aes(x=date,y= value,color= "Italy"), size = 1.25) +
-  geom_line(data=FRA_EPOP_PA, aes(x=date,y= value,color= "France"), size = 1.25) +
-  geom_line(data=JPN_EPOP_PA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
+  geom_line(data=US_EPOP_PA, aes(x=date,y= value/100,color= "United States"), size = 1.25) +
+  geom_line(data=UK_EPOP_PA, aes(x=date,y= value/100,color= "United Kingdom"), size = 1.25) +
+  geom_line(data=CAN_EPOP_PA, aes(x=date,y= value/100,color= "Canada"), size = 1.25) +
+  geom_line(data=GER_EPOP_PA, aes(x=date,y= value/100,color= "Germany"), size = 1.25) +
+  geom_line(data=ITA_EPOP_PA, aes(x=date,y= value/100,color= "Italy"), size = 1.25) +
+  geom_line(data=FRA_EPOP_PA, aes(x=date,y= value/100,color= "France"), size = 1.25) +
+  geom_line(data=JPN_EPOP_PA, aes(x=date,y= value/100,color= "Japan"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(67,87), breaks = c(85,90,95,100,105), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.67,.87), breaks = c(.70,.75,.80,.85), expand = c(0,0)) +
   ylab("25-54 Employment Rate") +
-  ggtitle("Back of the Pack") +
-  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "The UK is the Only G7 Nation Whose Prime-Age Employment Rate Hasn't Fully Recovered") +
-  theme_apricitas + theme(legend.position = c(.23,.29)) +
+  ggtitle("The Global Employment Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "Besides the UK, All G7 Nations Have Seen Full Employment Recoveries") +
+  theme_apricitas + theme(legend.position = c(.15,.28), legend.title = element_text(size = 13), legend.text = element_text(size = 13)) +
   scale_color_manual(name= "25-54 Employment Rate",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 67-(.3*20), ymax = 67) +
   coord_cartesian(clip = "off")

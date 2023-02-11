@@ -3,28 +3,28 @@ install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
-Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 Childcare=Childcare[order(nrow(Childcare):1),]
-Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
+Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2023-01-01"), "months")
 
-OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 OwnIllnessNoWork=OwnIllnessNoWork[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
+OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2023-01-01"), "months")
 
-OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 OwnIllnessPartTime=OwnIllnessPartTime[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
+OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2023-01-01"), "months")
 
 PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
 Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
 
-EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 EPOP55Plus=EPOP55Plus[order(nrow(EPOP55Plus):1),]
-EPOP55Plus$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
+EPOP55Plus$date <- seq(as.Date("2018-01-01"), as.Date("2023-01-01"), "months")
 
-UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 UnpaidAbsences=UnpaidAbsences[order(nrow(UnpaidAbsences):1),]
-UnpaidAbsences$date <- seq(as.Date("2018-01-01"), as.Date("2022-02-01"), "months")
+UnpaidAbsences$date <- seq(as.Date("2018-01-01"), as.Date("2023-01-01"), "months")
 
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
@@ -40,7 +40,7 @@ Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
 EPOP_L_SA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
@@ -50,13 +50,13 @@ EPOP_L_NSA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
 #have to split black epop into two separate dataframes because BLS API only allows 10 years of data at a time
 Black_Epop1 <- bls_api("LNU02300066", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = 2022, Sys.getenv("BLS_KEY")) %>% select(-latest)
+Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = 2023, Sys.getenv("BLS_KEY")) %>% select(-latest)
 
 #binding black epops together and creating date
 Black_Epop <- rbind(Black_Epop1,Black_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
 White_Epop1 <- bls_api("LNU02300063", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = 2022, Sys.getenv("BLS_KEY")) %>% select(-latest)
+White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = 2023, Sys.getenv("BLS_KEY")) %>% select(-latest)
 
 White_Epop <- rbind(White_Epop1,White_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
@@ -478,12 +478,12 @@ Childcare_Graph <- ggplot() + #plotting Emplyoment-population ratio
   geom_line(data=Childcare, aes(x=date,y= value,color= "Employed But Not At Work, Childcare Problems"), size = 1.25)+ 
   xlab("Date") +
   ylab("Thousands") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,120), expand = c(0,0)) +
   ggtitle("The Childcare Crisis") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Chilcare Issues are Interfering With People's Ability to Work During the Pandemic") +
   theme_apricitas + theme(legend.position = c(.32,.9)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1295), ymin = 0-(.3*100), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*120), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Total_Layoffs_Graph <- ggplot() + #plotting total discharges
@@ -652,12 +652,12 @@ PWD_Graph <- ggplot() + #plotting employment of people with disabilities
   geom_line(data=PWD, aes(x=date,y= value/100,color= "Employment-Population Ratio - With a Disability, 16 Years and Over"), size = 1.25)+ 
   xlab("Date") +
   ylab("Employment-Population Ratio, Percent") +
-  scale_y_continuous(labels = scales::percent_format(), breaks = c(.15,.175,.20), limits = c(.15,.22), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(.15,.175,.20,.25), limits = c(.15,.25), expand = c(0,0)) +
   ggtitle("A Possible Bright Spot?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment Rates for People With Disabilities are up, but More Data is Needed") +
   theme_apricitas + theme(legend.position = c(.45,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = .15-(.3*.06), ymax = .15) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today() - as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today() - as.Date("2019-01-01"))), ymin = .15-(.3*.1), ymax = .15) +
   coord_cartesian(clip = "off")
 
 Employment_Index_Graph <- ggplot() + #indexed employment rate
@@ -862,7 +862,7 @@ EMPLOY_PROF_BUSINESS_SERVICES_IND <- fredr(series_id = "USPBS",observation_start
   mutate(value = (value-value[1]))
 EMPLOY_EDU_HEALTH_SERVICES_IND <- fredr(series_id = "USEHS",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
   select(date, value, series_id) %>%
-  mutate(series_id = "Education and Health Services") %>%
+  mutate(series_id = "Private Education and Health Services") %>%
   mutate(value = (value-value[1]))
 EMPLOY_LEISURE_HOSPITALITY_IND <- fredr(series_id = "USLAH",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
   select(date, value, series_id) %>%
@@ -881,11 +881,11 @@ EMPLOY_OTHER_SERVICES_IND <- rbind(fredr(series_id = "USINFO",observation_start 
                                fredr(series_id = "USSERV",observation_start = as.Date("2020-01-01"), realtime_end = NULL)) %>%
   select(date,series_id,value) %>%
   pivot_wider(names_from = series_id) %>%
-  transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info") %>%
+  transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Information") %>%
   mutate(value = (value-value[1]))
 
 EMPLOY_GROWTH_IND <- rbind(EMPLOY_TRADE_TRANSP_UTIL_IND,EMPLOY_PROF_BUSINESS_SERVICES_IND,EMPLOY_EDU_HEALTH_SERVICES_IND,EMPLOY_LEISURE_HOSPITALITY_IND,EMPLOY_GOODS_IND,EMPLOY_GOVT_IND,EMPLOY_OTHER_SERVICES_IND) %>%
-  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Information")))
 
 EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -894,9 +894,9 @@ EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = va
   ylab("Change Since Jan 2020, Millions of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,5), expand = c(0,0)) +
   ggtitle("The Shape of Job Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Most New Jobs are In Trade and Professional Services, Most Lost Jobs are in Leisure & Hospitality") +
-  theme_apricitas + theme(legend.position = c(.75,.35)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
+  theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Information")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -972,6 +972,79 @@ EMPLOY_TEMP_HELP_SERVICES_GRAPH <- ggplot() + #plotting local government educati
 
 
 
+GLI_BLS_YOY <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"), units = "pc1")
+GLI_BEA_YOY <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-01"), units = "pc1")
+GLI_EPOP_YOY <- fredr(series_id = "LNS12300060",observation_start = as.Date("2017-01-01"), aggregation_method = "avg", frequency = "q") %>%
+  merge(.,fredr(series_id = "ECIWAG",observation_start = as.Date("2017-01-01")),by = "date") %>%
+  mutate(value = value.x*value.y) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+
+
+GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_BLS_YOY, aes(x=date,y= value/100,color= "Non-Farm Payrolls Data"), size = 1.25) +
+  geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100,color= "BEA Data"), size = 1.25) +
+  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "Employment Cost Index * Prime Age Employment"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
+  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-03-01"), y =0.042, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("Is the Labor Shortage Ending?") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth Looks to Be Declining Back to Pre-COVID Normal Levels") +
+  theme_apricitas + theme(legend.position = c(.33,.72)) +
+  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","Employment Cost Index * Prime Age Employment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLI_GROWTH_graph, "GLI Growth graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+DATA_PROCESSING <- bls_api("CES5051800001", startyear = 2005, registrationKey = "BLS_KEY") %>% #data processing employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+SOFTWARE_PUBLISHERS <- bls_api("CES5051320001", startyear = 2005, registrationKey = "BLS_KEY") %>% #software employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+SEARCH_PORTALS <- bls_api("CES5051929001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+MEDIA_SOCIAL <- bls_api("CES5051620001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
+TECH_EMPLOYMENT_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
+  geom_line(data=DATA_PROCESSING, aes(x=date,y= value,color= "Computing Infrastructure, Data Processing, Web Hosting, & Related"), size = 1.25)+ 
+  geom_line(data=SOFTWARE_PUBLISHERS, aes(x=date,y= value,color= "Software Publishers"), size = 1.25) + 
+  geom_line(data=SEARCH_PORTALS, aes(x=date,y= value,color= "Web Search Portals and All Other Information Services"), size = 1.25) + 
+  geom_line(data=MEDIA_SOCIAL, aes(x=date,y= value,color= "Media Streaming Distribution Services, Social Networks, & Related"), size = 1.25) + 
+  xlab("Date") +
+  ylab("All Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,675), expand = c(0,0)) +
+  ggtitle("Tech-Cession?") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment is Stalling in Key Digital Tech Sectors") +
+  theme_apricitas + theme(legend.position = c(.385,.835), legend.text = element_text(size = 13)) +
+  scale_color_manual(name= "All Employees",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Software Publishers","Computing Infrastructure, Data Processing, Web Hosting, & Related","Media Streaming Distribution Services, Social Networks, & Related","Web Search Portals and All Other Information Services")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TECH_EMPLOYMENT_Graph, "Tech Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#
+ECI_WAG_YOY <- fredr(series_id = "ECIWAG",observation_start = as.Date("2002-01-01"), units = "pc1")
+AHE_YOY <- fredr(series_id = "CES0500000003",observation_start = as.Date("2002-01-01"), units = "pc1")
+
+WAGE_GROWTH_Graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=AHE_YOY, aes(x=date,y= value/100,color= "Average Hourly Earnings, Private (Not Composition Adjusted)"), size = 1.25) +
+  geom_line(data=ECI_WAG_YOY, aes(x=date,y= value/100,color= "Wages, Employment Cost Index, Private (Composition Adjusted)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0815), breaks = c(0,0.01,.02,.03,0.04,0.05,0.06,0.07,0.08), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("Is the Labor Shortage Ending?") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Wage Growth Looks to Be Decelerating Now") +
+  theme_apricitas + theme(legend.position = c(.42,.72)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Wages, Employment Cost Index, Private (Composition Adjusted)","Average Hourly Earnings, Private (Not Composition Adjusted)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = WAGE_GROWTH_Graph, "Wage Growth Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png") #cairo gets rid of anti aliasing

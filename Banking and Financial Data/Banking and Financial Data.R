@@ -243,7 +243,7 @@ CI_LOAN_Graph <- ggplot() + #plotting net tightening data
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.40,-.20,0,.20,.40,.60,.80,1), limits = c(-.40,1), expand = c(0,0)) +
   ggtitle("Tightening Up") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Dramatically Tightening Lending Standards for Businesses") +
-  theme_apricitas + theme(legend.position = c(.465,.85)) +
+  theme_apricitas + theme(legend.position = c(.4625,.85)) +
   scale_color_manual(name= "Net Percentage of Domestic Banks Tightening, Commercial & Industrial Loans",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -0.40-(.3*1.40), ymax = -0.40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -315,6 +315,106 @@ CI_LOANS_PPP_Graph <- ggplot() + #plotting bank consumer loan data
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CI_LOANS_PPP_Graph, "CI Loans ex PPP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Easing/Tightening by how important economic outlook is
+
+EASE_VERY <- fredr(series_id = "SUBLPDCIREOVNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Very")
+EASE_SOMEWHAT <- fredr(series_id = "SUBLPDCIREOSNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Somewhat")
+EASE_NOT <- fredr(series_id = "SUBLPDCIREONNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Not")
+TIGHT_VERY <- fredr(series_id = "SUBLPDCIRTOVNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Very")
+TIGHT_SOMEWHAT <- fredr(series_id = "SUBLPDCIRTOSNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Somewhat")
+TIGHT_NOT <- fredr(series_id = "SUBLPDCIRTONNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Not")
+
+TIGHT_ECONOMIC_CONDITIONS <- rbind(EASE_VERY,EASE_SOMEWHAT,EASE_NOT,TIGHT_VERY,TIGHT_SOMEWHAT,TIGHT_NOT) %>%
+  select(date, value, response) %>%
+  pivot_wider(names_from = response) %>%
+  replace(is.na(.), 0) %>%
+  mutate(Total = Ease_Very+Ease_Somewhat+Ease_Not+Tight_Very+Tight_Somewhat+Tight_Not)
+
+TIGHT_ECONOMIC_CONDITIONS_STACKED <- TIGHT_ECONOMIC_CONDITIONS %>%
+  mutate(Tight_Very = Tight_Very/Total) %>%
+  mutate(Tight_Somewhat = Tight_Somewhat/Total) %>%
+  select(date, Tight_Very, Tight_Somewhat) %>%
+  pivot_longer(cols = c(Tight_Very,Tight_Somewhat)) %>%
+  mutate(name = gsub("Tight_Very", "Very Important Reason", name)) %>%
+  mutate(name = gsub("Tight_Somewhat", "Somewhat Important Reason", name))
+
+TIGHT_ECONOMIC_CONDITIONS_STACKED_GRAPH <- ggplot(data = TIGHT_ECONOMIC_CONDITIONS_STACKED, aes(x = date, y = value, fill = name)) +
+  geom_col(stat = "identity", position = "stack", color = NA, width = 92) +
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.25,0.5,0.75,1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle("Banks Are Souring on the Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Citing the Worsening Economic Outlook as a Reason to Tighten Credit Standards") +
+  theme_apricitas + theme(legend.position = c(.64,.85), legend.title = element_text(size = 13), legend.text = element_text(size =12)) +
+  scale_fill_manual(name= "% Banks: Tightening, Econ Outlook is:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Somewhat Important Reason","Very Important Reason")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1999-07-01")-(.1861*(today()-as.Date("1999-07-01"))), xmax = as.Date("1999-07-01")-(0.049*(today()-as.Date("1999-07-01"))), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")  
+
+TIGHT_ECONOMIC_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=TIGHT_ECONOMIC_CONDITIONS, aes(x=date,y= Tight_Very/Total,color= "Very Important Reason"), size = 1.25)+ 
+  geom_line(data=TIGHT_ECONOMIC_CONDITIONS, aes(x=date,y= Tight_Somewhat/Total,color= "Somewhat Important Reason"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Banks Changing Credit Standards") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.40,-.20,0,.20,.40,.60,.80,1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle("Banks Are Souring on the Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Citing the Worsening Economic Outlook as a Reason to Tighten Credit Standards") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name= "% of Banks Changing Credit Standards: Tightening, Cited Economic Outlook As:",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Very Important Reason","Somewhat Important Reason")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TIGHT_ECONOMIC_Graph, "Tight Economic Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = TIGHT_ECONOMIC_CONDITIONS_STACKED_GRAPH, "Tight Economic Graph Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+CON_TIGHTENING <- fredr(series_id = "SUBLPDMHSXWBNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL)
+BUS_TIGHTENING <- fredr(series_id = "SUBLPDMBSXWBNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+COM_BUS_TIGHTENING_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=CON_TIGHTENING, aes(x=date,y= value/100,color= "Household Loans"), size = 1.25)+ 
+  geom_line(data=BUS_TIGHTENING, aes(x=date,y= value/100,color= "Business Loans"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Loan and Leases") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.60,-.40,-.20,0,.20,.40,.60,.80,1), limits = c(-.60,1.1), expand = c(0,0)) +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Rapidly Tightening Their Lending Standards Across Sectors") +
+  theme_apricitas + theme(legend.position = c(.51,.875)) +
+  scale_color_manual(name= "Net Percent of Domestic Banks Tightening Standards, Weighted By Loan Balances",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.60-(.3*1.7), ymax = -.60) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = COM_BUS_TIGHTENING_Graph, "COM BUS TIGHTENING.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+HYOAS <- fredr(series_id = "BAMLH0A0HYM2",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  drop_na()
+
+HYOAS_SLOOS_MERGE <- ggplot() + #plotting local government education employment
+  annotate("hline", y = 0, yintercept = 0, color = "gray", size = .5) +
+  geom_line(data=BUS_TIGHTENING, aes(x=date,y= value/100,color= "Net Percent of Domestic Banks Tightening Standards for Business Loans (lhs)"), size = 1.25)+ 
+  geom_line(data=HYOAS, aes(x=date,y= (value/100*5.5)-0.33,color= "ICE BofA High-Yield Option-Adjusted Spread (rhs)"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.40,1.05), expand = c(0,0), sec.axis = sec_axis(~./6+0.06, name="Percent", labels = scales::percent_format())) + 
+  ggtitle("Tightening Or Easing?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks Report Tightening Their Lending Standards Even as High Yield Spreads Fall") +
+  theme_apricitas + theme(legend.position = c(.51,.955), legend.text = element_text(size = 13)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.40-(.3*1.45), ymax = -.40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HYOAS_SLOOS_MERGE, "HYOAS SLOOS MERGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 #LOOK HERE FOR DATA ON DELINQUENCY RATES FOR ALL BANKS

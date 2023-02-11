@@ -199,8 +199,8 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Index") +
-  ggtitle("Lacking Forward Guidance") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High as Economic Conditions Remain Unstable") +
+  ggtitle("Forward Guidance") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High But Declining") +
   theme_apricitas + theme(legend.position = c(.25,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*200), ymax = 0) +
@@ -323,8 +323,8 @@ NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
   xlab("Date") +
   scale_y_continuous(limits = c(-1,1), breaks = c(-1,-0.5,0,0.5,1), expand = c(0,0)) +
   ylab("Index, 0 = Average, Higher Numbers are Tighter") +
-  ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions were Tightening even before the Federal Reserve Raises Interest Rates") +
+  ggtitle("Easing Up?") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Tight, But Have Been Easing Up a Bit in Recent Months") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -1-(.3*2), ymax = -1) +
@@ -387,13 +387,13 @@ IOER_IORB_Graph <- ggplot() + #plotting durables v services inflation
   geom_line(data=IORB, aes(x=date,y= value/100,color= "IORB"), size = 1.25) +
   geom_line(data=IOER, aes(x=date,y= value/100,color= "IOER"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.035), breaks = c(0,0.005,.01,.015,.02,.025,0.03,0.035), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.05), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("How High Can Rates Go?") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Interest Rates are Now Well Above Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.50,.75)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*4150), xmax = as.Date("2010-01-01")-(0.049*4150), ymin = 0-(.3*.035), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*4350), xmax = as.Date("2010-01-01")-(0.049*4350), ymin = 0-(.3*.05), ymax = 0) +
   coord_cartesian(clip = "off")
 
 TenYR_Graph <- ggplot() + #plotting durables v services inflation
@@ -463,10 +463,10 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short and Long Term Inflation Expectations are Below a Level Consistent with the Fed's Target") +
-  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short & Long Term Inflation Expectations are at a Level Consistent with the Fed's Target") +
+  theme_apricitas + theme(legend.position = c(.35,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  theme(legend.key.width =  unit(.82, "cm")) +
+  #theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today() - as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today() - as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) +
   coord_cartesian(clip = "off")
 

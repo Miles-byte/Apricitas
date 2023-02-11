@@ -298,7 +298,7 @@ US_CIRCUITS_EXPORTS <- getCensus(
   pivot_wider(values_from = "ALL_VAL_MO",names_from = "CTY_CODE")
 
 
-US_IC_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
+US_IC_EXPORTS_Graph <- ggplot() + #plotting integrated circuits exports
   geom_line(data=US_CIRCUITS_EXPORTS, aes(x=time,y= `5700`/1000000000,color= "China"), size = 1.25) + 
   geom_line(data=US_CIRCUITS_EXPORTS, aes(x=time,y= `5570`/1000000000,color= "Malaysia"), size = 1.25) + 
   geom_line(data=US_CIRCUITS_EXPORTS, aes(x=time,y= `5800`/1000000000,color= "South Korea"), size = 1.25) + 
