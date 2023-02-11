@@ -62,7 +62,7 @@ INPUTS_OUTPUTS_COSTS_GRAPH <- ggplot() + #plotting Input and Output Price Expect
   ylab("Balance") +
   ggtitle("(Dis)inflation Expectations") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Canada data",subtitle = "Canadian Firms Expect Input and Output Prices to Decelerate—But For Labor Costs to Accelerate") +
-  theme_apricitas + theme(legend.position = c(.4825,.875)) +
+  theme_apricitas + theme(legend.position = c(.455,.885)) +
   scale_color_manual(name= "Net Share of Firms Expecting Faster Price Increases in the Next 12M vs Last 12M" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1997-07-01")-(.1861*(today()-as.Date("1997-07-01"))), xmax = as.Date("1997-07-01")-(0.049*(today()-as.Date("1997-07-01"))), ymin = -55-(.3*125), ymax = -55) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -377,7 +377,31 @@ CAN_TRADE_GRAPH <- ggplot(GOODS_TRADE_US_NONUS, aes(fill=name, x=REF_DATE, y=val
 
 ggsave(dpi = "retina",plot = CAN_TRADE_GRAPH, "Canada Trade Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+SUPPLY_BOTTLENECKS <- get_series("BOS_2022Q4_C6_S1")
+
+LABOR_BOTTLENECKS <- get_series("BOS_2022Q4_C6_S2")
+
+BOTTLENECKS_GRAPH <- ggplot() + #plotting Labor Shortage
+  geom_line(data=LABOR_BOTTLENECKS, aes(x=date,y= BOS_2022Q4_C6_S2/100, color= "Share of Firms With Broad Labor Bottlenecks"), size = 1.25) +
+  geom_line(data=SUPPLY_BOTTLENECKS, aes(x=date,y= BOS_2022Q4_C6_S1/100, color= "Share of Firms With Broad Supply-Chain Bottlenecks"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Canadian Capacity Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Canada data",subtitle = "Broadly, Canadian Labor and Supply Bottlenecks are Tight but Easing") +
+  theme_apricitas + theme(legend.position = c(.525,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BOTTLENECKS_GRAPH, "Bottlenecks Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 p_unload(all)  # Remove all packages using the package manager
+
+
+
 
 # Clear console
 cat("\014")  # ctrl+L
