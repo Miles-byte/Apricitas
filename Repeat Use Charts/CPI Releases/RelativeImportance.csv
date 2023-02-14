@@ -1,39 +1,39 @@
-Expenditure category,2017,2019,2021
-All items,100,100,100
-Food,13.384,13.771,13.37
-Food at home,7.382,7.579,8.165
-Cereals and bakery products,0.964,0.984,1.03
-"Meats, poultry, fish, and eggs",1.635,1.682,1.888
-Dairy and related products,0.744,0.768,0.752
-Fruits and vegetables,1.302,1.317,1.408
-Nonalcoholic beverages and beverage materials,0.873,0.903,0.933
-Other food at home,1.864,1.925,2.153
-Food away from home,6.002,6.191,5.205
-Energy,7.513,6.706,7.348
-Energy commodities,4.094,3.61,4.014
-Fuel oil,0.109,0.106,0.115
-Motor fuel,3.908,3.44,3.822
-Gasoline (all types),3.823,3.362,3.748
-Energy services,3.419,3.096,3.334
-Electricity,2.628,2.405,2.454
-Utility (piped) gas service,0.791,0.691,0.879
-All items less food and energy,79.103,79.524,79.282
-Commodities less food and energy commodities,19.849,20.137,21.699
-Apparel,3.018,2.81,2.458
-New vehicles,3.805,3.734,4.105
-Used cars and trucks,2.402,2.533,4.143
-Medical care commodities,1.748,1.643,1.524
-Alcoholic beverages,0.974,1.023,0.889
-Tobacco and smoking products,0.651,0.587,0.526
-Services less energy services,59.254,59.387,57.583
-Shelter,32.843,33.158,32.946
-Rent of primary residence,7.823,7.792,7.398
-Owners' equivalent rent of residences,23.747,24.071,24.251
-Medical care services,6.924,7.19,6.962
-Physicians' services(1),1.755,1.811,1.9
-Hospital services(3),2.3,2.186,2.199
-Transportation services,5.926,5.399,5.599
-Motor vehicle maintenance and repair,1.123,1.077,1.038
-Motor vehicle insurance,2.352,1.701,2.383
-Airline fares,0.691,0.786,0.481
-Services less rent of shelter,30.205,29.696,28.354
+Expenditure category,2017,2019,2021,2022
+All items,100,100,100,100
+Food,13.384,13.771,13.37,13.531
+Food at home,7.382,7.579,8.165,8.728
+Cereals and bakery products,0.964,0.984,1.03,1.164
+"Meats, poultry, fish, and eggs",1.635,1.682,1.888,1.847
+Dairy and related products,0.744,0.768,0.752,0.818
+Fruits and vegetables,1.302,1.317,1.408,1.512
+Nonalcoholic beverages and beverage materials,0.873,0.903,0.933,1.039
+Other food at home,1.864,1.925,2.153,2.347
+Food away from home,6.002,6.191,5.205,4.803
+Energy,7.513,6.706,7.348,6.921
+Energy commodities,4.094,3.61,4.014,3.490
+Fuel oil,0.109,0.106,0.115,0.150
+Motor fuel,3.908,3.44,3.822,3.275
+Gasoline (all types),3.823,3.362,3.748,3.172
+Energy services,3.419,3.096,3.334,3.431
+Electricity,2.628,2.405,2.454,2.541
+Utility (piped) gas service,0.791,0.691,0.879,0.890
+All items less food and energy,79.103,79.524,79.282,79.548
+Commodities less food and energy commodities,19.849,20.137,21.699,21.361
+Apparel,3.018,2.81,2.458,2.479
+New vehicles,3.805,3.734,4.105,4.313
+Used cars and trucks,2.402,2.533,4.143,2.668
+Medical care commodities,1.748,1.643,1.524,1.455
+Alcoholic beverages,0.974,1.023,0.889,0.845
+Tobacco and smoking products,0.651,0.587,0.526,0.494
+Services less energy services,59.254,59.387,57.583,58.187
+Shelter,32.843,33.158,32.946,34.413
+Rent of primary residence,7.823,7.792,7.398,7.528
+Owners' equivalent rent of residences,23.747,24.071,24.251,25.424
+Medical care services,6.924,7.19,6.962,6.653
+Physicians' services(1),1.755,1.811,1.9,1.855
+Hospital services(3),2.3,2.186,2.199,1.940
+Transportation services,5.926,5.399,5.599,5.750
+Motor vehicle maintenance and repair,1.123,1.077,1.038,1.104
+Motor vehicle insurance,2.352,1.701,2.383,2.511
+Airline fares,0.691,0.786,0.481,0.587
+Services less rent of shelter,30.205,29.696,28.354,27.581
