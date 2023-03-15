@@ -1,4 +1,8 @@
 ﻿Year,Quarter,Sector,Measure,Value,SE,Lower CI,Upper CI
+2022,4,All,Logistics/transportation constraints,9.5 ,,,
+2022,4,All,Insufficient supply of materials,27.7,0,,
+2022,4,All,Insufficient orders,60,0,,
+2022,4,All,Insufficient supply of labor,37.2,0,,
 2022,3,All,Logistics/transportation constraints,10.9 ,,,
 2022,3,All,Insufficient supply of materials,34.2,0,,
 2022,3,All,Insufficient orders,53.8,0,,
