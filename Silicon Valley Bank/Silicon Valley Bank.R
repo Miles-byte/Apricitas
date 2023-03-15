@@ -276,7 +276,7 @@ CONTAGION_5_DEPINSR_graph <- ggplot(data=CONTAGION_5_DEPINSR, aes(x=date,y= DEPI
   ylab("Share of Total Deposits") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1), limits = c(0,1), expand = c(0,0)) +
   ggtitle("FDIC Insurance Among at-Risk Banks") +
-  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Many Banks With Weak Recent Stock Performance, Especially Signature Bank, Have Low Deposit Insurance Rates") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Some At-Risk Banks, Especially Signature Bank, Had Low Deposit Insurance Rates") +
   theme_apricitas + theme(legend.position = c(.35,.75)) +
   scale_fill_manual(name= "Share of Total Deposits That Are FDIC Insured",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -312,7 +312,7 @@ CONTAGION_5_ASSTLTR_graph <- ggplot(data=CONTAGION_5_SCHAR_ASSTLTR, aes(x=date,y
   ylab("Share of Total Assets") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1), limits = c(0,1), expand = c(0,0)) +
   ggtitle("Long-Term Assets Among at-Risk Banks") +
-  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Most Banks With Weak Recent Stock Returns, Except Signature, Have Higher Insurance Rates") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Many At-Risk Banks, Especially Signature, Have High Shares of Long-Term Assets") +
   theme_apricitas + theme(legend.position = c(.60,.75)) +
   scale_fill_manual(name= "Long-Term Assets (5+ Years) as a Share of Total Assets",values = c("#00A99D","#3083DC","#EE6055","#9A348E","#FFE98F","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -347,7 +347,7 @@ FIRST_REPUBLIC_ASSTLTR_graph <- ggplot() + #plotting loan performance data
   xlab("Date") +
   ylab("Percent of Total Assets") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60), limits = c(0,.65), expand = c(0,0)) +
-  ggtitle("First Republic Bank") +
+  ggtitle("Long-Term Assets at First Republic Bank") +
   labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Long Term Assets Made Up the Outright Majority of First Republic's Assets") +
   theme_apricitas + theme(legend.position = c(.5,.3)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
@@ -371,7 +371,7 @@ DEP_DOM_DATA_SIGNATURE_graph <- ggplot(data = DEP_DOM_DATA_SIGNATURE, aes(x = da
   xlab("Date") +
   ylab("Billions of Dollars") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100), limits = c(0,110), expand = c(0,0)) +
-  ggtitle("Signature Bank") +
+  ggtitle("Uninsured Deposits at Signature Bank") +
   labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Signature Saw Growth During the Crypto Boom, But Has Started Shedding Deposits Recently") +
   theme_apricitas + theme(legend.position = c(.25,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("FDIC Insured Deposits","Uninsured Deposits")) +

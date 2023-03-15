@@ -55,25 +55,25 @@ Food_Graph <- ggplot() + #plotting Food at Home, Away From Home, Durable Goods, 
 ggsave(dpi = "retina",plot = Food_Graph, "Food.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #Meats Chart
-Beef_Veal <- bls_api("CUSR0000SEFC", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Beef_Veal <- bls_api("CUSR0000SEFC", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Pork <- bls_api("CUSR0000SEFD", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Pork <- bls_api("CUSR0000SEFD", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Poultry <- bls_api("CUSR0000SEFF", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Poultry <- bls_api("CUSR0000SEFF", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Seafood <- bls_api("CUSR0000SEFG", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Seafood <- bls_api("CUSR0000SEFG", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
@@ -98,37 +98,37 @@ Meat_Graph <- ggplot() + #plotting Meat Prices
 ggsave(dpi = "retina",plot = Meat_Graph, "Meat.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #Essentials
-Milk <- bls_api("CUSR0000SEFJ01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Milk <- bls_api("CUSR0000SEFJ01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Eggs <- bls_api("CUSR0000SEFH", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Eggs <- bls_api("CUSR0000SEFH", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Butter <- bls_api("CUSR0000SS10011", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Butter <- bls_api("CUSR0000SS10011", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Sugar <- bls_api("CUSR0000SEFR01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Sugar <- bls_api("CUSR0000SEFR01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Salt <- bls_api("CUSR0000SS18041", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Salt <- bls_api("CUSR0000SS18041", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Flour <- bls_api("CUSR0000SEFA01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Flour <- bls_api("CUSR0000SEFA01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
@@ -144,49 +144,49 @@ Essentials_Graph <- ggplot() + #plotting Meat Prices
   geom_line(data=Salt, aes(x=date,y= pct1,color= "Salt and Other Seasonings"), size = 1.25) +
   geom_line(data=Flour, aes(x=date,y= pct1,color= "Flour and Prepared Flour Mixes"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.2,0.6), breaks = c(-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.2,0.8), breaks = c(-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("Ingredient Inflation") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices for Basic, Essential Ingredients are Rising Rapidly") +
   theme_apricitas + theme(legend.position = c(.325,.75)) +
   scale_color_manual(name= "CPI Price Growth",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Eggs","Butter","Flour and Prepared Flour Mixes","Sugar and Sugar Substitutes","Milk","Salt and Other Seasonings")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.2-(.3*.80), ymax = -0.2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.2-(.3*1), ymax = -0.2) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Essentials_Graph, "Essentials.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #Drinks Chart
-Soda <- bls_api("CUSR0000SEFN01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Soda <- bls_api("CUSR0000SEFN01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Juice <- bls_api("CUSR0000SEFN03", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Juice <- bls_api("CUSR0000SEFN03", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Coffee <- bls_api("CUSR0000SEFP01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Coffee <- bls_api("CUSR0000SEFP01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Tea <- bls_api("CUSR0000SEFP02", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Tea <- bls_api("CUSR0000SEFP02", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Beer <- bls_api("CUSR0000SEFW01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Beer <- bls_api("CUSR0000SEFW01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Wine <- bls_api("CUSR0000SEFW03", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Wine <- bls_api("CUSR0000SEFW03", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
@@ -232,25 +232,25 @@ RETAIL_GROCERY_RESTAURANT_graph <- ggplot() + #Grocery and Restaurant Spending
 ggsave(dpi = "retina",plot = RETAIL_GROCERY_RESTAURANT_graph, "Retail Stores.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 #Graphing Durable Goods Prices
 
-Appliances <- bls_api("CUSR0000SEHK", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Appliances <- bls_api("CUSR0000SEHK", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Furniture <- bls_api("CUSR0000SEHJ", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Furniture <- bls_api("CUSR0000SEHJ", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-New_Vehicles <- bls_api("CUSR0000SETA01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+New_Vehicles <- bls_api("CUSR0000SETA01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Used_Vehicles <- bls_api("CUSR0000SETA02", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Used_Vehicles <- bls_api("CUSR0000SETA02", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
@@ -276,25 +276,25 @@ ggsave(dpi = "retina",plot = Durables_Graph, "Durables Graph.png", type = "cairo
 
 #Nondurable Goods
 
-Housekeeping <- bls_api("CUSR0000SEHN", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Housekeeping <- bls_api("CUSR0000SEHN", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Apparel <- bls_api("CUSR0000SAA", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Apparel <- bls_api("CUSR0000SAA", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Toys <- bls_api("CUSR0000SERE01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Toys <- bls_api("CUSR0000SERE01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
   subset(date >as.Date("2017-12-31"))
 
-Pets <- bls_api("CUSR0000SERB01", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+Pets <- bls_api("CUSR0000SERB01", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(pct1 = (value-lag(value,12))/lag(value,12)) %>%
