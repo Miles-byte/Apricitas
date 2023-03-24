@@ -390,7 +390,7 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short Term Inflation Expectations are Consistent With The Fed's 2% Target") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short Term Inflation Expectations are Below a Level Consistent With The Fed's 2% Target") +
   theme_apricitas + theme(legend.position = c(.40,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
@@ -888,7 +888,7 @@ BIE_Graph <- ggplot() + #plotting total quits
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
   ggtitle("What Were You Expecting?") +
-  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Business Unit Cost Inflation Expectations Are High But Declining") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Business Unit Cost Inflation Expectations Remain Elevated") +
   theme_apricitas + theme(legend.position = c(.47,.84)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Business Unit Cost Inflation Expectations: Next Year","Business Unit Cost Inflation Expectations: Next 5-10 Years")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-10-21")-(.1861*(today()-as.Date("2011-10-21"))), xmax = as.Date("2011-10-21")-(0.049*(today()-as.Date("2011-10-21"))), ymin = 0-(.3*.05), ymax = 0) +
