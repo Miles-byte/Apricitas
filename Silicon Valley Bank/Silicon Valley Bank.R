@@ -613,27 +613,39 @@ ggsave(dpi = "retina",plot = SWAPS_graph, "SWAPS Graph.png", type = "cairo-png")
 
 FOREIGN_REPO_graph <-  ggplot(data = subset(FOREIGN_REPO, date > as.Date("2020-01-01")), aes(x = date, y = value/1000, fill = "Federal Reserve Foreign Official Repo Agreements")) + #plotting Deposits, Insured and Uninsured
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  #annotate("segment", y = 20, yend = 20, x = as.Date("2023-03-11"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
-  #annotate("segment", y = 109, yend = 109, x = as.Date("2023-03-11"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
-  #annotate("segment", y = 109, yend = 20, x = as.Date("2023-03-06"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
-  #annotate("segment", y = 64.5, yend = 64.5, x = as.Date("2023-03-06"), xend = as.Date("2023-03-04"), color = "white", size = 1.25) +
-  #annotate("text", label = "First Republic", y = 104.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
-  #annotate("text", label = "Discount Window", y = 84.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
-  #annotate("text", label = "Borrowing Range", y = 64.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
-  #annotate("text", label = "(Based on Company", y = 44.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
-  #annotate("text", label = "Press Release)", y = 24.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Billions of Dollars, Wednesday Level") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70), limits = c(0,70), expand = c(0,0)) +
   ggtitle("Fed Foreign Lending") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "The Fed Lent $60B to Foreign and International Monetary Authorities After SVB's Failure") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "The Fed Lent $60B to Foreign and International Monetary Authorities After CS's Takeover") +
   theme_apricitas + theme(legend.position = c(.4,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*70), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FOREIGN_REPO_graph, "Foreign Repo Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+
+BORROWINGS_LARGE <- fredr(series_id = "H8B3094NLGA",observation_start = as.Date("2019-01-01"))
+
+BORROWINGS_SMALL <- fredr(series_id = "H8B3094NSMA",observation_start = as.Date("2019-01-01"))
+
+BORROWINGS_SMALL_LARGE_graph <- ggplot() + #plotting loan performance data
+  geom_line(data=BORROWINGS_LARGE, aes(x=date,y= value/1000,color= "Borrowings: Large Domestic Banks"), size = 1.25)+ 
+  geom_line(data=BORROWINGS_SMALL, aes(x=date,y= value/1000,color= "Borrowings: Small Domestic Banks"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Wednesday Level") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,250,500,750,1000), limits = c(0,1000), expand = c(0,0)) +
+  ggtitle("Banks' Borrowing Binge") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "US Banks Borrowed an Additional $475B as of March 15th") +
+  theme_apricitas + theme(legend.position = c(.6,.84)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1000), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BORROWINGS_SMALL_LARGE_graph, "Borrowings Small Large Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 cat("\014")  # ctrl+L
