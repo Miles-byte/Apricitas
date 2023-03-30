@@ -268,6 +268,26 @@ CONTAGION_5_DEPINSR <- read.csv("https://banks.data.fdic.gov/api/financials?filt
   subset(date == as.Date("2022-12-31")) %>%
   mutate(NAME = factor(NAME,levels = c("Signature Bank","First Republic Bank","Western Alliance Bank","Pacific Western Bank","Customers Bank","First Foundation Bank")))
 
+SCHWAB_SVB <- read.csv("https://banks.data.fdic.gov/api/financials?filters=NAME%3A%20%22CHARLES%20SCHWAB%20BANK%20SSB%22%20OR%20NAME%3A%20%22SILICON%20VALLEY%20BANK%22&fields=DEP%2CDEPINS%2CRISDATE%2CNAME&limit=10000&format=csv&download=true&filename=data_file") %>%
+  mutate(RISDATE = ymd(RISDATE)) %>%
+  select(DEP,DEPINS,RISDATE,NAME) %>%
+  transmute(date = RISDATE, `DEPINS_DIV_DEP` = DEPINS/DEP, NAME = str_to_title(NAME)) %>%
+  subset(date == as.Date("2022-12-31")) %>%
+  mutate(NAME = c("Silicon Valley Bank","Charles Schwab Bank SSB"))
+  
+SCHWAB_SVB_graph <- ggplot(data=SCHWAB_SVB, aes(x=date,y= DEPINS_DIV_DEP,fill= NAME)) + #plotting dep ins rate contagion
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("Date") +
+  ylab("Share of Total Deposits") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60,.70,.80,.90,1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle("FDIC Insurance at Schwab and SVB") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Much More of Schwab's Deposits are Insured Than SVBs") +
+  theme_apricitas + theme(legend.position = "right") +
+  scale_fill_manual(name= "% of Deposits That Are FDIC Insured",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SCHWAB_SVB_graph, "Schwab Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 CONTAGION_5_DEPINSR_graph <- ggplot(data=CONTAGION_5_DEPINSR, aes(x=date,y= DEPINS_DIV_DEP,fill= NAME)) + #plotting dep ins rate contagion
