@@ -640,23 +640,22 @@ CPI_Wheat <- ggplot() + #plotting bread/cereal products price index against whea
 Personal_Income_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
   geom_line(data = DSPI, aes(x=date, y = value/1000, color = "Personal Income"), size = 1.25) + 
   geom_line(data = POUT, aes(x=date, y = value/1000 , color = "Personal Outlays"), size = 1.25) + 
-  geom_line(data = DSPITrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Personal Income Growth Trend"), size = 1.25, linetype = "dashed") + 
-  geom_line(data = POUTTrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Personal Outlays Growth Trend"), size = 1.25, linetype = "dashed") + 
+  geom_line(data = DSPITrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Income Growth Trend"), size = 1.25, linetype = "dashed") + 
+  geom_line(data = POUTTrend, aes(x=date, y = trend/1000, color = "Pre-Covid 4% Outlays Growth Trend"), size = 1.25, linetype = "dashed") + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
   ggtitle("The Bottom Line") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Income and Spending are Well Above Trend") +
-  theme_apricitas + theme(legend.position = c(.30,.80)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), size = c(1.25,1.25,.75,.75)))) +
-  theme(legend.key.width =  unit(.82, "cm")) +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75), size = c(1.25,1.25,.75,.75)))) +
+  theme(legend.key.width =  unit(1.5, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1600), xmax = as.Date("2018-01-01")-(0.049*1600), ymin = 12.5-(.3*10), ymax = 12.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-?guide_legend
 Rent_LessRent_Graph <- ggplot() + 
   geom_line(data = CPIRent, aes(x = date, y = value/100, color = "CPI: Rent of Primary Residences"), size = 1.25) +
   geom_line(data = CPIServicesLessRent, aes(x = date, y = value/100, color = "CPI: Services Less Rent of Shelter"), size = 1.25) +

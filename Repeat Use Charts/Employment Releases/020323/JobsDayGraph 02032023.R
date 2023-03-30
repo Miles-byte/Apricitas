@@ -984,7 +984,7 @@ GLI_EPOP_YOY <- fredr(series_id = "LNS12300060",observation_start = as.Date("201
 GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   geom_line(data=GLI_BLS_YOY, aes(x=date,y= value/100,color= "Non-Farm Payrolls Data"), size = 1.25) +
   geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100,color= "BEA Data"), size = 1.25) +
-  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "Employment Cost Index * Prime Age Employment"), size = 1.25) +
+  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "ECI * Prime Age Employment"), size = 1.25) +
   annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
   annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
   annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-03-01"), y =0.042, color = "white", size = 4) +
@@ -993,8 +993,8 @@ GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   ylab("Percent Growth, Year-on-Year") +
   ggtitle("Is the Labor Shortage Ending?") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth Looks to Be Declining Back to Pre-COVID Normal Levels") +
-  theme_apricitas + theme(legend.position = c(.33,.72)) +
-  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","Employment Cost Index * Prime Age Employment")) +
+  theme_apricitas + theme(legend.position = c(.33,.75)) +
+  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +
   coord_cartesian(clip = "off")
 
