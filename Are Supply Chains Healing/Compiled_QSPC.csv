@@ -1,12 +1,54 @@
 ﻿Year,Quarter,Sector,Measure,Value,SE,Lower CI,Upper CI
-2022,4,All,Logistics/transportation constraints,9.5 ,,,
+2022,4,311,Insufficient supply of materials,21.9,,,
+2022,4,312,Insufficient supply of materials,23.2,,,
+2022,4,313,Insufficient supply of materials,9.7,,,
+2022,4,314,Insufficient supply of materials,11.4,,,
+2022,4,315,Insufficient supply of materials,23.3,,,
+2022,4,316,Insufficient supply of materials,14.8,,,
+2022,4,321,Insufficient supply of materials,25.8,,,
+2022,4,322,Insufficient supply of materials,15.3,,,
+2022,4,323,Insufficient supply of materials,34.6,,,
+2022,4,324,Insufficient supply of materials,19.9,,,
+2022,4,325,Insufficient supply of materials,24.3,,,
+2022,4,326,Insufficient supply of materials,20.9,,,
+2022,4,327,Insufficient supply of materials,15.9,,,
+2022,4,331,Insufficient supply of materials,15,,,
+2022,4,332,Insufficient supply of materials,21.8,,,
+2022,4,333,Insufficient supply of materials,41,,,
+2022,4,334,Insufficient supply of materials,60.3,,,
+2022,4,335,Insufficient supply of materials,34.5,,,
+2022,4,336,Insufficient supply of materials,49.1,,,
+2022,4,337,Insufficient supply of materials,37.6,,,
+2022,4,339,Insufficient supply of materials,24.8,,,
+2022,4,All,Logistics/transportation constraints,9.5,,,
 2022,4,All,Insufficient supply of materials,27.7,0,,
 2022,4,All,Insufficient orders,60,0,,
 2022,4,All,Insufficient supply of labor,37.2,0,,
-2022,3,All,Logistics/transportation constraints,10.9 ,,,
+2022,3,All,Logistics/transportation constraints,10.9,,,
 2022,3,All,Insufficient supply of materials,34.2,0,,
 2022,3,All,Insufficient orders,53.8,0,,
 2022,3,All,Insufficient supply of labor,42.8,0,,
+2022,3,311,Insufficient supply of materials,27.2,,,
+2022,3,312,Insufficient supply of materials,18.6,,,
+2022,3,313,Insufficient supply of materials,35.2,,,
+2022,3,314,Insufficient supply of materials,16.6,,,
+2022,3,315,Insufficient supply of materials,21.6,,,
+2022,3,316,Insufficient supply of materials,47.2,,,
+2022,3,321,Insufficient supply of materials,31.9,,,
+2022,3,322,Insufficient supply of materials,26.3,,,
+2022,3,323,Insufficient supply of materials,39.4,,,
+2022,3,324,Insufficient supply of materials,25.9,,,
+2022,3,325,Insufficient supply of materials,32.6,,,
+2022,3,326,Insufficient supply of materials,35,,,
+2022,3,327,Insufficient supply of materials,27.4,,,
+2022,3,331,Insufficient supply of materials,11.3,,,
+2022,3,332,Insufficient supply of materials,28.4,,,
+2022,3,333,Insufficient supply of materials,48.8,,,
+2022,3,334,Insufficient supply of materials,57.8,,,
+2022,3,335,Insufficient supply of materials,36.8,,,
+2022,3,336,Insufficient supply of materials,46.5,,,
+2022,3,337,Insufficient supply of materials,45.7,,,
+2022,3,339,Insufficient supply of materials,36.2,,,
 2022,2,All,Building capital expenditures,3.8,0.7,,
 2022,2,311,Building capital expenditures,3.4,2.3,,
 2022,2,312,Building capital expenditures,9.3,6.4,,
@@ -1109,29 +1151,29 @@
 2021,4,337,Machinery capital expenditures,5.7,5,,
 2021,4,337,Building retirements,0,0,,
 2021,4,337,Machinery retirements,0,0,,
-2021,4,337,"Price changed, product mix same",27.6,9.8,,
-2021,4,337,Revised estimation assumptions,17.2,8.3,,
-2021,4,337,Change in method of operation,D,D,,
-2021,4,337,Change in product mix or specifications,12.9,6.9,,
-2021,4,337,Change in material input,17,8.2,,
-2021,4,337,Other (full capacity: current vs. prior quarter),40.2,10.8,,
-2021,4,337,Not profitable to operate at full capacity,11.8,6.1,,
-2021,4,337,Insufficient supply of materials,47.3,8.8,,
-2021,4,337,Insufficient orders,44.1,8.9,,
-2021,4,337,Insufficient supply of labor,51.4,8.8,,
-2021,4,337,Lack of sufficient fuel or energy,0,0,,
-2021,4,337,Equipment limitations,10.6,5.5,,
-2021,4,337,Storage limitations,7.5,5.1,,
-2021,4,337,Logistics/transportation constraints,17.1,6.6,,
-2021,4,337,Sufficient inventory of finished goods,D,D,,
-2021,4,337,Strike or work stoppage,0,0,,
-2021,4,337,Seasonal operations,9.7,4.7,,
-2021,4,337,Environmental restrictions,0,0,,
-2021,4,337,Other (actual production less than full production),17.2,6.7,,
-2021,4,339,Building capital expenditures,0,0,,
-2021,4,339,Machinery capital expenditures,3.1,2.8,,
-2021,4,339,Building retirements,0,0,,
-2021,4,339,Machinery retirements,D,D,,
+2021,4,337,"Price changed, product mix same",27.6,9.8,2.29,2.31
+2021,4,337,Revised estimation assumptions,17.2,8.3,11.38,11.42
+2021,4,337,Change in method of operation,D,D,0.4,0.4
+2021,4,337,Change in product mix or specifications,12.9,6.9,0.7,0.7
+2021,4,337,Change in material input,17,8.2,27.08,27.12
+2021,4,337,Other (full capacity: current vs. prior quarter),40.2,10.8,10.59,10.61
+2021,4,337,Not profitable to operate at full capacity,11.8,6.1,5.49,5.51
+2021,4,337,Insufficient supply of materials,47.3,8.8,22.98,23.02
+2021,4,337,Insufficient orders,44.1,8.9,7.19,7.21
+2021,4,337,Insufficient supply of labor,51.4,8.8,37.48,37.52
+2021,4,337,Lack of sufficient fuel or energy,0,0,6.69,6.71
+2021,4,337,Equipment limitations,10.6,5.5,38.08,38.12
+2021,4,337,Storage limitations,7.5,5.1,49.88,49.92
+2021,4,337,Logistics/transportation constraints,17.1,6.6,46.28,46.32
+2021,4,337,Sufficient inventory of finished goods,D,D,0.1,0.1
+2021,4,337,Strike or work stoppage,0,0,8.29,8.31
+2021,4,337,Seasonal operations,9.7,4.7,3.69,3.71
+2021,4,337,Environmental restrictions,0,0,10.89,10.91
+2021,4,337,Other (actual production less than full production),17.2,6.7,4.09,4.11
+2021,4,339,Building capital expenditures,0,0,0.1,0.1
+2021,4,339,Machinery capital expenditures,3.1,2.8,4.99,5.01
+2021,4,339,Building retirements,0,0,0.6,0.6
+2021,4,339,Machinery retirements,D,D,14.19,14.21
 2021,4,339,"Price changed, product mix same",10.4,4.8,,
 2021,4,339,Revised estimation assumptions,8.1,4.3,,
 2021,4,339,Change in method of operation,D,D,,
@@ -1151,29 +1193,29 @@
 2021,4,339,Seasonal operations,2.7,2.3,,
 2021,4,339,Environmental restrictions,0,0,,
 2021,4,339,Other (actual production less than full production),16.4,5.4,,
-2021,3,All,Building capital expenditures,2.3,0.6,2.29,2.31
-2021,3,All,Machinery capital expenditures,11.4,1.2,11.38,11.42
-2021,3,All,Building retirements,0.4,0.2,0.4,0.4
-2021,3,All,Machinery retirements,0.7,0.3,0.7,0.7
-2021,3,All,"Price changed, product mix same",27.1,1.6,27.08,27.12
-2021,3,All,Revised estimation assumptions,10.6,1.1,10.59,10.61
-2021,3,All,Change in method of operation,5.5,0.9,5.49,5.51
-2021,3,All,Change in product mix or specifications,23,1.5,22.98,23.02
-2021,3,All,Change in material input,7.2,1,7.19,7.21
-2021,3,All,Other (full capacity: current vs. prior quarter),37.5,1.8,37.48,37.52
-2021,3,All,Not profitable to operate at full capacity,6.7,0.8,6.69,6.71
-2021,3,All,Insufficient supply of materials,38.1,1.5,38.08,38.12
-2021,3,All,Insufficient orders,49.9,1.6,49.88,49.92
-2021,3,All,Insufficient supply of labor,46.3,1.6,46.28,46.32
-2021,3,All,Lack of sufficient fuel or energy,0.1,0.1,0.1,0.1
-2021,3,All,Equipment limitations,8.3,0.8,8.29,8.31
-2021,3,All,Storage limitations,3.7,0.6,3.69,3.71
-2021,3,All,Logistics/transportation constraints,10.9,0.9,10.89,10.91
-2021,3,All,Sufficient inventory of finished goods,4.1,0.6,4.09,4.11
-2021,3,All,Strike or work stoppage,0.1,0.1,0.1,0.1
-2021,3,All,Seasonal operations,5,0.6,4.99,5.01
-2021,3,All,Environmental restrictions,0.6,0.2,0.6,0.6
-2021,3,All,Other (actual production less than full production),14.2,1.1,14.19,14.21
+2021,3,All,Building capital expenditures,2.3,0.6,,
+2021,3,All,Machinery capital expenditures,11.4,1.2,,
+2021,3,All,Building retirements,0.4,0.2,,
+2021,3,All,Machinery retirements,0.7,0.3,,
+2021,3,All,"Price changed, product mix same",27.1,1.6,,
+2021,3,All,Revised estimation assumptions,10.6,1.1,,
+2021,3,All,Change in method of operation,5.5,0.9,,
+2021,3,All,Change in product mix or specifications,23,1.5,,
+2021,3,All,Change in material input,7.2,1,,
+2021,3,All,Other (full capacity: current vs. prior quarter),37.5,1.8,,
+2021,3,All,Not profitable to operate at full capacity,6.7,0.8,,
+2021,3,All,Insufficient supply of materials,38.1,1.5,,
+2021,3,All,Insufficient orders,49.9,1.6,,
+2021,3,All,Insufficient supply of labor,46.3,1.6,,
+2021,3,All,Lack of sufficient fuel or energy,0.1,0.1,,
+2021,3,All,Equipment limitations,8.3,0.8,,
+2021,3,All,Storage limitations,3.7,0.6,,
+2021,3,All,Logistics/transportation constraints,10.9,0.9,,
+2021,3,All,Sufficient inventory of finished goods,4.1,0.6,,
+2021,3,All,Strike or work stoppage,0.1,0.1,,
+2021,3,All,Seasonal operations,5,0.6,,
+2021,3,All,Environmental restrictions,0.6,0.2,,
+2021,3,All,Other (actual production less than full production),14.2,1.1,,
 2021,3,311,Building capital expenditures,D,D,,
 2021,3,311,Machinery capital expenditures,5.4,2.5,,
 2021,3,311,Building retirements,0,0,,
@@ -1615,29 +1657,29 @@
 2021,3,337,Machinery capital expenditures,16.3,6.7,,
 2021,3,337,Building retirements,0,0,,
 2021,3,337,Machinery retirements,0,0,,
-2021,3,337,"Price changed, product mix same",13.1,6.1,,
-2021,3,337,Revised estimation assumptions,13.2,6.2,,
-2021,3,337,Change in method of operation,4,3.2,,
-2021,3,337,Change in product mix or specifications,21,7.5,,
-2021,3,337,Change in material input,14.5,6.8,,
-2021,3,337,Other (full capacity: current vs. prior quarter),32.7,8.8,,
-2021,3,337,Not profitable to operate at full capacity,10.7,4.9,,
-2021,3,337,Insufficient supply of materials,46.9,8.1,,
-2021,3,337,Insufficient orders,36.6,8.1,,
-2021,3,337,Insufficient supply of labor,49,8.2,,
-2021,3,337,Lack of sufficient fuel or energy,0,0,,
-2021,3,337,Equipment limitations,0.6,0.4,,
-2021,3,337,Storage limitations,2.1,1.8,,
-2021,3,337,Logistics/transportation constraints,16.6,5.6,,
-2021,3,337,Sufficient inventory of finished goods,D,D,,
-2021,3,337,Strike or work stoppage,0,0,,
-2021,3,337,Seasonal operations,2.9,1.9,,
-2021,3,337,Environmental restrictions,D,D,,
-2021,3,337,Other (actual production less than full production),22.7,7.2,,
-2021,3,339,Building capital expenditures,D,D,,
-2021,3,339,Machinery capital expenditures,18,6.4,,
-2021,3,339,Building retirements,0,0,,
-2021,3,339,Machinery retirements,0,0,,
+2021,3,337,"Price changed, product mix same",13.1,6.1,2.69,2.71
+2021,3,337,Revised estimation assumptions,13.2,6.2,10.09,10.11
+2021,3,337,Change in method of operation,4,3.2,0.4,0.4
+2021,3,337,Change in product mix or specifications,21,7.5,1,1
+2021,3,337,Change in material input,14.5,6.8,24.48,24.52
+2021,3,337,Other (full capacity: current vs. prior quarter),32.7,8.8,14.28,14.32
+2021,3,337,Not profitable to operate at full capacity,10.7,4.9,5.29,5.31
+2021,3,337,Insufficient supply of materials,46.9,8.1,22.48,22.52
+2021,3,337,Insufficient orders,36.6,8.1,6.49,6.51
+2021,3,337,Insufficient supply of labor,49,8.2,38.08,38.12
+2021,3,337,Lack of sufficient fuel or energy,0,0,8.79,8.81
+2021,3,337,Equipment limitations,0.6,0.4,33.28,33.32
+2021,3,337,Storage limitations,2.1,1.8,57.28,57.32
+2021,3,337,Logistics/transportation constraints,16.6,5.6,40.98,41.02
+2021,3,337,Sufficient inventory of finished goods,D,D,0.2,0.2
+2021,3,337,Strike or work stoppage,0,0,8.09,8.11
+2021,3,337,Seasonal operations,2.9,1.9,4.29,4.31
+2021,3,337,Environmental restrictions,D,D,9.09,9.11
+2021,3,337,Other (actual production less than full production),22.7,7.2,3.99,4.01
+2021,3,339,Building capital expenditures,D,D,0.1,0.1
+2021,3,339,Machinery capital expenditures,18,6.4,5.89,5.91
+2021,3,339,Building retirements,0,0,1.1,1.1
+2021,3,339,Machinery retirements,0,0,14.19,14.21
 2021,3,339,"Price changed, product mix same",14.5,5.9,,
 2021,3,339,Revised estimation assumptions,11.6,5.2,,
 2021,3,339,Change in method of operation,5.9,3.9,,
@@ -1657,29 +1699,29 @@
 2021,3,339,Seasonal operations,3.8,2.3,,
 2021,3,339,Environmental restrictions,0,0,,
 2021,3,339,Other (actual production less than full production),17.4,5.3,,
-2021,2,All,Building capital expenditures,2.7,0.6,2.69,2.71
-2021,2,All,Machinery capital expenditures,10.1,1.1,10.09,10.11
-2021,2,All,Building retirements,0.4,0.3,0.4,0.4
-2021,2,All,Machinery retirements,1,0.3,1,1
-2021,2,All,"Price changed, product mix same",24.5,1.5,24.48,24.52
-2021,2,All,Revised estimation assumptions,14.3,1.3,14.28,14.32
-2021,2,All,Change in method of operation,5.3,0.8,5.29,5.31
-2021,2,All,Change in product mix or specifications,22.5,1.4,22.48,22.52
-2021,2,All,Change in material input,6.5,0.9,6.49,6.51
-2021,2,All,Other (full capacity: current vs. prior quarter),38.1,1.8,38.08,38.12
-2021,2,All,Not profitable to operate at full capacity,8.8,0.9,8.79,8.81
-2021,2,All,Insufficient supply of materials,33.3,1.4,33.28,33.32
-2021,2,All,Insufficient orders,57.3,1.5,57.28,57.32
-2021,2,All,Insufficient supply of labor,41,1.5,40.98,41.02
-2021,2,All,Lack of sufficient fuel or energy,0.2,0.1,0.2,0.2
-2021,2,All,Equipment limitations,8.1,0.8,8.09,8.11
-2021,2,All,Storage limitations,4.3,0.6,4.29,4.31
-2021,2,All,Logistics/transportation constraints,9.1,0.8,9.09,9.11
-2021,2,All,Sufficient inventory of finished goods,4,0.6,3.99,4.01
-2021,2,All,Strike or work stoppage,0.1,0.1,0.1,0.1
-2021,2,All,Seasonal operations,5.9,0.7,5.89,5.91
-2021,2,All,Environmental restrictions,1.1,0.3,1.1,1.1
-2021,2,All,Other (actual production less than full production),14.2,1.1,14.19,14.21
+2021,2,All,Building capital expenditures,2.7,0.6,,
+2021,2,All,Machinery capital expenditures,10.1,1.1,,
+2021,2,All,Building retirements,0.4,0.3,,
+2021,2,All,Machinery retirements,1,0.3,,
+2021,2,All,"Price changed, product mix same",24.5,1.5,,
+2021,2,All,Revised estimation assumptions,14.3,1.3,,
+2021,2,All,Change in method of operation,5.3,0.8,,
+2021,2,All,Change in product mix or specifications,22.5,1.4,,
+2021,2,All,Change in material input,6.5,0.9,,
+2021,2,All,Other (full capacity: current vs. prior quarter),38.1,1.8,,
+2021,2,All,Not profitable to operate at full capacity,8.8,0.9,,
+2021,2,All,Insufficient supply of materials,33.3,1.4,,
+2021,2,All,Insufficient orders,57.3,1.5,,
+2021,2,All,Insufficient supply of labor,41,1.5,,
+2021,2,All,Lack of sufficient fuel or energy,0.2,0.1,,
+2021,2,All,Equipment limitations,8.1,0.8,,
+2021,2,All,Storage limitations,4.3,0.6,,
+2021,2,All,Logistics/transportation constraints,9.1,0.8,,
+2021,2,All,Sufficient inventory of finished goods,4,0.6,,
+2021,2,All,Strike or work stoppage,0.1,0.1,,
+2021,2,All,Seasonal operations,5.9,0.7,,
+2021,2,All,Environmental restrictions,1.1,0.3,,
+2021,2,All,Other (actual production less than full production),14.2,1.1,,
 2021,2,311,Building capital expenditures,0.5,0.3,,
 2021,2,311,Machinery capital expenditures,11.4,3.9,,
 2021,2,311,Building retirements,0,0,,
@@ -2121,29 +2163,29 @@
 2021,2,337,Machinery capital expenditures,6.6,4.2,,
 2021,2,337,Building retirements,0,0,,
 2021,2,337,Machinery retirements,D,D,,
-2021,2,337,"Price changed, product mix same",21.9,7.7,,
-2021,2,337,Revised estimation assumptions,10.4,5.7,,
-2021,2,337,Change in method of operation,1,0.5,,
-2021,2,337,Change in product mix or specifications,17.8,7,,
-2021,2,337,Change in material input,6.6,4.3,,
-2021,2,337,Other (full capacity: current vs. prior quarter),47.1,9.5,,
-2021,2,337,Not profitable to operate at full capacity,14.6,6.6,,
-2021,2,337,Insufficient supply of materials,42.9,8.5,,
-2021,2,337,Insufficient orders,31.4,8.2,,
-2021,2,337,Insufficient supply of labor,51.3,8.7,,
-2021,2,337,Lack of sufficient fuel or energy,0,0,,
-2021,2,337,Equipment limitations,7.3,4.3,,
-2021,2,337,Storage limitations,0.7,0.4,,
-2021,2,337,Logistics/transportation constraints,17.1,6.1,,
-2021,2,337,Sufficient inventory of finished goods,D,D,,
-2021,2,337,Strike or work stoppage,D,D,,
-2021,2,337,Seasonal operations,D,D,,
-2021,2,337,Environmental restrictions,D,D,,
-2021,2,337,Other (actual production less than full production),11.2,5.6,,
-2021,2,339,Building capital expenditures,1.8,1.5,,
-2021,2,339,Machinery capital expenditures,14,5.5,,
-2021,2,339,Building retirements,D,D,,
-2021,2,339,Machinery retirements,0,0,,
+2021,2,337,"Price changed, product mix same",21.9,7.7,2.59,2.61
+2021,2,337,Revised estimation assumptions,10.4,5.7,10.79,10.81
+2021,2,337,Change in method of operation,1,0.5,0.2,0.2
+2021,2,337,Change in product mix or specifications,17.8,7,1.29,1.31
+2021,2,337,Change in material input,6.6,4.3,19.58,19.62
+2021,2,337,Other (full capacity: current vs. prior quarter),47.1,9.5,13.88,13.92
+2021,2,337,Not profitable to operate at full capacity,14.6,6.6,6.79,6.81
+2021,2,337,Insufficient supply of materials,42.9,8.5,23.08,23.12
+2021,2,337,Insufficient orders,31.4,8.2,8.39,8.41
+2021,2,337,Insufficient supply of labor,51.3,8.7,39.58,39.62
+2021,2,337,Lack of sufficient fuel or energy,0,0,8.79,8.81
+2021,2,337,Equipment limitations,7.3,4.3,21.58,21.62
+2021,2,337,Storage limitations,0.7,0.4,62.68,62.72
+2021,2,337,Logistics/transportation constraints,17.1,6.1,27.98,28.02
+2021,2,337,Sufficient inventory of finished goods,D,D,0.9,0.9
+2021,2,337,Strike or work stoppage,D,D,9.09,9.11
+2021,2,337,Seasonal operations,D,D,4.59,4.61
+2021,2,337,Environmental restrictions,D,D,5.59,5.61
+2021,2,337,Other (actual production less than full production),11.2,5.6,4.39,4.41
+2021,2,339,Building capital expenditures,1.8,1.5,0.3,0.3
+2021,2,339,Machinery capital expenditures,14,5.5,7.59,7.61
+2021,2,339,Building retirements,D,D,1.49,1.51
+2021,2,339,Machinery retirements,0,0,17.89,17.91
 2021,2,339,"Price changed, product mix same",21.8,7.2,,
 2021,2,339,Revised estimation assumptions,11,4.9,,
 2021,2,339,Change in method of operation,7.6,4.4,,
@@ -2163,29 +2205,29 @@
 2021,2,339,Seasonal operations,1.1,0.8,,
 2021,2,339,Environmental restrictions,0,0,,
 2021,2,339,Other (actual production less than full production),10.2,4.1,,
-2021,1,All,Building capital expenditures,2.6,0.6,2.59,2.61
-2021,1,All,Machinery capital expenditures,10.8,1.1,10.79,10.81
-2021,1,All,Building retirements,0.2,0.2,0.2,0.2
-2021,1,All,Machinery retirements,1.3,0.4,1.29,1.31
-2021,1,All,"Price changed, product mix same",19.6,1.4,19.58,19.62
-2021,1,All,Revised estimation assumptions,13.9,1.2,13.88,13.92
-2021,1,All,Change in method of operation,6.8,0.9,6.79,6.81
-2021,1,All,Change in product mix or specifications,23.1,1.4,23.08,23.12
-2021,1,All,Change in material input,8.4,1,8.39,8.41
-2021,1,All,Other (full capacity: current vs. prior quarter),39.6,1.7,39.58,39.62
-2021,1,All,Not profitable to operate at full capacity,8.8,0.8,8.79,8.81
-2021,1,All,Insufficient supply of materials,21.6,1.2,21.58,21.62
-2021,1,All,Insufficient orders,62.7,1.4,62.68,62.72
-2021,1,All,Insufficient supply of labor,28,1.4,27.98,28.02
-2021,1,All,Lack of sufficient fuel or energy,0.9,0.3,0.9,0.9
-2021,1,All,Equipment limitations,9.1,0.9,9.09,9.11
-2021,1,All,Storage limitations,4.6,0.6,4.59,4.61
-2021,1,All,Logistics/transportation constraints,5.6,0.7,5.59,5.61
-2021,1,All,Sufficient inventory of finished goods,4.4,0.6,4.39,4.41
-2021,1,All,Strike or work stoppage,0.3,0.2,0.3,0.3
-2021,1,All,Seasonal operations,7.6,0.8,7.59,7.61
-2021,1,All,Environmental restrictions,1.5,0.4,1.49,1.51
-2021,1,All,Other (actual production less than full production),17.9,1.1,17.89,17.91
+2021,1,All,Building capital expenditures,2.6,0.6,,
+2021,1,All,Machinery capital expenditures,10.8,1.1,,
+2021,1,All,Building retirements,0.2,0.2,,
+2021,1,All,Machinery retirements,1.3,0.4,,
+2021,1,All,"Price changed, product mix same",19.6,1.4,,
+2021,1,All,Revised estimation assumptions,13.9,1.2,,
+2021,1,All,Change in method of operation,6.8,0.9,,
+2021,1,All,Change in product mix or specifications,23.1,1.4,,
+2021,1,All,Change in material input,8.4,1,,
+2021,1,All,Other (full capacity: current vs. prior quarter),39.6,1.7,,
+2021,1,All,Not profitable to operate at full capacity,8.8,0.8,,
+2021,1,All,Insufficient supply of materials,21.6,1.2,,
+2021,1,All,Insufficient orders,62.7,1.4,,
+2021,1,All,Insufficient supply of labor,28,1.4,,
+2021,1,All,Lack of sufficient fuel or energy,0.9,0.3,,
+2021,1,All,Equipment limitations,9.1,0.9,,
+2021,1,All,Storage limitations,4.6,0.6,,
+2021,1,All,Logistics/transportation constraints,5.6,0.7,,
+2021,1,All,Sufficient inventory of finished goods,4.4,0.6,,
+2021,1,All,Strike or work stoppage,0.3,0.2,,
+2021,1,All,Seasonal operations,7.6,0.8,,
+2021,1,All,Environmental restrictions,1.5,0.4,,
+2021,1,All,Other (actual production less than full production),17.9,1.1,,
 2021,1,311,Building capital expenditures,2.3,1.9,,
 2021,1,311,Machinery capital expenditures,17.6,4.9,,
 2021,1,311,Building retirements,0,0,,
@@ -2627,29 +2669,29 @@
 2021,1,337,Machinery capital expenditures,18.5,8.1,,
 2021,1,337,Building retirements,0,0,,
 2021,1,337,Machinery retirements,D,D,,
-2021,1,337,"Price changed, product mix same",37.5,10,,
-2021,1,337,Revised estimation assumptions,14.1,7.1,,
-2021,1,337,Change in method of operation,5.8,4.4,,
-2021,1,337,Change in product mix or specifications,16,7.3,,
-2021,1,337,Change in material input,D,D,,
-2021,1,337,Other (full capacity: current vs. prior quarter),36.4,10,,
-2021,1,337,Not profitable to operate at full capacity,7.8,3.8,,
-2021,1,337,Insufficient supply of materials,26.7,6.2,,
-2021,1,337,Insufficient orders,51.4,7.3,,
-2021,1,337,Insufficient supply of labor,34.7,6.9,,
-2021,1,337,Lack of sufficient fuel or energy,0,0,,
-2021,1,337,Equipment limitations,3.1,2.5,,
-2021,1,337,Storage limitations,3,2.5,,
-2021,1,337,Logistics/transportation constraints,8.6,4,,
-2021,1,337,Sufficient inventory of finished goods,D,D,,
-2021,1,337,Strike or work stoppage,0,0,,
-2021,1,337,Seasonal operations,4.2,2.7,,
-2021,1,337,Environmental restrictions,0,0,,
-2021,1,337,Other (actual production less than full production),23,6,,
-2021,1,339,Building capital expenditures,3.6,2.7,,
-2021,1,339,Machinery capital expenditures,5.5,3.1,,
-2021,1,339,Building retirements,D,D,,
-2021,1,339,Machinery retirements,0,0,,
+2021,1,337,"Price changed, product mix same",37.5,10,2.29,2.31
+2021,1,337,Revised estimation assumptions,14.1,7.1,8.49,8.51
+2021,1,337,Change in method of operation,5.8,4.4,0.5,0.5
+2021,1,337,Change in product mix or specifications,16,7.3,2.19,2.21
+2021,1,337,Change in material input,D,D,11.69,11.71
+2021,1,337,Other (full capacity: current vs. prior quarter),36.4,10,14.88,14.92
+2021,1,337,Not profitable to operate at full capacity,7.8,3.8,6.59,6.61
+2021,1,337,Insufficient supply of materials,26.7,6.2,24.88,24.92
+2021,1,337,Insufficient orders,51.4,7.3,4.19,4.21
+2021,1,337,Insufficient supply of labor,34.7,6.9,45.58,45.62
+2021,1,337,Lack of sufficient fuel or energy,0,0,9.39,9.41
+2021,1,337,Equipment limitations,3.1,2.5,13.49,13.51
+2021,1,337,Storage limitations,3,2.5,65.48,65.52
+2021,1,337,Logistics/transportation constraints,8.6,4,21.78,21.82
+2021,1,337,Sufficient inventory of finished goods,D,D,0.2,0.2
+2021,1,337,Strike or work stoppage,0,0,6.59,6.61
+2021,1,337,Seasonal operations,4.2,2.7,4.89,4.91
+2021,1,337,Environmental restrictions,0,0,4.39,4.41
+2021,1,337,Other (actual production less than full production),23,6,6.09,6.11
+2021,1,339,Building capital expenditures,3.6,2.7,0.4,0.4
+2021,1,339,Machinery capital expenditures,5.5,3.1,8.19,8.21
+2021,1,339,Building retirements,D,D,1.4,1.4
+2021,1,339,Machinery retirements,0,0,27.78,27.82
 2021,1,339,"Price changed, product mix same",9,4.3,,
 2021,1,339,Revised estimation assumptions,15.8,5.9,,
 2021,1,339,Change in method of operation,7.4,3.7,,
@@ -2669,29 +2711,29 @@
 2021,1,339,Seasonal operations,2.7,2.1,,
 2021,1,339,Environmental restrictions,D,D,,
 2021,1,339,Other (actual production less than full production),17.2,5.1,,
-2020,4,All,Building capital expenditures,2.3,0.5,2.29,2.31
-2020,4,All,Machinery capital expenditures,8.5,1,8.49,8.51
-2020,4,All,Building retirements,0.5,0.3,0.5,0.5
-2020,4,All,Machinery retirements,2.2,0.5,2.19,2.21
-2020,4,All,"Price changed, product mix same",11.7,1.1,11.69,11.71
-2020,4,All,Revised estimation assumptions,14.9,1.3,14.88,14.92
-2020,4,All,Change in method of operation,6.6,0.9,6.59,6.61
-2020,4,All,Change in product mix or specifications,24.9,1.5,24.88,24.92
-2020,4,All,Change in material input,4.2,0.7,4.19,4.21
-2020,4,All,Other (full capacity: current vs. prior quarter),45.6,1.8,45.58,45.62
-2020,4,All,Not profitable to operate at full capacity,9.4,0.9,9.39,9.41
-2020,4,All,Insufficient supply of materials,13.5,1,13.49,13.51
-2020,4,All,Insufficient orders,65.5,1.4,65.48,65.52
-2020,4,All,Insufficient supply of labor,21.8,1.2,21.78,21.82
-2020,4,All,Lack of sufficient fuel or energy,0.2,0.1,0.2,0.2
-2020,4,All,Equipment limitations,6.6,0.7,6.59,6.61
-2020,4,All,Storage limitations,4.9,0.6,4.89,4.91
-2020,4,All,Logistics/transportation constraints,4.4,0.6,4.39,4.41
-2020,4,All,Sufficient inventory of finished goods,6.1,0.7,6.09,6.11
-2020,4,All,Strike or work stoppage,0.4,0.2,0.4,0.4
-2020,4,All,Seasonal operations,8.2,0.8,8.19,8.21
-2020,4,All,Environmental restrictions,1.4,0.3,1.4,1.4
-2020,4,All,Other (actual production less than full production),27.8,1.3,27.78,27.82
+2020,4,All,Building capital expenditures,2.3,0.5,,
+2020,4,All,Machinery capital expenditures,8.5,1,,
+2020,4,All,Building retirements,0.5,0.3,,
+2020,4,All,Machinery retirements,2.2,0.5,,
+2020,4,All,"Price changed, product mix same",11.7,1.1,,
+2020,4,All,Revised estimation assumptions,14.9,1.3,,
+2020,4,All,Change in method of operation,6.6,0.9,,
+2020,4,All,Change in product mix or specifications,24.9,1.5,,
+2020,4,All,Change in material input,4.2,0.7,,
+2020,4,All,Other (full capacity: current vs. prior quarter),45.6,1.8,,
+2020,4,All,Not profitable to operate at full capacity,9.4,0.9,,
+2020,4,All,Insufficient supply of materials,13.5,1,,
+2020,4,All,Insufficient orders,65.5,1.4,,
+2020,4,All,Insufficient supply of labor,21.8,1.2,,
+2020,4,All,Lack of sufficient fuel or energy,0.2,0.1,,
+2020,4,All,Equipment limitations,6.6,0.7,,
+2020,4,All,Storage limitations,4.9,0.6,,
+2020,4,All,Logistics/transportation constraints,4.4,0.6,,
+2020,4,All,Sufficient inventory of finished goods,6.1,0.7,,
+2020,4,All,Strike or work stoppage,0.4,0.2,,
+2020,4,All,Seasonal operations,8.2,0.8,,
+2020,4,All,Environmental restrictions,1.4,0.3,,
+2020,4,All,Other (actual production less than full production),27.8,1.3,,
 2020,4,311,Building capital expenditures,2.9,1.9,,
 2020,4,311,Machinery capital expenditures,13.5,4.1,,
 2020,4,311,Building retirements,0,0,,
@@ -3133,29 +3175,29 @@
 2020,4,337,Machinery capital expenditures,8.7,4.3,,
 2020,4,337,Building retirements,D,D,,
 2020,4,337,Machinery retirements,D,D,,
-2020,4,337,"Price changed, product mix same",8.1,4.3,,
-2020,4,337,Revised estimation assumptions,17,5.7,,
-2020,4,337,Change in method of operation,9.7,4.4,,
-2020,4,337,Change in product mix or specifications,17,5.8,,
-2020,4,337,Change in material input,D,D,,
-2020,4,337,Other (full capacity: current vs. prior quarter),52.4,7.7,,
-2020,4,337,Not profitable to operate at full capacity,15,5.4,,
-2020,4,337,Insufficient supply of materials,23.3,6.6,,
-2020,4,337,Insufficient orders,51,7.6,,
-2020,4,337,Insufficient supply of labor,36.2,7.3,,
-2020,4,337,Lack of sufficient fuel or energy,0,0,,
-2020,4,337,Equipment limitations,3.2,2.7,,
-2020,4,337,Storage limitations,7.2,3.7,,
-2020,4,337,Logistics/transportation constraints,1.8,0.9,,
-2020,4,337,Sufficient inventory of finished goods,D,D,,
-2020,4,337,Strike or work stoppage,0,0,,
-2020,4,337,Seasonal operations,3.5,2.7,,
-2020,4,337,Environmental restrictions,D,D,,
-2020,4,337,Other (actual production less than full production),22.9,6.3,,
-2020,4,339,Building capital expenditures,7.4,4.3,,
-2020,4,339,Machinery capital expenditures,12.2,5.7,,
-2020,4,339,Building retirements,0,0,,
-2020,4,339,Machinery retirements,0,0,,
+2020,4,337,"Price changed, product mix same",8.1,4.3,3.29,3.31
+2020,4,337,Revised estimation assumptions,17,5.7,8.39,8.41
+2020,4,337,Change in method of operation,9.7,4.4,0.2,0.2
+2020,4,337,Change in product mix or specifications,17,5.8,2.19,2.21
+2020,4,337,Change in material input,D,D,12.19,12.21
+2020,4,337,Other (full capacity: current vs. prior quarter),52.4,7.7,15.18,15.22
+2020,4,337,Not profitable to operate at full capacity,15,5.4,5.29,5.31
+2020,4,337,Insufficient supply of materials,23.3,6.6,23.98,24.02
+2020,4,337,Insufficient orders,51,7.6,6.19,6.21
+2020,4,337,Insufficient supply of labor,36.2,7.3,45.68,45.72
+2020,4,337,Lack of sufficient fuel or energy,0,0,8.19,8.21
+2020,4,337,Equipment limitations,3.2,2.7,10.99,11.01
+2020,4,337,Storage limitations,7.2,3.7,68.18,68.22
+2020,4,337,Logistics/transportation constraints,1.8,0.9,18.59,18.61
+2020,4,337,Sufficient inventory of finished goods,D,D,0.2,0.2
+2020,4,337,Strike or work stoppage,0,0,6.19,6.21
+2020,4,337,Seasonal operations,3.5,2.7,3.39,3.41
+2020,4,337,Environmental restrictions,D,D,3.39,3.41
+2020,4,337,Other (actual production less than full production),22.9,6.3,4.89,4.91
+2020,4,339,Building capital expenditures,7.4,4.3,0.5,0.5
+2020,4,339,Machinery capital expenditures,12.2,5.7,4.59,4.61
+2020,4,339,Building retirements,0,0,1.3,1.3
+2020,4,339,Machinery retirements,0,0,29.78,29.82
 2020,4,339,"Price changed, product mix same",12,5.7,,
 2020,4,339,Revised estimation assumptions,17.4,6.3,,
 2020,4,339,Change in method of operation,9.7,5,,
@@ -3175,29 +3217,29 @@
 2020,4,339,Seasonal operations,7.5,3.5,,
 2020,4,339,Environmental restrictions,0,0,,
 2020,4,339,Other (actual production less than full production),37.8,6.5,,
-2020,3,All,Building capital expenditures,3.3,0.6,3.29,3.31
-2020,3,All,Machinery capital expenditures,8.4,1,8.39,8.41
-2020,3,All,Building retirements,0.2,0.2,0.2,0.2
-2020,3,All,Machinery retirements,2.2,0.5,2.19,2.21
-2020,3,All,"Price changed, product mix same",12.2,1.1,12.19,12.21
-2020,3,All,Revised estimation assumptions,15.2,1.3,15.18,15.22
-2020,3,All,Change in method of operation,5.3,0.8,5.29,5.31
-2020,3,All,Change in product mix or specifications,24,1.5,23.98,24.02
-2020,3,All,Change in material input,6.2,0.9,6.19,6.21
-2020,3,All,Other (full capacity: current vs. prior quarter),45.7,1.8,45.68,45.72
-2020,3,All,Not profitable to operate at full capacity,8.2,0.8,8.19,8.21
-2020,3,All,Insufficient supply of materials,11,0.9,10.99,11.01
-2020,3,All,Insufficient orders,68.2,1.4,68.18,68.22
-2020,3,All,Insufficient supply of labor,18.6,1.1,18.59,18.61
-2020,3,All,Lack of sufficient fuel or energy,0.2,0.1,0.2,0.2
-2020,3,All,Equipment limitations,6.2,0.7,6.19,6.21
-2020,3,All,Storage limitations,3.4,0.5,3.39,3.41
-2020,3,All,Logistics/transportation constraints,3.4,0.5,3.39,3.41
-2020,3,All,Sufficient inventory of finished goods,4.9,0.6,4.89,4.91
-2020,3,All,Strike or work stoppage,0.5,0.2,0.5,0.5
-2020,3,All,Seasonal operations,4.6,0.6,4.59,4.61
-2020,3,All,Environmental restrictions,1.3,0.3,1.3,1.3
-2020,3,All,Other (actual production less than full production),29.8,1.4,29.78,29.82
+2020,3,All,Building capital expenditures,3.3,0.6,,
+2020,3,All,Machinery capital expenditures,8.4,1,,
+2020,3,All,Building retirements,0.2,0.2,,
+2020,3,All,Machinery retirements,2.2,0.5,,
+2020,3,All,"Price changed, product mix same",12.2,1.1,,
+2020,3,All,Revised estimation assumptions,15.2,1.3,,
+2020,3,All,Change in method of operation,5.3,0.8,,
+2020,3,All,Change in product mix or specifications,24,1.5,,
+2020,3,All,Change in material input,6.2,0.9,,
+2020,3,All,Other (full capacity: current vs. prior quarter),45.7,1.8,,
+2020,3,All,Not profitable to operate at full capacity,8.2,0.8,,
+2020,3,All,Insufficient supply of materials,11,0.9,,
+2020,3,All,Insufficient orders,68.2,1.4,,
+2020,3,All,Insufficient supply of labor,18.6,1.1,,
+2020,3,All,Lack of sufficient fuel or energy,0.2,0.1,,
+2020,3,All,Equipment limitations,6.2,0.7,,
+2020,3,All,Storage limitations,3.4,0.5,,
+2020,3,All,Logistics/transportation constraints,3.4,0.5,,
+2020,3,All,Sufficient inventory of finished goods,4.9,0.6,,
+2020,3,All,Strike or work stoppage,0.5,0.2,,
+2020,3,All,Seasonal operations,4.6,0.6,,
+2020,3,All,Environmental restrictions,1.3,0.3,,
+2020,3,All,Other (actual production less than full production),29.8,1.4,,
 2020,3,311,Building capital expenditures,4.7,2.6,,
 2020,3,311,Machinery capital expenditures,5.5,2.6,,
 2020,3,311,Building retirements,0,0,,
@@ -3639,29 +3681,29 @@
 2020,3,337,Machinery capital expenditures,15.5,5.9,,
 2020,3,337,Building retirements,0,0,,
 2020,3,337,Machinery retirements,D,D,,
-2020,3,337,"Price changed, product mix same",3.7,3.1,,
-2020,3,337,Revised estimation assumptions,16.6,6.3,,
-2020,3,337,Change in method of operation,2.8,1.5,,
-2020,3,337,Change in product mix or specifications,13.8,5.5,,
-2020,3,337,Change in material input,7,4.3,,
-2020,3,337,Other (full capacity: current vs. prior quarter),47.7,8.4,,
-2020,3,337,Not profitable to operate at full capacity,15.4,6.2,,
-2020,3,337,Insufficient supply of materials,5.7,3.3,,
-2020,3,337,Insufficient orders,45.6,7.8,,
-2020,3,337,Insufficient supply of labor,32.5,7.3,,
-2020,3,337,Lack of sufficient fuel or energy,0,0,,
-2020,3,337,Equipment limitations,6.2,3.6,,
-2020,3,337,Storage limitations,6.5,4.2,,
-2020,3,337,Logistics/transportation constraints,3.8,3,,
-2020,3,337,Sufficient inventory of finished goods,D,D,,
-2020,3,337,Strike or work stoppage,0,0,,
-2020,3,337,Seasonal operations,0.9,0.7,,
-2020,3,337,Environmental restrictions,0,0,,
-2020,3,337,Other (actual production less than full production),29.4,7.1,,
-2020,3,339,Building capital expenditures,5.9,4,,
-2020,3,339,Machinery capital expenditures,10.7,5.1,,
-2020,3,339,Building retirements,0,0,,
-2020,3,339,Machinery retirements,D,D,,
+2020,3,337,"Price changed, product mix same",3.7,3.1,2.19,2.21
+2020,3,337,Revised estimation assumptions,16.6,6.3,7.08,7.12
+2020,3,337,Change in method of operation,2.8,1.5,0,0
+2020,3,337,Change in product mix or specifications,13.8,5.5,1.49,1.51
+2020,3,337,Change in material input,7,4.3,15.18,15.22
+2020,3,337,Other (full capacity: current vs. prior quarter),47.7,8.4,13.18,13.22
+2020,3,337,Not profitable to operate at full capacity,15.4,6.2,3.29,3.31
+2020,3,337,Insufficient supply of materials,5.7,3.3,24.07,24.13
+2020,3,337,Insufficient orders,45.6,7.8,4.68,4.72
+2020,3,337,Insufficient supply of labor,32.5,7.3,47.66,47.74
+2020,3,337,Lack of sufficient fuel or energy,0,0,9.39,9.41
+2020,3,337,Equipment limitations,6.2,3.6,9.39,9.41
+2020,3,337,Storage limitations,6.5,4.2,70.78,70.82
+2020,3,337,Logistics/transportation constraints,3.8,3,15.18,15.22
+2020,3,337,Sufficient inventory of finished goods,D,D,0,0
+2020,3,337,Strike or work stoppage,0,0,4.89,4.91
+2020,3,337,Seasonal operations,0.9,0.7,3.69,3.71
+2020,3,337,Environmental restrictions,0,0,3.39,3.41
+2020,3,337,Other (actual production less than full production),29.4,7.1,5.69,5.71
+2020,3,339,Building capital expenditures,5.9,4,1.09,1.11
+2020,3,339,Machinery capital expenditures,10.7,5.1,6.59,6.61
+2020,3,339,Building retirements,0,0,2.69,2.71
+2020,3,339,Machinery retirements,D,D,32.28,32.32
 2020,3,339,"Price changed, product mix same",15.7,6.1,,
 2020,3,339,Revised estimation assumptions,18.3,6.2,,
 2020,3,339,Change in method of operation,7.2,4.2,,
@@ -3681,29 +3723,29 @@
 2020,3,339,Seasonal operations,D,D,,
 2020,3,339,Environmental restrictions,D,D,,
 2020,3,339,Other (actual production less than full production),25.8,5.6,,
-2020,2,All,Building capital expenditures,2.2,0.9,2.19,2.21
-2020,2,All,Machinery capital expenditures,7.1,1.4,7.08,7.12
-2020,2,All,Building retirements,0,0,0,0
-2020,2,All,Machinery retirements,1.5,0.7,1.49,1.51
-2020,2,All,"Price changed, product mix same",15.2,1.8,15.18,15.22
-2020,2,All,Revised estimation assumptions,13.2,1.8,13.18,13.22
-2020,2,All,Change in method of operation,3.3,0.9,3.29,3.31
-2020,2,All,Change in product mix or specifications,24.1,2.1,24.07,24.13
-2020,2,All,Change in material input,4.7,1.2,4.68,4.72
-2020,2,All,Other (full capacity: current vs. prior quarter),47.7,2.8,47.66,47.74
-2020,2,All,Not profitable to operate at full capacity,9.4,1.1,9.39,9.41
-2020,2,All,Insufficient supply of materials,9.4,1.1,9.39,9.41
-2020,2,All,Insufficient orders,70.8,1.7,70.78,70.82
-2020,2,All,Insufficient supply of labor,15.2,1.4,15.18,15.22
-2020,2,All,Lack of sufficient fuel or energy,0,0,0,0
-2020,2,All,Equipment limitations,4.9,0.8,4.89,4.91
-2020,2,All,Storage limitations,3.7,0.7,3.69,3.71
-2020,2,All,Logistics/transportation constraints,3.4,0.7,3.39,3.41
-2020,2,All,Sufficient inventory of finished goods,5.7,0.8,5.69,5.71
-2020,2,All,Strike or work stoppage,1.1,0.4,1.09,1.11
-2020,2,All,Seasonal operations,6.6,0.9,6.59,6.61
-2020,2,All,Environmental restrictions,2.7,0.6,2.69,2.71
-2020,2,All,Other (actual production less than full production),32.3,1.7,32.28,32.32
+2020,2,All,Building capital expenditures,2.2,0.9,,
+2020,2,All,Machinery capital expenditures,7.1,1.4,,
+2020,2,All,Building retirements,0,0,,
+2020,2,All,Machinery retirements,1.5,0.7,,
+2020,2,All,"Price changed, product mix same",15.2,1.8,,
+2020,2,All,Revised estimation assumptions,13.2,1.8,,
+2020,2,All,Change in method of operation,3.3,0.9,,
+2020,2,All,Change in product mix or specifications,24.1,2.1,,
+2020,2,All,Change in material input,4.7,1.2,,
+2020,2,All,Other (full capacity: current vs. prior quarter),47.7,2.8,,
+2020,2,All,Not profitable to operate at full capacity,9.4,1.1,,
+2020,2,All,Insufficient supply of materials,9.4,1.1,,
+2020,2,All,Insufficient orders,70.8,1.7,,
+2020,2,All,Insufficient supply of labor,15.2,1.4,,
+2020,2,All,Lack of sufficient fuel or energy,0,0,,
+2020,2,All,Equipment limitations,4.9,0.8,,
+2020,2,All,Storage limitations,3.7,0.7,,
+2020,2,All,Logistics/transportation constraints,3.4,0.7,,
+2020,2,All,Sufficient inventory of finished goods,5.7,0.8,,
+2020,2,All,Strike or work stoppage,1.1,0.4,,
+2020,2,All,Seasonal operations,6.6,0.9,,
+2020,2,All,Environmental restrictions,2.7,0.6,,
+2020,2,All,Other (actual production less than full production),32.3,1.7,,
 2020,2,311,Building capital expenditures,D,D,,
 2020,2,311,Machinery capital expenditures,2.6,1.4,,
 2020,2,311,Building retirements,0,0,,
@@ -4145,29 +4187,29 @@
 2020,2,337,Machinery capital expenditures,D,D,,
 2020,2,337,Building retirements,0,0,,
 2020,2,337,Machinery retirements,0,0,,
-2020,2,337,"Price changed, product mix same",0,0,,
-2020,2,337,Revised estimation assumptions,43.8,29.4,,
-2020,2,337,Change in method of operation,1.4,0.8,,
-2020,2,337,Change in product mix or specifications,5.6,3.6,,
-2020,2,337,Change in material input,0,0,,
-2020,2,337,Other (full capacity: current vs. prior quarter),52.1,28.2,,
-2020,2,337,Not profitable to operate at full capacity,8.2,7.8,,
-2020,2,337,Insufficient supply of materials,12.7,8.1,,
-2020,2,337,Insufficient orders,55.5,10.7,,
-2020,2,337,Insufficient supply of labor,15.4,8.4,,
-2020,2,337,Lack of sufficient fuel or energy,0,0,,
-2020,2,337,Equipment limitations,D,D,,
-2020,2,337,Storage limitations,D,D,,
-2020,2,337,Logistics/transportation constraints,1,0.6,,
-2020,2,337,Sufficient inventory of finished goods,11.9,8.1,,
-2020,2,337,Strike or work stoppage,8.6,7.8,,
-2020,2,337,Seasonal operations,D,D,,
-2020,2,337,Environmental restrictions,0.7,0.5,,
-2020,2,337,Other (actual production less than full production),56.5,10.8,,
-2020,2,339,Building capital expenditures,0,0,,
-2020,2,339,Machinery capital expenditures,13.3,8.9,,
-2020,2,339,Building retirements,0,0,,
-2020,2,339,Machinery retirements,0,0,,
+2020,2,337,"Price changed, product mix same",0,0,2.49,2.51
+2020,2,337,Revised estimation assumptions,43.8,29.4,10.48,10.52
+2020,2,337,Change in method of operation,1.4,0.8,0,0
+2020,2,337,Change in product mix or specifications,5.6,3.6,0.99,1.01
+2020,2,337,Change in material input,0,0,18.87,18.93
+2020,2,337,Other (full capacity: current vs. prior quarter),52.1,28.2,11.78,11.82
+2020,2,337,Not profitable to operate at full capacity,8.2,7.8,6.58,6.62
+2020,2,337,Insufficient supply of materials,12.7,8.1,26.97,27.03
+2020,2,337,Insufficient orders,55.5,10.7,5.18,5.22
+2020,2,337,Insufficient supply of labor,15.4,8.4,37.57,37.63
+2020,2,337,Lack of sufficient fuel or energy,0,0,9.59,9.61
+2020,2,337,Equipment limitations,D,D,9.78,9.82
+2020,2,337,Storage limitations,D,D,72.38,72.42
+2020,2,337,Logistics/transportation constraints,1,0.6,16.08,16.12
+2020,2,337,Sufficient inventory of finished goods,11.9,8.1,0,0
+2020,2,337,Strike or work stoppage,8.6,7.8,9.58,9.62
+2020,2,337,Seasonal operations,D,D,4.39,4.41
+2020,2,337,Environmental restrictions,0.7,0.5,2.39,2.41
+2020,2,337,Other (actual production less than full production),56.5,10.8,5.29,5.31
+2020,2,339,Building capital expenditures,0,0,0.5,0.5
+2020,2,339,Machinery capital expenditures,13.3,8.9,9.49,9.51
+2020,2,339,Building retirements,0,0,1.79,1.81
+2020,2,339,Machinery retirements,0,0,19.78,19.82
 2020,2,339,"Price changed, product mix same",D,D,,
 2020,2,339,Revised estimation assumptions,30.7,12.3,,
 2020,2,339,Change in method of operation,4.2,3.7,,
@@ -4187,29 +4229,29 @@
 2020,2,339,Seasonal operations,5.9,2.6,,
 2020,2,339,Environmental restrictions,11.9,6.5,,
 2020,2,339,Other (actual production less than full production),43,8.4,,
-2020,1,All,Building capital expenditures,2.5,0.8,2.49,2.51
-2020,1,All,Machinery capital expenditures,10.5,1.6,10.48,10.52
-2020,1,All,Building retirements,0,0,0,0
-2020,1,All,Machinery retirements,1,0.5,0.99,1.01
-2020,1,All,"Price changed, product mix same",18.9,2,18.87,18.93
-2020,1,All,Revised estimation assumptions,11.8,1.7,11.78,11.82
-2020,1,All,Change in method of operation,6.6,1.4,6.58,6.62
-2020,1,All,Change in product mix or specifications,27,2.2,26.97,27.03
-2020,1,All,Change in material input,5.2,1.2,5.18,5.22
-2020,1,All,Other (full capacity: current vs. prior quarter),37.6,2.7,37.57,37.63
-2020,1,All,Not profitable to operate at full capacity,9.6,1.1,9.59,9.61
-2020,1,All,Insufficient supply of materials,9.8,1.2,9.78,9.82
-2020,1,All,Insufficient orders,72.4,1.7,72.38,72.42
-2020,1,All,Insufficient supply of labor,16.1,1.5,16.08,16.12
-2020,1,All,Lack of sufficient fuel or energy,0,0,0,0
-2020,1,All,Equipment limitations,9.6,1.2,9.58,9.62
-2020,1,All,Storage limitations,4.4,0.8,4.39,4.41
-2020,1,All,Logistics/transportation constraints,2.4,0.6,2.39,2.41
-2020,1,All,Sufficient inventory of finished goods,5.3,0.7,5.29,5.31
-2020,1,All,Strike or work stoppage,0.5,0.3,0.5,0.5
-2020,1,All,Seasonal operations,9.5,1.1,9.49,9.51
-2020,1,All,Environmental restrictions,1.8,0.5,1.79,1.81
-2020,1,All,Other (actual production less than full production),19.8,1.6,19.78,19.82
+2020,1,All,Building capital expenditures,2.5,0.8,,
+2020,1,All,Machinery capital expenditures,10.5,1.6,,
+2020,1,All,Building retirements,0,0,,
+2020,1,All,Machinery retirements,1,0.5,,
+2020,1,All,"Price changed, product mix same",18.9,2,,
+2020,1,All,Revised estimation assumptions,11.8,1.7,,
+2020,1,All,Change in method of operation,6.6,1.4,,
+2020,1,All,Change in product mix or specifications,27,2.2,,
+2020,1,All,Change in material input,5.2,1.2,,
+2020,1,All,Other (full capacity: current vs. prior quarter),37.6,2.7,,
+2020,1,All,Not profitable to operate at full capacity,9.6,1.1,,
+2020,1,All,Insufficient supply of materials,9.8,1.2,,
+2020,1,All,Insufficient orders,72.4,1.7,,
+2020,1,All,Insufficient supply of labor,16.1,1.5,,
+2020,1,All,Lack of sufficient fuel or energy,0,0,,
+2020,1,All,Equipment limitations,9.6,1.2,,
+2020,1,All,Storage limitations,4.4,0.8,,
+2020,1,All,Logistics/transportation constraints,2.4,0.6,,
+2020,1,All,Sufficient inventory of finished goods,5.3,0.7,,
+2020,1,All,Strike or work stoppage,0.5,0.3,,
+2020,1,All,Seasonal operations,9.5,1.1,,
+2020,1,All,Environmental restrictions,1.8,0.5,,
+2020,1,All,Other (actual production less than full production),19.8,1.6,,
 2020,1,311,Building capital expenditures,1.4,0.9,,
 2020,1,311,Machinery capital expenditures,8.4,3.2,,
 2020,1,311,Building retirements,0,0,,
@@ -4651,29 +4693,29 @@
 2020,1,337,Machinery capital expenditures,D,D,,
 2020,1,337,Building retirements,0,0,,
 2020,1,337,Machinery retirements,D,D,,
-2020,1,337,"Price changed, product mix same",D,D,,
-2020,1,337,Revised estimation assumptions,13.1,9.9,,
+2020,1,337,"Price changed, product mix same",D,D,1.19,1.21
+2020,1,337,Revised estimation assumptions,13.1,9.9,10.28,10.32
 2020,1,337,Change in method of operation,D,D,,
-2020,1,337,Change in product mix or specifications,31,14.6,,
-2020,1,337,Change in material input,0,0,,
-2020,1,337,Other (full capacity: current vs. prior quarter),41.8,17.2,,
-2020,1,337,Not profitable to operate at full capacity,13.1,11.9,,
-2020,1,337,Insufficient supply of materials,14.2,11.8,,
-2020,1,337,Insufficient orders,72.9,12.3,,
-2020,1,337,Insufficient supply of labor,18.3,11.9,,
-2020,1,337,Lack of sufficient fuel or energy,0,0,,
-2020,1,337,Equipment limitations,1.3,0.7,,
-2020,1,337,Storage limitations,16.3,11.9,,
-2020,1,337,Logistics/transportation constraints,D,D,,
+2020,1,337,Change in product mix or specifications,31,14.6,3.39,3.41
+2020,1,337,Change in material input,0,0,17.77,17.83
+2020,1,337,Other (full capacity: current vs. prior quarter),41.8,17.2,13.57,13.63
+2020,1,337,Not profitable to operate at full capacity,13.1,11.9,4.78,4.82
+2020,1,337,Insufficient supply of materials,14.2,11.8,28.87,28.93
+2020,1,337,Insufficient orders,72.9,12.3,4.68,4.72
+2020,1,337,Insufficient supply of labor,18.3,11.9,35.67,35.73
+2020,1,337,Lack of sufficient fuel or energy,0,0,9.09,9.11
+2020,1,337,Equipment limitations,1.3,0.7,7.39,7.41
+2020,1,337,Storage limitations,16.3,11.9,72.38,72.42
+2020,1,337,Logistics/transportation constraints,D,D,16.28,16.32
 2020,1,337,Sufficient inventory of finished goods,13.6,11.9,,
-2020,1,337,Strike or work stoppage,D,D,,
-2020,1,337,Seasonal operations,15.1,12.4,,
-2020,1,337,Environmental restrictions,D,D,,
-2020,1,337,Other (actual production less than full production),15.6,6.5,,
-2020,1,339,Building capital expenditures,3.7,2.2,,
-2020,1,339,Machinery capital expenditures,8.2,4.4,,
-2020,1,339,Building retirements,0,0,,
-2020,1,339,Machinery retirements,0,0,,
+2020,1,337,Strike or work stoppage,D,D,8.59,8.61
+2020,1,337,Seasonal operations,15.1,12.4,4.49,4.51
+2020,1,337,Environmental restrictions,D,D,2.49,2.51
+2020,1,337,Other (actual production less than full production),15.6,6.5,6.39,6.41
+2020,1,339,Building capital expenditures,3.7,2.2,0.2,0.2
+2020,1,339,Machinery capital expenditures,8.2,4.4,13.28,13.32
+2020,1,339,Building retirements,0,0,1.39,1.41
+2020,1,339,Machinery retirements,0,0,8.79,8.81
 2020,1,339,"Price changed, product mix same",9.4,6.4,,
 2020,1,339,Revised estimation assumptions,10,6.8,,
 2020,1,339,Change in method of operation,19.2,11.1,,
@@ -4693,29 +4735,29 @@
 2020,1,339,Seasonal operations,6.5,3.1,,
 2020,1,339,Environmental restrictions,D,D,,
 2020,1,339,Other (actual production less than full production),20.1,7.3,,
-2019,4,All,Building capital expenditures,1.2,0.4,1.19,1.21
-2019,4,All,Machinery capital expenditures,10.3,1.7,10.28,10.32
+2019,4,All,Building capital expenditures,1.2,0.4,,
+2019,4,All,Machinery capital expenditures,10.3,1.7,,
 2019,4,All,Building retirements,D,D,,
-2019,4,All,Machinery retirements,3.4,1.1,3.39,3.41
-2019,4,All,"Price changed, product mix same",17.8,2,17.77,17.83
-2019,4,All,Revised estimation assumptions,13.6,2,13.57,13.63
-2019,4,All,Change in method of operation,4.8,1.2,4.78,4.82
-2019,4,All,Change in product mix or specifications,28.9,2.4,28.87,28.93
-2019,4,All,Change in material input,4.7,1.2,4.68,4.72
-2019,4,All,Other (full capacity: current vs. prior quarter),35.7,2.7,35.67,35.73
-2019,4,All,Not profitable to operate at full capacity,9.1,1.1,9.09,9.11
-2019,4,All,Insufficient supply of materials,7.4,1,7.39,7.41
-2019,4,All,Insufficient orders,72.4,1.7,72.38,72.42
-2019,4,All,Insufficient supply of labor,16.3,1.4,16.28,16.32
+2019,4,All,Machinery retirements,3.4,1.1,,
+2019,4,All,"Price changed, product mix same",17.8,2,,
+2019,4,All,Revised estimation assumptions,13.6,2,,
+2019,4,All,Change in method of operation,4.8,1.2,,
+2019,4,All,Change in product mix or specifications,28.9,2.4,,
+2019,4,All,Change in material input,4.7,1.2,,
+2019,4,All,Other (full capacity: current vs. prior quarter),35.7,2.7,,
+2019,4,All,Not profitable to operate at full capacity,9.1,1.1,,
+2019,4,All,Insufficient supply of materials,7.4,1,,
+2019,4,All,Insufficient orders,72.4,1.7,,
+2019,4,All,Insufficient supply of labor,16.3,1.4,,
 2019,4,All,Lack of sufficient fuel or energy,D,D,,
-2019,4,All,Equipment limitations,8.6,1.1,8.59,8.61
-2019,4,All,Storage limitations,4.5,0.8,4.49,4.51
-2019,4,All,Logistics/transportation constraints,2.5,0.5,2.49,2.51
-2019,4,All,Sufficient inventory of finished goods,6.4,0.8,6.39,6.41
-2019,4,All,Strike or work stoppage,0.2,0.1,0.2,0.2
-2019,4,All,Seasonal operations,13.3,1.2,13.28,13.32
-2019,4,All,Environmental restrictions,1.4,0.5,1.39,1.41
-2019,4,All,Other (actual production less than full production),8.8,1.1,8.79,8.81
+2019,4,All,Equipment limitations,8.6,1.1,,
+2019,4,All,Storage limitations,4.5,0.8,,
+2019,4,All,Logistics/transportation constraints,2.5,0.5,,
+2019,4,All,Sufficient inventory of finished goods,6.4,0.8,,
+2019,4,All,Strike or work stoppage,0.2,0.1,,
+2019,4,All,Seasonal operations,13.3,1.2,,
+2019,4,All,Environmental restrictions,1.4,0.5,,
+2019,4,All,Other (actual production less than full production),8.8,1.1,,
 2019,4,311,Building capital expenditures,0.6,0.4,,
 2019,4,311,Machinery capital expenditures,8.1,4.4,,
 2019,4,311,Building retirements,0,0,,
@@ -5157,29 +5199,29 @@
 2019,4,337,Machinery capital expenditures,8.8,6.2,,
 2019,4,337,Building retirements,0,0,,
 2019,4,337,Machinery retirements,0,0,,
-2019,4,337,"Price changed, product mix same",5.3,4.4,,
-2019,4,337,Revised estimation assumptions,16.3,9.8,,
-2019,4,337,Change in method of operation,D,D,,
-2019,4,337,Change in product mix or specifications,11.9,6.4,,
-2019,4,337,Change in material input,D,D,,
-2019,4,337,Other (full capacity: current vs. prior quarter),60.9,15.3,,
-2019,4,337,Not profitable to operate at full capacity,10.7,9.3,,
-2019,4,337,Insufficient supply of materials,0.9,0.5,,
-2019,4,337,Insufficient orders,51.9,12.2,,
-2019,4,337,Insufficient supply of labor,17.2,7.4,,
-2019,4,337,Lack of sufficient fuel or energy,0,0,,
-2019,4,337,Equipment limitations,4.2,2.9,,
-2019,4,337,Storage limitations,14.7,9.7,,
-2019,4,337,Logistics/transportation constraints,D,D,,
-2019,4,337,Sufficient inventory of finished goods,10.7,9.4,,
-2019,4,337,Strike or work stoppage,0,0,,
-2019,4,337,Seasonal operations,3.7,1.7,,
-2019,4,337,Environmental restrictions,0,0,,
-2019,4,337,Other (actual production less than full production),34,12.4,,
-2019,4,339,Building capital expenditures,0.6,0.3,,
-2019,4,339,Machinery capital expenditures,18.3,11.4,,
-2019,4,339,Building retirements,0,0,,
-2019,4,339,Machinery retirements,0,0,,
+2019,4,337,"Price changed, product mix same",5.3,4.4,2.69,2.71
+2019,4,337,Revised estimation assumptions,16.3,9.8,12.38,12.42
+2019,4,337,Change in method of operation,D,D,0.2,0.2
+2019,4,337,Change in product mix or specifications,11.9,6.4,1.69,1.71
+2019,4,337,Change in material input,D,D,18.57,18.63
+2019,4,337,Other (full capacity: current vs. prior quarter),60.9,15.3,10.48,10.52
+2019,4,337,Not profitable to operate at full capacity,10.7,9.3,4.19,4.21
+2019,4,337,Insufficient supply of materials,0.9,0.5,31.77,31.83
+2019,4,337,Insufficient orders,51.9,12.2,8.08,8.12
+2019,4,337,Insufficient supply of labor,17.2,7.4,31.87,31.93
+2019,4,337,Lack of sufficient fuel or energy,0,0,10.19,10.21
+2019,4,337,Equipment limitations,4.2,2.9,7.29,7.31
+2019,4,337,Storage limitations,14.7,9.7,74.48,74.52
+2019,4,337,Logistics/transportation constraints,D,D,19.88,19.92
+2019,4,337,Sufficient inventory of finished goods,10.7,9.4,0.1,0.1
+2019,4,337,Strike or work stoppage,0,0,11.18,11.22
+2019,4,337,Seasonal operations,3.7,1.7,3.99,4.01
+2019,4,337,Environmental restrictions,0,0,2.79,2.81
+2019,4,337,Other (actual production less than full production),34,12.4,5.09,5.11
+2019,4,339,Building capital expenditures,0.6,0.3,0.89,0.91
+2019,4,339,Machinery capital expenditures,18.3,11.4,9.29,9.31
+2019,4,339,Building retirements,0,0,1.29,1.31
+2019,4,339,Machinery retirements,0,0,6.29,6.31
 2019,4,339,"Price changed, product mix same",20,10.9,,
 2019,4,339,Revised estimation assumptions,5.8,4.2,,
 2019,4,339,Change in method of operation,13.6,9.2,,
@@ -5199,29 +5241,29 @@
 2019,4,339,Seasonal operations,13.7,5.7,,
 2019,4,339,Environmental restrictions,0,0,,
 2019,4,339,Other (actual production less than full production),3.8,2.3,,
-2019,3,All,Building capital expenditures,2.7,0.9,2.69,2.71
-2019,3,All,Machinery capital expenditures,12.4,1.9,12.38,12.42
-2019,3,All,Building retirements,0.2,0.2,0.2,0.2
-2019,3,All,Machinery retirements,1.7,0.6,1.69,1.71
-2019,3,All,"Price changed, product mix same",18.6,2,18.57,18.63
-2019,3,All,Revised estimation assumptions,10.5,1.6,10.48,10.52
-2019,3,All,Change in method of operation,4.2,1.1,4.19,4.21
-2019,3,All,Change in product mix or specifications,31.8,2.4,31.77,31.83
-2019,3,All,Change in material input,8.1,1.6,8.08,8.12
-2019,3,All,Other (full capacity: current vs. prior quarter),31.9,2.6,31.87,31.93
-2019,3,All,Not profitable to operate at full capacity,10.2,1.1,10.19,10.21
-2019,3,All,Insufficient supply of materials,7.3,1,7.29,7.31
-2019,3,All,Insufficient orders,74.5,1.6,74.48,74.52
-2019,3,All,Insufficient supply of labor,19.9,1.6,19.88,19.92
-2019,3,All,Lack of sufficient fuel or energy,0.1,0.1,0.1,0.1
-2019,3,All,Equipment limitations,11.2,1.2,11.18,11.22
-2019,3,All,Storage limitations,4,0.7,3.99,4.01
-2019,3,All,Logistics/transportation constraints,2.8,0.6,2.79,2.81
-2019,3,All,Sufficient inventory of finished goods,5.1,0.7,5.09,5.11
-2019,3,All,Strike or work stoppage,0.9,0.4,0.89,0.91
-2019,3,All,Seasonal operations,9.3,1.1,9.29,9.31
-2019,3,All,Environmental restrictions,1.3,0.5,1.29,1.31
-2019,3,All,Other (actual production less than full production),6.3,0.9,6.29,6.31
+2019,3,All,Building capital expenditures,2.7,0.9,,
+2019,3,All,Machinery capital expenditures,12.4,1.9,,
+2019,3,All,Building retirements,0.2,0.2,,
+2019,3,All,Machinery retirements,1.7,0.6,,
+2019,3,All,"Price changed, product mix same",18.6,2,,
+2019,3,All,Revised estimation assumptions,10.5,1.6,,
+2019,3,All,Change in method of operation,4.2,1.1,,
+2019,3,All,Change in product mix or specifications,31.8,2.4,,
+2019,3,All,Change in material input,8.1,1.6,,
+2019,3,All,Other (full capacity: current vs. prior quarter),31.9,2.6,,
+2019,3,All,Not profitable to operate at full capacity,10.2,1.1,,
+2019,3,All,Insufficient supply of materials,7.3,1,,
+2019,3,All,Insufficient orders,74.5,1.6,,
+2019,3,All,Insufficient supply of labor,19.9,1.6,,
+2019,3,All,Lack of sufficient fuel or energy,0.1,0.1,,
+2019,3,All,Equipment limitations,11.2,1.2,,
+2019,3,All,Storage limitations,4,0.7,,
+2019,3,All,Logistics/transportation constraints,2.8,0.6,,
+2019,3,All,Sufficient inventory of finished goods,5.1,0.7,,
+2019,3,All,Strike or work stoppage,0.9,0.4,,
+2019,3,All,Seasonal operations,9.3,1.1,,
+2019,3,All,Environmental restrictions,1.3,0.5,,
+2019,3,All,Other (actual production less than full production),6.3,0.9,,
 2019,3,311,Building capital expenditures,D,D,,
 2019,3,311,Machinery capital expenditures,6.2,4.7,,
 2019,3,311,Building retirements,D,D,,
