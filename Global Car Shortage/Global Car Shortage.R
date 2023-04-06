@@ -2,6 +2,9 @@ pacman::p_load(eurostat,restatapi,bea.R,sidrar,htmltools,devtools,onsr,dplyr,sea
 
 devtools::install_github("warint/statcanR")
 library(statcanR)
+devtools::install_github("rOpenGov/eurostat")
+library(eurostat)
+
 
 CANADA_INDPRO <- statcan_data("36-10-0434-04", "eng") %>%
   subset(`North American Industry Classification System (NAICS)`=="Motor vehicle manufacturing [3361]") %>%
@@ -115,12 +118,12 @@ BRAZIL_INDPO_graph <- ggplot() + #plotting mexico indpro
 
 ggsave(dpi = "retina",plot = BRAZIL_INDPO_graph, "Brazil.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-EU_MOTOR_VEHICLE <- get_eurostat_data("STS_INPR_M",
-                                        filters=c("DE","ES","FR","TR","IT","SCA","C291","I15"),
-                                        date_filter=">2018-01-01") %>%
-  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
-  select(geo, time, values) %>%
-  pivot_wider(names_from = geo, values_from = values)
+# EU_MOTOR_VEHICLE <- get_eurostat_data("STS_INPR_M",
+#                                         filters=c("DE","ES","FR","TR","IT","SCA","C291","I15"),
+#                                         date_filter=">2018-01-01") %>%
+#   mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+#   select(geo, time, values) %>%
+#   pivot_wider(names_from = geo, values_from = values)
 
 EU_IND_PRO_VEHICLE_graph <- ggplot() + #plotting INDPRO Motor Vehicles
   geom_line(data=EU_MOTOR_VEHICLE, aes(x=time,y= IT/IT[1]*100,color= "Italy"), size = 1.25) +

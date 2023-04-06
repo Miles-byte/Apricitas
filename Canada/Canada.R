@@ -10,12 +10,14 @@ CAPACITY_SOME <- get_series("CAPACITYSOME") %>%
   transmute(date, value = CAPACITYSOME) %>%
   mutate(name = "Some Difficulty")
   
-CAPACITY_SIGNIF <-get_series("CAPACITYSIGNIF") %>%
+CAPACITY_SIGNIF <- get_series("CAPACITYSIGNIF") %>%
   transmute(date, value = CAPACITYSIGNIF) %>%
   mutate(name = "Significant Difficulty")
 
 CAPACITY <- rbind(CAPACITY_SOME,CAPACITY_SIGNIF) %>%
-  mutate(name = factor(name, levels = c("Some Difficulty","Significant Difficulty")))
+  mutate(name = factor(name, levels = c("Some Difficulty","Significant Difficulty"))) %>%
+  pivot_wider() %>%
+  mutate(sum = `Some Difficulty`+`Significant Difficulty`)
 
 CAPACITY_GRAPH <- ggplot(data = CAPACITY, aes(x = date, y = value/100, fill = name)) +
   geom_col(stat = "identity", position = "stack", color = NA, width = 92) +
@@ -378,13 +380,13 @@ CAN_TRADE_GRAPH <- ggplot(GOODS_TRADE_US_NONUS, aes(fill=name, x=REF_DATE, y=val
 ggsave(dpi = "retina",plot = CAN_TRADE_GRAPH, "Canada Trade Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-SUPPLY_BOTTLENECKS <- get_series("BOS_2022Q4_C6_S1")
+SUPPLY_BOTTLENECKS <- get_series("BOS_2023Q1_C7_S1")
 
-LABOR_BOTTLENECKS <- get_series("BOS_2022Q4_C6_S2")
+LABOR_BOTTLENECKS <- get_series("BOS_2023Q1_C7_S2")
 
 BOTTLENECKS_GRAPH <- ggplot() + #plotting Labor Shortage
-  geom_line(data=LABOR_BOTTLENECKS, aes(x=date,y= BOS_2022Q4_C6_S2/100, color= "Share of Firms With Broad Labor Bottlenecks"), size = 1.25) +
-  geom_line(data=SUPPLY_BOTTLENECKS, aes(x=date,y= BOS_2022Q4_C6_S1/100, color= "Share of Firms With Broad Supply-Chain Bottlenecks"), size = 1.25) +
+  geom_line(data=LABOR_BOTTLENECKS, aes(x=date,y= BOS_2023Q1_C7_S2/100, color= "Share of Firms With Broad Labor Bottlenecks"), size = 1.25) +
+  geom_line(data=SUPPLY_BOTTLENECKS, aes(x=date,y= BOS_2023Q1_C7_S1/100, color= "Share of Firms With Broad Supply-Chain Bottlenecks"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ylab("Percent") +

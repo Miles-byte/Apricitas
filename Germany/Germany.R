@@ -1,4 +1,4 @@
-pacman::p_load(rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -52,19 +52,22 @@ IP_PAPER <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/Stat
 
 ENERGY_MANUFACTURING_COMPONENT_graph <- ggplot() + #plotting regular vs non-regular employment
   #geom_line(data=IP_COKE_PETROLEUM, aes(x=date,y= value/value[nrow(IP_COKE_PETROLEUM)]*100,color="Coke and Refined Petroleum Products"), size = 1.25) +
-  geom_line(data=IP_PAPER, aes(x=date,y= value/value[nrow(IP_PAPER)]*100,color="Paper and Paper Products"), size = 1.25) +
+  geom_line(data=IP_PAPER, aes(x=date,y= value/value[nrow(IP_PAPER)]*100,color="Paper & Paper Products"), size = 1.25) +
   geom_line(data=IP_GLASS, aes(x=date,y= value/value[nrow(IP_GLASS)]*100,color="Non-Metallic Mineral Products"), size = 1.25) +
   geom_line(data=IP_BASIC_METAL, aes(x=date,y= value/value[nrow(IP_BASIC_METAL)]*100,color="Basic Metals"), size = 1.25) +
-  geom_line(data=IP_CHEM, aes(x=date,y= value/value[nrow(IP_CHEM)]*100,color="Chemicals and Chemical Products"), size = 1.25) +
+  geom_line(data=IP_CHEM, aes(x=date,y= value/value[nrow(IP_CHEM)]*100,color="Chemicals & Chemical Products"), size = 1.25) +
   xlab("Date") +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(65,110), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("The German Industrial Crunch") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "The Energy Crisis Has Crushed Energy-Intensive German Manufacturing") +
   theme_apricitas + theme(legend.position = c(.225,.3)) +
-  scale_color_manual(name= "Germany, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Chemicals and Chemical Products","Basic Metals","Paper and Paper Products","Non-Metallic Mineral Products")) +
+  scale_color_manual(name= "Germany, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Chemicals & Chemical Products","Basic Metals","Paper & Paper Products","Non-Metallic Mineral Products")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 65-(.3*45), ymax = 65) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ENERGY_MANUFACTURING_COMPONENT_graph, "Energy Intensive Manufacturing Components.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 ELECTRIC <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.D.DE.Y.VERS.P2XD35165.C.S.ABA.A&its_fileFormat=sdmx&mode=its"))  %>%
   .[order(nrow(.):1),] %>%
@@ -75,7 +78,7 @@ ELECTRIC <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/Stat
 ELECTRIC_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=ELECTRIC, aes(x=date,y= value/1000000,color="Germany Realized General Electricity Consumption, Rolling 30 Day Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = .01),limits = c(1.2,1.45), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = .01, suffix = "TWh"),limits = c(1.2,1.45), expand = c(0,0)) +
   ylab("Rolling 30 Day Average, TWh") +
   ggtitle("Germany and The Energy Crisis") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "Electricity Consumption in Germany Has Fallen 10% Amidst The Energy Crisis") +
@@ -152,7 +155,7 @@ ggsave(dpi = "retina",plot = GDP_graph, "Germany GDP.png", type = "cairo-png", w
 
 WZ08-2910
 
-IP_CAR <- retrieve_datalist(tableseries = "42153*",genesis=c(db='de'), language = "en")
+IP_CAR <- retrieve_datalist(tableseries = "6111*",genesis=c(db='de'), language = "en")
 
 IP_CAR <- retrieve_data(tablename = "42153BM003", genesis=c(db='de')) %>%
   subset(WZ08V3 == "WZ08-291") %>% #taking manufacturing and energy intensive manufacturing data 
@@ -163,11 +166,11 @@ IP_CAR <- retrieve_data(tablename = "42153BM003", genesis=c(db='de')) %>%
   pivot_wider(names_from = category)
 
 CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
-  geom_line(data=subset(IP_CAR, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-291`/`WZ08-291`[1]*100,color="Motor Vehicles"), size = 1.25) +
-  annotate(geom = "hline", y = 86.62, yintercept = 86.62, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  geom_line(data=subset(IP_CAR, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-291`/90.08*100,color="Motor Vehicles"), size = 1.25) +
+  annotate(geom = "hline", y = 100, yintercept = 100, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 92, color ="#FFE98F", size = 5) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,110), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,130), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("The German Industrial Crunch") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Car Manufacturing Has Still Not Recovered to Pre-Pandemic Levels") +
@@ -178,11 +181,35 @@ CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
 
 ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+CPI_list <- retrieve_datalist(tableseries = "6111*", genesis=c(db='de'), language = "en")
+
+HICP <- get_eurostat("prc_hicp_manr")
+
+
+CPI_LFE <- retrieve_data(tablename = "61111BM006", genesis=c(db='de'), startyear=2000, endyear=2023) %>%
+  subset(CC13B1 == "CC13-63E") %>% #taking manufacturing and energy intensive manufacturing data 
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = (PREIS1_val-100)/100, category = CC13B1)
+
+
+CPI_LFE <- retrieve_data(tablename = "61111BM006", genesis=c(db='de'), startyear=2000, endyear=2023) %>%
+  subset(CC13B1 == "CC13-63E") %>% #taking manufacturing and energy intensive manufacturing data 
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = (PREIS1_val-100)/100, category = CC13B1)
+
+spec()
+
+?retrieve_data()
+
+61111-0003:
+
+
 
 42153BM003
 
 Impediments to Production Graph
-Motor Vehicle Indpro Graph
 Index of Services Output vs Manufacturing and Construction Output Graph
 Inflation Components Graph
 Employment and Employment Expectations Graph

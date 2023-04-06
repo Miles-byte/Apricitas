@@ -139,7 +139,7 @@ QSPC_Category_graph <- ggplot(data = QSPC_Category, aes(x = Sector, y = Value/10
   ylab("Percent of Manufacturers") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.20,.4,.6), limits = c(0,.62), expand = c(0,0)) +
   ggtitle("Capacity Constraints") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Cars, Computers, and Chips Have Biggest Supply Chain Issues") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Cars, Computers, and Chips Have Biggest Supply Chain Issues") +
   theme_apricitas + theme(legend.position = c(.63,.1)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "% of US Manufacturers Citing",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   coord_flip()
@@ -229,3 +229,19 @@ INDEX_SPIRAL_GRAPH <- ggplot() + #plotting personal income and outlays against i
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = INDEX_SPIRAL_GRAPH, "Index Spiral.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+Uncertainty <- fredr(series_id = "ATLSBUSRGUP", observation_start = as.Date("2018-01-01"))
+
+Uncertainty_Graph <- ggplot() + #plotting BIE
+  geom_line(data = Uncertainty, aes(x=date, y = value/100, color = "Revenue Uncertainty, Atlanta Fed Survey of Business Uncertainty"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.07), breaks = c(0,.01,0.02,0.03,0.04,0.05,0.06,0.07), expand = c(0,0)) +
+  ylab("% of Plants Citing This Reason") +
+  ggtitle("Uncertain Times") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data",subtitle = "US Businesses Have Been Highly Uncertain About Their Outlook Since the Start of the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.50,.25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(.1861*(today()-as.Date("2018-01-01")))), ymin = 0-(.3*.07), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Uncertainty_Graph, "Uncertainty.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

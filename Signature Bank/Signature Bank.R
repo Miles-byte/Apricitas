@@ -30,7 +30,6 @@ DEP_DOM_DATA_SIGNATURE_graph <- ggplot(data = DEP_DOM_DATA_SIGNATURE, aes(x = da
 
 ggsave(dpi = "retina",plot = DEP_DOM_DATA_SIGNATURE_graph, "Dep Dom Data Signature.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
-
 CMBS <- tq_get("CMBS", from = "2018-01-01")
 
 CMBS_TOTAL_RETURN_graph <- ggplot() + #plotting loan performance data
@@ -41,10 +40,118 @@ CMBS_TOTAL_RETURN_graph <- ggplot() + #plotting loan performance data
   ylab("Total Return, Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,.05,.1,.15,.20), limits = c(-0.05,.2), expand = c(0,0)) +
   ggtitle("Loan Losses") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data", subtitle = "Commercial Real Estate Loans Have Had Negative Returns in Recent Years As Interest Rates Rose") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data", subtitle = "Commercial Real Estate Loans Indices Have Fallen As Interest Rates Rose") +
   theme_apricitas + theme(legend.position = c(.5,.97)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.05-(.3*.25), ymax = -0.05) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CMBS_TOTAL_RETURN_graph, "CMBS Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+SVB_SIGNATURE_ASSTLTR <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RSSDID%3A802866%20OR%20RSSDID%3A2942690&fields=CERT%2CREPDTE%2CASSET%2CDEP%2CRSSDID%2CNAME%2CDEPINS%2CASSTLTR%2CRISDATE&limit=10000&format=csv&download=true&filename=data_file") %>%
+  mutate(RISDATE = ymd(RISDATE)) %>%
+  select(ASSTLTR,RISDATE,NAME) %>%
+  transmute(date = RISDATE, ASSTLTR, NAME = str_to_title(NAME)) %>%
+  subset(date > as.Date("2015-12-01"))
+
+SIGNATURE_SVB_ASSTLTR_graph <- ggplot() + #plotting loan performance data
+  geom_line(data=SVB_SIGNATURE_ASSTLTR, aes(x=date,y= ASSTLTR/100,color= NAME), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Total Assets") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60), limits = c(0,.65), expand = c(0,0)) +
+  ggtitle("Long-Term Assets at Signature & SVB") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Long Term Assets Made Up Much Less of Signature's Balance Sheet") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name= "Long Term Assets (5+ Years) As A Share of Total Assets",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*.65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SIGNATURE_SVB_ASSTLTR_graph, "Signature SVB Asstltr.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+SVB_SIGNATURE_FHLB <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RSSDID%3A802866%20OR%20RSSDID%3A2942690&fields=CERT%2CREPDTE%2CASSET%2CDEP%2CRSSDID%2CNAME%2CDEPINS%2COTHBFHLBR%2CRISDATE&limit=10000&format=csv&download=true&filename=data_file") %>%
+  mutate(RISDATE = ymd(RISDATE)) %>%
+  select(OTHBFHLBR,RISDATE,NAME) %>%
+  transmute(date = RISDATE, OTHBFHLBR, NAME = str_to_title(NAME)) %>%
+  subset(date > as.Date("2015-12-01"))
+
+SIGNATURE_SVB_FHLB_graph <- ggplot() + #plotting loan performance data
+  geom_line(data=SVB_SIGNATURE_FHLB, aes(x=date,y= OTHBFHLBR/100,color= NAME), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Total Assets") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.05,0.1,0.15), limits = c(0,.15), expand = c(0,0)) +
+  ggtitle("FHLB Borrowing at Signature & SVB") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Signature and SVB had Both Taken on Significant Loans From FHLB Before Their Runs") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name= "FHLB Borrowings as a Share of Total Assets",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*.15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SIGNATURE_SVB_FHLB_graph, "Signature SVB FHLB.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+SIGNATURE_ASSETS <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RSSDID%3A2942690&fields=CERT%2CREPDTE%2CASSET%2CDEP%2CRSSDID%2CNAME%2CDEPINS%2CLNRE%2CLNCI%2CSC%2CRISDATE&limit=10000&format=csv&download=true&filename=data_file")%>%
+  mutate(RISDATE = ymd(RISDATE)) %>%
+  select(ASSET,LNCI,LNRE,SC,RISDATE) %>%
+  transmute(date = RISDATE, `Other Assets` = ASSET-LNCI-LNRE-SC, `Real Estate Loans` = LNRE, `Commercial and Industrial Loans` = LNCI, `Securities` = SC) %>%
+  subset(date > as.Date("2015-12-01")) %>%
+  pivot_longer(cols = `Other Assets`:`Securities`) %>%
+  mutate(name = factor(name,levels = c("Other Assets","Securities","Commercial and Industrial Loans","Real Estate Loans")))
+
+SIGNATURE_ASSETS_graph <- ggplot(data = SIGNATURE_ASSETS, aes(x = date, y = value/1000000, fill = name)) + #plotting Deposits, Insured and Uninsured
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,40,80,120), limits = c(0,130), expand = c(0,0)) +
+  ggtitle("Assets of Signature Bank") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Signature's Assets Were More Concentrated in C&I and Real Estate Loans Than SVB") +
+  theme_apricitas + theme(legend.position = c(.25,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Real Estate Loans","Commercial and Industrial Loans","Securities","Other Assets")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*130), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SIGNATURE_ASSETS_graph, "Signature Assets.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+Signature_Crypto_Deposits <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Signature%20Bank/Crypto_Deposits.csv") %>%
+  mutate(date = as.Date(Date)) %>%
+  transmute(date, `Crypto Deposits` = Crypto_Dollar_Value, `Non Crypto Deposits` = Non_Crypto_Dollar_Value) %>% 
+  pivot_longer(cols = `Crypto Deposits`:`Non Crypto Deposits`)
+  
+Signature_Crypto_Deposits_graph <- ggplot(data = Signature_Crypto_Deposits, aes(x = date, y = value, fill = name)) + #plotting Deposits, Insured and Uninsured
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100), limits = c(0,110), expand = c(0,0)) +
+  ggtitle("Crypto Deposits at Signature Bank") +
+  labs(caption = "Graph created by @JosephPolitano using Signature Corporate Press Releases", subtitle = "Most of Signature's Deposits Weren't Crypto Related, but They Contributed Heavily to Outflows") +
+  theme_apricitas + theme(legend.position = c(.2,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-03-31")-(.1861*(today()-as.Date("2021-03-31"))), xmax = as.Date("2021-03-31")-(0.049*(today()-as.Date("2021-03-31"))), ymin = 0-(.3*110), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Signature_Crypto_Deposits_graph, "Signature Crypto deposits.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+AOCI <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RSSDID%3A2942690&fields=CERT%2CREPDTE%2CASSET%2CDEP%2CRISDATE%2CEQCCOMPI&limit=10000&format=csv&download=true&filename=data_file") %>%
+  mutate(RISDATE = ymd(RISDATE)) %>%
+  subset(RISDATE > as.Date("2017-12-01"))
+
+AOCI_graph <- ggplot(data = AOCI, aes(x = RISDATE, y = EQCCOMPI/1000000, fill = "Accumulated Other Comprehensive Income (incl. Net Unrealized Gains on Available-For-Sale Securities)"),) + #FHLB Borrowing
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-2,-1,0,1), limits = c(-2.1,1), expand = c(0,0)) +
+  ggtitle("Signature Bank, Before The Run") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Signature Also Saw the Value of its Portfolio Tank as the Fed Raised Rates") +
+  theme_apricitas + theme(legend.position = c(.505,.95)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  theme(legend.text = element_text(size = 11, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -2.1-(.3*3.1), ymax = -2.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AOCI_graph, "Signature AOCI Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
