@@ -1,4 +1,4 @@
-pacman::p_load(eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -78,7 +78,7 @@ ELECTRIC <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/Stat
 ELECTRIC_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=ELECTRIC, aes(x=date,y= value/1000000,color="Germany Realized General Electricity Consumption, Rolling 30 Day Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = .01, suffix = "TWh"),limits = c(1.2,1.45), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = .01, suffix = "TWh"),limits = c(1.2,1.45), breaks = c(1.2,1.25,1.3,1.35,1.4,1.45), expand = c(0,0)) +
   ylab("Rolling 30 Day Average, TWh") +
   ggtitle("Germany and The Energy Crisis") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "Electricity Consumption in Germany Has Fallen 10% Amidst The Energy Crisis") +
@@ -116,13 +116,13 @@ NAT_GAS_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=household_nat_gas, aes(x=date,y= value/1000,color="Households and Non-Industrial Businesses"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-0.6,0.2), expand = c(0,0), breaks = c(-0.6,-0.4,-0.2,0,0.2)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2, suffix = "TWh"),limits = c(-0.6,0.2), expand = c(0,0), breaks = c(-0.6,-0.4,-0.2,0,0.2)) +
   ylab("Deviation From 2018-2021 Average, TWh/Day") +
   ggtitle("Germany and The Energy Crisis") +
   labs(caption = "Graph created by @JosephPolitano using Bundesnetzagentur Data",subtitle = "Gas Consumption For German Industry and Households Has Fallen Amidst the Energy Crisis") +
   theme_apricitas + theme(legend.position = c(.65,.875)) +
   scale_color_manual(name= "German Gas Consumption, Deviation from 2018-2021 Average",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -0.6-(.3*0.6), ymax = -0.6) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -0.6-(.3*0.8), ymax = -0.6) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NAT_GAS_graph, "Germany Nat Gas Consumption.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -153,9 +153,7 @@ GDP_graph <- ggplot() + #plotting GDP For US vs Germany
 
 ggsave(dpi = "retina",plot = GDP_graph, "Germany GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-WZ08-2910
-
-IP_CAR <- retrieve_datalist(tableseries = "6111*",genesis=c(db='de'), language = "en")
+#IP_CAR <- retrieve_datalist(tableseries = "6111*",genesis=c(db='de'), language = "en")
 
 IP_CAR <- retrieve_data(tablename = "42153BM003", genesis=c(db='de')) %>%
   subset(WZ08V3 == "WZ08-291") %>% #taking manufacturing and energy intensive manufacturing data 
@@ -168,7 +166,7 @@ IP_CAR <- retrieve_data(tablename = "42153BM003", genesis=c(db='de')) %>%
 CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
   geom_line(data=subset(IP_CAR, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-291`/90.08*100,color="Motor Vehicles"), size = 1.25) +
   annotate(geom = "hline", y = 100, yintercept = 100, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 92, color ="#FFE98F", size = 5) +
+  annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 105, color ="#FFE98F", size = 5) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,130), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
@@ -176,30 +174,222 @@ CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Car Manufacturing Has Still Not Recovered to Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.8,.27)) +
   scale_color_manual(name= "Germany, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*110), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*130), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-CPI_list <- retrieve_datalist(tableseries = "6111*", genesis=c(db='de'), language = "en")
-
 HICP <- get_eurostat("prc_hicp_manr")
 
+HICP_DE <- HICP %>%
+  subset(geo == "DE") %>%
+  subset(time>= as.Date("2000-01-01")) %>%
+  subset(coicop == "CP00")
 
-CPI_LFE <- retrieve_data(tablename = "61111BM006", genesis=c(db='de'), startyear=2000, endyear=2023) %>%
-  subset(CC13B1 == "CC13-63E") %>% #taking manufacturing and energy intensive manufacturing data 
-  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
-  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
-  transmute(date, value = (PREIS1_val-100)/100, category = CC13B1)
+HICP_DE_LFE <- HICP %>%
+  subset(geo == "DE") %>%
+  subset(time>= as.Date("2000-01-01")) %>%
+  subset(coicop == "TOT_X_NRG_FOOD")
+
+HICP_graph <- ggplot() + #plotting car manufacturing
+  geom_line(data=HICP_DE, aes(x=time,y= values/100,color="Harmonized Index of Consumer Prices (HICP)"), size = 1.25) +
+  geom_line(data=HICP_DE_LFE, aes(x=time,y= values/100,color="HICP Excluding Food, Energy, Alcohol and Tobacco"), size = 1.25) +
+  annotate(geom = "hline", y = 0, yintercept = 0, color = "white", size = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.007,.12), expand = c(0,0)) +
+  ylab("Year-on-Year Growth") +
+  ggtitle("The German Inflation Crisis") +
+  labs(caption = "Graph created by @JosephPolitano using EuroStat Data",subtitle = "German Inflation is at a Historic High, and Core Inflation is Still Increasing") +
+  theme_apricitas + theme(legend.position = c(.4,.67)) +
+  scale_color_manual(name= "Germany, Year-on-Year Inflation",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -0.007-(.3*0.127), ymax = -0.007) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HICP_graph, "HICP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
-CPI_LFE <- retrieve_data(tablename = "61111BM006", genesis=c(db='de'), startyear=2000, endyear=2023) %>%
-  subset(CC13B1 == "CC13-63E") %>% #taking manufacturing and energy intensive manufacturing data 
-  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
-  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
-  transmute(date, value = (PREIS1_val-100)/100, category = CC13B1)
+CONSTRUCTION_PROD <- get_eurostat("sts_copr_m") %>%
+  subset(geo == "DE") %>%
+  subset(time>= as.Date("2018-01-01")) %>%
+  subset(nace_r2 == "F") %>%
+  subset(unit == "I15") %>%
+  subset(s_adj == "SCA")
+MANU_PROD <- get_eurostat("sts_inpr_m", legacy_bulk_download = FALSE) %>%
+  subset(geo == "DE") %>%
+  subset(TIME_PERIOD >= as.Date("2018-01-01")) %>%
+  subset(nace_r2 == "C") %>%
+  subset(unit == "I15") %>%
+  subset(s_adj == "SCA")
+SERVICES_PROD <- get_eurostat("sts_sepr_m") %>%
+  subset(geo == "DE") %>%
+  subset(time>= as.Date("2018-01-01")) %>%
+  subset(nace_r2 == "H-N_X_K") %>%
+  subset(unit == "I15") %>%
+  subset(s_adj == "SCA") %>%
+  arrange(desc(row_number()))
+  
+CONSTRUCT_MANU_SERV_graph <- ggplot() + #plotting GDP For US vs Germany
+  #geom_line(data=CONSTRUCTION_PROD, aes(x=time,y= values/values[1]*100,color="Construction"), size = 1.25) +
+  geom_line(data=MANU_PROD, aes(x=TIME_PERIOD,y= values/values[1]*100,color="Manufacturing"), size = 1.25) +
+  geom_line(data=SERVICES_PROD, aes(x=time,y= values/values[1]*100,color="Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(65,110), expand = c(0,0)) +
+  ylab("Index, Jan 2018 = 100") +
+  ggtitle("Germany's Slowdown") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "Falling Manufacturing Output Has Slowed Germany Down, and Services Output is Now Also Falling") +
+  theme_apricitas + theme(legend.position = c(.7,.27)) +
+  scale_color_manual(name= "Real Output Index, Jan 2018 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Services","Manufacturing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 65-(.3*45), ymax = 65) +
+  coord_cartesian(clip = "off")
 
-spec()
+ggsave(dpi = "retina",plot = CONSTRUCT_MANU_SERV_graph, "Manu Serv Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#EU Russia Gas Imports
+
+EUROSTAT_NATURAL_GAS_DATA <- get_eurostat("nrg_ti_gasm") %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  subset(geo == "EU27_2020") %>%
+  subset(unit == "MIO_M3") %>%
+  subset(siec == "G3000")
+
+EU_RU_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  subset(partner %in% c("RU","UA","BY")) %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(BY:UA))) %>%
+  select(time,values) %>%
+  mutate(partner = "Russia, Ukraine, and Belarus")
+
+EU_US_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  subset(partner == "US") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  transmute(time,values = US) %>%
+  mutate(partner = "United States")
+
+EU_NO_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  subset(partner == "NO") %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  transmute(time,values = NO) %>%
+  mutate(partner = "Norway")
+
+EU_QA_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  subset(partner %in% c("QA","NG")) %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(QA:NG))) %>%
+  select(time,values) %>%
+  mutate(partner = "Qatar and Nigeria")
+
+EU_AL_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  subset(partner %in% c("DZ","MA","TN","LY")) %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(DZ:TN))) %>%
+  select(time,values) %>%
+  mutate(partner = "Algeria, Tunisia, Morocco, and Libya")
+
+EU_OTHER_GAS_IMPORTS <- EUROSTAT_NATURAL_GAS_DATA %>%
+  select(partner, time, values) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  select(-TOTAL,-EUR_OTH,-BE,-BG,-CZ,-DK,-DE,-EE,-IE,-EL,-ES,-FR,-HR,-IT,-CY,-LV,-LT,-LU,-HU,-MT,-NL,-AT,-PL,-PT,-RO,-SI,-SK,-FI,-SE,-NO,-DZ,-US,-QA,-RU,-UA,-BY,-CH,-MA,-TN,-LY,-NG) %>%
+  rowwise() %>%
+  mutate(values = sum(c_across(AD:ZA))) %>%
+  select(time,values) %>%
+  mutate(partner = "Other (Including Re-Exports from UK/Turkey/etc)")
+
+EU_STACKED_GAS_IMPORTS <- rbind(EU_OTHER_GAS_IMPORTS,EU_AL_GAS_IMPORTS,EU_QA_GAS_IMPORTS,EU_NO_GAS_IMPORTS,EU_US_GAS_IMPORTS,EU_RU_GAS_IMPORTS) %>%
+  pivot_wider(names_from = partner, values_from = values) %>%
+  pivot_longer(cols = c(`Other (Including Re-Exports from UK/Turkey/etc)`:`Russia, Ukraine, and Belarus`)) %>%
+  mutate(name = factor(name,levels = c("Other (Including Re-Exports from UK/Turkey/etc)","United States","Qatar and Nigeria","Algeria, Tunisia, Morocco, and Libya","Norway","Russia, Ukraine, and Belarus")))
+
+EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = time, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Cubic Meters") +
+  ggtitle("EU-27 Natural Gas Imports") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50), limits = c(0,57.5), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "Imports Through Russia are Down Significantly, But the EU is Making Up the Difference") +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Russia, Ukraine, and Belarus","Norway","Algeria, Tunisia, Morocco, and Libya","Qatar and Nigeria","United States","Other (Including Re-Exports from UK/Turkey/etc)")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*57.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+#has to be manually updated from DeStatis downloads
+IFO_MATERIAL_SHORTAGE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Germany/IFO_Shortage.csv.csv", sep = ";") %>%
+  drop_na() %>%
+  mutate(date = as.Date(Tag))
+
+IFO_MATERIAL_SHORTAGE_graph <- ggplot() + #plotting car manufacturing
+  geom_line(data=IFO_MATERIAL_SHORTAGE, aes(x=date,y= shortage.indicator/100,color="% of German Manufacturers Reporting Shortage of Material Inputs, IFO Institute"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent of Firms") +
+  ggtitle("The German Suppy Crisis") +
+  labs(caption = "Graph created by @JosephPolitano using IFO Data",subtitle = "German Manufacturers are Still Finding it Difficult to Source Key Inputs, Though Supply is Improving") +
+  theme_apricitas + theme(legend.position = c(.5,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -0.007-(.3*0.127), ymax = -0.007) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = IFO_MATERIAL_SHORTAGE_graph, "IFO Shortage Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EU_MANU_SURVEY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Germany/SECTOR_SHORTAGE.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  subset(Date > as.Date("2000-01-01"))
+  
+EU_MANU_SURVEY_graph <- ggplot() + #plotting car manufacturing
+  geom_line(data=EU_MANU_SURVEY, aes(x=Date,y= Machinery/100,color="Machinery and Other Equipment"), size = 1.25) +
+  geom_line(data=EU_MANU_SURVEY, aes(x=Date,y= Computer/100,color="Computer, Electronic, and Optical Products"), size = 1.25) +
+  geom_line(data=EU_MANU_SURVEY, aes(x=Date,y= Electrical/100,color="Electrical Equipment"), size = 1.25) +
+  geom_line(data=EU_MANU_SURVEY, aes(x=Date,y= Motor_Vehicles/100,color="Motor Vehicles, Trailers, and Semi-Trailers"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent of Firms") +
+  ggtitle("The German Suppy Crisis") +
+  labs(caption = "Graph created by @JosephPolitano using EuroStat Data",subtitle = "Key German Industries are Still in a Supply-Chain Crisis") +
+  theme_apricitas + theme(legend.position = c(.45,.80)) +
+  scale_color_manual(name= "% of German Manufacturers With Material Shortages Restricting Output",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Motor Vehicles, Trailers, and Semi-Trailers","Computer, Electronic, and Optical Products","Electrical Equipment","Machinery and Other Equipment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_MANU_SURVEY_graph, "EU MANU SURVEY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EMP_EXP <- get_eurostat("ei_bsee_m_r2") %>%
+  subset(geo == "DE") %>%
+  subset(unit == "BAL") %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values) %>%
+  subset(time > as.Date("2018-01-01"))
+  
+EMP_EXP_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=EMP_EXP, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
+  geom_line(data=EMP_EXP, aes(x=time,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
+  geom_line(data=EMP_EXP, aes(x=time,y= `BS-REM-BAL`,color="Retail Trade"), size = 1.25) +
+  geom_line(data=EMP_EXP, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-10,10), expand = c(0,0), breaks = c(-0.6,-0.4,-0.2,0,0.2)) +
+  ylab("Balance") +
+  ggtitle("Germany's Slowdown") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak Even as Sectors Like Retail Trade Recover") +
+  theme_apricitas + theme(legend.position = c(.80,.20)) +
+  scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -0.6-(.3*0.8), ymax = -0.6) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMP_EXP_graph, "Emp Exp.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 
 ?retrieve_data()
 

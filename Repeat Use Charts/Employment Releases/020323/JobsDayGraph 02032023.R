@@ -522,7 +522,7 @@ EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
   theme_apricitas + theme(legend.position = c(.68,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1998-06-01"), y = 0.825, color ="#FFE98F", size = 5) +
+  annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("2000-06-01"), y = 0.825, color ="#FFE98F", size = 5) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*11535), xmax = as.Date("1990-01-01")-(0.049*11535), ymin = 0.69-(.3*0.14), ymax = 0.69) +
   coord_cartesian(clip = "off")
 
@@ -991,7 +991,7 @@ GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
-  ggtitle("Is the Labor Shortage Ending?") +
+  ggtitle("GLI Growth in Context") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth Looks to Be Declining Back to Pre-COVID Normal Levels") +
   theme_apricitas + theme(legend.position = c(.33,.75)) +
   scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +

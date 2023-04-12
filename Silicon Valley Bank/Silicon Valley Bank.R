@@ -471,7 +471,7 @@ FED_EMERGENCY_LOANS_graph <- ggplot(data = FED_EMERGENCY_LOANS, aes(x = date, y 
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350), limits = c(0,350), expand = c(0,0)) +
   ggtitle("Fed Emergency Lending") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "The Fed is Lending Billions to Banks After SVB's Failure") +
-  theme_apricitas + theme(legend.position = c(.4,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.35,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Selected Federal Reserve Loans",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Discount Window","Lending to FDIC Bridge Banks (SVB, Signature)","Bank Term Funding Program")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-04")-(.1861*(today()-as.Date("2023-01-04"))), xmax = as.Date("2023-01-04")-(0.049*(today()-as.Date("2023-01-04"))), ymin = 0-(.3*350), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
