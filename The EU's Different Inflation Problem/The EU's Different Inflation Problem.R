@@ -301,11 +301,9 @@ EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = ti
 ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 #
-EA_MANU_SURVEY <- get_eurostat_data("EI_BSIN_Q_R2",
-                                    filters=c("EA19","SA","BS-FLP1-PC","BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC"),
-                                    date_filter=">2004-01-01") %>%
-  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
-  subset(geo == "EA19") %>%
+EA_MANU_SURVEY <- get_eurostat("ei_bsin_q_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC")) %>%
   select(indic, time, values) %>%
   pivot_wider(names_from = indic, values_from = values)
 
