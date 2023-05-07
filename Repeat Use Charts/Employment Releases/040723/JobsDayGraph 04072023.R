@@ -37,7 +37,7 @@ Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2
 Layoffs_RETAIL=Layoffs_RETAIL[order(nrow(Layoffs_RETAIL):1),]
 Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
 
-Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) %>%
+Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
@@ -118,6 +118,8 @@ Total_Quits18 <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("201
 UNLEVEL <- fredr(series_id = c("UNEMPLOY"), observation_start = as.Date("2019-01-01")) #unemployment data
 NILFWJN <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2019-01-01")) #NILF want jobs now
 NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
+
+
 
 #taking prime age epop for men and women. 
 EPOP_MALE_1990 <- bls_api("LNS12300061", startyear = 1990) %>% 
@@ -237,7 +239,7 @@ Black_White_Epop_graph <- ggplot() + #plotting black-white unemployment graph
   coord_cartesian(clip = "off")
 
 Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
-  annotate(geom = "hline", y = 0.749, yintercept = .749, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "hline", y = 0.751, yintercept = .751, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "Women's Employment Rates are at a Record High", x = as.Date("2007-06-01"), y = 0.76, color ="#FFE98F", size = 5) +
   geom_line(data=EPOP_FEMALE, aes(x=date,y= value/100,color= "Women"), size = 1.25)+ 
   geom_line(data=EPOP_MALE, aes(x=date,y= value/100,color= "Men"), size = 1.25)+ 
@@ -246,7 +248,7 @@ Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.63,.90),breaks = c(.65,.70,.75,.80,.85,.90), expand = c(0,0)) +
   ggtitle("A Stronger Labor Market") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Women's Employment Rates are at a Record High") +
-  theme_apricitas + theme(legend.position = c(.30,.550)) +
+  theme_apricitas + theme(legend.position = c(.30,.560)) +
   scale_color_manual(name= "Prime Age (25-54) Employment Population Ratio",breaks = c("Women","Men"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = .63-(.3*.27), ymax = .63) +
   coord_cartesian(clip = "off")
@@ -355,15 +357,15 @@ Total_Quits_Graph <- ggplot() + #plotting total quits
 Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
   geom_line(data=Total_Quits18, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
   geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+
-  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2019-03-01"), y = 1.525, color ="white", size = 4, alpha = 0.75) +
+  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2020-01-01"), y = 1.2, color ="white", size = 4, alpha = 1) +
   xlab("Date") +
   ylab("Millions of Employees") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("The Great Reshuffling") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Coming Down From Record Highs") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Coming Down From Record Highs, as Layoffs Have Risen a Bit") +
   theme_apricitas + theme(legend.position = c(.30,.87)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1619), xmax = as.Date("2018-01-01")-(0.049*1619), ymin = 0-(.3*5), ymax = 0) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Quits, Total Nonfarm","Layoffs and Discharges, Total Nonfarm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Race_Graph <- ggplot() + #plotting u1 unemployment rate
@@ -374,7 +376,7 @@ Race_Graph <- ggplot() + #plotting u1 unemployment rate
   xlab("Date") +
   ylab("%") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.22), expand = c(0,0)) +
-  ggtitle("The Unequal Labor Market Recovery") +
+  ggtitle("A Strong Recovery") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Racial Unemployment Gap is Closing, but Remains High") +
   theme_apricitas + theme(legend.position = c(.75,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Unemployment Rate - White","Unemployment Rate - Asian","Unemployment Rate - Hispanic or Latino","Unemployment Rate - Black or African American")) +
@@ -1106,8 +1108,6 @@ QUITS_RATE_Graph <- ggplot() + #plotting Wage Growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
-
-
 ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing

@@ -3,6 +3,9 @@ pacman::p_load(bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,ht
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
@@ -210,13 +213,13 @@ GDI_PCE <- ggplot() +
   geom_line(data = GDI_Employees, aes(x=date, y = value/94.77595, color = "GDI: Compensation of Employees, Paid: Wages and Salaries"), size = 1.25) + 
   geom_line(data = PCE, aes(x=date, y = value/146.53949, color = "GDP: Personal Consumption Expenditures"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(limits = c(85,120), breaks = c(90,100,110,120), expand = c(0,0)) +
+  scale_y_continuous(limits = c(85,130), breaks = c(90,100,110,120,130), expand = c(0,0)) +
   ylab("Index Q4 2019 = 100") +
-  ggtitle("Back and Forth") +
+  ggtitle("Hand to Mouth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Spending and Wage Growth Have Moved In Close Connection With Each Other") +
   theme_apricitas + theme(legend.position = c(.45,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 85-(.3*35), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 85-(.3*45), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 RGDP_Graph <- ggplot() +
@@ -304,13 +307,13 @@ RFSALEDOMPRIV_PCT_Graph <- ggplot() +
   annotate("rect", xmin = as.Date("2001-03-01"), xmax = as.Date("2001-11-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("rect", xmin = as.Date("2007-12-01"), xmax = as.Date("2009-06-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("rect", xmin = as.Date("2020-02-01"), xmax = as.Date("2020-05-30"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  geom_line(data = RFSALEDOMPRIV_PCT, aes(x=date, y = value/100, color = "Real Final Sales to Private Domestic Purchasers"), size = 1.25) + 
+  geom_line(data = RFSALEDOMPRIV_PCT, aes(x=date, y = value/100, color = "Real Final Sales to Private Domestic Purchasers, Quarterly Growth"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.40,0.40), breaks = c(-0.4,-.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4), expand = c(0,0)) +
   ylab("Continuously Compounded Annual Change") +
   ggtitle("Is the US Economy Shrinking?") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Final Private Domestic Consumption and Investment Growth has Been Very Low Recently") +
-  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Final Private Domestic Consumption and Investment Growth has Picked Up Recently") +
+  theme_apricitas + theme(legend.position = c(.425,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -0.40-(.3*0.80), ymax = -0.40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -353,7 +356,7 @@ GDPQuarterlyContrib_Graph <- ggplot(ContribQuarterlyBind, aes(fill=series_id, x=
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.04,0.09), breaks = c(-0.04,-.02,0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Contributions to US GDP Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "All Major Components Contributed to Positive GDP in Q4") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Besides the Negative Contribution From Inventories, All Categories Contributed to Positive GDP in Q1") +
   theme_apricitas + theme(legend.position = c(.67,.85)) +
   scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Consumption","Investment","Net Exports","Government")) +
@@ -640,7 +643,7 @@ UNDERWATER_RECESSION_GRAPH <- ggplot() + #plotting NBER drawdown data
   ylab("Drawdown From Prior Peak, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.20,0), expand = c(0,0)) +
   ggtitle("Recessions and Output Drawdowns") +
-  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, FRB, and Census data", subtitle = "Of All the Recession Indicators the NBER Focuses on, Only 1 Remains Below-Peak Right Now") +
+  labs(caption = "Graph created by @JosephPolitano using BEA, BLS, FRB, and Census data", subtitle = "Of All the Recession Indicators the NBER Focuses on, Only 2 Remains Below-Peak Right Now") +
   theme_apricitas + theme(legend.position = c(.285,.25)) + theme(legend.spacing.y = unit(0,"cm")) +
   scale_color_manual(name= "Drawdowns from Prior Peak" ,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Nonfarm Payrolls","Real Personal Income Ex-Transfers","Employment Level","Industrial Production","Real Personal Consumption Expenditures","Real Wholesale-Retail Sales")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = -.20-(.3*.20), ymax = -.20) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -833,7 +836,7 @@ FIXED_INVESTMENT_RESIDENTIAL_Graph <- ggplot() + #indexed employment rate
   ylab("Index, Q1 2018 = 100") +
   ggtitle("Unfixed Problems") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Fixed Investment in Single-Family Homes and Home Improvements are Declining") +
-  theme_apricitas + theme(legend.position = c(.75,.20)) +
+  theme_apricitas + theme(legend.position = c(.70,.20)) +
   scale_color_manual(name= "Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Single-Family Structures","Multi-Family Structures","Residential Improvements")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 85-(.3*45), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -920,6 +923,24 @@ FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
 
 ggsave(dpi = "retina",plot = FIXED_EQUIP_INVEST_GRAPH, "Fixed EQUIP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+PCE_PC_YEAR <- fredr(series_id = "A794RC0Q052SBEA", observation_start = as.Date("1995-01-01"), units = "pc1")
+
+PCE_PC_YEAR_Graph <- ggplot() + #plotting Wage Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCE_PC_YEAR, aes(x=date,y= value/100,color= "Personal Consumption Expenditures Per Capita, Annual Growth"), size = 1.25) +
+  annotate("hline", y = 0.04, yintercept = 0.04, color = "white", size = 1.25, linetype = "dashed") +
+  annotate("text", label = "4% Growth Roughly Consistent With 2% Inflation",y = 0.056, x = as.Date("2013-09-30"), color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.225), breaks = c(-.10,-0.05,0,0.05,0.10,0.15,0.20), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("US Spending Growth Remains High") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data",subtitle = "Spending Growth Has Decelerated But Remains Well Above Normal Levels") +
+  theme_apricitas + theme(legend.position = c(.42,.72)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = -.10-(.3*0.325), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_PC_YEAR_Graph, "PCE PC Growth Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 
 ggsave(dpi = "retina",plot = GDPQuarterlyContrib_Graph, "Quarterly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
