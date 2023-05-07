@@ -210,3 +210,56 @@ LONG_TERM_ASSETS_MAJOR_BANKS_graph <- ggplot() + #plotting loan performance data
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = LONG_TERM_ASSETS_MAJOR_BANKS_graph, "Long Term Asset Ratio Major Banks Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+
+FED_EMERGENCY_LOANS <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?rel=H41&series=a66e338ec176dd641c333de890fd7816&lastobs=100&from=&to=&filetype=csv&label=omit&layout=seriescolumn") %>%
+  .[-1,] %>%
+  `colnames<-`(c("date","Lending to FDIC Bridge Banks (SVB, Signature, First Republic)","Bank Term Funding Program","Discount Window")) %>%
+  mutate(date = as.Date(date)) %>%
+  subset(date > as.Date("2023-01-01")) %>%
+  pivot_longer(cols = `Lending to FDIC Bridge Banks (SVB, Signature, First Republic)`:`Discount Window`) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(name = factor(name,levels = c("Bank Term Funding Program","Lending to FDIC Bridge Banks (SVB, Signature, First Republic)","Discount Window")))
+
+FED_EMERGENCY_LOANS_graph <- ggplot(data = FED_EMERGENCY_LOANS, aes(x = date, y = value/1000, fill = name)) + #plotting Deposits, Insured and Uninsured
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  #annotate("segment", y = 20, yend = 20, x = as.Date("2023-03-11"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
+  #annotate("segment", y = 109, yend = 109, x = as.Date("2023-03-11"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
+  #annotate("segment", y = 109, yend = 20, x = as.Date("2023-03-06"), xend = as.Date("2023-03-06"), color = "white", size = 1.25) +
+  #annotate("segment", y = 64.5, yend = 64.5, x = as.Date("2023-03-06"), xend = as.Date("2023-03-04"), color = "white", size = 1.25) +
+  #annotate("text", label = "First Republic", y = 104.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
+  #annotate("text", label = "Discount Window", y = 84.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
+  #annotate("text", label = "Borrowing Range", y = 64.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
+  #annotate("text", label = "(Based on Company", y = 44.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
+  #annotate("text", label = "Press Release)", y = 24.5, x = as.Date("2023-02-22"), color = "white", size = 5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Wednesday Level") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,100,200,300,400,500), limits = c(0,500), expand = c(0,0)) +
+  ggtitle("Fed Emergency Lending") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "The Fed is Lending Billions to Banks After SVB's Failure") +
+  theme_apricitas + theme(legend.position = c(.47,.86)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Selected Federal Reserve Loans",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Discount Window","Lending to FDIC Bridge Banks (SVB, Signature, First Republic)","Bank Term Funding Program")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*500), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FED_EMERGENCY_LOANS_graph, "Fed Emergency Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+SECURITIES_LOSSES <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Rates%20Risk%20in%20the%20Banking%20System/losses_securities.csv") %>%
+  transmute(date, `Available-For-Sale Securities` = SCAF_MINUS_SCAA,`Held-to-Maturity Securities` = SCHF_MINUS_SCHA) %>%
+  pivot_longer(cols = c(`Available-For-Sale Securities`,`Held-to-Maturity Securities`)) %>%
+  mutate(date = as.Date(date))
+
+SECURITIES_LOSSES_graph <- ggplot(data = SECURITIES_LOSSES, aes(x = date, y = value/1000000, fill = name)) + #plotting Deposits, Insured and Uninsured
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-750,-500,-250,0), limits = c(-750,150), expand = c(0,0)) +
+  ggtitle("US Banks' Unrealized Losses") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Banks' Have Large Unrealized Losses in the Wake of Recent Rate Hikes") +
+  theme_apricitas + theme(legend.position = c(.25,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Unrealized Losses on Banks' Securities",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -750-(.3*900), ymax = -750) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SECURITIES_LOSSES_graph, "Securities Losses Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
