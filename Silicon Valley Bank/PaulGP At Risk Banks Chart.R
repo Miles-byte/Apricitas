@@ -4,7 +4,7 @@ library(dplyr,readxl)
 # load data
 
 
-full_data = read_excel("C:/Users/Joseph/Downloads/bank_data.5.6.23.xlsx") %>%
+full_data = read_excel("C:/Users/Joseph/Downloads/bank_data5.7.23.xlsx") %>%
   gather(date, close_price, -ticker) %>%
   group_by(ticker) %>%
   mutate(date = as.Date(date),

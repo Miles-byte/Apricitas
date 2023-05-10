@@ -158,7 +158,7 @@ DEPOSITS_SMALL <- fredr(series_id = "ODSSCBW027SBOG", observation_start = as.Dat
   mutate(value = value-value[1])
 
 CHANGE_LARGE_SMALL_DEPOSITS_graph <- ggplot() + #plotting loan performance data
-  geom_line(data=DEPOSITS_LARGE, aes(x=date,y= value/1000,color= "Deposits ex-Large Time Deposits, Large (top 25, incl. First Republic) Domestic Banks"), size = 1.25)+ 
+  geom_line(data=DEPOSITS_LARGE, aes(x=date,y= value/1000,color= "Deposits ex-Large Time Deposits, Large (Top 25) Domestic Banks"), size = 1.25)+ 
   geom_line(data=DEPOSITS_SMALL, aes(x=date,y= value/1000,color= "Deposits ex-Large Time Deposits, Small Domestic Banks"), size = 1.25)+ 
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
@@ -167,7 +167,7 @@ CHANGE_LARGE_SMALL_DEPOSITS_graph <- ggplot() + #plotting loan performance data
   ggtitle("Deposit Flows") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Deposits are Slowly Trickling Out of Banks as Rates Rise and QT Continues") +
   theme_apricitas + theme(legend.position = c(.53,.19)) +
-  scale_color_manual(name= "Change Since Jan 2022",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Deposits ex-Large Time Deposits, Large (top 25, incl. First Republic) Domestic Banks","Deposits ex-Large Time Deposits, Small Domestic Banks")) +
+  scale_color_manual(name= "Change Since Jan 2022",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Deposits ex-Large Time Deposits, Large (Top 25) Domestic Banks","Deposits ex-Large Time Deposits, Small Domestic Banks")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-30-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-30-as.Date("2022-01-01"))), ymin = -1.25-(.3*1.5), ymax = -1.25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

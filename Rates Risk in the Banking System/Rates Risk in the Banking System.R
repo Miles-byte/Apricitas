@@ -178,7 +178,7 @@ DEP_DEPINS_MAJOR_BANKS_graph <- ggplot(data = subset(DEP_DEPINS_MAJOR_BANKS), ae
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150), limits = c(0,160), expand = c(0,0)) +
   scale_x_date(breaks = as.Date(c("2020-01-01","2023-01-01")), labels = c("2020","2023")) +
   ggtitle("Uninsured Deposits of At-Risk Banks") +
-  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Besides Pacific Western and Western Alliance, Most At-Risk Banks Haven't Seen Deposit Outflows") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Besides Pacific Western and Western Alliance, Most At-Risk Banks Haven't Seen Outflows") +
   theme_apricitas + theme(legend.position = c(.7,.825), panel.spacing.x = unit (0.5, "lines"), strip.text.x = element_text(size = 10)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("FDIC Insured Deposits","Uninsured Deposits")) #+
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*210), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -202,11 +202,11 @@ LONG_TERM_ASSETS_MAJOR_BANKS_graph <- ggplot() + #plotting loan performance data
   xlab("Date") +
   ylab("Percent of Total Assets") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.30,.40,.50,.60), limits = c(0,.65), expand = c(0,0)) +
-  ggtitle("Silicon Valley Bank, Before The Run") +
-  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Long Term Assets Made Up the Outright Majority of SVB's Assets Pre-Run") +
+  ggtitle("Long-Term Assets at At-Risk Banks") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Long Term Assets Make Up a Large Chunk of Assets in At-Risk Banks") +
   theme_apricitas + theme(legend.position = c(.2,.8)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Pacific Western", "Western Alliance", "Zions Bank", "First Horizon", "Comerica", "KeyBank")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*.65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*.65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = LONG_TERM_ASSETS_MAJOR_BANKS_graph, "Long Term Asset Ratio Major Banks Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -255,7 +255,7 @@ SECURITIES_LOSSES_graph <- ggplot(data = SECURITIES_LOSSES, aes(x = date, y = va
   xlab("Date") +
   ylab("Billions of Dollars") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-750,-500,-250,0), limits = c(-750,150), expand = c(0,0)) +
-  ggtitle("US Banks' Unrealized Losses") +
+  ggtitle("US Banks' Securities Losses") +
   labs(caption = "Graph created by @JosephPolitano using FDIC data", subtitle = "Banks' Have Large Unrealized Losses in the Wake of Recent Rate Hikes") +
   theme_apricitas + theme(legend.position = c(.25,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Unrealized Losses on Banks' Securities",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
@@ -263,3 +263,200 @@ SECURITIES_LOSSES_graph <- ggplot(data = SECURITIES_LOSSES, aes(x = date, y = va
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SECURITIES_LOSSES_graph, "Securities Losses Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FDIC_FTS_DATA_123122 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Rates%20Risk%20in%20the%20Banking%20System/FTS2212.CSV") 
+CERT_TICKER_XWALK <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Rates%20Risk%20in%20the%20Banking%20System/ticker_cert_xwalk.csv")
+
+#EXCESS RETURN DATA FROM PAULGP AT RISK BANKS FOLDER
+
+EXCESS_RETURNS_5523 <- bank_data %>%
+  subset(date == as.Date("2023-05-05")) %>%
+  ungroup() %>%
+  transmute(TICKER = ticker, CUMUL_ABNORMAL = cumul_abnormal)
+  
+FDIC_DATA_TICKER <- FDIC_FTS_DATA_123122 %>%
+  left_join(CERT_TICKER_XWALK, by = "CERT") %>%
+  #select(CERT,TICKER,ASSET,DEPDOM,DEPUNA) %>%
+  drop_na(TICKER) %>%
+  unique() %>%
+  left_join(EXCESS_RETURNS_5523, by = "TICKER") %>%
+  mutate(across(-TICKER, ~as.numeric(gsub(",", "", .)))) %>%
+  group_by(TICKER) %>%
+  mutate(across(.cols = where(is.numeric) & !CUMUL_ABNORMAL & !CERT,~sum(.))) %>%
+  ungroup() %>%
+  select(-CERT) %>%
+  unique() %>%
+  filter(!(TICKER %in% c("SI","SIVB","FRC","SBNY","UMPQ")))
+
+numeric_data <- FDIC_DATA_TICKER %>% mutate(across(everything(), as.numeric)) %>% mutate(across(.cols = everything(), .fns = ~ ./ASSET))
+cor_matrix <- cor(numeric_data, use = "pairwise.complete.obs")
+cumulative_returns_correlations <- cor_matrix["CUMUL_ABNORMAL", ]
+sorted_correlations <- cumulative_returns_correlations %>%
+  sort(decreasing = TRUE, na.last = TRUE) %>%
+  data.frame(Correlation = ., Variable = names(.)) %>%
+  arrange(desc(abs(Correlation)))
+
+#EXCLUDING THOSE WITH 0 UNINSURED DEPOSITS WHO DON'T REPORT
+UNINSURED_DEP_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=subset(FDIC_DATA_TICKER, DEPUNA != 0), aes(x=DEPUNA/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Uninsured Deposit Reliance", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=DEPUNA/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Uninsured Deposit Reliance"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Uninsured Domestic Deposits, % of Assets") +
+  #geom_text_repel(data = FDIC_DATA_TICKER, aes(y = CUMUL_ABNORMAL, x = DEPUNA/DEPDOM, label = TICKER), hjust=0) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1)) +
+  ggtitle("The Risk of Uninsured Deposits") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Banks With More Uninsured Deposits Have Seen Lower Returns Since the Start of the Year") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*1), xmax = 0-(0.049*1), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UNINSURED_DEP_RETURNS_graph, "Uninsured Deposits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ASSET_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=FDIC_DATA_TICKER, aes(x=ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Their Size", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "loess", aes(x=ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Their Size"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Total Assets") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_log10(limits = c(600000,4000000000), breaks = c(1000000,10000000,100000000,1000000000), labels = c("$1B","$10B","$100B","$1T")) + 
+  ggtitle("Mid-Size Banks Have Fallen The Most") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Since the Start of the Year, It's Mid-Size Banks That Have Fallen Most") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*1), xmax = 0-(0.049*1), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ASSET_RETURNS_graph, "Asset Returns Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+REAL_ESTATE_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=FDIC_DATA_TICKER, aes(x=(LNRE)/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Real Estate Loan Asset Share", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=(LNRE)/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Real Estate Loan Asset Share"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Real Estate Loans, % of Total Assets") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1)) +
+  ggtitle("Banks With Real Estate Loans Fell More") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Since the Start of the Year, Bank Stocks With More Real Estate Exposure Fell More") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*1), xmax = 0-(0.049*1), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_ESTATE_RETURNS_graph, "Real Estate Returns Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+CET1_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=subset(FDIC_DATA_TICKER, RWAW != 0), aes(x=(RBCT1C)/RWAW,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. CET1 Capital Ratio", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=(RBCT1C)/RWAW,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. CET1 Capital Ratio"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("CET1 Capital Ratio") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.08,0.3)) +
+  ggtitle("Banks With Real Estate Loans Fell More") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Since the Start of the Year, Banks Stocks With More Real Estate Exposure Fell More") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0.08-(.1861*0.22), xmax = 0.08-(0.049*0.22), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CET1_graph, "CET1 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+HTM_AFS_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=FDIC_DATA_TICKER, aes(x=(SCHF-SCHA + SCAF-SCAA)/RBCT1C,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Securities Losses as a Share of CET1 Capital", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=(SCHF-SCHA + SCAF-SCAA)/RBCT1C,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Securities Losses as a Share of CET1 Capital"), size = 1.25) +
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=(SCHF-SCHA)/RBCT1C,y=CUMUL_ABNORMAL, color= "HTM Losses Only as a Share of CET1 Capital"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Total Losses on Securities, Share of CET1 Capital") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  #geom_text_repel(data = FDIC_DATA_TICKER, aes(y = CUMUL_ABNORMAL, x = (SCHF-SCHA + SCAF-SCAA)/RBCT1C, label = TICKER), hjust=0) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-1.4,0)) +
+  ggtitle("Not (Exactly) About Securities Losses") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Banks With Securities Losses Aren't Necessarily Those With Major Negative Returns") +
+  theme_apricitas + theme(legend.position = c(.52,.87)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = -1.4-(.1861*1.4), xmax = -1.4-(0.049*1.4), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+#C, BK, CASS, FAF ETC HAVE HIGH SHARE UNINSURED BUT ARE OKAY
+#CAPITAL RATIOS
+ggsave(dpi = "retina",plot = HTM_AFS_RETURNS_graph, "HTM AFS Returns Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+NONINTEREST_DEP_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=subset(FDIC_DATA_TICKER, DEPNI != 0), aes(x=DEPNI/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Noninterest Bearing Deposit Reliance", size = ASSET))+
+  stat_smooth(data=FDIC_DATA_TICKER,method = "lm", aes(x=DEPNI/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Noninterest Bearing Deposit Reliance"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Noninterest Bearing Domestic Deposits, % of Assets") +
+  #geom_text_repel(data = FDIC_DATA_TICKER, aes(y = CUMUL_ABNORMAL, x = DEPUNA/DEPDOM, label = TICKER), hjust=0) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1)) +
+  ggtitle("Reach For Yield?") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Banks With More Nonnterest Bearing Deposits Haven't Seen Lower Returns") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*1), xmax = 0-(0.049*1), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NONINTEREST_DEP_RETURNS_graph, "Noninterest Deposits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ASSTLTR_FDIC_API <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RISDATE%3A%2220221231%22&fields=CERT%2CREPDTE%2CASSTLT%2CASSET%2CNAME&limit=10000&format=csv&download=true&filename=data_file")
+  
+ASSTLTR__DATA_TICKER <- FDIC_FTS_DATA_123122 %>%
+  left_join(CERT_TICKER_XWALK, by = "CERT") %>%
+  #select(CERT,TICKER,ASSET,DEPDOM,DEPUNA) %>%
+  drop_na(TICKER) %>%
+  unique() %>%
+  left_join(EXCESS_RETURNS_5523, by = "TICKER") %>%
+  mutate(across(-TICKER, ~as.numeric(gsub(",", "", .)))) %>%
+  select(TICKER, CERT, CUMUL_ABNORMAL) %>%
+  left_join(ASSTLTR_FDIC_API, by = "CERT") %>%
+  group_by(TICKER) %>%
+  mutate(across(.cols = where(is.numeric) & !CUMUL_ABNORMAL & !CERT,~sum(.))) %>%
+  ungroup() %>%
+  select(CERT,TICKER, ASSET, ASSTLT, CUMUL_ABNORMAL) %>%
+  unique() %>%
+  filter(!(TICKER %in% c("SI","SIVB","FRC","SBNY","UMPQ")))
+
+LONG_TERM_RETURNS_graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=ASSTLTR__DATA_TICKER, aes(x=ASSTLT/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Long-Term Asset (5+ Year) Share", size = ASSET))+
+  stat_smooth(data=ASSTLTR__DATA_TICKER,method = "lm", aes(x=ASSTLT/ASSET,y=CUMUL_ABNORMAL, color= "Banks' YTD Excess Returns vs. Long-Term Asset (5+ Year) Share"), size = 1.25) +
+  ylab("Excess Returns, 5/5/23, %") +
+  xlab("Long-Term Assets, % of Total Assets") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.80,0.275), expand = c(0,0)) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1)) +
+  ggtitle("Banks With More Long-Term Assets Fell More") +
+  labs(caption = "Graph created by @JosephPolitano using FDIC data with Assistance From @Paulgp", subtitle = "Since the Start of the Year, Banks Stocks With More Long-Term Exposure Fell More") +
+  theme_apricitas + theme(legend.position = c(.50,.82)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 20, vjust = 0.5),
+        plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*1), xmax = 0-(0.049*1), ymin = -0.80-(.3*1.075), ymax = -0.80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LONG_TERM_RETURNS_graph, "Long Term Returns Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
