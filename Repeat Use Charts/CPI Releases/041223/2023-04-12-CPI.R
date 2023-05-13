@@ -498,20 +498,20 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
+Manheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
   mutate(date = as.Date(date, "%m/%d/%Y"))
 
 CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
-  geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/141)*100 ,color= "CPI: Used Cars and Trucks"), size = 1.25) +
-  geom_line(data=subset(Mannheim, date > as.Date("2018-12-31")), aes(x=date,y= (mannheim/135.4)*100 ,color= "Mannheim Used Vehicles Value Index"), size = 1.25) +
+  geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/value[nrow(CPIUSEDCARS)])*100 ,color= "CPI: Used Cars and Trucks"), size = 1.25) +
+  geom_line(data=subset(Manheim, date > as.Date("2018-12-31")), aes(x=date,y= (mannheim/mannheim[1])*100 ,color= "Manheim Used Vehicles Value Index"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(80,180), breaks = c(90,120,150), expand = c(0,0)) +
+  scale_y_continuous(limits = c(90,200), breaks = c(90,120,150,180), expand = c(0,0)) +
   ylab("Index, January 2019 = 100") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS and Manheim data",subtitle = "Manheim Wholesale Data Could Be Giving Early Indications of Movements in Used Car Prices") +
-  theme_apricitas + theme(legend.position = c(.30,.75)) +
+  theme_apricitas + theme(legend.position = c(.30,.875)) +
   scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 80-(.3*100), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 90-(.3*110), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_sm_month.csv?t=1665666510") %>%

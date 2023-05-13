@@ -71,7 +71,7 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Fixing the Assembly Line") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Have Almost Climbed Back to Their Pre-Pandemic Average") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Remain Below Their Pre-Pandemic Average") +
   theme_apricitas + theme(legend.position = c(0.75,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
@@ -84,9 +84,9 @@ Cumulative_Shortfall_Graph <- ggplot(subset(Assemblies, date > as.Date("2020-01-
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("Falling Short") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Cumulative Shortfall in US Vehicle Production Sits at More Than 4.5 Million Units") +
-  theme_apricitas + theme(legend.position = c(.35,.89)) +
+  theme_apricitas + theme(legend.position = c(.35,.95)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-02-01")-(.1861*(today()-as.Date("2020-02-01"))), xmax = as.Date("2020-02-01")-(0.049*(today()-as.Date("2020-02-01"))), ymin = 0-(.3*5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-03-01")-(.1861*(today()-as.Date("2020-03-01"))), xmax = as.Date("2020-03-01")-(0.049*(today()-as.Date("2020-03-01"))), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Assemblies_Graph, "US Assemblies Indpro.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -374,7 +374,7 @@ INDIA <- INDIA[order(as.Date(INDIA$Date, format="%m/%d/%Y")),]
 #Reordering here
 
 Global_Production <- ggplot() + #plotting MOVE
-  geom_line(data=CHINA_IND_PRO_MV, aes(x=date,y= `Output of Motor Vehicles, Current Period`/(sum(`Output of Motor Vehicles, Current Period`[1:11])/11)*100,color= "China"), size = 1.25) +
+  #geom_line(data=CHINA_IND_PRO_MV, aes(x=date,y= `Output of Motor Vehicles, Current Period`/(sum(`Output of Motor Vehicles, Current Period`[1:11])/11)*100,color= "China"), size = 1.25) +
   geom_line(data=subset(JAPAN_IP, date >= as.Date("2018-01-01")), aes(x=date,y= motor_vehicles/(sum(motor_vehicles[1:12])/12)*100,color= "Japan"), size = 1.25) +
   geom_line(data=INDIA, aes(x=Date,y= Value/(sum(Value[1:12])/12)*100,color= "India"), size = 1.25) +
   geom_line(data=EA_IND_PRO_VEHICLE, aes(x=time,y= C291/(sum(C291[1:12])/12)*100,color= "Euro Area"), size = 1.25) +
@@ -392,9 +392,104 @@ Global_Production <- ggplot() + #plotting MOVE
 
 ggsave(dpi = "retina",plot = Global_Production, "Global Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-sum(US_INDPRO$value[1:2])
-
 p_unload(all)  # Remove all packages using the package manager
+
+
+Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+  mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
+  subset(date >= as.Date("2018-11-01"))
+
+Used_NSA_prices <- fredr("CUUR0000SETA02", observation_start = as.Date("2019-01-01"))
+
+CPI_Manheim_Used_Car_Vehicles_NSA_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
+  geom_line(data=Used_NSA_prices, aes(x=date,y= (value/value[1])*100 ,color= "CPI: Used Cars and Trucks NSA"), size = 1.25) +
+  geom_line(data=subset(Manheim_Bulk), aes(x=date + 60,y= (`Manheim.Index.$.amount.NSA`/`Manheim.Index.$.amount.NSA`[1])*100 ,color= "Manheim Used Vehicles Value Index NSA, 2 Months Forward"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(90,200), breaks = c(90,120,150,180), expand = c(0,0)) +
+  ylab("Index, January 2019 = 100") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and Manheim data",subtitle = "Removing Seasonal Adjustments, it's Clear Manheim Consistently Leads CPI by About 2 Months") +
+  theme_apricitas + theme(legend.position = c(.40,.875)) +
+  scale_color_manual(name= "January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 90-(.3*110), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_Manheim_Used_Car_Vehicles_NSA_Graph, "Manheim Used NSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+Motor_Vehicle_Sales <- fredr("ALTSALES", observation_start = as.Date("2018-01-01"))
+
+Sales_Graph <- ggplot() + #plotting auto assemblies
+  geom_line(data=Motor_Vehicle_Sales, aes(x=date,y= value, color = "US Total Automobile & Light-Duty Truck Sales"), size = 1.25)+ 
+  annotate(geom = "hline", y = 16.961, yintercept = 16.961, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "text", label = "2019 Average", x = as.Date("2022-07-01"), y = 17.5, color ="#FFE98F") +
+  #geom_line(data=AssembliesNSA, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies (NSA)"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Motor Vehicle Sales, Millions, Annual Rate") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("Shoring up the Showroom") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Motor Vehicle Sales Have Almost Climbed Back to Their Pre-Pandemic Average") +
+  theme_apricitas + theme(legend.position = c(0.65,0.32)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*20), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Sales_Graph, "Motor Vehicle Sales.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+Inventory <- fredr(series_id = "N864RX1Q020SBEA",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+Vehicle_Inventory_Graph <- ggplot() + #plotting real private auto inventories
+  geom_line(data=Inventory, aes(x=date,y= value,color= "Real Private Inventories: Retail trade: Motor vehicle and Parts Dealers"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Inventories, US Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(150,275), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("Dealership Inventories are Recovering") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Vehicle Inventories Have Risen 12% From 2021 Lows") +
+  theme_apricitas + theme(legend.position = c(.46,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 150-(.3*125), ymax = 150) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Vehicle_Inventory_Graph, "Motor Vehicle Inventory.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+CON_AUTO <- fredr(series_id = "STDSAUTO",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+CON_AUTO_LOANS_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=CON_AUTO, aes(x=date,y= value/100,color= "Net Percentage of Domestic Banks Tightening Standards, Auto Loans"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Percent of Loan and Leases") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.20,0,.20,.40,.60), limits = c(-.30,.65), expand = c(0,0)) +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Rapidly Tightening Lending Standards for Auto Loans") +
+  theme_apricitas + theme(legend.position = c(.475,.98)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-04-01")-(.1861*(today()-as.Date("2011-04-01"))), xmax = as.Date("2011-04-01")-(0.049*(today()-as.Date("2011-04-01"))), ymin = -0.30-(.3*0.95), ymax = -0.30) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CON_AUTO_LOANS_Graph, "CON Auto Loan Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+LOAN_60 <- fredr("RIFLPBCIANM60NM", observation_start = as.Date("2018-01-01")) %>%
+  drop_na()
+
+LOANS_RATES_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=LOAN_60, aes(x=date,y= value/100,color= "Finance Rate on 60-Month New Auto Loans at Commercial Banks"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_area(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Loan and Leases") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.02,0.04,0.06,0.08,0.10), limits = c(0,0.10), expand = c(0,0)) +
+  ggtitle("Tightening Up") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Auto Loan Interest Rates are Rising as the Fed Tightens Monetary Policy") +
+  theme_apricitas + theme(legend.position = c(.45,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-02-01")-(.1861*(today()-as.Date("2018-02-01"))), xmax = as.Date("2018-02-01")-(0.049*(today()-as.Date("2018-02-01"))), ymin = 0-(.3*0.10), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LOANS_RATES_Graph, "Loan Rates Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 # Clear console

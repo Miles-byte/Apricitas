@@ -1,3 +1,9 @@
+pacman::p_load(tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+install.packages("quantmod")
+install.packages("cli")
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
 Relative_Importance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/RelativeImportance.csv") %>%
   `colnames<-`(c("Category","2018-01-01","2020-01-01","2022-01-01","2023-01-01")) %>%
   select(-`2023-01-01`) %>% #DELETE THIS BEFORE JAN CPI
@@ -321,13 +327,13 @@ CPI_Rent_Zillow <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price G
   geom_line(data=CPIORENT, aes(x=date,y= (value) ,color= "CPI Owner's Equivalent Rent"), size = 1.25) +
   geom_line(data=subset(ZORI, date > as.Date("2018-03-01")), aes(x=date+365,y= (value) ,color= "Zillow Observed Rent Index, Lagged 1 Year"), size = 1.25) +
   geom_line(data=subset(ApartmentList, date > as.Date("2018-03-01")), aes(x=date+365,y= annualpct ,color= "ApartmentList Median New Lease, Lagged 1 Year"), size = 1.25) +
-  geom_line(data=subset(NTRR,date > as.Date("2018-01-01")), aes(x=date+365,y= NTRR/100,color= "New Tenant Repeat Rent Index, Lagged 1 Year"), size = 1.25)+ 
+  #geom_line(data=subset(NTRR,date > as.Date("2018-01-01")), aes(x=date+365,y= NTRR/100,color= "New Tenant Repeat Rent Index, Lagged 1 Year"), size = 1.25)+ 
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.025,.20), breaks = c(0,.05,0.1,0.15,0.2), expand = c(0,0)) +
   ylab("Percent Change From a Year Ago, %") +
   ggtitle("Pandemic Prices") +
   labs(caption = "Graph created by @JosephPolitano using BLS,Zillow, and ApartmentList data",subtitle = "Whether Rent Growth Actually Peaks Will Be Critical to Future Inflation Prints") +
-  theme_apricitas + theme(legend.position = c(.35,.70)) +
+  theme_apricitas + theme(legend.position = c(.32,.70)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("CPI Rent","CPI Owner's Equivalent Rent","Zillow Observed Rent Index, Lagged 1 Year","ApartmentList Median New Lease, Lagged 1 Year","New Tenant Repeat Rent Index, Lagged 1 Year")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()+365-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()+365-as.Date("2019-01-01"))), ymin = -0.025-(.3*0.225), ymax = -0.025) +
   coord_cartesian(clip = "off")

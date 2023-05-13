@@ -54,7 +54,7 @@ ATL_SWITCH_STAY_graph <- ggplot() + #plotting Wage Growth
 ggsave(dpi = "retina",plot = ATL_SWITCH_STAY_graph, "ATL Switch Stay Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 BIE_INF_COMP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Labor%20Shortage/BIE_inf_comp.csv") %>%
-  mutate(date = as.Date(date)) %>%
+  mutate(date = as.Date(date, "%m/%d/%Y")) %>%
   mutate_if(is.character, as.numeric) %>%
   drop_na()
 
