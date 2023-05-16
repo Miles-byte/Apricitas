@@ -389,9 +389,9 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
-  ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short Term Inflation Expectations are Below a Level Consistent With The Fed's 2% Target") +
-  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  ggtitle("Long-Run Market Inflation Expectations Are Anchored") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "5 & 10 Year Inflation Breakevens are at the Low End of a Level Consistent With The Fed's 2% Target") +
+  theme_apricitas + theme(legend.position = c(.30,.92), plot.title = element_text(size = 22)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -432,11 +432,11 @@ CPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.09), breaks = c(0,0.03,0.06,0.09), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
-  ggtitle("The Inflation Miscalculation") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation Has Hit a 40 Year High") +
+  ggtitle("The Inflation Situation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Core Inflation is Now Ahead of Headline Inflation For the First Time Since 2021") +
   theme_apricitas + theme(legend.position = c(.40,.50)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.09), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.09), ymax = 0) +
   coord_cartesian(clip = "off")
 
 PPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
@@ -501,9 +501,13 @@ CPI_New_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" a
 Manheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
   mutate(date = as.Date(date, "%m/%d/%Y"))
 
-CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
+Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+  mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
+  subset(date >= as.Date("2018-11-01"))
+
+CPI_Manheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
   geom_line(data=CPIUSEDCARS, aes(x=date,y= (value/value[nrow(CPIUSEDCARS)])*100 ,color= "CPI: Used Cars and Trucks"), size = 1.25) +
-  geom_line(data=subset(Manheim, date > as.Date("2018-12-31")), aes(x=date,y= (mannheim/mannheim[1])*100 ,color= "Manheim Used Vehicles Value Index"), size = 1.25) +
+  geom_line(data=subset(Manheim_Bulk, date > as.Date("2018-12-31")), aes(x=date,y= (`Index.(1/97.=.100)`/`Index.(1/97.=.100)`[1])*100 ,color= "Manheim Used Vehicles Value Index"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(limits = c(90,200), breaks = c(90,120,150,180), expand = c(0,0)) +
   ylab("Index, January 2019 = 100") +
@@ -561,11 +565,11 @@ CPI_Rent_Month <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Gr
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(0,.0090), breaks = c(0,.0025,0.005,.0075), expand = c(0,0)) +
   ylab("Monthly Percent Growth, %") +
-  ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Housing Price Growth is Accelerating") +
-  theme_apricitas + theme(legend.position = c(.40,.80)) +
+  ggtitle("Housing Inflation is Cooling") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Official Housing Price Growth is Decelerating, Though Remains Elevated") +
+  theme_apricitas + theme(legend.position = c(.38,.80)) +
   scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("CPI Rent: Monthly Percentage Growth","CPI Owner's Equivalent Rent: Monthly Percentage Growth")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1200), xmax = as.Date("2019-01-01")-(0.049*1200), ymin = 0-(.3*0.009), ymax = 0.00) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.009), ymax = 0.00) +
   coord_cartesian(clip = "off")
 
 CPI_Core_Month <- ggplot() + #plotting core and headline monthly Price Growth
@@ -663,10 +667,10 @@ Rent_LessRent_Graph <- ggplot() +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.09), breaks = c(0,.01,.02,.03,.04,0.05,0.06,0.07,0.08,0.09), expand = c(0,0)) +
   ylab("Change from Year Ago, %") +
   ggtitle("Services Price Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation is Becoming More Broad Based as Prices for Rent and Other Services Jump") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Rent Inflation is Peaking While Services Ex-Rent Inflation is Declining") +
   theme_apricitas + theme(legend.position = c(.50,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1300), xmax = as.Date("2019-01-01")-(0.049*1300), ymin = 0-(.3*.09), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.09), ymax = 0) +
   coord_cartesian(clip = "off")
 
 #Durables CPI
@@ -916,8 +920,6 @@ ggsave(dpi = "retina",plot = COSEXHO_MCT_Graph, "COSEXHO.png", type = "cairo-png
 
 ggsave(dpi = "retina",plot = BIE_Graph, "BIE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
-
-
 CPI_ELECTRICITY <- fredr(series_id = "CUSR0000SEHF01",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
 CPI_UTILITY_GAS <- fredr(series_id = "CUSR0000SEHF02",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
 CPI_GASOLINE <- fredr(series_id = "CUSR0000SETB01",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -937,6 +939,47 @@ CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CPI_ENERGY_Graph, "CPI Energy Comm.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+MCT_PCE_DECOMP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/041223/Live%20Data/LSE_2023_MCT_March2023_data.csv") %>%
+  select(Date,Contribution_GOOD, Contribution_SERV_EX_HOUSE, Contribution_HOUSE) %>%
+  `colnames<-`(c("Date","Goods","Services Ex-Housing","Housing")) %>%
+  mutate(Date = as.Date(Date)) %>%
+  subset(Date >= as.Date("2019-01-01")) %>%
+  pivot_longer(cols = Goods:Housing)
+
+MCT_PCE_DECOMP_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_bar(data = subset(MCT_PCE_DECOMP), aes(x = Date, y = value/100, fill = name), color = NA, size = 0, stat= "identity") +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.005,.035), breaks = c(0,.01,.02,.03), expand = c(0,0)) +
+  ylab("Annual Inflation, Percent") +
+  ggtitle("Pandemic Prices") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY data From Martín Almuzara, Babur Kocaoglu, and Argia Sbordone",subtitle = "Inflation is Broad-Based, but Food and Energy are Still Having an Outsized Influence") +
+  theme_apricitas + theme(legend.position = c(.4,.85)) +
+  scale_fill_manual(name= "Contributions to Excess Multivariate Core Trend PCE Inflation",values = c("#FFE98F","#00A99D","#9A348E","#EE6055","#A7ACD9","#3083DC"), breaks = c("Services Ex-Housing","Housing","Goods"), labels = c("Services Ex-Housing","Housing","Goods")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.005-(.3*.04), ymax = -0.005) +
+  coord_cartesian(clip = "off")  
+
+ggsave(dpi = "retina",plot = MCT_PCE_DECOMP_GRAPH, "MCT PCE Decomp Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+ICE_2023 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/041223/Live%20Data/ICE_USD_Inflation_Expectations_Index_Family.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  subset(Date >= as.Date("2023-01-01"))
+
+ICE_2023__2024_Graph <- ggplot() + #plotting total quits
+  geom_line(data=ICE_2023, aes(x=Date,y= `Current_Calendar_YR`/100,color= "Year-End 2023"), size = 1.25)+
+  geom_line(data=ICE_2023, aes(x=Date,y= `NEXT_Calendar_YR`/100,color= "Year-End 2024"), size = 1.25)+
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
+  ggtitle("Short-Run Market Inflation Expectations") +
+  labs(caption = "Graph created by @JosephPolitano using ICE data", subtitle = "Markets Expect Inflation to Decelerate Over the Next Two Years") +
+  theme_apricitas + theme(legend.position = c(.47,.84)) +
+  scale_color_manual(name= "ICE US Dollar Inflation Expectations:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-05")-(.1861*(today()-as.Date("2023-01-05"))), xmax = as.Date("2023-01-05")-(0.049*(today()-as.Date("2023-01-05"))), ymin = 0-(.3*.05), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ICE_2023__2024_Graph, "ICE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 
 #Saving png images of all graphs
@@ -967,7 +1010,7 @@ ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_NSA_GRAPH, "CPI Monthly Co
 ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_SA_GRAPH, "CPI Monthly Contribution SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_Rent_Zillow, "CPI Rent Zillow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_PCEPI_PCT_Graph, "CPI PCEPI PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim Used Vehicles.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CPI_Manheim_Used_Car_Vehicles_Graph, "CPI Manheim Used Vehicles.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Stock_Watson_Graph, "Stock Watson.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = DURABLES_Graph, "Durables Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = CPI_LESS_ALL_Graph, "CPI LESS ALL EVERYTHING.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

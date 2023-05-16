@@ -59,11 +59,14 @@ ggsave(dpi = "retina",plot = TANKAN_OUTPUT_PRICES_graph, "TANKAN OUTPUT Inflatio
 
 JAPAN_IP <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2015_gsm1e.xlsx") %>%
   select(-`Seasonally.adjusted.Index.by.Industry.:.Industrial.Production.(2015=100.0)`,-X3) %>%
-  transpose() %>%
+  drop_na() %>%
+  data.table::transpose() %>%
+  as.data.frame() %>%
   select(-V1) %>%
   row_to_names(1) %>%
   clean_names(.) %>%
-  mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
+  mutate(date = seq.Date(from = as.Date("2013-01-01"), by = "month", length.out = nrow(.))) %>%
+  #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
   mutate_if(is.character,as.numeric)
 
 JAPAN_IP_CARS <- ggplot() + #plotting MOVE
