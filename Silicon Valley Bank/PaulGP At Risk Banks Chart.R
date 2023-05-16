@@ -49,14 +49,14 @@ ggplot(data= bank_cumul_ret[1:30,]) +
 CUMULATIVE_RET_graph <- ggplot(data= bank_cumul_ret) +
   annotate("vline", y = 0, xintercept = 0, color = "white", size = .5) +
   geom_histogram(aes(x = cumul_abnormal, fill = "US Banks, Cumulative Returns in Excess of Market 1/1-5/5"), color = NA) + 
-  labs(y = "Percent of Banks", x = "Cumulative Return Excess of Market") +
+  labs(y = "Number of Banks", x = "Cumulative Return Excess of Market") +
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data with assistance from @Paulgp", subtitle = "Most Banks' Valuation Took a Major Hit in the Recent Banking Crisis") +
   theme_apricitas + 
   ggtitle("The Banking Crisis") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  theme(legend.position = c(.44,.97)) +
+  theme(legend.position = c(.445,.97)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*32.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  scale_y_continuous(limits = c(0,65), expand = c(0,0), breaks = c(0,10,20,30,40,50,60), labels = c("0%","10%","20%","30%","40%","50%","60%")) +
+  scale_y_continuous(limits = c(0,65), expand = c(0,0), breaks = c(0,10,20,30,40,50,60)) +
   scale_x_continuous(labels = scales::percent_format(), breaks = c(-.75,-.50,-0.25,0,0.25,0.5)) 
 
 ggsave(dpi = "retina",plot = CUMULATIVE_RET_graph, "Cumulative Returns Graph.png", type = "cairo-png") 

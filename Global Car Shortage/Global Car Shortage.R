@@ -1,4 +1,4 @@
-pacman::p_load(eurostat,restatapi,bea.R,sidrar,htmltools,devtools,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(seasonal,eurostat,restatapi,bea.R,sidrar,htmltools,devtools,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 devtools::install_github("warint/statcanR")
 library(statcanR)
@@ -71,7 +71,7 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Fixing the Assembly Line") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Remain Below Their Pre-Pandemic Average") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Popped Above Their Pre-Pandemic Average") +
   theme_apricitas + theme(legend.position = c(0.75,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
@@ -491,6 +491,59 @@ LOANS_RATES_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = LOANS_RATES_Graph, "Loan Rates Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+RETAIL_IS_MOTOR <- fredr(series_id = "MRTSIR441USS", observation_start = as.Date("2018-01-01"))
+RETAIL_IS_EX_MOTOR <- fredr(series_id = "MRTSIR4400AUSS", observation_start = as.Date("2018-01-01"))
+
+RETAIL_IS_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data = RETAIL_IS_MOTOR, aes(x = date, y = value/value[1]*100, color = "Motor Vehicles and Parts"), size = 1.25) +
+  geom_line(data = RETAIL_IS_EX_MOTOR, aes(x = date, y = value/value[1]*100, color = "Excluding Motor Vehicles and Parts"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,160), breaks = c(0,25,50,75,100,125,150), expand = c(0,0)) +
+  ylab("Index, Jan 2018=100") +
+  ggtitle("Dealership Inventories are Recovering") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Inventory/Sales Have Normalized For Most Retailers, But are Still Slowly Recovering For Dealerships") +
+  theme_apricitas + theme(legend.position = c(.32,.25)) +
+  scale_color_manual(name= "Retail Inventory/Sales Ratio, Indexed to Jan 2018",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Motor Vehicles and Parts","Excluding Motor Vehicles and Parts")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*160), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RETAIL_IS_graph, "Retail IS Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+NET_IMPORTS <- fredr(series_id = "AB63RX1Q020SBEA", observation_start = as.Date("2018-01-01"))
+
+NET_IMPORTS_Graph <- ggplot() + #plotting real private auto inventories
+  geom_line(data=NET_IMPORTS, aes(x=date,y= value*-1,color= "US Net Real Imports of Motor Vehicles"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Billions of Chained 2012 US Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,175), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("US Vehicle Imports Have Recovered") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "US Vehicle Imports Hit a New Record High in Q1 2023") +
+  theme_apricitas + theme(legend.position = c(.46,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*175), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NET_IMPORTS_Graph, "Net Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+AUTO_LOAN_ORIGINS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Global%20Car%20Shortage/AUTO_LOAN_ORIGIN.csv") %>%
+  select(origin) %>%
+  mutate(origin = as.numeric(origin)) %>%
+  ts(., frequency = 4, start = c(2004, 1)) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2004-04-01"), to = as.Date("2023-04-01"),by = "3 months"))
+
+
+data <- rnorm(20)
+
+# Convert it into a time series, splitting into quarters
+time_series_data <- ts(data, frequency = 4, start = c(2023, 1))
+
+print(time_series_data)
 
 # Clear console
 cat("\014")  # ctrl+L
