@@ -212,7 +212,8 @@ JAPAN_IP <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b20
   select(-V1) %>%
   row_to_names(1) %>%
   clean_names(.) %>%
-  mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
+  #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
+  mutate(date = seq.Date(from = as.Date("2013-01-01"), by = "month", length.out = nrow(.))) %>%
   mutate_if(is.character,as.numeric) %>%
   subset(date >= as.Date("2018-01-01"))
 
@@ -350,21 +351,21 @@ QSPC_Supply_Selected_Graph <- ggplot() + #plotting BIE
 
 ggsave(dpi = "retina",plot = QSPC_Supply_Selected_Graph, "QSPC Selected.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-EU_QSPC <- read.csv("C:/Users/josep/Documents/Global Car Shortage/EU_QSPC.csv") %>%
-  mutate(Date = as.Date(Date)) %>%
+EU_QSPC <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Global%20Car%20Shortage/EURO_QSPC.csv") %>%
+  mutate(Date = as.Date(date)) %>%
   subset(Date >= as.Date("2014-01-01"))
 
 EU_QSPC_Supply_Selected_Graph <- ggplot() + #plotting BIE
   geom_line(data=EU_QSPC, aes(x=Date,y= Materials/100,color= "Shortage of Materials or Equipment"), size = 1.25) +
   geom_line(data=EU_QSPC, aes(x=Date,y= Labor/100,color= "Shortage of Labor"), size = 1.25) +
-  geom_line(data=EU_QSPC, aes(x=Date,y= Other/100,color= "Other"), size = 1.25) +
+  geom_line(data=EU_QSPC, aes(x=Date,y= Other/100,color= "Other Supply Issues"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.85), breaks = c(0,.20,.40,.60,.80), expand = c(0,0)) +
   ylab("% of Plants Citing This Reason") +
-  ggtitle("The Eurozone Car Crash") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "3/4 of Eurozone Carmakers Cite Materials Shortages as the Biggest Impediment to Their Production") +
-  theme_apricitas + theme(legend.position = c(.40,.75)) +
-  scale_color_manual(name= "Main Production Constraint For EA-19 Motor Vehicle Manufacturers",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Materials or Equipment","Shortage of Labor","Other")) +
+  ggtitle("The Chip Shortage is Easing") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EU Car Makers are Citing Material Shortages Much Less Than at Peak Chip Shortage") +
+  theme_apricitas + theme(legend.position = c(.41,.85)) +
+  scale_color_manual(name= "Main Production Constraint For EU-27 Motor Vehicle Manufacturers",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Materials or Equipment","Shortage of Labor","Other Supply Issues")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(.1861*(today()-as.Date("2014-04-01")))), ymin = 0-(.3*.85), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -392,7 +393,34 @@ Global_Production <- ggplot() + #plotting MOVE
 
 ggsave(dpi = "retina",plot = Global_Production, "Global Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-p_unload(all)  # Remove all packages using the package manager
+EU_MOTOR_VEHICLE_TOTAL <- get_eurostat("sts_inpr_m")
+
+EU_MOTOR_VEHICLE_SUBSET <- EU_MOTOR_VEHICLE_TOTAL %>%
+  subset(nace_r2 == "C291") %>%
+  subset(unit == "I15") %>%
+  subset(s_adj == "SCA") %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  subset(geo == "EU27_2020") %>%
+  arrange(time)
+
+US_EU_JPN_Production <- ggplot() + #plotting MOVE
+  #geom_line(data=CHINA_IND_PRO_MV, aes(x=date,y= `Output of Motor Vehicles, Current Period`/(sum(`Output of Motor Vehicles, Current Period`[1:11])/11)*100,color= "China"), size = 1.25) +
+  geom_line(data=subset(JAPAN_IP, date >= as.Date("2018-01-01")), aes(x=date,y= motor_vehicles/(sum(motor_vehicles[1:12])/12)*100,color= "Japan"), size = 1.25) +
+  #geom_line(data=INDIA, aes(x=Date,y= Value/(sum(Value[1:12])/12)*100,color= "India"), size = 1.25) +
+  geom_line(data=EU_MOTOR_VEHICLE_SUBSET, aes(x=time,y= values/(sum(values[1:12])/12)*100,color= "European Union"), size = 1.25) +
+  geom_line(data=US_INDPRO, aes(x = date, y = value/sum((value[1:12])/12)*100, color = "United States"), size = 1.25) +
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 1.25, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,135), breaks = c(0,20,40,60,80,100,120), expand = c(0,0)) +
+  ylab("Index, 2018 Avg = 100") +
+  ggtitle("Cars and The Global Chip Shorage") +
+  labs(caption = "Graph created by @JosephPolitano using METI, MOSPI, NBSS, Eurostat, and Federal Reserve Data",subtitle = "The Global Recovery From the Chips Shortage is Continuing") +
+  theme_apricitas + theme(legend.position = c(.2,.25)) +
+  scale_color_manual(name= "Production of Motor Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United States","European Union","Japan")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*120), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_EU_JPN_Production, "US EU JPN Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
@@ -537,13 +565,45 @@ AUTO_LOAN_ORIGINS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apri
   as.data.frame(value = melt(.)) %>%
   mutate(date = seq(from = as.Date("2004-04-01"), to = as.Date("2023-04-01"),by = "3 months"))
 
+LOAN_ORIGINS_graph <- ggplot() + #plotting real private auto inventories
+  geom_line(data=AUTO_LOAN_ORIGINS, aes(x=date,y= x,color= "US Quarterly Auto Loan Originations"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Billions of Chained 2012 US Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,200), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("US Auto Lending is Declining") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY consumer credit data seasonally adjusted with X-13ARIMA", subtitle = "US Auto Loan Originations Have Fallen From Pandemic-era Highs") +
+  theme_apricitas + theme(legend.position = c(.46,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-04-01")-(.1861*(today()-as.Date("2004-04-01"))), xmax = as.Date("2004-04-01")-(0.049*(today()-as.Date("2004-04-01"))), ymin = 0-(.3*200), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
-data <- rnorm(20)
+ggsave(dpi = "retina",plot = LOAN_ORIGINS_graph, "Loan Origins Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-# Convert it into a time series, splitting into quarters
-time_series_data <- ts(data, frequency = 4, start = c(2023, 1))
+SERIOUS_DELINQUENCY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Global%20Car%20Shortage/transition_to_serious_delinquency.csv") %>%
+  select(srs_delinq) %>%
+  mutate(srs_delinq = as.numeric(srs_delinq)) %>%
+  mutate(date = seq(from = as.Date("2003-04-01"), to = as.Date("2023-04-01"),by = "3 months"))
 
-print(time_series_data)
+SERIOUS_DELINQUENCY_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=SERIOUS_DELINQUENCY, aes(x=date,y= srs_delinq/100,color= "% of Auto Loans Transitioning to Serious (90+ Day) Delinquency, 4Q Moving Sum"), size = 1.25)+ 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Percent of Total Balances") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.01,0.02,0.03), limits = c(0,.036), expand = c(0,0)) +
+  ggtitle("Car Loan Delinquencies are Normalizing") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Consumer Credit data", subtitle = "Consumer Auto Loan Delinquency Rates are Returning to Pre-Pandemic Norms") +
+  theme_apricitas + theme(legend.position = c(.52,.29)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-04-01")-(.1861*(today()-as.Date("2003-04-01"))), xmax = as.Date("2003-04-01")-(0.049*(today()-as.Date("2003-04-01"))), ymin = 0-(.3*0.036), ymax = -0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SERIOUS_DELINQUENCY_Graph, "Serious Delinquency Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+p_unload(all)  # Remove all packages using the package manager
 
 # Clear console
 cat("\014")  # ctrl+L
