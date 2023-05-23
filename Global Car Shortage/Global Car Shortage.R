@@ -568,7 +568,7 @@ AUTO_LOAN_ORIGINS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apri
 LOAN_ORIGINS_graph <- ggplot() + #plotting real private auto inventories
   geom_line(data=AUTO_LOAN_ORIGINS, aes(x=date,y= x,color= "US Quarterly Auto Loan Originations"), size = 1.25)+ 
   xlab("Date") +
-  ylab("Billions of Chained 2012 US Dollars") +
+  ylab("Billions of US Dollars") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,200), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("US Auto Lending is Declining") +

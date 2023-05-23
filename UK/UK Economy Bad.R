@@ -573,6 +573,32 @@ AVERAGE_PRIVATE_graph <- ggplot() + #plotting components of annual inflation
 
 ggsave(dpi = "retina",plot = AVERAGE_PRIVATE_graph, "Average Private.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+UK_NATIONS_STARTS <- read.csv("C:/Users/Joseph/Downloads/uk_nations_starts.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  mutate(Poland = as.numeric(Poland))
+
+CA_STARTS <- fredr(series_id = "CABPPRIVSA", aggregation_method = "sum", frequency = "a")
+
+BUILDING_COUNTRY_Graph <- ggplot() + #plotting new housing starts
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= UK/1000, color= "United Kingdom (2021 Population: 67.3M)"), size = 1.25) +
+  #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Texas/1000, color= "Texas (29.5M)"), size = 1.25) +
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Florida/1000, color= "Florida (2021 Population: 21.8M)"), size = 1.25) +
+  geom_line(data=CA_STARTS, aes(x=date,y= value/1000, color= "California (2021 Population: 39.2M)"), size = 1.25) +
+  
+  #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Canada/1000, color= "Canada (38.3M)"), size = 1.25) +
+  #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Poland/1000, color= "Poland (37.8M)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,400), expand = c(0,0)) +
+  ylab("Permits, Monthly") +
+  ggtitle("Britain's Housing Shortage") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The UK Builds Less Housing Than Florida") +
+  theme_apricitas + theme(legend.position = c(.65,.85)) +
+  scale_color_manual(name= "Housing Units Permitted/Started by Year" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United Kingdom (2021 Population: 67.3M)","Florida (2021 Population: 21.8M)","California (2021 Population: 39.2M)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1969-01-01")-(.1861*(today()-as.Date("1969-01-01"))), xmax = as.Date("1969-01-01")-(0.049*(today()-as.Date("1969-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BUILDING_COUNTRY_Graph, "Building Country Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 p_unload(all)  # Remove all packages using the package manager
 

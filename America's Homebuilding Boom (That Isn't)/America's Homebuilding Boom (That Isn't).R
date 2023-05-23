@@ -1,4 +1,4 @@
-pacman::p_load(bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -415,7 +415,7 @@ SFH_MF_Graph <- ggplot() + #plotting SF and MF housing
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
-  ggtitle("Starting to Stop") +
+  ggtitle("Starts Have Fallen From 2022 Highs") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Have Dropped Significantly—But Multifamily Starts Held Up Better") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
@@ -428,9 +428,9 @@ SFH_STARTS_COMPS_Graph <- ggplot() + #plotting SF and MF housing
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), limits = c(0,2.3), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted Annual Rate") +
-  ggtitle("Demand Destruction") +
+  ggtitle("Single-Family Completions Now Exceed Starts") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single Family Housing Starts Dropped 30% as Mortgage Rates Rose") +
-  theme_apricitas + theme(legend.position = c(.5,.93)) +
+  theme_apricitas + theme(legend.position = c(.5,.93), plot.title = element_text(size = 25)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Single-Family Housing Starts","Single-Family Housing Completions")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -465,11 +465,11 @@ THIRTY_YEAR_FIXED_Graph <- ggplot() + #plotting growth in total housing units
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.09),breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("%") +
-  ggtitle("Adjusting Rates") +
+  ggtitle("Mortgage Rates Have Risen Rapidly") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Mortgage Rates Have Fallen Slightly From 20-Year Highs, But Remain Elevated") +
   theme_apricitas + theme(legend.position = c(.5,.90)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7250), xmax = as.Date("2000-01-01")-(0.049*7250), ymin = 0-(.3*.09), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*.09), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 #redfin list price graph
@@ -491,12 +491,12 @@ SF_HOUSING_UNDERCONSTRUCTION <- fredr(series_id = "UNDCON1USA", observation_star
 MF_HOUSING_UNDERCONSTRUCTION <- fredr(series_id = "UNDCON5MUSA", observation_start = as.Date("2000-01-01")) #total under construction
 
 SF_MF_UNDER_CONSTRUCTION_Graph <- ggplot() + #plotting SF and MF housing
-  geom_line(data=SF_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "Housing Units Under Construction: Single-Family Units"), size = 1.25) +
   geom_line(data=MF_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "Housing Units Under Construction: Units in Buildings With 5 Units or More"), size = 1.25) +
+  geom_line(data=SF_HOUSING_UNDERCONSTRUCTION, aes(x=date,y= value/1000, color= "Housing Units Under Construction: Single-Family Units"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.25), limits = c(0,1.25), expand = c(0,0)) +
   ylab("Units, Millions, Seasonally Adjusted") +
-  ggtitle("Under Construction") +
+  ggtitle("The Construction Backlog is Dwindling") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Single-Family Homes Under Construction Is Dropping as Multi-Family Hits New Highs") +
   theme_apricitas + theme(legend.position = c(.5,.93)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
@@ -573,9 +573,341 @@ FIXED_INVESTMENT_Residential_Graph <- ggplot() + #indexed employment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 90-(.3*60), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+MORTGAGE_ORIGINATIONS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/ORIGINATIONS_FRBNY.csv") %>%
+  select(Originations) %>%
+  mutate(Originations = as.numeric(Originations)) %>%
+  ts(., frequency = 4, start = c(2003, 1)) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2003-04-01"), to = as.Date("2023-04-01"),by = "3 months"))
+
+MORTGAGE_ORIGINS_graph <- ggplot() + #plotting mortgage originations
+  geom_line(data=MORTGAGE_ORIGINATIONS, aes(x=date,y= x/1000,color= "US Quarterly Mortgage Loan Originations"), size = 1.25)+ 
+  #geom_line(data=MORTGAGE_ORIGINATIONS_NSA, aes(x=date,y= x,color= "US Quarterly Mortgage Loan Originations NSA"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Billions of US Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T"), breaks = c(0.5,1,1.5),limits = c(0,1.5), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("The Pandemic Mortgage Boom is Over") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY consumer credit data seasonally adjusted with X-13ARIMA", subtitle = "US Mortgage Loan Originations Have Fallen From Pandemic-era Highs as Mortgage Rates Rose") +
+  theme_apricitas + theme(legend.position = c(.46,.60)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-04-01")-(.1861*(today()-as.Date("2003-04-01"))), xmax = as.Date("2003-04-01")-(0.049*(today()-as.Date("2003-04-01"))), ymin = 0-(.3*1.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MORTGAGE_ORIGINS_graph, "Mortgage Origins Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+MORTAGE_ORIGINS_BREAKDOWN <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/ORIGINS_REFINANCE_NEW.csv") %>%
+  select(purchase, refinance) %>%
+  mutate(purchase = as.numeric(purchase)) %>%
+  mutate(refinance = as.numeric(refinance)) %>%
+  ts(., frequency = 4, start = c(2000, 1)) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2000-04-01"), to = as.Date("2023-04-01"),by = "3 months")) %>%
+  pivot_longer(cols = c(purchase, refinance))
+
+MORTAGE_ORIGINS_BREAKDOWN_graph <- ggplot() + #plotting mortgage originations
+  geom_line(data=MORTAGE_ORIGINS_BREAKDOWN, aes(x=date,y= refinance,color= "Refinance"), size = 1.25)+
+  geom_line(data=MORTAGE_ORIGINS_BREAKDOWN, aes(x=date,y= purchase,color= "Purchase"), size = 1.25)+ 
+  #geom_line(data=MORTGAGE_ORIGINATIONS_NSA, aes(x=date,y= x,color= "US Quarterly Mortgage Loan Originations NSA"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Billions of US Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), breaks = c(250,500,750),limits = c(0,750), expand = c(0,0)) +
+  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  ggtitle("The Pandemic Mortgage Boom is Over") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY consumer credit data seasonally adjusted with X-13ARIMA", subtitle = "Refinances Have Collapsed But Mortgages for Home Purchases Only Fell to 2019 Levels") +
+  theme_apricitas + theme(legend.position = c(.46,.78)) +
+  scale_color_manual(name= "Quarterly Mortgage Originations by Type",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-04-01")-(.1861*(today()-as.Date("2000-04-01"))), xmax = as.Date("2000-04-01")-(0.049*(today()-as.Date("2000-04-01"))), ymin = 0-(.3*750), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MORTAGE_ORIGINS_BREAKDOWN_graph, "Mortgage Origins Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+MORTAGE_ORIGINS_BREAKDOWN_STACKED <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/ORIGINS_REFINANCE_NEW.csv") %>%
+  select(purchase, refinance) %>%
+  mutate(purchase = as.numeric(purchase)) %>%
+  mutate(refinance = as.numeric(refinance)) %>%
+  ts(., frequency = 4, start = c(2000, 1)) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2000-04-01"), to = as.Date("2023-04-01"),by = "3 months")) %>%
+  pivot_longer(cols = c(purchase, refinance)) %>%
+  mutate(name = str_to_title(name)) %>%
+  mutate(name = factor(name,levels = c("Refinance","Purchase")))
+
+MORTAGE_ORIGINS_BREAKDOWN_STACKED_graph <- ggplot(data = MORTAGE_ORIGINS_BREAKDOWN_STACKED, aes(x = date, y = value/1000, fill = name)) + #plotting Deposits, Insured and Uninsured
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.5, suffix = "T"), breaks = c(0,0.5,1,1.5), limits = c(0,1.5), expand = c(0,0)) +
+  ggtitle("The Pandemic Mortgage Boom is Over") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY consumer credit data seasonally adjusted with X-13ARIMA", subtitle = "Refinances Have Collapsed But Mortgages for Home Purchases Only Fell to 2019 Levels") +
+  theme_apricitas + theme(legend.position = c(.5,.67)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Quarterly Mortgage Originations by Type",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Purchase","Refinance")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-04-01")-(.1861*(today()-as.Date("2000-04-01"))), xmax = as.Date("2000-04-01")-(0.049*(today()-as.Date("2000-04-01"))), ymin = 0-(.3*1.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MORTAGE_ORIGINS_BREAKDOWN_STACKED_graph, "Mortgage Origins Stacked Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+UMICH <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/UMich_Survey.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  drop_na()
+  
+UMICH_Graph<- ggplot() + #plotting rent by A/B/C City Size
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=UMICH, aes(x=Date,y= Bad.Time.Br.Prices.are.High/100, color= "% Saying it's a Bad Time to Buy a Home b/c Prices are High"), size = 1.25) +
+  geom_line(data=UMICH, aes(x=Date,y= Bad.Time.br.Interest.Rates.High/100, color= "% Saying it's a Bad Time to Buy a Home b/c Interest Rates are High"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Americans are Souring on the Housing Market") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "People Currently Believe it is a Historically Terrible Time to Buy a Home") +
+  theme_apricitas + theme(legend.position = c(.565,.89), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "University of Michigan Consumer Survey" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1978-01-01")-(.1861*(today()-as.Date("1978-01-01"))), xmax = as.Date("1978-01-01")-(0.049*(today()-as.Date("1978-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UMICH_Graph, "UMich Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Construction Stacked Graph
+SF_CONSTRUCTION <- bls_api("CES2023611501", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Single-Family Construction") %>%
+  select(date,value,name)
+MF_CONSTRUCTION <- bls_api("CES2023611601", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Multi-Family Construction") %>%
+  select(date,value,name)
+HFS_CONSTRUCTION <- bls_api("CES2023611701", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "For-Sale Builders") %>%
+  select(date,value,name)
+REMODEL_CONSTRUCTION <- bls_api("CES2023611801", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Residential Remodelers") %>%
+  select(date,value,name)
+
+CONSTRUCTION_RBIND <- rbind(SF_CONSTRUCTION,MF_CONSTRUCTION,HFS_CONSTRUCTION,REMODEL_CONSTRUCTION)
+
+CONSTRUCTION_GROWTH_IND_graph <- ggplot(data = CONSTRUCTION_RBIND, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-125,-100,-75,-50,-25,0,25,50,75,100,125), limits = c(-125,125), expand = c(0,0)) +
+  ggtitle("The Shape of Construction Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "New Jobs Come From SF Construction and Remodelers Vulnerable to Higher Rates") +
+  theme_apricitas + theme(legend.position = c(.625,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Single-Family Construction","Residential Remodelers","Multi-Family Construction","For-Sale Builders")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -125-(.3*250), ymax = -125) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CONSTRUCTION_GROWTH_IND_graph, "Construction Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+RES_CONSTRUCTION <- bls_api("CES2023610001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(name = "Residential Construction") %>%
+  select(date,value,name) %>%
+  mutate(value = value-value[nrow(.)])
+  
+RES_TRADE_CONTRACTORS <- bls_api("CES2023800101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(name = "Residential Specialty Trade Contractors") %>%
+  select(date,value,name) %>%
+  mutate(value = value-value[nrow(.)])
+
+RES_LESSOR <- bls_api("CES5553111001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+RES_PROPERTY_MANAGER <- bls_api("CES5553131101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+RES_AGENTS <- bls_api("CES5553120001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+RES_APPRAISERS <- bls_api("CES5553132001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+RES_OTHER <- bls_api("CES5553139001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+REAL_ESTATE_RBIND <- rbind(RES_LESSOR,RES_PROPERTY_MANAGER,RES_AGENTS,RES_APPRAISERS,RES_OTHER) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  transmute(date, value = `CES5553111001`+`CES5553131101`+`CES5553120001`+`CES5553132001`+`CES5553139001`) %>%
+  mutate(name = "Property Managers, Real Estate Agents, Appraisers, Lessors, & Related") %>%
+  mutate(value = value-value[nrow(.)])
+
+CONSTRUCTION_MATERIALS_WHOLE <- bls_api("CES4142330001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+HOUSEHOLD_APPLIANCES_WHOLE <- bls_api("CES4142360001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+FURNITURE_WHOLE <- bls_api("CES4142320001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+HARDWARE_MATERIALS_WHOLE <- bls_api("CES4142370001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+CONSTRUCTION_MACHINERY_WHOLE <- bls_api("CES4142381001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+WHOLESALE_RBIND <- rbind(CONSTRUCTION_MATERIALS_WHOLE,HOUSEHOLD_APPLIANCES_WHOLE,FURNITURE_WHOLE,HARDWARE_MATERIALS_WHOLE,CONSTRUCTION_MACHINERY_WHOLE) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  transmute(date, value = `CES4142330001`+`CES4142360001`+`CES4142320001`+`CES4142370001`+`CES4142381001`) %>%
+  mutate(name = "Housing Related Merchant Wholesalers") %>%
+  mutate(value = value-value[nrow(.)])
+
+BUILDING_GARDEN_SUPPLIES_RETAIL <- bls_api("CES4244400001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+FURNITURE_HOME_ELECTRONICS_APPLIANCE_RETAIL <- bls_api("CES4244900001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+RETAIL_RBIND <- rbind(BUILDING_GARDEN_SUPPLIES_RETAIL,FURNITURE_HOME_ELECTRONICS_APPLIANCE_RETAIL) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  transmute(date, value = `CES4244400001`+`CES4244900001`) %>%
+  mutate(name = "Housing Related Retailers") %>%
+  mutate(value = value-value[nrow(.)])
+
+RE_CREDIT <- bls_api("CES5552229201", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+LOAN_BROKERS <- bls_api("CES5552231001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+FINANCE_RBIND <- rbind(RE_CREDIT,LOAN_BROKERS) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  transmute(date, value = `CES5552229201`+`CES5552231001`) %>%
+  mutate(name = "Housing Related Creditors and Loan Brokers") %>%
+  mutate(value = value-value[nrow(.)])
+
+ARCHITECTURE <- bls_api("CES6054130001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+INTERIOR_DESIGN <- bls_api("CES6054141001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+SERVICES_RBIND <- rbind(ARCHITECTURE,INTERIOR_DESIGN) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  transmute(date, value = `CES6054130001`+`CES6054141001`) %>%
+  mutate(name = "Architectural, Engineering, and Interior Design Services") %>%
+  mutate(value = value-value[nrow(.)])
+
+PLASTICS_PIPE_MANU <- bls_api("CES3232612001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+PAINT_MANU <- bls_api("CES3232550001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+FURNITURE_MANU <- bls_api("CES3133712001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+APPLIANCE_MANU <- bls_api("CES3133520001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+CONSTRUCTION_MACHINERY_MANU <- bls_api("CES3133312001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+ARCHITECTURAL_METALS_MANU <- bls_api("CES3133230001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+CEMENT_CONCRETE <- bls_api("CES3132730001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+WOOD_PRODUCT <- bls_api("CES3132100001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+LOGGING <- bls_api("CES1011330001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+SAND_GRAVEL_MINING <- bls_api("CES1021232101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+MANUFACTURING_RBIND <- rbind(PLASTICS_PIPE_MANU,PAINT_MANU,FURNITURE_MANU,APPLIANCE_MANU,CONSTRUCTION_MACHINERY_MANU,ARCHITECTURAL_METALS_MANU,CEMENT_CONCRETE,WOOD_PRODUCT,LOGGING,SAND_GRAVEL_MINING) %>%
+  select(date, value, seriesID) %>%
+  pivot_wider(names_from = seriesID) %>%
+  drop_na() %>%
+  rowwise() %>%
+  transmute(date, value = sum(c_across(where(is.numeric)))) %>%
+  mutate(name = "Housing Related Manufacturing, Mining, and Logging") %>%
+  ungroup() %>%
+  mutate(value = value-value[nrow(.)])
+
+RETAIL_WHOLESALE_RBIND <- rbind(WHOLESALE_RBIND,RETAIL_RBIND) %>%
+  select(date, value, name) %>%
+  pivot_wider(names_from = name) %>%
+  drop_na() %>%
+  rowwise() %>%
+  transmute(date, value = sum(c_across(where(is.numeric)))) %>%
+  mutate(name = "Housing Related Retailers and Wholesalers") %>%
+  ungroup() 
+
+HOUSING_RELATED_EMPLOYMENT_RBIND <- rbind(RES_CONSTRUCTION,RES_TRADE_CONTRACTORS,REAL_ESTATE_RBIND,RETAIL_WHOLESALE_RBIND,FINANCE_RBIND,SERVICES_RBIND,MANUFACTURING_RBIND) %>%
+  subset(date <= REAL_ESTATE_RBIND$date[1]) %>%
+  mutate(name = factor(name,levels = c("Housing Related Retailers and Wholesalers","Housing Related Creditors and Loan Brokers","Housing Related Manufacturing, Mining, and Logging","Property Managers, Real Estate Agents, Appraisers, Lessors, & Related","Residential Construction","Architectural, Engineering, and Interior Design Services","Residential Specialty Trade Contractors")))
+
+
+HOUSING_RELATED_EMPLOYMENT_IND_graph <- ggplot(data = HOUSING_RELATED_EMPLOYMENT_RBIND, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "k"), breaks = c(-1000,-750,-500,-250,0,250,500,750), limits = c(-1100,750), expand = c(0,0)) +
+  ggtitle("The Shape of Housing Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Housing Related Employment Has Stalled—Importantly in Credit, Construction, and Contractors") +
+  theme_apricitas + theme(legend.position = c(.625,.25), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Housing-Related Employment, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Residential Specialty Trade Contractors","Architectural, Engineering, and Interior Design Services","Residential Construction","Property Managers, Real Estate Agents, Appraisers, Lessors, & Related","Housing Related Manufacturing, Mining, and Logging","Housing Related Creditors and Loan Brokers","Housing Related Retailers and Wholesalers")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1100-(.3*1850), ymax = -1100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HOUSING_RELATED_EMPLOYMENT_IND_graph, "Housing Related Employment Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1684841233") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName, -StateName, - State, - Metro) %>%
+  #transpose() %>%
+  gather(key = "date", value = "value",-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  mutate(StateCodeFIPS = str_pad(StateCodeFIPS, 2, pad = 0)) %>%
+  mutate(MunicipalCodeFIPS = str_pad(MunicipalCodeFIPS , 3, pad = 0)) %>%
+  mutate(fips = paste0(StateCodeFIPS,MunicipalCodeFIPS)) %>%
+  group_by(fips) %>%
+  mutate(value = (value-lag(value,12))/lag(value,12)) %>%
+  subset(date == max(date))
+
+# Load the US county map data
+counties_map <- us_map(regions = "counties")
+
+# Ensure fips codes are character and not factors or numeric
+
+# Merge your data with the map data
+merged_df <- counties_map %>%
+  left_join(ZHVI_FIPS, by = c("fips" = "fips"))
+
+
+# Create the plot
+test_map <- ggplot(data = merged_df, mapping = aes(x = x, y = y, group = group, fill = value)) +
+  geom_polygon(color = "white") +
+  scale_fill_viridis_b(name = "Home Price\nGrowth") +
+  coord_map("albers", lat0 = 39, lat1 = 45) +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "white"),
+        legend.position = "bottom",
+        panel.grid = element_blank(),
+        legend.title.align = 0.5) +
+  labs(title = "Heatmap of Home Price Growth in U.S. Counties",
+       caption = "Source: Your Data Source") 
+
+ggsave(dpi = "retina",plot = test_map, "test map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = test2, "test map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 ggsave(dpi = "retina",plot = FIXED_INVESTMENT_Residential_Graph, "Fixed Investment Residential.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-
 ggsave(dpi = "retina",plot = REDFIN_LIST_PRICE_Graph, "Redfin Listing Prices.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = THIRTY_YEAR_FIXED_Graph, "Thirty Year Fixed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = STARTS_COMPLETIONS_Graph, "Starts Completions.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
