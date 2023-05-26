@@ -1,3 +1,9 @@
+pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+install.packages("cli")
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
+
 ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
@@ -74,12 +80,12 @@ GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "ECI * Prime Age Employment"), size = 1.25) +
   annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
   annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
-  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-03-01"), y =0.042, color = "white", size = 4) +
+  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-05-01"), y =0.042, color = "white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
   ggtitle("US Gross Labor Income Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, But Remains Elevated") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, with BEA Numbers Returning to Normal") +
   theme_apricitas + theme(legend.position = c(.33,.75)) +
   scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +

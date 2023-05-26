@@ -878,7 +878,8 @@ ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/
   mutate(fips = paste0(StateCodeFIPS,MunicipalCodeFIPS)) %>%
   group_by(fips) %>%
   mutate(value = (value-lag(value,12))/lag(value,12)) %>%
-  subset(date == max(date))
+  subset(date == max(date)) %>%
+  ungroup()
 
 # Load the US county map data
 counties_map <- us_map(regions = "counties")
@@ -889,6 +890,20 @@ counties_map <- us_map(regions = "counties")
 merged_df <- counties_map %>%
   left_join(ZHVI_FIPS, by = c("fips" = "fips"))
 
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+counties <- get_urbn_map("counties", sf = TRUE) %>%
+  mutate(fips = county_fips)
+
+counties <- left_join(counties, ZHVI_FIPS, by = "fips")
+
+ggplot() +
+  geom_sf(data = counties, aes(fill = value)) +
+  scale_fill_viridis_c(option = "plasma", na.value = "grey90") +
+  theme_minimal() 
+
+#DO SELECTED MAJOR METRO AREAS GRAPH TOO
 
 # Create the plot
 test_map <- ggplot(data = merged_df, mapping = aes(x = x, y = y, group = group, fill = value)) +
