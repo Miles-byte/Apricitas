@@ -1,4 +1,4 @@
-pacman::p_load(sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -702,16 +702,24 @@ REMODEL_CONSTRUCTION <- bls_api("CES2023611801", startyear = 2020, endyear = 202
 
 CONSTRUCTION_RBIND <- rbind(SF_CONSTRUCTION,MF_CONSTRUCTION,HFS_CONSTRUCTION,REMODEL_CONSTRUCTION)
 
+CONSTRUCTION_TOTAL <- bls_api("CES2023610001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Residential Construction Total") %>%
+  select(date,value,name)
+
 CONSTRUCTION_GROWTH_IND_graph <- ggplot(data = CONSTRUCTION_RBIND, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = CONSTRUCTION_TOTAL, aes(x=date, y = value, color = "Total Residential Construction Employment"), size = 2) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-125,-100,-75,-50,-25,0,25,50,75,100,125), limits = c(-125,125), expand = c(0,0)) +
   ggtitle("The Shape of Construction Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "New Jobs Come From SF Construction and Remodelers Vulnerable to Higher Rates") +
-  theme_apricitas + theme(legend.position = c(.625,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Single-Family Construction","Residential Remodelers","Multi-Family Construction","For-Sale Builders")) +
+  theme_apricitas + theme(legend.position = c(.625,.25)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-11,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Single-Family Construction","Residential Remodelers","Multi-Family Construction","For-Sale Builders")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -125-(.3*250), ymax = -125) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -884,12 +892,6 @@ ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/
 # Load the US county map data
 counties_map <- us_map(regions = "counties")
 
-# Ensure fips codes are character and not factors or numeric
-
-# Merge your data with the map data
-merged_df <- counties_map %>%
-  left_join(ZHVI_FIPS, by = c("fips" = "fips"))
-
 devtools::install_github("UrbanInstitute/urbnmapr")
 library(urbnmapr)
 
@@ -898,28 +900,1439 @@ counties <- get_urbn_map("counties", sf = TRUE) %>%
 
 counties <- left_join(counties, ZHVI_FIPS, by = "fips")
 
-ggplot() +
-  geom_sf(data = counties, aes(fill = value)) +
-  scale_fill_viridis_c(option = "plasma", na.value = "grey90") +
-  theme_minimal() 
+states <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
 
-#DO SELECTED MAJOR METRO AREAS GRAPH TOO
+ZHVI_Counties <- ggplot() +
+  geom_sf(data = counties %>% mutate(value = case_when(
+    value > 0.10 ~ 0.10,
+    value < -0.10 ~ -0.10,
+    TRUE ~ value
+  )), aes(fill = value)) +
+  geom_sf(data = counties, color = "black", fill = NA, lwd = 0.1) + # Black borders for counties
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  ggtitle("   Zillow Home Value Change Over The Last 12M") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
-# Create the plot
-test_map <- ggplot(data = merged_df, mapping = aes(x = x, y = y, group = group, fill = value)) +
-  geom_polygon(color = "white") +
-  scale_fill_viridis_b(name = "Home Price\nGrowth") +
-  coord_map("albers", lat0 = 39, lat1 = 45) +
-  theme_void() +
-  theme(plot.background = element_rect(fill = "white"),
-        legend.position = "bottom",
-        panel.grid = element_blank(),
-        legend.title.align = 0.5) +
-  labs(title = "Heatmap of Home Price Growth in U.S. Counties",
-       caption = "Source: Your Data Source") 
+ggsave(dpi = "retina",plot = ZHVI_Counties, "ZHVI_Counties.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-ggsave(dpi = "retina",plot = test_map, "test map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = test2, "test map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+#SELECTED MAJOR METRO AREAS GRAPH
+
+ZHVI_ZIP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1685429158") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName) %>%
+  #transpose() %>%
+  gather(key = "date", value = "value",-5,-4,-3,-2,-1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  mutate(ZIP = str_pad(RegionName, 5, pad = 0)) %>%
+  group_by(ZIP) %>%
+  mutate(value = (value-lag(value,12))/lag(value,12)) %>%
+  subset(date == max(date)) %>%
+  ungroup() %>%
+  mutate(value = case_when(
+    value > 0.10 ~ 0.10,
+    value < -0.10 ~ -0.10,
+    TRUE ~ value
+  ))
+
+options(tigris_use_sf = TRUE)
+options(tigris_use_cache = TRUE)
+
+ZIP <- zctas(year = 2020)
+ZIP_ZHVI_MERGE <- left_join(ZIP, ZHVI_ZIP, by = c("ZCTA5CE20" = "ZIP"))
+
+ZIP_NYC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "NY") %>%
+  subset(City == "New York")
+ZIP_NYC <- st_union(ZIP_NYC) %>%
+  st_cast("POLYGON") 
+ZIP_NYC <- nngeo::st_remove_holes(ZIP_NYC)
+
+
+NYC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("New York-Newark-Jersey City, NY-NJ-PA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("New York") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) + 
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_LA <- ZIP_ZHVI_MERGE %>%
+  subset(State == "CA") %>%
+  subset(City == "Los Angeles")
+ZIP_LA <- st_union(ZIP_LA) %>%
+  st_cast("POLYGON") 
+ZIP_LA <- nngeo::st_remove_holes(ZIP_LA)
+
+LA <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Los Angeles-Long Beach-Anaheim, CA","Riverside-San Bernardino-Ontario, CA") & ZCTA5CE20 != "90704" & ZCTA5CE20 !="93562"), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_LA, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Greater Los Angeles") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+  
+ZIP_DC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "DC")
+ZIP_DC <- st_union(ZIP_DC) %>%
+  st_cast("POLYGON") 
+ZIP_DC <- nngeo::st_remove_holes(ZIP_DC)
+
+DC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Washington-Arlington-Alexandria, DC-VA-MD-WV")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Washington DC") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_Chicago <- ZIP_ZHVI_MERGE %>%
+  subset(State == "IL") %>%
+  subset(City == "Chicago")
+ZIP_Chicago <- st_union(ZIP_Chicago) %>%
+  st_cast("POLYGON") 
+ZIP_Chicago <- nngeo::st_remove_holes(ZIP_Chicago)
+
+CHI <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Chicago-Naperville-Elgin, IL-IN-WI")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_Chicago, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Chicago") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_SF <- ZIP_ZHVI_MERGE %>%
+  subset(State == "CA") %>%
+  subset(City == "San Francisco")
+ZIP_SF <- st_union(ZIP_SF) %>%
+  st_cast("POLYGON") 
+ZIP_SF <- nngeo::st_remove_holes(ZIP_SF)
+
+SF <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Francisco-Oakland-Berkeley, CA","San Jose-Sunnyvale-Santa Clara, CA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_SF, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("San Francisco Bay Area") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_DFW <- ZIP_ZHVI_MERGE %>%
+  subset(State == "TX") %>%
+  subset(City == "Dallas")
+ZIP_DFW <- st_union(ZIP_DFW) %>%
+  st_cast("POLYGON") 
+ZIP_DFW <- nngeo::st_remove_holes(ZIP_DFW)
+
+DFW <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Dallas-Fort Worth-Arlington, TX")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DFW, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Dallas-Fort Worth") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_Boston <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MA") %>%
+  subset(City == "Boston")
+ZIP_Boston <- st_union(ZIP_Boston) %>%
+  st_cast("POLYGON") 
+ZIP_Boston <- nngeo::st_remove_holes(ZIP_Boston)
+
+
+BOS <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Boston-Cambridge-Newton, MA-NH")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Boston") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_HOU <- ZIP_ZHVI_MERGE %>%
+  subset(State == "TX") %>%
+  subset(City == "Houston")
+ZIP_HOU <- st_union(ZIP_HOU) %>%
+  st_cast("POLYGON") 
+ZIP_HOU <- nngeo::st_remove_holes(ZIP_HOU)
+
+HOU <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Houston-The Woodlands-Sugar Land, TX")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_HOU, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Houston") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_PHI <- ZIP_ZHVI_MERGE %>%
+  subset(State == "PA") %>%
+  subset(City == "Philadelphia")
+ZIP_PHI <- st_union(ZIP_PHI) %>%
+  st_cast("POLYGON") 
+ZIP_PHI <- nngeo::st_remove_holes(ZIP_PHI)
+
+PHI <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Philadelphia-Camden-Wilmington, PA-NJ-DE-MD")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_PHI, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Philadelphia") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_ATL <- ZIP_ZHVI_MERGE %>%
+  subset(State == "GA") %>%
+  subset(City == "Atlanta")
+ZIP_ATL <- st_union(ZIP_ATL) %>%
+  st_cast("POLYGON") 
+ZIP_ATL <- nngeo::st_remove_holes(ZIP_ATL)
+
+ATL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Atlanta-Sandy Springs-Alpharetta, GA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_ATL, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Atlanta") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_DEN <- ZIP_ZHVI_MERGE %>%
+  subset(State == "CO") %>%
+  subset(City == "Denver")
+ZIP_DEN <- st_union(ZIP_DEN) %>%
+  st_cast("POLYGON") 
+ZIP_DEN <- nngeo::st_remove_holes(ZIP_DEN)
+
+DEN <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Denver-Aurora-Lakewood, CO")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DEN, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Denver") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_MIA <- ZIP_ZHVI_MERGE %>%
+  subset(State == "FL") %>%
+  subset(City == "Miami")
+ZIP_MIA <- st_union(ZIP_MIA) %>%
+  st_cast("POLYGON") 
+ZIP_MIA <- nngeo::st_remove_holes(ZIP_MIA)
+
+MIA <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Miami-Fort Lauderdale-Pompano Beach, FL")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_MIA, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Miami") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_PHO <- ZIP_ZHVI_MERGE %>%
+  subset(State == "AZ") %>%
+  subset(City == "Phoenix")
+ZIP_PHO <- st_union(ZIP_PHO) %>%
+  st_cast("POLYGON") 
+ZIP_PHO <- nngeo::st_remove_holes(ZIP_PHO)
+
+PHO <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Phoenix-Mesa-Chandler, AZ")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_PHO, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Phoenix") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_DET <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MI") %>%
+  subset(City == "Detroit")
+ZIP_DET <- st_union(ZIP_DET) %>%
+  st_cast("POLYGON") 
+ZIP_DET <- nngeo::st_remove_holes(ZIP_DET)
+
+DET <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Detroit-Warren-Dearborn, MI")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DET, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Detroit") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_SEA <- ZIP_ZHVI_MERGE %>%
+  subset(State == "WA") %>%
+  subset(City == "Seattle")
+ZIP_SEA <- st_union(ZIP_SEA) %>%
+  st_cast("POLYGON") 
+ZIP_SEA <- nngeo::st_remove_holes(ZIP_SEA)
+
+SEA <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Seattle-Tacoma-Bellevue, WA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_SEA, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Seattle") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_MIN <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MN") %>%
+  subset(City == "Minneapolis")
+ZIP_MIN <- st_union(ZIP_MIN) %>%
+  st_cast("POLYGON") 
+ZIP_MIN <- nngeo::st_remove_holes(ZIP_MIN)
+
+
+MIN <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Minneapolis-St. Paul-Bloomington, MN-WI")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_MIN, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Minneapolis") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_VEGAS <- ZIP_ZHVI_MERGE %>%
+  subset(State == "NV") %>%
+  subset(City == "Las Vegas")
+ZIP_VEGAS <- st_union(ZIP_VEGAS) %>%
+  st_cast("POLYGON") 
+ZIP_VEGAS <- nngeo::st_remove_holes(ZIP_VEGAS)
+
+VEGAS <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Las Vegas-Henderson-Paradise, NV")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_VEGAS, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Las Vegas") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_TAMPA <- ZIP_ZHVI_MERGE %>%
+  subset(State == "FL") %>%
+  subset(City == "Tampa")
+ZIP_TAMPA <- st_union(ZIP_TAMPA) %>%
+  st_cast("POLYGON") 
+ZIP_TAMPA <- nngeo::st_remove_holes(ZIP_TAMPA)
+
+TAMPA <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Tampa-St. Petersburg-Clearwater, FL")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_TAMPA, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Tampa") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_SAN_DIEGO <- ZIP_ZHVI_MERGE %>%
+  subset(State == "CA") %>%
+  subset(City == "San Diego")
+ZIP_SAN_DIEGO <- st_union(ZIP_SAN_DIEGO) %>%
+  st_cast("POLYGON") 
+ZIP_SAN_DIEGO <- nngeo::st_remove_holes(ZIP_SAN_DIEGO)
+
+SAN_DIEGO <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Diego-Chula Vista-Carlsbad, CA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_SAN_DIEGO, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("San Diego") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_BALTIMORE <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MD") %>%
+  subset(City == "Baltimore")
+ZIP_BALTIMORE <- st_union(ZIP_BALTIMORE) %>%
+  st_cast("POLYGON") 
+ZIP_BALTIMORE <- nngeo::st_remove_holes(ZIP_BALTIMORE)
+
+BAL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Baltimore-Columbia-Towson, MD")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_BALTIMORE, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Baltimore") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_STL <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MO") %>%
+  subset(City == "Saint Louis")
+ZIP_STL <- st_union(ZIP_STL) %>%
+  st_cast("POLYGON") 
+ZIP_STL <- nngeo::st_remove_holes(ZIP_STL)
+
+STL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("St. Louis, MO-IL")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_STL, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("St. Louis") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_ORL <- ZIP_ZHVI_MERGE %>%
+  subset(State == "FL") %>%
+  subset(City == "Orlando")
+ZIP_ORL <- st_union(ZIP_ORL) %>%
+  st_cast("POLYGON") 
+ZIP_ORL <- nngeo::st_remove_holes(ZIP_ORL)
+
+ORL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Orlando-Kissimmee-Sanford, FL")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_ORL, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Orlando") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_CHAR <- ZIP_ZHVI_MERGE %>%
+  subset(State == "NC") %>%
+  subset(City == "Charlotte")
+ZIP_CHAR <- st_union(ZIP_CHAR) %>%
+  st_cast("POLYGON") 
+ZIP_CHAR <- nngeo::st_remove_holes(ZIP_CHAR)
+
+CHAR <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Charlotte-Concord-Gastonia, NC-SC")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_CHAR, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Charlotte") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_SAN_ANTONIO <- ZIP_ZHVI_MERGE %>%
+  subset(State == "TX") %>%
+  subset(City == "San Antonio")
+ZIP_SAN_ANTONIO <- st_union(ZIP_SAN_ANTONIO) %>%
+  st_cast("POLYGON") 
+ZIP_SAN_ANTONIO <- nngeo::st_remove_holes(ZIP_SAN_ANTONIO)
+
+SAN_ANTONIO <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Antonio-New Braunfels, TX")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_SAN_ANTONIO, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("San Antonio") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_POR <- ZIP_ZHVI_MERGE %>%
+  subset(State == "OR") %>%
+  subset(City == "Portland")
+ZIP_POR <- st_union(ZIP_POR) %>%
+  st_cast("POLYGON") 
+ZIP_POR <- nngeo::st_remove_holes(ZIP_POR)
+
+POR <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Portland-Vancouver-Hillsboro, OR-WA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_POR, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Portland") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_AUSTIN <- ZIP_ZHVI_MERGE %>%
+  subset(State == "TX") %>%
+  subset(City == "Austin")
+ZIP_AUSTIN <- st_union(ZIP_AUSTIN) %>%
+  st_cast("POLYGON") 
+ZIP_AUSTIN <- nngeo::st_remove_holes(ZIP_AUSTIN)
+
+AUSTIN <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Austin-Round Rock-Georgetown, TX")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_AUSTIN, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Austin") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_SAC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "CA") %>%
+  subset(City == "Sacramento")
+ZIP_SAC <- st_union(ZIP_SAC) %>%
+  st_cast("POLYGON") 
+ZIP_SAC <- nngeo::st_remove_holes(ZIP_SAC)
+
+SAC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Sacramento-Roseville-Folsom, CA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_SAC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Sacramento") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_PITT <- ZIP_ZHVI_MERGE %>%
+  subset(State == "PA") %>%
+  subset(City == "Pittsburgh")
+ZIP_PITT <- st_union(ZIP_PITT) %>%
+  st_cast("POLYGON") 
+ZIP_PITT <- nngeo::st_remove_holes(ZIP_PITT)
+
+PITT <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Pittsburgh, PA")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_PITT, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Pittsburgh") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+
+ZIP_CIN <- ZIP_ZHVI_MERGE %>%
+  subset(State == "OH") %>%
+  subset(City == "Cincinnati")
+ZIP_CIN <- st_union(ZIP_CIN) %>%
+  st_cast("POLYGON") 
+ZIP_CIN <- nngeo::st_remove_holes(ZIP_CIN)
+
+CIN <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Cincinnati, OH-KY-IN")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_CIN, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Cincinnati") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_KC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MO") %>%
+  subset(City == "Kansas City")
+ZIP_KC <- st_union(ZIP_KC) %>%
+  st_cast("POLYGON") 
+ZIP_KC <- nngeo::st_remove_holes(ZIP_KC)
+
+KC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Kansas City, MO-KS")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_KC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Kansas City") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_COL <- ZIP_ZHVI_MERGE %>%
+  subset(State == "OH") %>%
+  subset(City == "Columbus")
+ZIP_COL <- st_union(ZIP_COL) %>%
+  st_cast("POLYGON") 
+ZIP_COL <- nngeo::st_remove_holes(ZIP_COL)
+
+COL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Columbus, OH")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_COL, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Columbus") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ZIP_IND <- ZIP_ZHVI_MERGE %>%
+  subset(State == "IN") %>%
+  subset(City == "Indianapolis")
+ZIP_IND <- st_union(ZIP_IND) %>%
+  st_cast("POLYGON") 
+ZIP_IND <- nngeo::st_remove_holes(ZIP_IND)
+
+IND <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Indianapolis-Carmel-Anderson, IN")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_IND, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Indianapolis") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+MEGA <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Trenton-Princeton, NJ","Washington-Arlington-Alexandria, DC-VA-MD-WV","Baltimore-Columbia-Towson, MD","Philadelphia-Camden-Wilmington, PA-NJ-DE-MD","Boston-Cambridge-Newton, MA-NH","New York-Newark-Jersey City, NY-NJ-PA","New Haven-Milford, CT","Providence-Warwick, RI-MA","Bridgeport-Stamford-Norwalk, CT","Hartford-East Hartford-Middletown, CT","Worcester, MA-CT","Barnstable Town, MA","Norwich-New London, CT")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
+  geom_sf(data = ZIP_PHI, fill = NA, color = "black", lwd = 0.40) +
+  geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
+  geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("          Zillow 12M Home Price Growth in the Acela Corridor") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 24,hjust = 0.5))
+
+ggsave(dpi = "retina",plot = MEGA, "MEGA ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+DC_PLUS_BAL <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Washington-Arlington-Alexandria, DC-VA-MD-WV","Baltimore-Columbia-Towson, MD")), aes(fill = value, color = value))+
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
+  geom_sf(data = ZIP_BALTIMORE, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("DC & Baltimore") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+
+
+
+ZIP_ZHVI_ARRANGE <- ggarrange(NYC,LA,SF,CHI,DFW,HOU,DC,PHI,ATL,  ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+ZIP_ZHVI_ARRANGE <- annotate_figure(ZIP_ZHVI_ARRANGE, 
+                                  top = text_grob("Zillow 12M Home Price Growth in Major Metros
+                                                  ", face = "bold", size = 28, color = "white")) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = ZIP_ZHVI_ARRANGE, "ZIP ZHVI ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#WESTERN
+WESTERN_ARRANGE <- ggarrange(LA,SF,PHO,SEA,SAN_DIEGO,DEN,POR,SAC,VEGAS, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+WESTERN_ARRANGE <- annotate_figure(WESTERN_ARRANGE, 
+                                    top = text_grob("Zillow 12M Home Price Growth in Western Metros
+                                                  ", face = "bold", size = 27, color = "white")) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = WESTERN_ARRANGE, "WEST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#SOUTHERN
+SOUTHERN_ARRANGE <- ggarrange(DFW,HOU,ATL,MIA,TAMPA,ORL,CHAR,SAN_ANTONIO,AUSTIN, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+SOUTHERN_ARRANGE <- annotate_figure(SOUTHERN_ARRANGE, 
+                                   top = text_grob("Zillow 12M Home Price Growth in Southern Metros
+                                                  ", face = "bold", size = 26, color = "white")) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = SOUTHERN_ARRANGE, "SOUTH ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#MIDWEST
+MIDWEST_ARRANGE <- ggarrange(CHI,DET,MIN,STL,PITT,CIN,KC,COL,IND, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+MIDWEST_ARRANGE <- annotate_figure(MIDWEST_ARRANGE, 
+                                    top = text_grob("Zillow 12M Home Price Growth in Midwestern Metros
+                                                  ", face = "bold", size = 26, color = "white")) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = MIDWEST_ARRANGE, "MIDWEST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+NORTHEAST_ARRANGE <- ggarrange(NYC,DC_PLUS_BAL,PHI,BOS, ncol = 2, nrow = 2, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+NORTHEAST_ARRANGE <- annotate_figure(NORTHEAST_ARRANGE, 
+                                   top = text_grob("Zillow 12M Home Price Growth in Northeastern Metros
+                                                  ", face = "bold", size = 24, color = "white")) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = NORTHEAST_ARRANGE, "NORTHEAST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+
+states_boundaries <- states(class = "sf")
+
+DONUT_DC_STATES <- subset(states_boundaries, STUSPS %in% c("DC", "MD", "VA"))
+
+DONUT_DC_STATES <- st_transform(DONUT_DC_STATES, st_crs(ZIP_ZHVI_MERGE))
+
+ZIP_DC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "DC")
+ZIP_DC <- st_union(ZIP_DC) %>%
+  st_cast("POLYGON") 
+ZIP_DC <- nngeo::st_remove_holes(ZIP_DC)
+
+DONUT_DC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, State %in% c("DC","MD","VA") & CountyName %in% c("District of Columbia","Arlington County","Prince Georges County","Fairfax County","Loudoun County","Prince William County","Charles County","Manassas Park City","Manassas City","Fairfax County","Falls Church City","Alexandria City","Howard County","Anne Arundel County")|
+                          (State == "MD" & CountyName == "Montgomery County")), aes(fill = value, color = value))+
+  #geom_sf(data = DONUT_DC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Washington DC") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 16,hjust = 0.5))
+
+
+
+DONUT_NYC_STATES <- subset(states_boundaries, STUSPS %in% c("NY", "NJ", "CT"))
+
+DONUT_NYC_STATES <- st_transform(DONUT_NYC_STATES, st_crs(ZIP_ZHVI_MERGE))
+
+ZIP_NYC <- ZIP_ZHVI_MERGE %>%
+  subset(State == "NY") %>%
+  subset(City == "New York")
+
+ZIP_NYC <- st_union(ZIP_NYC) %>%
+  st_cast("POLYGON") 
+ZIP_NYC <- nngeo::st_remove_holes(ZIP_NYC)
+
+  
+DONUT_NYC <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, 
+                        (State %in% c("NY","NJ","CT") & CountyName %in% c("New York County","Kings County","Queens County","Richmond County","Bronx County","Nassau County","Suffolk County","Westchester County","Rockland County","Putnam County","Bergen County","Hudson County","Passaic County","Union County","Middlesex County","Monmouth County","Somerset County","Morris County","Fairfield County","New Haven County")) 
+                        | (State == "NJ" & CountyName == "Essex County")), 
+          aes(fill = value, color = value)) +#geom_sf(data = DONUT_DC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  #geom_sf(data = DONUT_NYC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("New York") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 16,hjust = 0.5))
+
+
+DONUT_CHI_STATES <- subset(states_boundaries, STUSPS %in% c("IL","IN","WI"))
+
+DONUT_CHI_STATES <- st_transform(DONUT_CHI_STATES, st_crs(ZIP_ZHVI_MERGE))
+
+ZIP_Chicago <- ZIP_ZHVI_MERGE %>%
+  subset(State == "IL") %>%
+  subset(City == "Chicago")
+
+ZIP_Chicago <- st_union(ZIP_Chicago) %>%
+  st_cast("POLYGON") 
+ZIP_Chicago <- nngeo::st_remove_holes(ZIP_Chicago)
+
+
+DONUT_CHI <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, State %in% c("IL","IN","WI") & CountyName %in% c("Cook County","Lake County","DuPage County","Will County","Lake County","Kenosha County")), 
+                        aes(fill = value, color = value)) +#geom_sf(data = DONUT_DC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  #geom_sf(data = DONUT_CHI_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  geom_sf(data = ZIP_Chicago, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                       low = "#EE6055",
+                       space = "Lab",
+                       na.value = "grey50",
+                       guide = NULL,
+                       aesthetics = "color",
+                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                       limits = c(-0.10,0.10)) +
+  ggtitle("Chicago") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 16,hjust = 0.5))
+
+ZIP_Boston <- ZIP_ZHVI_MERGE %>%
+  subset(State == "MA") %>%
+  subset(City == "Boston")
+
+ZIP_Boston <- st_union(ZIP_Boston) %>%
+  st_cast("POLYGON") 
+ZIP_Boston <- nngeo::st_remove_holes(ZIP_Boston)
+
+DONUT_BOS <- ggplot() +
+  geom_sf(data = subset(ZIP_ZHVI_MERGE, State %in% c("MA") & CountyName %in% c("Suffolk County","Essex County","Middlesex County","Norfolk County","Plymouth County","Bristol County")), 
+          aes(fill = value, color = value)) +
+  geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
+  coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  scale_color_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = NULL,
+                      aesthetics = "color",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  ggtitle("Boston") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 16,hjust = 0.5))
+
+
+ggsave(dpi = "retina",plot = DONUT_BOS, "DONUT BOS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+DONUT_ZHVI_ARRANGE <- ggarrange(DONUT_NYC,DONUT_CHI,DONUT_BOS,DONUT_DC,  ncol = 2, nrow = 2, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+DONUT_ZHVI_ARRANGE <- annotate_figure(DONUT_ZHVI_ARRANGE,top = text_grob("The 'Donut Effect' is Hitting Many Cities—Falls in Downtown Home Prices as Suburbs Hold Up Better`
+                                                  ", face = "bold", size = 10, color = "white")) + bgcolor("#252A32") + border("#252A32")
+DONUT_ZHVI_ARRANGE <- annotate_figure(DONUT_ZHVI_ARRANGE, 
+                                    top = text_grob("Zillow 12M Home Price Growth", face = "bold", size = 28, color = "white")) + bgcolor("#252A32") + border("#252A32")
+
+ggsave(dpi = "retina",plot = DONUT_ZHVI_ARRANGE, "DONUT ZHVI ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 ggsave(dpi = "retina",plot = FIXED_INVESTMENT_Residential_Graph, "Fixed Investment Residential.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

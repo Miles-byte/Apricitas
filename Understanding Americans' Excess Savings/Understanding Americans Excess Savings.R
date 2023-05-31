@@ -1,9 +1,9 @@
 pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
-DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2018-01-01")) #downloading Disposable Personal Income data
-POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
-DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(DSPI$date, n=1), "months")), trend = 16622.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(DSPI$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
-POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(POUT$date, n=1), "months")), trend = 15328.8*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(POUT$date, n=1), by = 'month')) - 1)))
+DSPI <- fredr(series_id = "DSPI",observation_start = as.Date("2017-01-01")) #downloading Disposable Personal Income data
+POUT <- fredr(series_id = "A068RC1",observation_start = as.Date("2017-01-01")) #downloading Personal Outlays
+DSPITrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(DSPI$date, n=1), "months")), trend = DSPI$value[37]*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(DSPI$date, n=1), by = 'month')) - 1))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+POUTTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), tail(POUT$date, n=1), "months")), trend = POUT$value[37]*1.003274^(0:(length(seq(from = as.Date("2020-01-01"), to = tail(POUT$date, n=1), by = 'month')) - 1)))
 
 Corporate_Savings <- fredr(series_id = "B057RC1Q027SBEA",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
 PSAVert <- fredr(series_id = "PSAVert",observation_start = as.Date("2018-01-01")) #downloading Personal Outlays
@@ -35,7 +35,7 @@ CUMSUMPOUTmerge$trend <- cumsum(CUMSUMPOUTmerge$trend/12)
 
 Taxes <- fredr(series_id = "W055RC1",observation_start = as.Date("2018-01-01")) 
 #3.50% annual growth rate trend
-TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 2251.3*1.002871^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TaxesTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = Taxes$value[25]*1.002871^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Taxesmerge <- merge(Taxes, TaxesTrend, by = "date")
 Taxesmerge$value <- cumsum(Taxesmerge$value/12)
 Taxesmerge$trend <- cumsum(Taxesmerge$trend/12)
@@ -43,7 +43,7 @@ Taxesmerge <- data.frame(date = Taxesmerge$date, savings = Taxesmerge$value-Taxe
 
 GovInsurance <- fredr(series_id = "A061RC1",observation_start = as.Date("2018-01-01"))
 #4.50% annual growth rate trend
-GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 1474.9*1.003675^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+GovInsuranceTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = GovInsurance$value[25]*1.003675^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 GovInsurancemerge <- merge(GovInsurance, GovInsuranceTrend, by = "date")
 GovInsurancemerge$value <- cumsum(GovInsurancemerge$value/12)
 GovInsurancemerge$trend <- cumsum(GovInsurancemerge$trend/12)
@@ -53,7 +53,7 @@ TaxesGovInsurancemerge <- data.frame(date = GovInsurancemerge$date, savings = Ta
 
 Compensation <- fredr(series_id = "W209RC1",observation_start = as.Date("2018-01-01"))
 #4.4% annual growth rate trend
-CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 11790.9*1.003595^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+CompensationTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = Compensation$value[25]*1.003595^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Compensationmerge <- merge(Compensation, CompensationTrend, by = "date")
 Compensationmerge$value <- cumsum(Compensationmerge$value/12)
 Compensationmerge$trend <- cumsum(Compensationmerge$trend/12)
@@ -62,7 +62,7 @@ Compensationmerge <- data.frame(date = Compensationmerge$date, savings = Compens
 
 Proprietor <- fredr(series_id = "A041RC1",observation_start = as.Date("2018-01-01"))
 #2.6% annual growth rate trend
-ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 1656.3*1.002141^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+ProprietorTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = Proprietor$value[25]*1.002141^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Proprietormerge <- merge(Proprietor, ProprietorTrend, by = "date")
 Proprietormerge$value <- cumsum(Proprietormerge$value/12)
 Proprietormerge$trend <- cumsum(Proprietormerge$trend/12)
@@ -70,7 +70,7 @@ Proprietormerge <- data.frame(date = Proprietormerge$date, savings = Proprietorm
 
 Int_Dividend <- fredr(series_id = "PIROA",observation_start = as.Date("2018-01-01"))
 #4.3% annual growth rate trend
-Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 2984.6*1.003515^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+Int_DividendTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = Int_Dividend$value[25]*1.003515^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 Int_Dividendmerge <- merge(Int_Dividend, Int_DividendTrend, by = "date")
 Int_Dividendmerge$value <- cumsum(Int_Dividendmerge$value/12)
 Int_Dividendmerge$trend <- cumsum(Int_Dividendmerge$trend/12)
@@ -81,7 +81,7 @@ ProprietorInt_Dividendmerge <- data.frame(date = GovInsurancemerge$date, savings
 
 TransferReceived <- fredr(series_id = "PCTR",observation_start = as.Date("2018-01-01"))
 #4.00% annual growth rate trend
-TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 3208.8*1.003274^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferReceivedTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = TransferReceived$value[25]*1.003274^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferReceivedmerge <- merge(TransferReceived, TransferReceivedTrend, by = "date")
 TransferReceivedmerge$value <- cumsum(TransferReceivedmerge$value/12)
 TransferReceivedmerge$trend <- cumsum(TransferReceivedmerge$trend/12)
@@ -90,7 +90,7 @@ TransferReceivedmerge <- data.frame(date = TransferReceivedmerge$date, savings =
 
 PCE <- fredr(series_id = "PCE",observation_start = as.Date("2018-01-01")) 
 #4.2% annual growth rate trend
-PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 14769.9*1.003434^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+PCETrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = PCE$value[25]*1.003434^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 PCEmerge <- merge(PCE, PCETrend, by = "date")
 PCEmerge$value <- cumsum(PCEmerge$value/12)
 PCEmerge$trend <- cumsum(PCEmerge$trend/12)
@@ -99,7 +99,7 @@ PCEmerge <- data.frame(date = PCEmerge$date, savings = PCEmerge$value-PCEmerge$t
 
 InterestPaid <- fredr(series_id = "B069RC1",observation_start = as.Date("2018-01-01"))
 #6.3% annual growth rate trend
-InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 346.3*1.005104^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+InterestPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = InterestPaid$value[25]*1.005104^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 InterestPaidmerge <- merge(InterestPaid, InterestPaidTrend, by = "date")
 InterestPaidmerge$value <- cumsum(InterestPaidmerge$value/12)
 InterestPaidmerge$trend <- cumsum(InterestPaidmerge$trend/12)
@@ -108,7 +108,7 @@ InterestPaidmerge <- data.frame(date = InterestPaidmerge$date, savings = Interes
 
 TransferPaid <- fredr(series_id = "W211RC1",observation_start = as.Date("2018-01-01")) 
 #3.4% annual growth rate trend
-TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = 212.6*1.002790^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
+TransferPaidTrend <- data.frame(date = c(seq(as.Date("2020-01-01"), max(Taxes$date), "months")), trend = TransferPaid$value[25]*1.002790^(0:(nrow(Taxes)-25))) #trend variable is just compounding income/outlays monthly at a 4% annual rate 
 TransferPaidmerge <- merge(TransferPaid, TransferPaidTrend, by = "date")
 TransferPaidmerge$value <- cumsum(TransferPaidmerge$value/12)
 TransferPaidmerge$trend <- cumsum(TransferPaidmerge$trend/12)
@@ -158,14 +158,14 @@ Savings_Component_Net_Fiscal_Graph <- ggplot(data = Savings_Component_Net_Fiscal
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   geom_line(data = CUMSUMDSPImerge, aes(x=date, y = total/1000, color = "Total Excess Savings"), size = 2) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1,3.7), breaks = c(-2,-1,0,1,2,3,4), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(-1.5,3.7), breaks = c(-2,-1,0,1,2,3,4), expand = c(0,0)) +
   ylab("Contribution to Excess Savings, Trillions of Dollars") +
   ggtitle("Cumulative Contribution to Excess Savings") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Transfers and Spending Cutbacks Buoyed Savings Despite Lower Labor and Capital Income") +
-  theme_apricitas + theme(legend.position = c(.22,.80), legend.spacing.y = unit(-0.2, "cm")) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Higher Spending and Lower Net Government Transfers Have Reduced 'Excess' Savings") +
+  theme_apricitas + theme(plot.title = element_text(size = 26), legend.position = c(.215,.82), legend.spacing.y = unit(-0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#EE6055","RED"), breaks = c("Transfer_Net_Taxes","PCE","Compensation","ProprietorInt_Dividend","InterestPaid"), labels = c("Government Transfers Net of Taxes","Personal Consumption Expenditures","Labor Income","Capital/Proprietors' Income","Interest Payments")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -2-(.3*6), ymax = -2) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1.5-(.3*4.7), ymax = -1.5) +
   coord_cartesian(clip = "off")
 
 
@@ -178,13 +178,13 @@ Personal_Income_Graph <- ggplot() + #plotting personal income and outlays agains
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(12.5,22.5), breaks = c(12.5,15,17.5,20,22.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
-  ggtitle("The Bottom Line") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Income is on Trend, But Consumers Are Spending Down Their Excess Savings") +
-  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  ggtitle("Excess Saving and Spending") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Personal Spending is Well Above Trend as Consumers Spend Down Their Excess Savings") +
+  theme_apricitas + theme(legend.position = c(.30,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"),guide=guide_legend(override.aes=list(linetype=c(1,1,2,2), lwd = c(1.25,1.25,.75,.75)))) +
   scale_fill_manual(name = NULL, values = c("#EE6055","#A7ACD9")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 12.5-(.3*10), ymax = 12.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 12.5-(.3*10), ymax = 12.5) +
   coord_cartesian(clip = "off")
 
 
@@ -201,15 +201,34 @@ Cumulative_Savings_Graph <- ggplot() + #plotting personal income and outlays aga
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1.5-(.3*3.5), ymax = -1.5) +
   coord_cartesian(clip = "off")
 
+PCE <- fredr("PCEPI", observation_start = as.Date("2020-01-01"))
+
+CUMSUMDSPImerge_adjusted <- merge(PCE,CUMSUMDSPImerge, by = "date") %>%
+  select(date, value.x, total) %>%
+  mutate(inf_adjusted = (total/(value.x/value.x[1])))
+
 Total_Excess_Savings_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = CUMSUMDSPImerge, aes(x = date, y = total/1000, color = "Estimated 'Excess' Savings"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.5), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
+  ylab("Trillions of Dollars") +
+  ggtitle("Americans are Spending 'Excess' Savings") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $1.5 Trillion as Americans Spend More Money") +
+  theme_apricitas + theme(legend.position = c(.20,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*2.5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+Total_Excess_Savings_Inf_Adjusted_Graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  geom_line(data = CUMSUMDSPImerge_adjusted, aes(x = date, y = inf_adjusted/1000, color = "Adjusted for Inflation"), size = 1.25) +
   geom_line(data = CUMSUMDSPImerge, aes(x = date, y = total/1000, color = "Estimated 'Excess' Savings"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.5),limits = c(0,2.75), breaks = c(0.5,1,1.5,2,2.5), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
-  ggtitle("Americans are Spending Down Their Excess Savings") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $1 Trillion as Americans Spend More Money") +
-  theme_apricitas + theme(legend.position = c(.20,.90)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  ggtitle("Americans are Spending 'Excess' Savings") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Excess Savings are down Nearly $1.5 Trillion as Americans Spend More Money") +
+  theme_apricitas + theme(legend.position = c(.50,.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E"), breaks = c("Estimated 'Excess' Savings","Adjusted for Inflation")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*2.75), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -230,11 +249,11 @@ PSAVert_Graph <- ggplot() + #plotting personal income and outlays against income
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.40), breaks = c(0,0.1,.2,.3,.4), expand = c(0,0)) +
   ylab("Personal Saving Rate, %") +
-  ggtitle("A Penny Saved...") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Americans' Saving Rate Jumped During the Pandemic") +
+  ggtitle("Americans' Saving Rate Remains Low") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Americans' Saving Rate Jumped During the Early Pandemic But Has Now Declined to Low Levels") +
   theme_apricitas + theme(legend.position = c(.40,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1440), xmax = as.Date("2018-01-01")-(0.049*1440), ymin = 0-(.3*.40), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.40), ymax = 0) +
   coord_cartesian(clip = "off")
 
 DFAsubset15 <- subset(DFA, Date > as.Date("2015-7-01"))
@@ -302,6 +321,7 @@ DFAconsumercredit_Graph <- ggplot() + #plotting personal income and outlays agai
 SHED_2020 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202020.csv")
 SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
 SHED_2021 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202021.csv")
+SHED_2022 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202022.csv")
 
 
 SHED_2019$ppincimp <- gsub("Less than \\$5,000","<$10k",SHED_2019$ppincimp)
@@ -349,14 +369,27 @@ SHED_2020$ppincimp <- gsub("\\$200,000 to \\$249,999","$150k+",SHED_2020$ppincim
 SHED_2020$ppincimp <- gsub("\\$250,000 or more","$150k+",SHED_2020$ppincimp)
 
 
-SHED_2019 <- select(SHED_2019, ppincimp, EF1, weight)
-SHED_2020 <- select(SHED_2020, ppincimp, EF1, weight)
+#SHED_2019 <- select(SHED_2019, ppincimp, EF1, weight)
+#SHED_2020 <- select(SHED_2020, ppincimp, EF1, weight)
+
+Emergency_Expenses22 <- crosstab(df = SHED_2022, x = ppinc7, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
 
 Emergency_Expenses21 <- crosstab(df = SHED_2021, x = ppinc7, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
 
 Emergency_Expenses20 <- crosstab(df = SHED_2020, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
 
 Emergency_Expenses19 <- crosstab(df = SHED_2019, x = ppincimp, y = EF1, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+levels(Emergency_Expenses22$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                            "$10k-$25k" = "$10,000 to $24,999",
+                                            "$25k-$50k" = "$25,000 to $49,999",
+                                            "$50k-$75k" = "$50,000 to $74,999",
+                                            "$75k-$100k" = "$75,000 to $99,999",
+                                            "$100k-$150k" = "$100,000 to $149,999",
+                                            "$150k+" = "$150,000 or more")
+
+
+levels(Emergency_Expenses22$EF1) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
 
 
 levels(Emergency_Expenses21$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
@@ -427,6 +460,8 @@ Emergency_Expenses_2021_Graph <- ggplot(Emergency_Expenses21, aes(x = ppinc7,pct
 Emergency_Expenses19 <- subset(Emergency_Expenses19, EF1 == "Yes")
 Emergency_Expenses20 <- subset(Emergency_Expenses20, EF1 == "Yes")
 Emergency_Expenses21 <- subset(Emergency_Expenses21, EF1 == "Yes")
+Emergency_Expenses22 <- subset(Emergency_Expenses22, EF1 == "Yes")
+
 
 Merge1920 <- merge(Emergency_Expenses19,Emergency_Expenses20, by = "ppincimp")
 Merge1920 <- select(Merge1920, c(ppincimp, pct.x, pct.y))
@@ -435,8 +470,14 @@ colnames(Merge1920) <- c("ppincimp", "2019", "2020")
 Merge192021 <- merge(Merge1920,Emergency_Expenses21, by = "ppincimp")
 Merge192021 <- select(Merge192021, c(ppincimp, "2019", "2020", pct))
 colnames(Merge192021) <- c("ppincimp", "2019", "2020", "2021")
+colnames(Emergency_Expenses22) <- c("ppincimp", "EF1", "pct", "n")
+Merge19202122 <- merge(Merge192021,Emergency_Expenses22, by = "ppincimp")
+Merge19202122 <- select(Merge19202122, c(ppincimp, "2019","2020","2021", pct))
+colnames(Merge19202122) <- c("ppincimp", "2019", "2020", "2021","2022")
 
 Merge192021 <- pivot_longer(Merge192021, cols = c("2019","2020","2021"), names_to = "Year")
+
+Merge19202122 <- pivot_longer(Merge19202122, cols = c("2019","2020","2021","2022"), names_to = "Year")
 
 Emergency_Expenses_Merge_192021 <- ggplot(data = Merge192021, aes(x = ppincimp, y = value/100, fill = Year)) +
   geom_bar(stat = "identity", position = position_dodge(), color = NA) +
@@ -446,6 +487,18 @@ Emergency_Expenses_Merge_192021 <- ggplot(data = Merge192021, aes(x = ppincimp, 
   ggtitle("Share of Households With a 3 Month Emergency Fund") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Aggregate Savings Have Improved Financial Security-Marginally") +
   theme_apricitas + theme(legend.position = c(.20,.60), plot.title = element_text(size = 20, color = "white")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+Emergency_Expenses_Merge_19202122 <- ggplot(data = Merge19202122, aes(x = ppincimp, y = value/100, fill = Year)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percentage") +
+  ggtitle("% With 3 Month Emergency Fund, By Household Income") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Much of the Financial Cushions Built Up in the Early Pandemic Were Spent Down in 2022") +
+  theme_apricitas + theme(legend.position = c(.20,.60), plot.title = element_text(size = 21, color = "white")) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -553,7 +606,240 @@ PCE3MOGrowth <- ggplot() + #plotting personal income and outlays against income 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -.2-(.3*.42), ymax = -.2) +
   coord_cartesian(clip = "off")
 
+
+
+SAVE_LESS <- crosstab(df = SHED_2022, x = ppinc7, y = INF3_c, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+
+levels(SAVE_LESS$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                            "$10k-$25k" = "$10,000 to $24,999",
+                                            "$25k-$50k" = "$25,000 to $49,999",
+                                            "$50k-$75k" = "$50,000 to $74,999",
+                                            "$75k-$100k" = "$75,000 to $99,999",
+                                            "$100k-$150k" = "$100,000 to $149,999",
+                                            "$150k+" = "$150,000 or more")
+
+
+levels(SAVE_LESS$INF3_c) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
+
+
+BORROW_MORE <- crosstab(df = SHED_2022, x = ppinc7, y = INF3_d, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+
+levels(BORROW_MORE$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                 "$10k-$25k" = "$10,000 to $24,999",
+                                 "$25k-$50k" = "$25,000 to $49,999",
+                                 "$50k-$75k" = "$50,000 to $74,999",
+                                 "$75k-$100k" = "$75,000 to $99,999",
+                                 "$100k-$150k" = "$100,000 to $149,999",
+                                 "$150k+" = "$150,000 or more")
+
+
+levels(BORROW_MORE$INF3_d) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
+
+SAVE_LESS <- SAVE_LESS %>%
+  subset(INF3_c == "Yes")
+
+BORROW_MORE <- BORROW_MORE %>%
+  subset(INF3_d == "Yes")
+
+SAVE_BORROW <- merge(SAVE_LESS,BORROW_MORE, by = "ppinc7") %>%
+  transmute(ppinc7, `Save less` = pct.x, `Borrow more` = pct.y) %>%
+  pivot_longer(cols = c(`Save less`,`Borrow more`)) %>%
+  mutate(name = factor(name,levels = list("Save less","Borrow more")))
+
+CONSUME_LESS <- crosstab(df = SHED_2022, x = ppinc7, y = INF3_b, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+
+levels(CONSUME_LESS$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                   "$10k-$25k" = "$10,000 to $24,999",
+                                   "$25k-$50k" = "$25,000 to $49,999",
+                                   "$50k-$75k" = "$50,000 to $74,999",
+                                   "$75k-$100k" = "$75,000 to $99,999",
+                                   "$100k-$150k" = "$100,000 to $149,999",
+                                   "$150k+" = "$150,000 or more")
+
+
+levels(CONSUME_LESS$INF3_b) <- list("No" = "No","Yes"="Yes") #renaming and reordering the answers
+
+CONSUME_LESS <- CONSUME_LESS %>%
+  subset(INF3_b == "Yes")
+
+SAVE_BORROW <- pivot_wider(SAVE_BORROW)
+
+SAVE_BORROW_CONSUME <- merge(SAVE_BORROW,CONSUME_LESS, by = "ppinc7") %>%
+  transmute(ppinc7, `Save less`, `Borrow more`, `Consume less` = pct) %>%
+  pivot_longer(cols = c(`Save less`,`Borrow more`,`Consume less`)) %>%
+  mutate(name = factor(name,levels = list("Consume less","Save less","Borrow more")))
+
+
+SAVE_BORROW__CONSUME_2022 <- ggplot(data = SAVE_BORROW_CONSUME, aes(x = ppinc7, y = value/100, fill = name)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percentage") +
+  ggtitle("Response to Recent Inflation by Household Income") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Much of the Financial Cushions Built Up in the Early Pandemic Were Spent Down in 2022") +
+  theme_apricitas + theme(legend.position = c(.20,.85), plot.title = element_text(size = 21, color = "white")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC"), breaks = c("Consume less","Save less","Borrow more")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+BETTER_WORSE_2022 <- data.frame(date = seq.Date(from = as.Date("2014-01-01"), to = as.Date("2022-01-01"), by = "1 year"), Better = c(29,27,27,33,31,32,25,25,19), Worse = c(21,19,17,15,13,14,24,20,35))
+
+BETTER_WORSE_2022_graph <- ggplot() + #plotting personal income and outlays against income and outlays 4% pre-covid trendlines
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = BETTER_WORSE_2022, aes(x = date, y = Better/100, color = "Better Off"), size = 1.25) +
+  geom_line(data = BETTER_WORSE_2022, aes(x = date, y = Worse/100, color = "Worse Off"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.40), breaks = c(0,.1,.2,.3,.4), expand = c(0,0)) +
+  ylab("Percent Growth") +
+  ggtitle("Financial Situation Compared to Prior 12M") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "More Americans Now Say Their Financial Situation Has Deteriorated Than Say it's Improved") +
+  theme_apricitas + theme(legend.position = c(.45,.68)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-365-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-365-as.Date("2014-01-01"))), ymin = 0-(.3*.40), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+SPENDING_LESS_INCOME <- data.frame(date = seq.Date(from = as.Date("2017-01-01"), to = as.Date("2022-01-01"), by = "1 year"), pct = c(50,51,52,55,55,49))
+
+
+Doing_Well_22 <- crosstab(df = SHED_2022, x = ppinc7, y = B2, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+Doing_Well_21 <- crosstab(df = SHED_2021, x = ppinc7, y = B2, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+Doing_Well_20 <- crosstab(df = SHED_2020, x = ppincimp, y = B2, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+Doing_Well_19 <- crosstab(df = SHED_2019, x = ppincimp, y = B2, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+levels(Doing_Well_22$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                            "$10k-$25k" = "$10,000 to $24,999",
+                                            "$25k-$50k" = "$25,000 to $49,999",
+                                            "$50k-$75k" = "$50,000 to $74,999",
+                                            "$75k-$100k" = "$75,000 to $99,999",
+                                            "$100k-$150k" = "$100,000 to $149,999",
+                                            "$150k+" = "$150,000 or more")
+
+levels(Doing_Well_21$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                            "$10k-$25k" = "$10,000 to $24,999",
+                                            "$25k-$50k" = "$25,000 to $49,999",
+                                            "$50k-$75k" = "$50,000 to $74,999",
+                                            "$75k-$100k" = "$75,000 to $99,999",
+                                            "$100k-$150k" = "$100,000 to $149,999",
+                                            "$150k+" = "$150,000 or more")
+
+levels(Doing_Well_20$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                               "$10k-$25k"="$10k-$25k",
+                                               "$25k-$50k"="$25k-$50k",
+                                               "$50k-$75k"="$50k-$75k",
+                                               "$75k-$100k"="$75k-$100k",
+                                               "$100k-$150k"="$100k-$150k",
+                                               "$150k+"="$150k+")
+
+levels(Doing_Well_19$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                               "$10k-$25k"="$10k-$25k",
+                                               "$25k-$50k"="$25k-$50k",
+                                               "$50k-$75k"="$50k-$75k",
+                                               "$75k-$100k"="$75k-$100k",
+                                               "$100k-$150k"="$100k-$150k",
+                                               "$150k+"="$150k+")
+
+Doing_Well_19 <- subset(Doing_Well_19, B2 == "Living comfortably") %>%
+  transmute(inc = ppincimp, pct, year = "2019")
+Doing_Well_20 <- subset(Doing_Well_20, B2 == "Living comfortably") %>%
+  transmute(inc = ppincimp, pct, year = "2020")
+Doing_Well_21 <- subset(Doing_Well_21, B2 == "Living comfortably") %>%
+  transmute(inc = ppinc7, pct, year = "2021")
+Doing_Well_22 <- subset(Doing_Well_22, B2 == "Living comfortably") %>%
+  transmute(inc = ppinc7, pct, year = "2022")
+
+Doing_Well_Year <- rbind(Doing_Well_19,Doing_Well_20,Doing_Well_21,Doing_Well_22)
+
+Doing_Well_Merge_19202122 <- ggplot(data = Doing_Well_Year, aes(x = inc, y = pct/100, fill = year)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percentage") +
+  ggtitle("% Living Comfortably, By Household Income") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Much of the Financial Cushions Built Up in the Early Pandemic Were Spent Down in 2022") +
+  theme_apricitas + theme(legend.position = c(.20,.60), plot.title = element_text(size = 25, color = "white")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+Emergency_400_22 <- crosstab(df = subset(SHED_2022, pay_casheqv != ""), x = ppinc7, y = pay_casheqv, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+Emergency_400_21 <- crosstab(df = SHED_2021, x = ppinc7, y = pay_casheqv, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc7 "household income" (the codebook was changed for 2021)
+
+Emergency_400_20 <- crosstab(df = SHED_2020, x = ppincimp, y = pay_casheqv, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+SHED_2019 <- SHED_2019 %>%
+  mutate(pay_casheqv = if_else(EF3_c == "With the money currently in my checking/savings account or with cash" | EF3_a == "Put it on my credit card and pay it off in full at the next statement" | EF3_b == "No" & EF3_d == "No" & EF3_e == "No" & EF3_f == "No" & EF3_g == "No" & EF3_h == "No", "Yes", "No"))
+
+Emergency_400_19 <- crosstab(df = SHED_2019, x = ppincimp, y = pay_casheqv, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
+
+levels(Emergency_400_22$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                     "$10k-$25k" = "$10,000 to $24,999",
+                                     "$25k-$50k" = "$25,000 to $49,999",
+                                     "$50k-$75k" = "$50,000 to $74,999",
+                                     "$75k-$100k" = "$75,000 to $99,999",
+                                     "$100k-$150k" = "$100,000 to $149,999",
+                                     "$150k+" = "$150,000 or more")
+
+levels(Emergency_400_21$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
+                                     "$10k-$25k" = "$10,000 to $24,999",
+                                     "$25k-$50k" = "$25,000 to $49,999",
+                                     "$50k-$75k" = "$50,000 to $74,999",
+                                     "$75k-$100k" = "$75,000 to $99,999",
+                                     "$100k-$150k" = "$100,000 to $149,999",
+                                     "$150k+" = "$150,000 or more")
+
+levels(Emergency_400_20$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                        "$10k-$25k"="$10k-$25k",
+                                        "$25k-$50k"="$25k-$50k",
+                                        "$50k-$75k"="$50k-$75k",
+                                        "$75k-$100k"="$75k-$100k",
+                                        "$100k-$150k"="$100k-$150k",
+                                        "$150k+"="$150k+")
+
+levels(Emergency_400_19$ppincimp) <- list( "<$10k"="<$10k", #renaming household income so it fits on the chart
+                                        "$10k-$25k"="$10k-$25k",
+                                        "$25k-$50k"="$25k-$50k",
+                                        "$50k-$75k"="$50k-$75k",
+                                        "$75k-$100k"="$75k-$100k",
+                                        "$100k-$150k"="$100k-$150k",
+                                        "$150k+"="$150k+")
+
+Emergency_400_19 <- subset(Emergency_400_19, pay_casheqv == "Yes") %>%
+  transmute(inc = ppincimp, pct, year = "2019")
+Emergency_400_20 <- subset(Emergency_400_20, pay_casheqv == "Yes") %>%
+  transmute(inc = ppincimp, pct, year = "2020")
+Emergency_400_21 <- subset(Emergency_400_21, pay_casheqv == "Yes") %>%
+  transmute(inc = ppinc7, pct, year = "2021")
+Emergency_400_22 <- subset(Emergency_400_22, pay_casheqv == "Yes") %>%
+  transmute(inc = ppinc7, pct, year = "2022")
+
+Emergency_400_Year <- rbind(Emergency_400_19,Emergency_400_20,Emergency_400_21,Emergency_400_22)
+
+Emergency_400_19202122 <- ggplot(data = Emergency_400_Year, aes(x = inc, y = pct/100, fill = year)) +
+  geom_bar(stat = "identity", position = position_dodge(), color = NA) +
+  xlab("Household Income Bin") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percentage") +
+  ggtitle("% Could Cover a $400 Expense w/ Cash or Equivalents, By Household Income") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Much of the Financial Cushions Built Up in the Early Pandemic Were Spent Down in 2022") +
+  theme_apricitas + theme(legend.position = c(.20,.60), plot.title = element_text(size = 15, color = "white")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Emergency_400_19202122 , "Emergency $400.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ggsave(dpi = "retina",plot = Doing_Well_Merge_19202122 , "Doing Well 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = BETTER_WORSE_2022_graph , "Better Worse 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SAVE_BORROW__CONSUME_2022 , "Save Borrow Consume 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Savings_Component_Net_Fiscal_Graph , "Savings Component Net Fiscal.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Total_Excess_Savings_Inf_Adjusted_Graph , "Excess Savings Inflation Adjusted.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Personal_Income_Graph, "Personal Income.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Cumulative_Savings_Graph, "Cumulative Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Undistributed_Profits_Graph, "Undistributed Profits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -564,6 +850,7 @@ ggsave(dpi = "retina",plot = Savings_Component_Graph, "Savings Component.png", t
 ggsave(dpi = "retina",plot = PSAVert_Graph, "Personal Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Total_Excess_Savings_Graph, "Total Excess Savings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Emergency_Expenses_Merge_192021, "Emergency Expenses Merge.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = Emergency_Expenses_Merge_19202122, "Emergency Expenses Merge 22.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Credit_Cards_Graph, "Credit Card Spending.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Fed_Deficit_Graph , "Fed Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = Total_Deposits_Graph, "Total Deposits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
