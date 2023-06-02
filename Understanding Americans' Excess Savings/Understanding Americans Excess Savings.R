@@ -712,6 +712,8 @@ Doing_Well_20 <- crosstab(df = SHED_2020, x = ppincimp, y = B2, weight = weight,
 
 Doing_Well_19 <- crosstab(df = SHED_2019, x = ppincimp, y = B2, weight = weight,format = "long") #taking crosstabs of EF1 "do you have an emergency fund of 3 months worth of expenses" and ppinc "household income"
 
+
+
 levels(Doing_Well_22$ppinc7) <- list("<$10k" ="Less than $10,000", #renaming household income so it fits on the chart
                                             "$10k-$25k" = "$10,000 to $24,999",
                                             "$25k-$50k" = "$25,000 to $49,999",

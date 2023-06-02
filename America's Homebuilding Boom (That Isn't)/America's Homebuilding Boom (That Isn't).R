@@ -510,8 +510,8 @@ CASE_SHILLER <- fredr(series_id = "CSUSHPINSA", observation_start = as.Date("200
 ALL_TRANS <- fredr(series_id = "USSTHPI", observation_start = as.Date("2000-01-01")) #total under construction
 
 HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
-  geom_line(data=CASE_SHILLER, aes(x=date,y= value/value[61]*100, color= "S&P/Case-Shiller US National Home Price Index"), size = 1.25) +
   geom_line(data=ALL_TRANS, aes(x=date,y= value/value[21]*100, color= "US All-Transactions House Price Index"), size = 1.25) +
+  geom_line(data=CASE_SHILLER, aes(x=date,y= value/value[61]*100, color= "S&P/Case-Shiller US National Home Price Index"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(), limits = c(50,200), expand = c(0,0)) +
   ylab("Index, Jan 2005 = 100") +
@@ -572,6 +572,38 @@ FIXED_INVESTMENT_Residential_Graph <- ggplot() + #indexed employment rate
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D"), breaks = c("Real Fixed Investment: Single-Family Structures","Real Fixed Investment: Residential Improvements")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 90-(.3*60), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+FIXED_RESI_INVEST_SPECS_2018 <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50406',
+  'Frequency' = 'Q',
+  'Year' = '2018,2019,2020,2021,2022,2023',
+  'ResultFormat' = 'json'
+)
+
+FIXED_RESI_INVEST_2018 <- beaGet(FIXED_RESI_INVEST_SPECS_2018, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+FIXED_INVESTMENT_RESIDENTIAL_COMPONENT_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a944rx_37_single_family_structures_chained_dollars_level_6/u50406_a944rx_37_single_family_structures_chained_dollars_level_6[1]*100, color = "Single-Family Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_c292rx_38_multifamily_structures_chained_dollars_level_6/u50406_c292rx_38_multifamily_structures_chained_dollars_level_6[1]*100, color = "Multi-Family Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a946rx_42_improvements_chained_dollars_level_6/u50406_a946rx_42_improvements_chained_dollars_level_6[1]*100, color = "Residential Improvements"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(85,135), expand = c(0,0)) +
+  ylab("Index, Q1 2018 = 100") +
+  ggtitle("Real Fixed Residential Investment Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Fixed Investment in Single-Family Homes and Home Improvements are Declining") +
+  theme_apricitas + theme(legend.position = c(.70,.20)) +
+  scale_color_manual(name= "Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Single-Family Structures","Multi-Family Structures","Residential Improvements")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 85-(.3*45), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIXED_INVESTMENT_RESIDENTIAL_COMPONENT_Graph, "Fixed Residential Components.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 MORTGAGE_ORIGINATIONS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/ORIGINATIONS_FRBNY.csv") %>%
   select(Originations) %>%
@@ -2110,7 +2142,7 @@ DC_PLUS_BAL <- ggplot() +
 ZIP_ZHVI_ARRANGE <- ggarrange(NYC,LA,SF,CHI,DFW,HOU,DC,PHI,ATL,  ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
 ZIP_ZHVI_ARRANGE <- annotate_figure(ZIP_ZHVI_ARRANGE, 
-                                  top = text_grob("Zillow 12M Home Price Growth in Major Metros
+                                  top = text_grob("Zillow 12M Home Value Change in Major Metros
                                                   ", face = "bold", size = 28, color = "white")) + bgcolor("#252A32")
 
 ggsave(dpi = "retina",plot = ZIP_ZHVI_ARRANGE, "ZIP ZHVI ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -2119,7 +2151,7 @@ ggsave(dpi = "retina",plot = ZIP_ZHVI_ARRANGE, "ZIP ZHVI ARRANGE.png", type = "c
 WESTERN_ARRANGE <- ggarrange(LA,SF,PHO,SEA,SAN_DIEGO,DEN,POR,SAC,VEGAS, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
 WESTERN_ARRANGE <- annotate_figure(WESTERN_ARRANGE, 
-                                    top = text_grob("Zillow 12M Home Price Growth in Western Metros
+                                    top = text_grob("Zillow 12M Home Value Change in Western Metros
                                                   ", face = "bold", size = 27, color = "white")) + bgcolor("#252A32")
 
 ggsave(dpi = "retina",plot = WESTERN_ARRANGE, "WEST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -2128,7 +2160,7 @@ ggsave(dpi = "retina",plot = WESTERN_ARRANGE, "WEST ARRANGE.png", type = "cairo-
 SOUTHERN_ARRANGE <- ggarrange(DFW,HOU,ATL,MIA,TAMPA,ORL,CHAR,SAN_ANTONIO,AUSTIN, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
 SOUTHERN_ARRANGE <- annotate_figure(SOUTHERN_ARRANGE, 
-                                   top = text_grob("Zillow 12M Home Price Growth in Southern Metros
+                                   top = text_grob("Zillow 12M Home Value Change in Southern Metros
                                                   ", face = "bold", size = 26, color = "white")) + bgcolor("#252A32")
 
 ggsave(dpi = "retina",plot = SOUTHERN_ARRANGE, "SOUTH ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -2137,15 +2169,15 @@ ggsave(dpi = "retina",plot = SOUTHERN_ARRANGE, "SOUTH ARRANGE.png", type = "cair
 MIDWEST_ARRANGE <- ggarrange(CHI,DET,MIN,STL,PITT,CIN,KC,COL,IND, ncol = 3, nrow = 3, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
 MIDWEST_ARRANGE <- annotate_figure(MIDWEST_ARRANGE, 
-                                    top = text_grob("Zillow 12M Home Price Growth in Midwestern Metros
-                                                  ", face = "bold", size = 26, color = "white")) + bgcolor("#252A32")
+                                    top = text_grob("Zillow 12M Home Value Change in Midwestern Metros
+                                                  ", face = "bold", size = 25, color = "white")) + bgcolor("#252A32")
 
 ggsave(dpi = "retina",plot = MIDWEST_ARRANGE, "MIDWEST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 NORTHEAST_ARRANGE <- ggarrange(NYC,DC_PLUS_BAL,PHI,BOS, ncol = 2, nrow = 2, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
 NORTHEAST_ARRANGE <- annotate_figure(NORTHEAST_ARRANGE, 
-                                   top = text_grob("Zillow 12M Home Price Growth in Northeastern Metros
+                                   top = text_grob("Zillow 12M Home Value Change in Northeastern Metros
                                                   ", face = "bold", size = 24, color = "white")) + bgcolor("#252A32")
 
 ggsave(dpi = "retina",plot = NORTHEAST_ARRANGE, "NORTHEAST ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -2154,11 +2186,11 @@ ggsave(dpi = "retina",plot = NORTHEAST_ARRANGE, "NORTHEAST ARRANGE.png", type = 
 
 
 
-states_boundaries <- states(class = "sf")
-
-DONUT_DC_STATES <- subset(states_boundaries, STUSPS %in% c("DC", "MD", "VA"))
-
-DONUT_DC_STATES <- st_transform(DONUT_DC_STATES, st_crs(ZIP_ZHVI_MERGE))
+# states_boundaries <- states(class = "sf")
+# 
+# DONUT_DC_STATES <- subset(states_boundaries, STUSPS %in% c("DC", "MD", "VA"))
+# 
+# DONUT_DC_STATES <- st_transform(DONUT_DC_STATES, st_crs(ZIP_ZHVI_MERGE))
 
 ZIP_DC <- ZIP_ZHVI_MERGE %>%
   subset(State == "DC")
@@ -2326,10 +2358,10 @@ ggsave(dpi = "retina",plot = DONUT_BOS, "DONUT BOS.png", type = "cairo-png", wid
 
 DONUT_ZHVI_ARRANGE <- ggarrange(DONUT_NYC,DONUT_CHI,DONUT_BOS,DONUT_DC,  ncol = 2, nrow = 2, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
 
-DONUT_ZHVI_ARRANGE <- annotate_figure(DONUT_ZHVI_ARRANGE,top = text_grob("The 'Donut Effect' is Hitting Many Cities—Falls in Downtown Home Prices as Suburbs Hold Up Better`
+DONUT_ZHVI_ARRANGE <- annotate_figure(DONUT_ZHVI_ARRANGE,top = text_grob("The 'Donut Effect' is Hitting Many Cities—Falls in Downtown Home Prices as Suburbs Hold Up Better
                                                   ", face = "bold", size = 10, color = "white")) + bgcolor("#252A32") + border("#252A32")
 DONUT_ZHVI_ARRANGE <- annotate_figure(DONUT_ZHVI_ARRANGE, 
-                                    top = text_grob("Zillow 12M Home Price Growth", face = "bold", size = 28, color = "white")) + bgcolor("#252A32") + border("#252A32")
+                                    top = text_grob("Zillow 12M Home Value Change", face = "bold", size = 28, color = "white")) + bgcolor("#252A32") + border("#252A32")
 
 ggsave(dpi = "retina",plot = DONUT_ZHVI_ARRANGE, "DONUT ZHVI ARRANGE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
