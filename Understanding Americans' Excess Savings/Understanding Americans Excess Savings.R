@@ -551,7 +551,7 @@ Total_Deposits_Graph <- ggplot(data = Total_Deposits, aes(x = date, y = value/10
   xlab("Household Income Bin") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 1),limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
   ylab("Trillions of Dollars") +
-  ggtitle("Out of Time") +
+  ggtitle("US Households' Cash Assets") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Household Assets of Deposits Have Increased-And Moved to Checking Accounts") +
   theme_apricitas + theme(legend.position = c(.30,.84)) +
   scale_fill_manual(name= "Households and Nonprofits' Cash Assets",values = c("#FFE98F","#00A99D","#EE6055","#3083DC")) +

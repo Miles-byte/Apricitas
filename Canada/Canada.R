@@ -1,4 +1,4 @@
-pacman::p_load(cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(statcanR,cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -295,7 +295,6 @@ CANADA_IMMIGRANT_GRAPH <- ggplot() + #plotting Canada Immigrant
 ggsave(dpi = "retina",plot = CANADA_IMMIGRANT_GRAPH, "Canada Immigrant Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 CANADA_GDP <- statcan_data("36-10-0104-01", "eng")
-CAM
 
 CANADA_GDP <- get_cansim_vector("v62305752") %>%
   subset(REF_DATE >= as.Date("2000-01-01")) %>%

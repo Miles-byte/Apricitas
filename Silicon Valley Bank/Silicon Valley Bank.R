@@ -492,7 +492,7 @@ LOAN_TIMING_graph <- ggplot(data = LOAN_TIMING, aes(x = date, y = value/1000, fi
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Billions of Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300), limits = c(0,330), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300), limits = c(0,430), expand = c(0,0)) +
   ggtitle("$300B in Fed Emergency Lending") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Most of the Fed's New Lending Came in the Form of Short-Maturity Loans") +
   theme_apricitas + theme(legend.position = c(.5,.775)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
@@ -592,7 +592,7 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
   ylab("Spread, %") +
-  ggtitle("Tightening Up") +
+  ggtitle("Credit Conditions are Slightly Tighter Than Pre-SVB") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "High Yield Credit Spreads Jumped Slightly in the Wake of SVB's Collapse") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +

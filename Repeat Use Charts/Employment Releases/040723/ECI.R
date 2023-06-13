@@ -48,7 +48,7 @@ ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI Wage Growth.png", type = "cairo
 GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2017-01-01"), as.Date("2023-04-01"), by = "month"))) %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
   select(-latest) %>%
   drop_na()
 
@@ -61,9 +61,9 @@ GLI_BEA_YOY <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-
   #mutate(value = (value-lag(value,4))/lag(value,4)) %>%
   #drop_na()
 
-GLI_EPOP_YOY <- bls_api("LNS12300060", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+GLI_EPOP_YOY <- bls_api("LNS12000060", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2017-01-01"), as.Date("2023-04-01"), by = "month"))) %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
   select(-latest) %>%
   mutate(quarters = as.yearqtr(date)) %>%
   group_by(quarters) %>%
@@ -92,6 +92,40 @@ GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GLI_GROWTH_graph, "GLI Growth graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+GLI_BEA_YOY_NORM <- fredr(series_id = "A132RC1",observation_start = as.Date("2017-01-01")) %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/3)-1)
+  
+GLI_BLS_YOY_NORM <- fredr(series_id = "CES0500000017",observation_start = as.Date("2017-01-01")) %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/3)-1)
+
+GLI_EPOP_YOY_NORM <- fredr(series_id = "LNS12000060",observation_start = as.Date("2017-01-01"), frequency = "q", aggregation_method = "avg") %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  merge(.,fredr(series_id = "ECIWAG",observation_start = as.Date("2010-01-01")),by = "date") %>%
+  transmute(date = date, value = value.x*value.y) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/((nrow(.)-1)/4))-1)
+
+GLI_GROWTH_NORM_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_BLS_YOY, aes(x=date,y= annualpct-GLI_BLS_YOY_NORM$norm,color= "Non-Farm Payrolls Data"), size = 1.25) +
+  geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100-GLI_BEA_YOY_NORM$norm,color= "BEA Data"), size = 1.25) +
+  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value-GLI_EPOP_YOY_NORM$norm,color= "ECI * Prime Age Employment"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  annotate("text",label = "Deviation from 2017-2020", x = as.Date("2023-01-01"), y =-0.011, color = "white", size = 4) +
+  annotate("text",label = "Avg Annual Growth Rate", x = as.Date("2023-01-01"), y =-0.023, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.14,0.125), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("US Gross Labor Income Growth Deviation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, with BEA Numbers Returning to Normal") +
+  theme_apricitas + theme(legend.position = c(.33,.75)) +
+  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.14-(.3*0.265), ymax = -.14) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLI_GROWTH_NORM_graph, "GLI Growth Norm graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 EPOP_1990 <- bls_api("LNS12300060", startyear = 1990) %>% 

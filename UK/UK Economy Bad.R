@@ -1,4 +1,11 @@
-pacman::p_load(onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+
+theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
 
 US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
@@ -14,8 +21,14 @@ JPN <- fredr(series_id = "NAEXKP01JPQ189S",observation_start = as.Date("2018-01-
   mutate(value = value/value[7]*100)
 CAN <- fredr(series_id = "NGDPRSAXDCCAQ",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
+AUS_GDP <- read_abs(series_id = "A2304402X") %>%
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(date = date - 60) %>%
+  mutate(value = value/value[8]*100)
+  
 
 RGDP_G7_Graph <- ggplot() + #RGDP Index
+  geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=US, aes(x=date,y= value,color= "United States"), size = 1.25) +
   geom_line(data=UK, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN, aes(x=date,y= value,color= "Canada"), size = 1.25) +
@@ -30,8 +43,8 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Back of the Pack") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The UK and Japan are the Only G7 Nations Whose Output Hasn't Fully Recovered") +
-  theme_apricitas + theme(legend.position = c(.22,.29)) +
-  scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
+  theme_apricitas + theme(legend.position = c(.22,.30)) +
+  scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")
 
@@ -66,9 +79,9 @@ EPOP_G7_Graph <- ggplot() + #EU chemical imports
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(85,105), breaks = c(85,90,95,100,105), expand = c(0,0)) +
   ylab("25-54 Employment Rate, Index 2019 Q3 = 100") +
-  ggtitle("Back of the Pack") +
-  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "The UK is the Only G7 Nations Whose Prime-Age Employment Rate Hasn't Fully Recovered") +
-  theme_apricitas + theme(legend.position = c(.23,.29)) +
+  ggtitle("The UK's Terrible Employment Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "The UK is the Only G7 Nation Whose Prime-Age Employment Rate Hasn't Fully Recovered") +
+  theme_apricitas + theme(legend.position = c(.82,.29)) +
   scale_color_manual(name= "25-54 Employment %, Index 2019 Q3",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 85-(.3*20), ymax = 85) +
   coord_cartesian(clip = "off")
@@ -119,9 +132,9 @@ GDP_Components_Graph <- ggplot() +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(55,115), breaks = c(60,70,80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Average = 100") +
-  ggtitle("Under-Heating") +
+  ggtitle("Breaking Down British GDP") +
   labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "British Output Has Been Stagnant This Year—With Declines in Industrial Production") +
-  theme_apricitas + theme(legend.position = c(.30,.40)) +
+  theme_apricitas + theme(legend.position = c(.20,.40)) +
   scale_color_manual(name= "Real Index, UK, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Total GDP","Services","Production Industries","Construction")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 55-(.3*60), ymax = 55) +
   coord_cartesian(clip = "off")
@@ -151,7 +164,9 @@ Energy_Exports <- ons_get_obs("trade",direction = "EX", geography = "K02000001",
 Energy_Exports <- unnest_dataframes(unnest_dataframes(Energy_Exports)) %>%
   transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation))
 
-Energy <- merge(Energy_Exports,Energy_Imports, by = "date")
+Energy <- merge(Energy_Exports,Energy_Imports, by = "date") %>%
+  arrange(desc(date)) %>%
+  transmute(date, value = rollsum(value.y-value.x,12, na.pad = TRUE))
 
 Food_Imports <- ons_get_obs("trade",direction = "IM", geography = "K02000001", countriesandterritories = "W1", standardindustrialtradeclassification = "0", time = "*") %>%
   as.data.frame() 
@@ -165,49 +180,124 @@ Food_Exports <- ons_get_obs("trade",direction = "EX", geography = "K02000001", c
 Food_Exports <- unnest_dataframes(unnest_dataframes(Food_Exports)) %>%
   transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation))
 
-Food <- merge(Food_Exports,Food_Imports, by = "date")
+Food <- merge(Food_Exports,Food_Imports, by = "date") %>%
+  arrange(desc(date)) %>%
+  transmute(date, value = rollsum(value.y-value.x,12, na.pad = TRUE))
+
 
 Energy_Food_Imports_Graph <- ggplot() +
-  geom_line(data=subset(Energy, date > as.Date("1999-12-31")), aes(x=date,y= (value.y-value.x)/1000,color= "Energy, Mineral Fuels, Lubricants, and Related Materials)"), size = 1.25) +
-  geom_line(data=subset(Food, date > as.Date("1999-12-31")), aes(x=date,y= (value.y-value.x)/1000,color= "Food and Live Animals"), size = 1.25) +
+  geom_line(data=subset(Energy, date > as.Date("1999-12-31")), aes(x=date,y= value/1000,color= "Energy, Mineral Fuels, Lubricants, and Related Materials)"), size = 1.25) +
+  geom_line(data=subset(Food, date > as.Date("1999-12-31")), aes(x=date,y= value/1000,color= "Food and Live Animals"), size = 1.25) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "£"),limits = c(-1,6), breaks = c(-1,0,1,2,3,4,5,6,7,8,9,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "£"),limits = c(-10,60), breaks = c(-10,0,10,20,30,40,50,60), expand = c(0,0)) +
   ylab("Billions of Pounds, NSA") +
-  ggtitle("Under-Heating") +
+  ggtitle("The UK's Food & Energy Trade Deficit") +
   labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "The UK's Energy and Food Import Bill Has Skyrocketed Amidst Shortages") +
   theme_apricitas + theme(legend.position = c(.40,.70)) +
-  scale_color_manual(name= "UK Net Imports, NSA",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-90-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-90-as.Date("2000-01-01"))), ymin = -1-(.3*7), ymax = -1) +
+  scale_color_manual(name= "UK Net Imports, 12M Moving Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-90-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-90-as.Date("2000-01-01"))), ymin = -10-(.3*70), ymax = -10) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Energy_Food_Imports_Graph, "Energy Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-?ons_get_obs
-#CPI data
-CPI <- ons_get("cpih01")
+SIXTEEN_SIXTY4_EPOP <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/lf24/lms") %>%
+  subset(., nchar(Title)==8) %>%
+  `colnames<-`(c("Title","value")) %>%
+  transmute(date = as.Date(as.yearmon(Title, "%Y %b")), value) %>%
+  subset(., value > 1)  %>%
+  mutate_if(is.character,as.numeric) %>%
+  subset(date >= as.Date("2000-01-01"))
 
-#gva by industry
-test <- ons_get("gva-by-industry-by-local-authority")
-#test
-construction <- ons_get("output-in-the-construction-industry")
+UK_EPOP_PA_Graph <- ggplot() + #EU chemical imports
+  geom_line(data=SIXTEEN_SIXTY4_EPOP, aes(x=date,y= value/100,color= "16-64 Employment Rate, UK"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.69,.77), breaks = c(.69,.70,.71,.72,.73,.74,.75,.76,.77), expand = c(0,0)) +
+  ylab("16-64 Employment Rate") +
+  ggtitle("The UK's Weak Employment Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "Broader Employment Rates Have Not Recovered to Pre-Pandemic Highs in the UK") +
+  theme_apricitas + theme(legend.position = c(.25,.68), legend.title = element_text(size = 13), legend.text = element_text(size = 13)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("16-64 Employment Rate, UK")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-90-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-90-as.Date("2000-01-01"))), ymin = .69-(.3*.08), ymax = .69) +
+  coord_cartesian(clip = "off")
 
-retail_sales <- ons_get("retail-sales-index")
+ggsave(dpi = "retina",plot = UK_EPOP_PA_Graph, "UK EPOP 1664.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-trade <- ons_get("trade")
+regional_gdp_quarter <- ons_get("regional-gdp-by-quarter") %>%
+  subset(`sic-unofficial` == "A--T" & GrowthRate == "Quarterly index") %>%
+  transmute(value = v4_1, date = as.Date(as.yearqtr(`yyyy-qq`,"%Y-q%q")), geo = Geography) %>%
+  pivot_wider(names_from = geo) %>%
+  subset(date >= as.Date("2019-10-01")) %>%
+  arrange(date) %>%
+  mutate(across(where(is.numeric), ~ . / .[1]-1)) %>%
+  slice(n()) %>%
+  pivot_longer(cols = c(`England`:`East Midlands`)) %>%
+  select(name,value)
 
-cards <- ons_get("uk-spending-on-cards")
+ENG_REG <- st_read("C:/Users/Joseph/Documents/GitHub/Apricitas/UK/NUTS1_Jan_2018_UGCB_in_the_UK.shp") %>%
+  mutate(nuts118nm = gsub(" \\(England\\)","",nuts118nm)) %>%
+  left_join(regional_gdp_quarter, join_by("nuts118nm"=="name")) %>%
+  drop_na()
 
-regional_gdp_quarter <- ons_get("regional-gdp-by-quarter")
+Regional_GDP <- ggplot() +
+  geom_sf(data = ENG_REG, aes(fill = value)) +
+  geom_sf(data = ENG_REG, color = "black", fill = NA, lwd = 0.5) + # Black borders for counties
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.05,0,0.05), 
+                      labels = c("-5%","+0%","+5%"),
+                      limits = c(-0.05,0.05)) +
+  #ggtitle("Cumulative GDP Growth During Pandemic, England and Wales") +
+  theme(plot.title = element_text(hjust = 0, size = 14)) +
+  labs(caption = "Graph created by @JosephPolitano using ONS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
-test <- ons_ids()
 
-ons_browse()
+# Create a text grob
+tgrob <- text_grob(expression(bold("         GDP Change From Pre-Pandemic Levels, England & Wales")),size = 22, color = "white") 
+# Draw the text
+plot_0 <- as_ggplot(tgrob)
 
-ons_codelists()
+final_plot <- ggarrange(plot_0,Regional_GDP,  ncol = 1, nrow = 2, heights = c(10,40), widths = c(10,30), common.legend = TRUE, legend = "right", align = "hv") + bgcolor("#252A32") + border("#252A32") +
+  theme(plot.background = element_rect(fill = "#252A32", colour = "#252A32"),
+        panel.background = element_rect(fill = "#252A32", colour = "#252A32"))
 
-datasets <- ons_datasets()
+
+ggsave(dpi = "retina",plot = final_plot, "Regional GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+# ons_get("datasets")
+# ons_ids()
+# ?ons_get_obs
+# #CPI data
+# CPI <- ons_get("cpih01")
+# 
+# #gva by industry
+# test <- ons_get("gva-by-industry-by-local-authority")
+# #test
+# construction <- ons_get("output-in-the-construction-industry")
+# 
+# retail_sales <- ons_get("retail-sales-index")
+# 
+# trade <- ons_get("trade")
+# 
+# cards <- ons_get("uk-spending-on-cards")
+# 
+# regional_gdp_quarter <- ons_get("regional-gdp-by-quarter")
+# 
+# test <- ons_ids()
+# 
+# ons_browse()
+# 
+# ons_codelists()
+# 
+# datasets <- ons_datasets()
 
 #High-Energy-Intensity-Manufacturing
 
@@ -247,17 +337,17 @@ IOP_MANU <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/e
   mutate_if(is.character,as.numeric)
 
 IOP_Graph <- ggplot() + #Energy Intensive Manufacturing
-  geom_line(data=subset(IOP_MANU, date > as.Date("2018-12-31")), aes(x=date,y= value/value[1]*100,color= "All Manufacuring ex Coke and Refined Petroleum Products"), size = 1.25) +
   geom_line(data=subset(IOP_FAB, date > as.Date("2018-12-31")), aes(x=date,y= value/value[1]*100,color= "Fabricated Metal Products ex Machinery and Equipment"), size = 1.25) +
   geom_line(data=subset(IOP_PAPER, date > as.Date("2018-12-31")), aes(x=date,y= value/value[1]*100,color= "Paper and Paper Products"), size = 1.25) +
   geom_line(data=subset(IOP_CHEMICAL, date > as.Date("2018-12-31")), aes(x=date,y= value/value[1]*100,color= "Chemicals and Chemical Products"), size = 1.25) +
+  geom_line(data=subset(IOP_MANU, date > as.Date("2018-12-31")), aes(x=date,y= value/value[1]*100,color= "All Manufacuring ex Coke and Refined Petroleum Products"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,130), breaks = c(70,80,90,100,110,120,130), expand = c(0,0)) +
   ylab("25-54 Employment Rate, Index 2019 Q3 = 100") +
-  ggtitle("Under-Heating") +
+  ggtitle("UK Energy-Intensive Industrial Production") +
   labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "After a Strong Recovery, British Production Has Dwindled, Especially in Energy-Intensive Industries") +
-  theme_apricitas + theme(legend.position = c(.36,.80)) +
-  scale_color_manual(name= "UK Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("All Manufacuring ex Coke and Refined Petroleum Products","Fabricated Metal Products ex Machinery and Equipment","Paper and Paper Products","Chemicals and Chemical Products")) +
+  theme_apricitas + theme(legend.position = c(.36,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("All Manufacuring ex Coke and Refined Petroleum Products","Fabricated Metal Products ex Machinery and Equipment","Paper and Paper Products","Chemicals and Chemical Products")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-90-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-90-as.Date("2019-01-01"))), ymin = 70-(.3*60), ymax = 70) +
   coord_cartesian(clip = "off")
 
@@ -446,25 +536,34 @@ NGDP_TREND_graph <- ggplot() + #Plotting GDP Growth Rates
 
 ggsave(dpi = "retina",plot = NGDP_TREND_graph, "NGDP Trend.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-Total_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/npqt/ukea") %>%
+Total_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/npqt/cxnv") %>%
   subset(., nchar(Title)==7) %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   mutate_if(is.character,as.numeric) %>%
   drop_na()
   
+Business_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/npel/pn2") %>%
+  subset(., nchar(Title)==7) %>%
+  `colnames<-`(c("date","value")) %>%
+  transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
+  mutate_if(is.character,as.numeric) %>%
+  drop_na()
+
+
 FIXED_graph <- ggplot() + #Plotting GDP Growth Rates
   annotate("vline", x = as.Date("2016-06-23"), xintercept = as.Date("2016-06-23"), color = "white", size = 1, linetype = "dashed") +
   annotate("text", label = "Brexit Vote", x = as.Date("2017-04-23"), y = 110, color = "white", linetype = "dashed", size = 5) +
-  geom_line(data=subset(Total_Fixed_Capital, date > as.Date("2011-12-01")), aes(x=date, y=value/value[1]*100, color="UK Real Gross Fixed Capital Formation"), size = 1.25) +
+  geom_line(data=subset(Total_Fixed_Capital, date > as.Date("2011-12-01")), aes(x=date, y=value/value[1]*100, color="Total Real Gross Fixed Capital Formation"), size = 1.25) +
+  geom_line(data=subset(Business_Fixed_Capital, date > as.Date("2011-12-01")), aes(x=date, y=value/value[1]*100, color="Business Real Gross Fixed Capital Formation"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(90,130), breaks = c(80,90,100,110,120,130,140,150), expand = c(0,0)) +
+  scale_y_continuous(limits = c(90,140), breaks = c(80,90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Index, Q1 2012 = 100") +
-  ggtitle("Underinvesting") +
-  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "British Fixed Investment Still Has Slowed and Stagnated Since the Brexit Vote") +
-  theme_apricitas + theme(legend.position = c(.70,.175)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#A7ACD9","#9A348E")) + 
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 90-(.3*40), ymax = 90) +
+  ggtitle("Britain's Investing Shortfall") +
+  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "British Fixed Investment, Especially from Businesses, Has Slowed and Stagnated Since Brexit") +
+  theme_apricitas + theme(legend.position = c(.70,.93)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D","#A7ACD9","#9A348E"), breaks = c("Total Real Gross Fixed Capital Formation","Business Real Gross Fixed Capital Formation")) + 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 90-(.3*50), ymax = 90) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FIXED_graph, "Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -491,29 +590,29 @@ ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_IMPORT_GRAPH, "CPI Contribution Im
 
 #retail trade indexes
 
-retail_sales_current <- ons_get_obs("retail-sales-index",
+retail_sales_current_growth <- ons_get_obs("retail-sales-index",
                 geography = "K03000001", 
                 prices = "current-prices-percentage-change-3-months-on-same-period-a-year-earlier",
                 seasonaladjustment = "seasonal-adjustment",
                 time = "*",
                 unofficialstandardindustrialclassification = "all-retailing-excluding-automotive-fuel")
 
-retail_sales_current <- unnest_dataframes(unnest_dataframes(retail_sales_current)) %>%
+retail_sales_current_growth <- unnest_dataframes(unnest_dataframes(retail_sales_current_growth)) %>%
   transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation))
 
-retail_sales_real <- ons_get_obs("retail-sales-index",
+retail_sales_real_growth <- ons_get_obs("retail-sales-index",
                 geography = "K03000001", 
                 prices = "chained-volume-percentage-change-3-months-on-same-period-a-year-earlier",
                 seasonaladjustment = "seasonal-adjustment",
                 time = "*",
                 unofficialstandardindustrialclassification = "all-retailing-excluding-automotive-fuel")
 
-retail_sales_real <- unnest_dataframes(unnest_dataframes(retail_sales_real)) %>%
+retail_sales_real_growth <- unnest_dataframes(unnest_dataframes(retail_sales_real_growth)) %>%
   transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation))
 
-RETAIL_SALES_graph <- ggplot() + #plotting components of annual inflation
-  geom_line(data = subset(retail_sales_current, date > as.Date("2014-12-01")), aes(x = date, y = value/100, color = "Nominal"), size = 1.25) +
-  geom_line(data = subset(retail_sales_real,date > as.Date("2014-12-01")), aes(x = date, y = value/100, color = "Real"), size = 1.25) +
+RETAIL_SALES_GROWTH_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data = subset(retail_sales_current_growth, date > as.Date("2014-12-01")), aes(x = date, y = value/100, color = "Nominal"), size = 1.25) +
+  geom_line(data = subset(retail_sales_real_growth,date > as.Date("2014-12-01")), aes(x = date, y = value/100, color = "Real"), size = 1.25) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.10,.20), breaks = c(-.10,-0.05,0,0.05,.10,.15,.20), expand = c(0,0)) +
@@ -525,7 +624,49 @@ RETAIL_SALES_graph <- ggplot() + #plotting components of annual inflation
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -0.10-(.3*.30), ymax = -0.10) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RETAIL_SALES_graph, "Retail Sales.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RETAIL_SALES_GROWTH_graph, "Retail Sales Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+retail_sales_current <- ons_get_obs("retail-sales-index",
+                                           geography = "K03000001", 
+                                           prices = "value-of-retail-sales-at-current-prices",
+                                           seasonaladjustment = "seasonal-adjustment",
+                                           time = "*",
+                                           unofficialstandardindustrialclassification = "all-retailing-excluding-automotive-fuel")
+
+retail_sales_current <- unnest_dataframes(unnest_dataframes(retail_sales_current)) %>%
+  transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation)) %>%
+  arrange(date) %>%
+  subset(date >= as.Date("2019-01-01"))%>%
+  mutate(value = value/value[1]*100)
+
+retail_sales_real <- ons_get_obs("retail-sales-index",
+                                        geography = "K03000001", 
+                                        prices = "chained-volume-of-retail-sales",
+                                        seasonaladjustment = "seasonal-adjustment",
+                                        time = "*",
+                                        unofficialstandardindustrialclassification = "all-retailing-excluding-automotive-fuel")
+
+retail_sales_real <- unnest_dataframes(unnest_dataframes(retail_sales_real)) %>%
+  transmute(date = as.Date(as.yearmon(Time.label, "%b-%y")), value = as.numeric(observation)) %>%
+  arrange(date) %>%
+  subset(date >= as.Date("2019-01-01"))%>%
+  mutate(value = value/value[1]*100)
+
+RETAIL_SALES_INDEX_graph <- ggplot() + #RGDP Index
+  geom_line(data=retail_sales_current, aes(x=date,y= value,color= "Nominal Retail Sales"), size = 1.25) +
+  geom_line(data=retail_sales_real, aes(x=date,y= value,color= "Real Retail Sales"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,120), breaks = c(80,90,100,110,120), expand = c(0,0)) +
+  ylab("Index, Jan 2019 = 100") +
+  ggtitle("The UK's Stagnation") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "Real UK's Retail Sales Have Fallen Back To Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.62,.29)) +
+  scale_color_manual(name= "Index, Jan 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-90-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-90-as.Date("2019-01-01"))), ymin = 80-(.3*40), ymax = 80) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RETAIL_SALES_INDEX_graph, "Retail Sales Index.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 BICS <- read.csv("C:/Users/josep/Documents/UK Economy Bad/BICS.csv") %>%
   mutate(date = as.Date(date, "%m/%d/%Y"))
@@ -580,24 +721,74 @@ UK_NATIONS_STARTS <- read.csv("C:/Users/Joseph/Downloads/uk_nations_starts.csv")
 CA_STARTS <- fredr(series_id = "CABPPRIVSA", aggregation_method = "sum", frequency = "a")
 
 BUILDING_COUNTRY_Graph <- ggplot() + #plotting new housing starts
-  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= UK/1000, color= "United Kingdom (2021 Population: 67.3M)"), size = 1.25) +
   #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Texas/1000, color= "Texas (29.5M)"), size = 1.25) +
-  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Florida/1000, color= "Florida (2021 Population: 21.8M)"), size = 1.25) +
-  geom_line(data=CA_STARTS, aes(x=date,y= value/1000, color= "California (2021 Population: 39.2M)"), size = 1.25) +
-  
-  #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Canada/1000, color= "Canada (38.3M)"), size = 1.25) +
-  #geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Poland/1000, color= "Poland (37.8M)"), size = 1.25) +
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Florida/1000, color= "Florida (21.8M)"), size = 1.25) +
+  #geom_line(data=CA_STARTS, aes(x=date,y= value/1000, color= "California (2021 Population: 39.2M)"), size = 1.25) +
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Canada/1000, color= "Canada (38.3M)"), size = 1.25) +
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= Poland/1000, color= "Poland (37.8M)"), size = 1.25) +
+  geom_line(data=UK_NATIONS_STARTS, aes(x=date,y= UK/1000, color= "United Kingdom (2021 Population: 67.3M)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), limits = c(0,400), expand = c(0,0)) +
   ylab("Permits, Monthly") +
   ggtitle("Britain's Housing Shortage") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The UK Builds Less Housing Than Florida") +
-  theme_apricitas + theme(legend.position = c(.65,.85)) +
-  scale_color_manual(name= "Housing Units Permitted/Started by Year" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United Kingdom (2021 Population: 67.3M)","Florida (2021 Population: 21.8M)","California (2021 Population: 39.2M)")) +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "The UK Builds Less Housing Than Florida, Canada, or Poland") +
+  theme_apricitas + theme(legend.position = c(.65,.75)) +
+  scale_color_manual(name= "Housing Units Permitted/Started by Year" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United Kingdom (2021 Population: 67.3M)","Florida (21.8M)","Canada (38.3M)","Poland (37.8M)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1969-01-01")-(.1861*(today()-as.Date("1969-01-01"))), xmax = as.Date("1969-01-01")-(0.049*(today()-as.Date("1969-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BUILDING_COUNTRY_Graph, "Building Country Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+GDP_US_IND <- fredr(series_id = "GDPC1", observation_start = as.Date("2018-01-01")) %>%
+  mutate(value = value/value[8]*100)
+GDP_UK_IND <- fredr(series_id = "NGDPRSAXDCGBQ", observation_start = as.Date("2018-01-01")) %>%
+  mutate(value = value/value[8]*100)
+GDP_IR_IND <- fredr(series_id = "CLVMNACNSAB1GQIE", observation_start = as.Date("2018-01-01"))
+GDP_EU_IND <- fredr(series_id = "CLVMEURSCAB1GQEU272020", observation_start = as.Date("2018-01-01"))
+GDP_EU_LESS_IR <- merge(GDP_IR_IND,GDP_EU_IND, by = "date") %>%
+  transmute(date, value = value.x-value.y) %>%
+  mutate(value = value/value[8]*100)
+
+RGDP_US_UK_EU_Graph <- ggplot() + #RGDP Index
+  geom_line(data=GDP_US_IND, aes(x=date,y= value,color= "United States"), size = 1.25) +
+  geom_line(data=GDP_EU_LESS_IR, aes(x=date,y= value,color= "EU Ex-Ireland"), size = 1.25) +
+  geom_line(data=GDP_UK_IND, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
+  annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101, color = "white", size = 4) +
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
+  ylab("Index, 2019 Q3 = 100") +
+  ggtitle("The UK's Stagnation") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The UK's Economy is Still Smaller Than it was Pre-Pandemic") +
+  theme_apricitas + theme(legend.position = c(.22,.29)) +
+  scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","EU Ex-Ireland","United Kingdom")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RGDP_US_UK_EU_Graph, "UK US EU-ex-IRL GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+LABOR_PRODUCTIVITY <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/labourproductivity/timeseries/lzvb/prdy") %>%
+  subset(str_detect(Title, "Q")) %>%
+  `colnames<-`(c("date","value")) %>%
+  transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
+  mutate_if(is.character,as.numeric)
+
+LABOR_PRODUCTIVITY_graph <- ggplot() + #Plotting GDP Growth Rates
+  #annotate("vline", x = as.Date("2016-06-23"), xintercept = as.Date("2016-06-23"), color = "white", size = 1, linetype = "dashed") +
+  #annotate("text", label = "Brexit Vote", x = as.Date("2017-04-23"), y = 110, color = "white", linetype = "dashed", size = 5) +
+  geom_line(data=subset(LABOR_PRODUCTIVITY, date >= as.Date("1990-01-01")), aes(x=date, y=value/value[1]*100, color="UK Output Per Hour Worked"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(97,153), breaks = c(90,100,110,120,130,140,150), expand = c(0,0)) +
+  ylab("Index, Q1 2012 = 100") +
+  ggtitle("Britain's Productivity Shortfall") +
+  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "UK Labor Productivity Growth Has Stagnated Since the Global Financial Crisis") +
+  theme_apricitas + theme(legend.position = c(.70,.53)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D","#A7ACD9","#9A348E")) + 
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 97-(.3*56), ymax = 97) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LABOR_PRODUCTIVITY_graph, "Labor Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

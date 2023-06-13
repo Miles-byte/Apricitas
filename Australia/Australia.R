@@ -252,13 +252,13 @@ LITHIUM_EXPORTS <- read_abs(series_id = "A1827825W") %>%
 Lithium_Exports_Graph <- ggplot() + #plotting Australian Lithium Exports
   geom_line(data=LITHIUM_EXPORTS, aes(x=date,y= value/1000*12, color= "Australia, Exports of Lithium & Crude Minerals/Fertilizers n.e.s (SITC 27)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B"),limits = c(0,20),breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"),limits = c(0,35),breaks = c(0,5,10,15,20,25,30,35), expand = c(0,0)) +
   ylab("Australian Dollars, Annual Rate") +
   ggtitle("Powering the Energy Transition") +
   labs(caption = "Graph created by @JosephPolitano using ABS data",subtitle = "The Value of Australian Lithium Exports Have Skyrocketed Amidst Rising Demand") +
   theme_apricitas + theme(legend.position = c(.45,.75)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*20), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*35), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Lithium_Exports_Graph, "Lithium Exports AUS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

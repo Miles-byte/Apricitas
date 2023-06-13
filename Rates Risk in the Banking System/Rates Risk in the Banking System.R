@@ -58,7 +58,7 @@ GSIB_NONGSIB_INSURED_graph <- ggplot(data = GSIB_NONGSIB_INSURED, aes(x = date, 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*27.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = GSIB_NONGSIB_INSURED_graph, "GSIB_NONGSIB.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = GSIB_NONGSIB_INSURED_graph, "GSIB_NONGSIB.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 FAILURES <- read.csv("https://www.fdic.gov/bank/historical/bank/bfb-data.csv") %>%
   `colnames<-`(c("name","pr","date","asset","deposit","note")) %>%
@@ -98,7 +98,7 @@ FAILURES_TOTAL_ASSETS_graph <- ggplot(data = FAILURES_TOTAL_ASSETS, aes(x = date
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*.035), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
   
-ggsave(dpi = "retina",plot = FAILURES_TOTAL_ASSETS_graph, "Failures as a Share of Total Assets.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = FAILURES_TOTAL_ASSETS_graph, "Failures as a Share of Total Assets.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 ASSTLTR_TOTAL_BANK <- read.csv("https://banks.data.fdic.gov/api/financials?filters=RISDATE%3A%5B20171231%20TO%20%2A%5D&fields=RISDATE%2CASSET%2CASSTLT&sort_order=DESC&limit=10000&offset=0&agg_by=RISDATE&agg_sum_fields=ASSTLT%2CASSET&format=csv&download=true&filename=data_file") %>%
   mutate(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = nrow(.))) %>%
@@ -118,7 +118,7 @@ ASSTLTR_TOTAL_BANK_graph <- ggplot(data = ASSTLTR_TOTAL_BANK, aes(x = date, y = 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*32.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = ASSTLTR_TOTAL_BANK_graph, "Long Term Assets.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = ASSTLTR_TOTAL_BANK_graph, "Long Term Assets.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 KeyBank <- tq_get("KEY", from = "2023-03-01")
 Comerica <- tq_get("CMA", from = "2023-03-01")
@@ -145,7 +145,7 @@ AT_RISK_BANKS_graph <- ggplot() +#plotting loan performance data
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-03-01")-(.1861*(today()-as.Date("2023-03-01"))), xmax = as.Date("2023-03-01")-(0.049*(today()-as.Date("2023-03-01"))), ymin = -1-(.3*1.05), ymax = -1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = AT_RISK_BANKS_graph, "At Risk Banks Graph.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = AT_RISK_BANKS_graph, "At Risk Banks Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 AT_RISK_MAJOR_BANKS <- read.csv("https://banks.data.fdic.gov/api/financials?filters=CERT%3A%284977%20OR%2024045%20OR%202270%20OR%20983%20OR%2017534%20OR%2057512%29%20AND%20RISDATE%3A%5B20191231%20TO%20%2A%5D&fields=CERT%2CREPDTE%2CASSET%2CDEP%2CDEPINS%2CNAME%2CASSET%2CASSTLT%2CLNRE&limit=10000&format=csv&download=true&filename=data_file") %>%
   mutate(NAME = str_to_title(NAME)) %>%
@@ -156,12 +156,12 @@ AT_RISK_MAJOR_BANKS <- read.csv("https://banks.data.fdic.gov/api/financials?filt
 
 DEP_DEPINS_MAJOR_BANKS <- AT_RISK_MAJOR_BANKS %>%
   select(DEP, DEPINS, NAME, REPDTE) %>%
-  add_row(DEP = 147388149, DEPINS = 75770590, NAME = "Keybank", REPDTE = as.Date("2023-03-31")) %>%
-  add_row(DEP = 69207568, DEPINS = 37845135, NAME = "Zions Bank", REPDTE = as.Date("2023-03-31")) %>%
-  add_row(DEP = 28527246, DEPINS = 20452549, NAME = "Pacific Western Bank", REPDTE = as.Date("2023-03-31")) %>%
-  add_row(DEP = 62813312, DEPINS = 35038477, NAME = "First Horizon Bank", REPDTE = as.Date("2023-03-31")) %>%
-  add_row(DEP = 47852002, DEPINS = 32353242, NAME = "Western Alliance Bank", REPDTE = as.Date("2023-03-31")) %>%
-  add_row(DEP = 66703000, DEPINS = 31696000, NAME = "Comerica Bank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 147388149, DEPINS = 75770590, NAME = "Keybank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 69207568, DEPINS = 37845135, NAME = "Zions Bank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 28527246, DEPINS = 20452549, NAME = "Pacific Western Bank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 62813312, DEPINS = 35038477, NAME = "First Horizon Bank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 47852002, DEPINS = 32353242, NAME = "Western Alliance Bank", REPDTE = as.Date("2023-03-31")) %>%
+  # add_row(DEP = 66703000, DEPINS = 31696000, NAME = "Comerica Bank", REPDTE = as.Date("2023-03-31")) %>%
   transmute(`Uninsured Deposits` = DEP-DEPINS, `FDIC Insured Deposits` = DEPINS, date = REPDTE, bank = NAME) %>%
   pivot_longer(cols = c(`Uninsured Deposits`, `FDIC Insured Deposits`)) %>%
   mutate(name = factor(name,levels = c("Uninsured Deposits","FDIC Insured Deposits"))) %>%
@@ -184,7 +184,7 @@ DEP_DEPINS_MAJOR_BANKS_graph <- ggplot(data = subset(DEP_DEPINS_MAJOR_BANKS), ae
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*210), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   #coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = DEP_DEPINS_MAJOR_BANKS_graph, "At Risk Major Banks Graph.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = DEP_DEPINS_MAJOR_BANKS_graph, "At Risk Major Banks Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 LONG_TERM_ASSETS_MAJOR_BANKS <- AT_RISK_MAJOR_BANKS %>%
   transmute(NAME, LT_ASSET_RATIO = ASSTLT/ASSET, date = REPDTE) %>%
@@ -209,7 +209,7 @@ LONG_TERM_ASSETS_MAJOR_BANKS_graph <- ggplot() + #plotting loan performance data
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*.65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = LONG_TERM_ASSETS_MAJOR_BANKS_graph, "Long Term Asset Ratio Major Banks Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = LONG_TERM_ASSETS_MAJOR_BANKS_graph, "Long Term Asset Ratio Major Banks Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 FED_EMERGENCY_LOANS <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?rel=H41&series=a66e338ec176dd641c333de890fd7816&lastobs=100&from=&to=&filetype=csv&label=omit&layout=seriescolumn") %>%
   .[-1,] %>%

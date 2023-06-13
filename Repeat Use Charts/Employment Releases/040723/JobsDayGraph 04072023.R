@@ -563,13 +563,13 @@ EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
   xlab("Date") +
   ylab("Prime Age (25-54) Employment-Population Ratio, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  ggtitle("Well Below Full Employment") +
+  ggtitle("Still Below Full Employment") +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
-  theme_apricitas + theme(legend.position = c(.68,.87)) +
+  theme_apricitas + theme(legend.position = c(.68,.88)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("2000-06-01"), y = 0.825, color ="#FFE98F", size = 5) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*11535), xmax = as.Date("1990-01-01")-(0.049*11535), ymin = 0.69-(.3*0.14), ymax = 0.69) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0.69-(.3*0.14), ymax = 0.69) +
   coord_cartesian(clip = "off")
 
 LAH_Graph <- ggplot() + #plotting leisure and hospitality employment
@@ -895,7 +895,7 @@ EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = va
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -20-(.3*35.5), ymax = -20.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = EMPLOY_GROWTH_YOY_graph, "Employ Growth YoY.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_YOY_graph, "Employ Growth YoY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 #Employ Index
 EMPLOY_TRADE_TRANSP_UTIL_IND <- fredr(series_id = "USTPU",observation_start = as.Date("2020-01-01"), realtime_end = NULL) %>%
@@ -971,14 +971,14 @@ CES_CPS_QCEW_Graph <- ggplot() +
   geom_line(data = CPS_ADJ_2022, aes(x=date, y = value/1000, color = "CPS Adjusted to CES Concepts"), size = 1.25) + 
   geom_line(data = QCEW_2022, aes(x=date, y = value/1000000, color = "QCEW"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(0,8), breaks = c(0,2,4,6,8), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(0,10), breaks = c(0,2,4,6,8,10), expand = c(0,0)) +
   ylab("Growth Since Jan 2022, NSA") +
-  ggtitle("The Labor Market Mystery Deepens") +
+  ggtitle("All Major Job Indicators Show Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA, BLS, and Census data",subtitle = "QCEW Data, Broadly, Agrees with CES More than CPS So Far This Year") +
-  theme_apricitas + theme(legend.position = c(.40,.88)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
+  theme_apricitas + theme(legend.position = c(.30,.88)) +
+  scale_color_manual(name= "Non-Seasonally Adjusted Job Growth",values = c("#FFE98F","#00A99D","#EE6055","#FFE98F","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-15")-(.1861*(today()-as.Date("2022-01-15"))), xmax = as.Date("2022-01-15")-(0.049*(today()-as.Date("2022-01-15"))), ymin = 0-(.3*8), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-15")-(.1861*(today()-as.Date("2022-01-15"))), xmax = as.Date("2022-01-15")-(0.049*(today()-as.Date("2022-01-15"))), ymin = 0-(.3*10), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CES_CPS_QCEW_Graph, "CES CPS QCEW Comparison.png", type = "cairo-png") #cairo gets rid of anti aliasing
@@ -1033,11 +1033,11 @@ GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
   geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "ECI * Prime Age Employment"), size = 1.25) +
   annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
   annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
-  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-03-01"), y =0.042, color = "white", size = 4) +
+  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-07-01"), y =0.042, color = "white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
-  ggtitle("GLI Growth in Context") +
+  ggtitle("US Gross Labor Income Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth Looks to Be Declining Back to Pre-COVID Normal Levels") +
   theme_apricitas + theme(legend.position = c(.33,.75)) +
   scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
@@ -1083,7 +1083,7 @@ WAGE_GROWTH_Graph <- ggplot() + #plotting Wage Growth
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0815), breaks = c(0,0.01,.02,.03,0.04,0.05,0.06,0.07,0.08), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
-  ggtitle("Is the Labor Shortage Ending?") +
+  ggtitle("Wage Growth is Decelerating") +
   labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Wage Growth Looks to Be Decelerating Now") +
   theme_apricitas + theme(legend.position = c(.42,.72)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Wages, Employment Cost Index, Private (Composition Adjusted)","Average Hourly Earnings, Private (Not Composition Adjusted)")) +
@@ -1305,9 +1305,114 @@ HOUSING_RELATED_EMPLOYMENT_IND_graph <- ggplot(data = HOUSING_RELATED_EMPLOYMENT
 ggsave(dpi = "retina",plot = HOUSING_RELATED_EMPLOYMENT_IND_graph, "Housing Related Employment Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+PCE_2018 <- fredr("PCE", observation_start = as.Date("2018-01-01"), units = "pc1")
+
+GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
+  select(-latest) %>%
+  drop_na()
+
+GLI_PCE_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_BLS_YOY, aes(x=date,y= annualpct,color= "Gross Labor Income: Non-Farm Payrolls"), size = 1.25) +
+  geom_line(data=PCE_2018, aes(x=date,y= value/100,color= "Personal Consumption Spending"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
+  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-05-01"), y =0.036, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.175,0.325), breaks = c(-.15,-.1,-0.05,0,0.05,.1,.15,.2,.25,.3), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("Labor Income and Consumption Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, as is Nominal Consumption Spending") +
+  theme_apricitas + theme(legend.position = c(.33,.75)) +
+  scale_color_manual(name= "Nominal Growth From Year Ago",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gross Labor Income: Non-Farm Payrolls","Personal Consumption Spending")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.175-(.3*0.50), ymax = -.175) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLI_PCE_graph, "GLI PCE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+QCEW_FINANCE_YOY <- bls_api("ENUUS00030552", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
+  drop_na()
+
+QCEW_INFO_YOY <- bls_api("ENUUS0003051022", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
+  drop_na()
+
+QCEW_TOTAL_YOY <- bls_api("ENUUS00030510", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
+  drop_na()
+
+QCEW_AGG_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_FINANCE_YOY, aes(x=date,y= annualpct,color= "Finance"), size = 1.25) +
+  geom_line(data=GLI_INFO_YOY, aes(x=date,y= annualpct,color= "Information"), size = 1.25) +
+  geom_line(data=QCEW_TOTAL_YOY, aes(x=date,y= annualpct,color= "Total"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.10,0.30), breaks = c(-.10,0,.10,.20,.30), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("Total Comp Growth By Industry") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Income in Finance/Information is Declining, Thanks in Large Part to Shrinking Bonuses") +
+  theme_apricitas + theme(legend.position = c(.43,.75)) +
+  scale_color_manual(name= "Growth in QCEW Total Wages Including Bonuses/Stock Options",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total","Finance","Information")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.40), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QCEW_AGG_graph, "QCEW AGG Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+AWHI_TOTAL <- fredr("AWHAE", observation_start = as.Date("2018-01-01"), units = "pc1")
+AWHI_MANU <- fredr("CES3000000016", observation_start = as.Date("2018-01-01"), units = "pc1")
+
+AWHI_AGG_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=AWHI_TOTAL, aes(x=date,y= value/100,color= "Total"), size = 1.25) +
+  geom_line(data=AWHI_MANU, aes(x=date,y= value/100,color= "Manufacturing (Incl. Overtime)"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.20,0.20), breaks = c(-.2,-.10,0,.10,.20), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("Total Hours Growth By Industry") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Income in Finance/Information is Declining, Thanks in Large Part to Shrinking Bonuses") +
+  theme_apricitas + theme(legend.position = c(.28,.85)) +
+  scale_color_manual(name= "Annual Growth in Aggregate Hours Worked",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total","Manufacturing (Incl. Overtime)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.20-(.3*0.40), ymax = -.20) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AWHI_AGG_graph, "AWHI AGG Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+GLI_BLS_QTR <- fredr("CES0500000017", observation_start = as.Date("2018-01-01"), units = "cca", frequency = "q", aggregation_method = "avg")
+
+NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Income Growth From Nonfarm Payrolls Data, Annualized", x=date, y=value/100)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1.25, linetype = "dashed") +
+  annotate("text", label = "5% Long-Run Pre-COVID Norm",y = 0.054, x = as.Date("2019-02-20"), color = "white", size = 3.5) +
+  annotate("text", label = "*Note: Q1-Q3 2020 Excluded Because of Volatility",y = 0.08, x = as.Date("2019-02-01"), color = "white", size = 3.5) +
+  #geom_point(data = RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  #guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.15), breaks = c(0,0.02,0.04,0.06,0.08,0.1,0.12,0.14), expand = c(0,0)) +
+  ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
+  ggtitle("US Labor Income Growth is Still Elevated") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Nominal Income is Declining But Still a Touch Too High To Maintain Target Inflation") +
+  theme_apricitas + theme(legend.position = c(.5,.9)) +
+  #scale_color_manual(name = NULL, values = "black") +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.15), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NGLI_Growth_QTR_Graph, "NGLI Growth Quarter.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PARTTIME_Graph, "Part Time for Economic Reasons.png", type = "cairo-png") #cairo gets rid of anti aliasing

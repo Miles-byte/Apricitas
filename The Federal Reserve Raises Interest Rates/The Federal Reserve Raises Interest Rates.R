@@ -70,15 +70,27 @@ DXY <- tq_get("DX-Y.NYB", from = "2018-01-01")
 DXY <- drop_na(DXY) 
 
 #Downloading FFR futures for Jan 23, 24, and 25
-FFR_JAN_23 <- tq_get("ZQF23.CBT", from = "2021-01-01")
-FFR_JAN_23 <- drop_na(FFR_JAN_23) %>% mutate(Future = "Jan23")
-FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01")
-FFR_JAN_24 <- drop_na(FFR_JAN_24) %>% mutate(Future = "Jan24")
-FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01")
-FFR_JAN_25 <- drop_na(FFR_JAN_25) %>% mutate(Future = "Jan25")
+FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2023-01-01")
+FFR_JAN_24 <- drop_na(FFR_JAN_24) %>% mutate(Future = "Jan24") %>% 
+  select(date, close, Future)
 
-FFR_MERGE_23_25 <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% select(date, close, Future) %>% pivot_wider(names_from = Future, values_from = close)
+FFR_JAN_23 <- data.frame(date = FFR_JAN_24$date, close = 100-4.33)
+FFR_JAN_23 <- drop_na(FFR_JAN_23) %>% mutate(Future = "Jan23") 
+
+FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2023-01-01")
+FFR_JAN_25 <- drop_na(FFR_JAN_25) %>% mutate(Future = "Jan25") %>% 
+  select(date, close, Future)
+
+FFR_MERGE_23_25 <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% pivot_wider(names_from = Future, values_from = close)
 FFR_MERGE_23_25 <- drop_na(FFR_MERGE_23_25)
+
+FFR_JUN_24 <- tq_get("ZQM24.CBT", from = "2021-01-01") %>%
+  drop_na()
+FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01") %>%
+  drop_na()
+FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01") %>%
+  drop_na()
+
 
 EFFR <- fredr(series_id = "EFFR",observation_start = as.Date("2019-01-01"), frequency = "m", aggregation_method = "avg")
 
@@ -133,7 +145,7 @@ FFR_MERGE_23_25_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
   geom_line(data=FFR_MERGE_23_25, aes(x=date,y= (Jan24-Jan23)/-100,color= "2023 Futures Implied FFR Rate Change"), size = 1.25) +
   geom_line(data=FFR_MERGE_23_25, aes(x=date,y= (Jan25-Jan24)/-100,color= "2024 Futures Implied FFR Rate Change"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.014,0.01), breaks = c(-0.014,-0.012,-0.01,-0.008,-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
+  #scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(-0.014,0.01), breaks = c(-0.014,-0.012,-0.01,-0.008,-0.006,-0.004,-0.002,0,.002,.004,.006,.008,.01), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Higher For Longer") +
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "FFR Futures Have Stopped Forecasting Rate Cuts in Calendar Year 2023") +
@@ -147,12 +159,30 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Index") +
-  ggtitle("Forward Guidance") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High But Declining") +
+  ggtitle("Interest Rate Volatility Remains High") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High, But Declined Significantly From Post-SVB Highs") +
   theme_apricitas + theme(legend.position = c(.25,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*200), ymax = 0) +
   coord_cartesian(clip = "off")
+
+FFR_HIGHER_FROM_LONGER_Graph <- ggplot() + #plotting FFR rate changes in 2023 and 2024
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=FFR_JUN_24, aes(x=date,y= (100-close)/100,color= "June 2024"), size = 1.25) +
+  geom_line(data=FFR_JAN_25, aes(x=date,y= (100-close)/100,color= "January 2025"), size = 1.25) +
+  geom_line(data=FFR_JAN_24, aes(x=date,y= (100-close)/100,color= "January 2024"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.06), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Higher For How Long?") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Even if the Fed Skips a Rate Hike, Rates Are Predicted to Stay High in the Short Term") +
+  theme_apricitas + theme(legend.position = c(.275,.65)) +
+  scale_color_manual(name= "FFR Futures Rate",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("January 2024","June 2024","January 2025")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*.06), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FFR_HIGHER_FROM_LONGER_Graph, "FFR HIGHER FOR LONGER.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 DXY_Graph <- ggplot() + #plotting DXY
   geom_line(data=DXY, aes(x=date,y= close,color= "DXY US Dollar Index"), size = 1.25) +
@@ -304,7 +334,7 @@ REAL_RATES_GRAPH <- ggplot() + #plotting inflation breakevens
   ylab("TIPS Yield, %") +
   ggtitle("Here's A Tip:") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Inverted") +
-  theme_apricitas + theme(legend.position = c(.58,.80)) +
+  theme_apricitas + theme(legend.position = c(.48,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("5-Year Real Treasury Yield","7-Year Real Treasury Yield (Fitted)","10-Year Real Treasury Yield","20-Year Real Treasury Yield (Fitted)","30-Year Real Treasury Yield")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.02-(.3*.04), ymax = -0.02) +
   coord_cartesian(clip = "off")
