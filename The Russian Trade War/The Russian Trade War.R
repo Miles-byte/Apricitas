@@ -36,7 +36,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
 US_NAT_GAS_EXPORTS_DOL <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "2711110000", #nat gas commodity code
   #CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code

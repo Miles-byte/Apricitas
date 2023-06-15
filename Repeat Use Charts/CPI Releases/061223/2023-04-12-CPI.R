@@ -890,7 +890,7 @@ BIE_Graph <- ggplot() + #plotting total quits
   xlab("Date") +
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
-  ggtitle("What Were You Expecting?") +
+  ggtitle("Inflation Expectations are Falling") +
   labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Business Unit Cost Inflation Expectations Remain Elevated") +
   theme_apricitas + theme(legend.position = c(.47,.84)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Business Unit Cost Inflation Expectations: Next Year","Business Unit Cost Inflation Expectations: Next 5-10 Years")) +

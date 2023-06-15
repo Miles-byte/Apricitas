@@ -1,4 +1,4 @@
-pacman::p_load(ecb, eurostat,censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ecb,eurostat,censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -191,7 +191,7 @@ US_EU_NAT_GAS_FUTURES_Graph <- ggplot() + #plotting US/EU Nat Gas Prices
 US_NAT_GAS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "VES_WGT_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "2711110000", #nat gas commodity code
   CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -207,11 +207,11 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting components of excess savings
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "B", accuracy = 1),limits = c(0,8), breaks = c(0,2,4,6,8), expand = c(0,0)) +
   ylab("Billions of kg") +
-  ggtitle("Arsenal of Democracy") +
+  ggtitle("America is Helping Replace Russian Gas") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Natural Gas Exports Are Helping Ease A European Energy Shortage") +
   theme_apricitas + theme(legend.position = c(.25,.80)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*2250), xmax = as.Date("2016-01-01")-(0.049*2250), ymin = 0-(.3*8), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*2450), xmax = as.Date("2016-01-01")-(0.049*2450), ymin = 0-(.3*8), ymax = 0) +
   coord_cartesian(clip = "off")
 
 #EU Stacked Nat Gas Imports
@@ -587,7 +587,7 @@ ggsave(dpi = "retina",plot = HICP_CONTRIBUTION, "HICP Contribution.png", type = 
 
 
 ggsave(dpi = "retina",plot = US_EU_NAT_GAS_Graph, "US EU NAT GAS PRICES.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US NAT GAS EXPORTS.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US NAT GAS EXPORTS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = US_EU_NGDP_Graph, "US EU NGDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EU_Spreads_Graph, "EU Spreads.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EU_Spreads_Graph_2, "EU Spreads 2.png", type = "cairo-png") #cairo gets rid of anti aliasing

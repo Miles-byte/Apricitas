@@ -66,7 +66,7 @@ ggsave(dpi = "retina",plot = China_Exports_US, "China Exports US.png", type = "c
 US_RUSSIA_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","GEN_VAL_MO","I_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   I_COMMODITY = "-",
   CTY_CODE = "4621", #Russia country code
   ) %>%
@@ -76,7 +76,7 @@ US_RUSSIA_IMPORTS <- getCensus(
 US_RUSSIA_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   CTY_CODE = "4621", #Russia country code
   E_COMMODITY = "-",
   ) %>%
@@ -137,7 +137,7 @@ US_China_Imports_Exports_graph <- ggplot() + #plotting bank consumer loan data
 US_CRUDE_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","GEN_VAL_MO","I_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   I_COMMODITY = "2709",
   CTY_CODE = "-", #Russia country code
 ) %>%
@@ -148,7 +148,7 @@ US_CRUDE_IMPORTS <- getCensus(
 US_CRUDE_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   E_COMMODITY = "2709",
   CTY_CODE = "-", #Russia country code
 ) %>%
@@ -159,7 +159,7 @@ US_CRUDE_EXPORTS <- getCensus(
 US_REFINED_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","GEN_VAL_MO","I_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   I_COMMODITY = "2710",
   CTY_CODE = "-", #Russia country code
 ) %>%
@@ -170,7 +170,7 @@ US_REFINED_IMPORTS <- getCensus(
 US_REFINED_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   E_COMMODITY = "2710",
   CTY_CODE = "-", #Russia country code
 ) %>%
@@ -202,7 +202,7 @@ ggsave(dpi = "retina",plot = US_Trade_Crude_Refined, "US Trade Crude Refined.png
 US_COAL_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "2701",
   CTY_CODE = "-", #World country code
 ) %>%
@@ -213,7 +213,7 @@ US_COAL_EXPORTS <- getCensus(
 US_PROPANE_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "271112",
   CTY_CODE = "-", #World country code
 ) %>%
@@ -224,7 +224,7 @@ US_PROPANE_EXPORTS <- getCensus(
 US_BUTENE_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "271113",
   CTY_CODE = "-", #World country code
 ) %>%
@@ -253,7 +253,7 @@ ggsave(dpi = "retina",plot = US_Energy_Exports, "US Energy Exports.png", type = 
 US_NAT_GAS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = "from 2016 to 2023",
   E_COMMODITY = "2711110000", #nat gas commodity code
   CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -283,7 +283,7 @@ US_CIRCUITS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE", "DF"), 
   DF = 1, #excluding reexport
-  time = "from 2013 to 2022",
+  time = "from 2013 to 2023",
   E_COMMODITY = "8542", #integrated circuits commodity code
   CTY_CODE = "4XXX", #europe country code
   CTY_CODE = "5XXX", #asia

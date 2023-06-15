@@ -1,4 +1,4 @@
-pacman::p_load(tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(openxlsx,readxl,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("quantmod")
 install.packages("cli")
 install_github("keberwein/blscrapeR")
@@ -372,7 +372,7 @@ CPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/06/Manheim-Used-Vehicle-Value-Index-data-May-2023.xlsx?_ga=2.55419304.2086852393.1686660207-1615389698.1678796383") %>%
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 
