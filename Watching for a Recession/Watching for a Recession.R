@@ -69,11 +69,11 @@ MANUFACT_DIFF_Graph <- ggplot() +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(-40,60), breaks = c(-40,-20,0,20,40,60), expand = c(0,0)) +
   ylab("Diffusion Index, Positive Number Indicates Growth") +
-  ggtitle("Hiring Plans") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Manufacturing Employment Growth Forecasts are Decreasing as the Economy Weakens") +
-  theme_apricitas + theme(legend.position = c(.22,.20)) +
+  ggtitle("Manufacturing Hiring Plans") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Manufacturing Employment Growth Forecasts are Rebounding as the Economy Strengthens") +
+  theme_apricitas + theme(legend.position = c(.72,.20)) +
   scale_color_manual(name= "Future Employment Diffusion Index",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED"), breaks = c("NY Manufacturing","TX Manufacturing","PHI Region Manufacturing")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1700), xmax = as.Date("2018-01-01")-(0.049*1700), ymin = -40-(.3*100), ymax = -40) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1900), xmax = as.Date("2018-01-01")-(0.049*1900), ymin = -40-(.3*100), ymax = -40) +
   coord_cartesian(clip = "off")
 
 SERVICES_DIFF_Graph <- ggplot() + 
@@ -83,11 +83,11 @@ SERVICES_DIFF_Graph <- ggplot() +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(-40,60), breaks = c(-40,-20,0,20,40,60), expand = c(0,0)) +
   ylab("Diffusion Index, Positive Number Indicates Growth") +
-  ggtitle("Hiring Plans") +
+  ggtitle("Services Hiring Plans") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Services Employment Growth Forecasts are Holding Up Better, Likely Due to Sectoral Rotations") +
-  theme_apricitas + theme(legend.position = c(.22,.20)) +
+  theme_apricitas + theme(legend.position = c(.72,.20)) +
   scale_color_manual(name= "Future Employment Diffusion Index",values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1700), xmax = as.Date("2018-01-01")-(0.049*1700), ymin = -40-(.3*100), ymax = -40) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1900), xmax = as.Date("2018-01-01")-(0.049*1900), ymin = -40-(.3*100), ymax = -40) +
   coord_cartesian(clip = "off")
 
 Recession_Graph <- ggplot() + #plotting google search trends for recession
@@ -143,8 +143,8 @@ ICECCCCORPORATE_Graph <- ggplot() + #plotting ICE CCC Corporate Index
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.13), breaks = c(0,0.05,0.1), expand = c(0,0)) +
   ylab("Spread, %") +
-  ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Rapidly Tightening as the Federal Reserve Raises Interest Rates") +
+  ggtitle("Financial Conditions Have Eased Up a Bit") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Returning to Pre-SVB Levels in the Wake of the Fed's Pause") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +

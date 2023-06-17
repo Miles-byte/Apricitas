@@ -8,27 +8,30 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 #umich durable buying conditions and buy in advance of rising prices
 UMICH <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/UMICH.csv") %>%
-  mutate(date = as.Date(ï..date)) %>%
+  mutate(date = as.Date(?..date)) %>%
   mutate(AVG_BIAP = (HOM_BIAP + CAR_BIAP + DUR_BIAP)/3)
 #umich inflation expectations
 UMICH_IE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/4555697f56553d9e73eb11b5262952f3e28b7361/Understanding%20Inflation%20Expectations/UMICH_IE.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 
 #Adding Atlanta Fed Business Inflation Expectations
 BIE_1YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/ATL_BIE_1YR.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 BIE_5YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/ATL_BIE_5YR.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 
 BIE_LABOR_NONLABOR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/bielabornonlabor.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 
+ATL_REV_EXP <- fredr(series_id = "ATLSBUSRGEP", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+ATL_EMP_EXP <- fredr(series_id = "ATLSBUEGEP", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 #adding Gorodnichenko firm inflation expectations
 SOFIE_1YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/SOFIE_1YR.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 SOFIE_5YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/SOFIE_5YR.csv") %>%
-  mutate(date = as.Date(ï..date))
+  mutate(date = as.Date(?..date))
 
 FIVEYEARBREAKEVEN2019 <- fredr(series_id = "T5YIE", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #5 Year Inflation Breakevens data
 FIVEYEARFWDBREAKEVEN2019 <- fredr(series_id = "T5YIFR",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) # 5 year 5 year forward breakevens data
@@ -37,6 +40,54 @@ FIVEYEARFWDBREAKEVEN2019 <- drop_na(FIVEYEARFWDBREAKEVEN2019)
 
 ICE_INF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/ICE_USD_Inflation_Expectations_Index_Family.csv") %>%
   mutate(date = as.Date(date, "%m/%d/%Y"))
+
+SCE_INF <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/SCE.csv") %>%
+  mutate(date = as.Date(Date))
+
+SCE_JOB_SEP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Understanding%20Inflation%20Expectations/SCE_JOB_SEP.csv") %>%
+  mutate(date = as.Date(date))
+
+ATL_EXP_Graph <- ggplot() + #plotting total quits
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=ATL_REV_EXP, aes(x=date,y= value/100,color= "Firm Revenue Growth"), size = 1.25)+ 
+  geom_line(data=ATL_EMP_EXP, aes(x=date,y= value/100,color= "Firm Employment Growth"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.01,.07), breaks = c(-0.01,0,.01,.02,.03,.04,.05,0.06,0.07), expand = c(0,0)) +
+  ggtitle("Firms See Slower Revenue Growth & Stable Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Firms Have Cut Revenue Expectations and Held Hiring Expectations") +
+  theme_apricitas + theme(legend.position = c(.27,.86)) + theme(plot.title = element_text(size = 21)) +
+  scale_color_manual(name= "Business Expectations, Year-Ahead",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Firm Revenue Growth","Firm Employment Growth")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.01-(.3*.08), ymax = -0.01) +
+  coord_cartesian(clip = "off")
+
+
+SCE_INF_Graph <- ggplot() + #plotting total quits
+  geom_line(data=SCE_INF, aes(x=date,y= `X1yr`/100,color= "Inflation Expectations: Next Year"), size = 1.25)+ 
+  geom_line(data=SCE_INF, aes(x=date,y= `X3yr`/100,color= "Inflation Expectations: Next 3 Years"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.07), breaks = c(0,.01,.02,.03,.04,.05,0.06), expand = c(0,0)) +
+  ggtitle("Consumer Inflation Expectations are Falling") +
+  labs(caption = "Graph created by @JosephPolitano using New York Fed data", subtitle = "Consumer Inflation Expectations are Falling, Thanks to Decelerations in Food and Energy Prices") +
+  theme_apricitas + theme(legend.position = c(.47,.84)) +
+  scale_color_manual(name= "New York Fed Survey of Consumer Expectations",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Inflation Expectations: Next Year","Inflation Expectations: Next 3 Years")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-06-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-06-01"))), ymin = 0-(.3*.07), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+SCE_JOB_SEP_Graph <- ggplot() + #plotting total quits
+  geom_line(data=SCE_JOB_SEP, aes(x=date,y= `mean`/100,color= "Mean Probability of Losing a Job"), size = 1.25)+ 
+  #geom_line(data=SCE_INF, aes(x=date,y= `X3yr`/100,color= "Inflation Expectations: Next 3 Years"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.23), breaks = c(0,.05,.10,.15,.20,.25), expand = c(0,0)) +
+  ggtitle("Job Market Expectations are Strong") +
+  labs(caption = "Graph created by @JosephPolitano using New York Fed data", subtitle = "Consumers' Self-Reported Risk of Job Loss is Near a Record Low") +
+  theme_apricitas + theme(legend.position = c(.29,.34)) +
+  scale_color_manual(name= "New York Fed Survey of Consumer Expectations",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-06-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-06-01"))), ymin = 0-(.3*.23), ymax = 0) +
+  coord_cartesian(clip = "off")
+
 
 UMICH_BUYING_Graph <- ggplot() + #plotting total quits
   annotate("hline", y = 0, yintercept = 100, color = "white", size = .5) +
@@ -150,6 +201,10 @@ BIE_LABOR_NONLABOR_Graph <- ggplot() + #plotting total quits
   scale_color_manual(name= "Future Influence of Costs on Prices, Next Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-04")-(.1861*(today()-as.Date("2022-01-04"))), xmax = as.Date("2022-01-04")-(0.049*(today()-as.Date("2022-01-04"))), ymin = 0-(.3*.08), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SCE_INF_Graph, "SCE INF EXP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = SCE_JOB_SEP_Graph, "SCE JOB SEP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = ATL_EXP_Graph, "ATL Exp Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 ggsave(dpi = "retina",plot = UMICH_BUYING_Graph, "UMICH BUYING.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = UMICH_BIAP_Graph, "UMICH BIAP GRAPH.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

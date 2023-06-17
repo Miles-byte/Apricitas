@@ -85,12 +85,12 @@ ggsave(dpi = "retina",plot = AVGWE_MANUFACTURING_GRAPH, "AVGWE Manufacturing.png
 TX_MANUFACT_DIFF <- fredr(series_id = "BACTSAMFRBDAL",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 PHI_MANUFACT_DIFF <- fredr(series_id = "GACDFSA066MSFRBPHI",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 NY_MANUFACT_DIFF <- fredr(series_id = "GACDISA066MSFRBNY",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
-RCH_MANUFACT_DIFF <- read.xlsx("https://www.richmondfed.org/-/media/RichmondFedOrg/research/regional_economy/surveys_of_business_conditions/manufacturing/data/mfg_historicaldata.xlsx") %>%
+RCH_MANUFACT_DIFF <- read.xlsx("https://www.richmondfed.org/-/media/RichmondFedOrg/region_communities/regional_data_analysis/regional_economy/surveys_of_business_conditions/manufacturing/data/mfg_historicaldata.xlsx") %>%
   mutate(date = seq.Date(from = as.Date("1993-11-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-01-01")) %>%
   transmute(date, value = sa_mfg_composite)
 #Note: Date has to be manually updated for KS Fed release schedule
-KC_MANUFACT_DIFF <- read.xlsx("https://www.kansascityfed.org/Manufacturing/documents/9419/Manufacturing-Survey-Historical-Data-March23.xlsx") %>%
+KC_MANUFACT_DIFF <- read.xlsx("https://www.kansascityfed.org/Manufacturing/documents/9570/2023May25-Historical-Manufacturing-Survey.xlsx") %>%
   transpose() %>%
   .[-1, ] %>%
   transmute(date = V2, value = as.numeric(V5)) %>%

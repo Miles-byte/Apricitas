@@ -15,9 +15,9 @@ CAPACITY_SIGNIF <- get_series("CAPACITYSIGNIF") %>%
   mutate(name = "Significant Difficulty")
 
 CAPACITY <- rbind(CAPACITY_SOME,CAPACITY_SIGNIF) %>%
-  mutate(name = factor(name, levels = c("Some Difficulty","Significant Difficulty"))) %>%
-  pivot_wider() %>%
-  mutate(sum = `Some Difficulty`+`Significant Difficulty`)
+  mutate(name = factor(name, levels = c("Some Difficulty","Significant Difficulty"))) #%>%
+  # pivot_wider() %>%
+  # mutate(sum = `Some Difficulty`+`Significant Difficulty`)
 
 CAPACITY_GRAPH <- ggplot(data = CAPACITY, aes(x = date, y = value/100, fill = name)) +
   geom_col(stat = "identity", position = "stack", color = NA, width = 92) +
@@ -338,7 +338,7 @@ CAN_STARTS_GRAPH <- ggplot(data = CAN_STARTS, aes(x = REF_DATE, y = VALUE, fill 
   ylab("Thousands of Units, Seasonally Adjusted at Annual Rates") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,50,100,150,200,250,300), limits = c(0,300), expand = c(0,0)) +
   ggtitle("Canadian Construction") +
-  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "Canadian Housing Starts are Near Record Highs—Despite Rising Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "Canadian Housing Starts Have Fallen Thanks to Rising Rates") +
   theme_apricitas + theme(legend.position = c(.525,.885)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Housing Starts, Canada",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Single-detached","Multiples")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*300), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
