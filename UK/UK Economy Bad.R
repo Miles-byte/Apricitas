@@ -17,7 +17,7 @@ ITA <- fredr(series_id = "CLVMNACSCAB1GQIT",observation_start = as.Date("2018-01
   mutate(value = value/value[7]*100)
 FRA <- fredr(series_id = "CLVMNACSCAB1GQFR",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
-JPN <- fredr(series_id = "NAEXKP01JPQ189S",observation_start = as.Date("2018-01-01")) %>%
+JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 CAN <- fredr(series_id = "NGDPRSAXDCCAQ",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
@@ -25,10 +25,9 @@ AUS_GDP <- read_abs(series_id = "A2304402X") %>%
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(date = date - 60) %>%
   mutate(value = value/value[8]*100)
-  
 
 RGDP_G7_Graph <- ggplot() + #RGDP Index
-  geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=US, aes(x=date,y= value,color= "United States"), size = 1.25) +
   geom_line(data=UK, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN, aes(x=date,y= value,color= "Canada"), size = 1.25) +
@@ -41,14 +40,14 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
-  ggtitle("Back of the Pack") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The UK and Japan are the Only G7 Nations Whose Output Hasn't Fully Recovered") +
+  ggtitle("GDP Growth in the G7") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, with Japan, the UK, and Germany Still Below pre-COVID GDP") +
   theme_apricitas + theme(legend.position = c(.22,.30)) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Renamed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #25-54 Employment Rates
 US_EPOP <- fredr(series_id = "LNS12300060",observation_start = as.Date("2018-01-01"), frequency = "q") %>%

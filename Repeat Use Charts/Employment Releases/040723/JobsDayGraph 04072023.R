@@ -1445,8 +1445,8 @@ ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png
 ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png") #cairo gets rid of anti aliasing

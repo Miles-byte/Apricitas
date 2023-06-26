@@ -17,9 +17,9 @@ REAL_PCE_GOODS_GRAPH <- ggplot() + #indexed fixed investment
   xlab("Date") +
   scale_y_continuous(limits = c(75,140), breaks = c(80,90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Index, Jan 2020 = 100") +
-  ggtitle("The Goods Bust") +
+  ggtitle("The Goods Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Consumption of Goods in the US has Stalled Over the Last Two Years") +
-  theme_apricitas + theme(legend.position = c(.275,.80)) +
+  theme_apricitas + theme(legend.position = c(.245,.80)) +
   scale_color_manual(name= "Real Personal Consumption Expenditures",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Durable Goods","Nondurable Goods","Services")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 75-(.3*65), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -176,7 +176,7 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
                        aesthetics = "fill",
                       breaks = c(0,10,20,30), 
                       labels = c("$0B","$10B","$20B","$30B"),
-                      limits = c(0,30)) +
+                      limits = c(0,35)) +
   coord_sf(crs = 5070) +
   ggtitle("     New Manufacturing Construction Over The Last 12M") +
   theme(plot.title = element_text(size = 24)) +
@@ -286,13 +286,13 @@ MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xl
 MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of annual inflation
   geom_bar(data = MFG_SPENDING_CATEGORIES, aes(x = date, y = value/1000, fill = name), color = NA, size = 0, stat= "identity") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,150), breaks = c(0,50,100,150), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Manufacturing Construction Spending") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Makes Up More Than 40% of Manufacturing Construction") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Makes Up More Than 50% of Manufacturing Construction") +
   theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
   scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*150), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*200), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MFG_SPENDING_CATEGORIES_GRAPH, "MFG Spending Categories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

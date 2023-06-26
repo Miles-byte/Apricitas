@@ -74,8 +74,8 @@ JAPAN_IP_CARS <- ggplot() + #plotting MOVE
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,120), breaks = c(0,20,40,60,80,100,120), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
-  ggtitle("Still Short Semiconductors") +
-  labs(caption = "Graph created by @JosephPolitano using METI Data",subtitle = "Japanese Vehicle Production is Still Down Amidst the Chip Shortage") +
+  ggtitle("Recovering From the Chip Shortage") +
+  labs(caption = "Graph created by @JosephPolitano using METI Data",subtitle = "Japanese Motor Vehicle Production is at the Highest Level Since 2021 as the Chip Shortage Eases") +
   theme_apricitas + theme(legend.position = c(.5,.25)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*120), ymax = 0) +
@@ -426,6 +426,9 @@ CPI_search <- estat_getStatsList(
   searchWord = "wages and working",
   lang = "E"
 )
+
+
+?estat_getStatsData
 
 TANKAN <- get_boj(BOJ_DATASETS$url[BOJ_DATASETS$name == "co"])
 

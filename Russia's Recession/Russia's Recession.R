@@ -7,7 +7,7 @@ apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 #Russia GDP data
-RU_GDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Russia's%20Recession/RU_GDP_2016.csv") %>%
+RU_GDP <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Russia's%20Recession/RU_GDP_2021.csv") %>%
   mutate(Date = as.Date(Date)) %>%
   mutate(RU_GDP = gsub(",","",RU_GDP)) %>%
   mutate(RU_GDP = as.numeric(RU_GDP))
@@ -17,16 +17,16 @@ RU_GDP_graph <- ggplot() + #plotting russian GDP data
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_area(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Trillions of 2016 Rubles") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, prefix = "₽", suffix = "T"), breaks = c(20,21,22,23,24), limits = c(20,24), expand = c(0,0)) +
+  ylab("Trillions of 2021 Rubles") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, prefix = "₽", suffix = "T"), breaks = c(28,30,32,34), limits = c(28,35), expand = c(0,0)) +
   ggtitle("The Russian Recession") +
-  labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Russian GDP is Falling as the Nation Enters a Recession in the Fallout of its Invasion of Ukraine") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Russian GDP is Recovering From the Fallout of its Invasion of Ukraine and the Ensuing Sanctions") +
   theme_apricitas + theme(legend.position = c(.475,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-04-01")-(.1861*(today()-as.Date("2011-04-01"))), xmax = as.Date("2011-04-01")-(0.049*(today()-as.Date("2011-04-01"))), ymin = 20-(.3*4), ymax = 20) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-04-01")-(.1861*(today()-as.Date("2011-04-01"))), xmax = as.Date("2011-04-01")-(0.049*(today()-as.Date("2011-04-01"))), ymin = 28-(.3*7), ymax = 28) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RU_GDP_graph, "RU GDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = RU_GDP_graph, "RU GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 #UKR GDP Drop

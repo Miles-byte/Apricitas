@@ -1,5 +1,7 @@
 pacman::p_load(Quandl,stringi,ggpubr,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
+Quandl.api_key("fEweXnVbZ38SxxcytVJY")
+
 ISMProductionLead <- Quandl("ISM/BUY_PROD_MAT") %>%
   select(Date, `Average Days`)
 
@@ -9,21 +11,20 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-ISM_LEAD_MANUAL <- data.frame(Date = seq.Date(from = as.Date("2022-04-01"), to = as.Date("2023-01-01"), by = "month"),
-           `Average Days` = c(100,99,100,100,96,94,93,84,85,87))
+ISM_LEAD_MANUAL <- data.frame(Date = seq.Date(from = as.Date("2022-04-01"), to = as.Date("2023-05-01"), by = "month"),
+           `Average Days` = c(100,99,100,100,96,94,93,84,85,87,88,87,90,84))
 
 colnames(ISM_LEAD_MANUAL) <- c("Date","Average Days")
 
 ISMProductionLead <- rbind(ISMProductionLead,ISM_LEAD_MANUAL)
 
-Quandl.api_key("fEweXnVbZ38SxxcytVJY")
 
 ISMProductionLead_Graph <- ggplot() + 
   geom_line(data = subset(ISMProductionLead, Date > as.Date("2017-12-01")), aes(x = Date, y = `Average Days`, color = "Average Lead Times, Production Materials"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(limits = c(50,100), breaks = c(50,60,70,80,90,100), expand = c(0,0)) +
   ylab("Days") +
-  ggtitle("The Supply Chain Crisis") +
+  ggtitle("Supply Chains are Strengthening") +
   labs(caption = "Graph created by @JosephPolitano",subtitle = "Input Lead Times are Falling Off Record Highs") +
   theme_apricitas + theme(legend.position = c(.50,.12)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
@@ -64,28 +65,28 @@ QSPC <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Ar
 QSPC_Supply_Graph <- ggplot() + #plotting BIE
   geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Insufficient Supply of Materials"), size = 1.25) +
   geom_line(data=subset(QSPC, Sector == "All" & Measure == "Logistics/transportation constraints"), aes(x=date,y= Value/100,color= "Logistics/Transportation Constraints"), size = 1.25) +
-  geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient supply of labor"), aes(x=date,y= Value/100,color= "Insufficient Supply of Labor"), size = 1.25) +
+  #geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient supply of labor"), aes(x=date,y= Value/100,color= "Insufficient Supply of Labor"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.50), breaks = c(0,.20,.40,.60,.80), expand = c(0,0)) +
   ylab("% of Plants Citing This Reason") +
-  ggtitle("Healing Supply Chains") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Manufacturers Are Now Citing Materials/Labor Shortages and Logistics Constraints Less") +
+  ggtitle("US Supply Chains are Healing") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Manufacturers Are Now Citing Materials Shortages and Logistics Constraints Less") +
   theme_apricitas + theme(legend.position = c(.40,.75)) +
   scale_color_manual(name= "US Manufacturers, Reasons for Not Running at Full Capacity",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-04-01")))), ymin = 0-(.3*.50), ymax = 0) +
   coord_cartesian(clip = "off")
 
 QSPC_Supply_Selected_Graph <- ggplot() + #plotting BIE
-  geom_line(data=subset(QSPC, Sector == "325" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Chemical Manufacturing"), size = 1.25) +
+  #geom_line(data=subset(QSPC, Sector == "325" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Chemical Manufacturing"), size = 1.25) +
   geom_line(data=subset(QSPC, Sector == "334" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Computers/Electronics Manufacturing"), size = 1.25) +
-  geom_line(data=subset(QSPC, Sector == "335" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Electrical Equipment/Appliances Manufacturing"), size = 1.25) +
+  #geom_line(data=subset(QSPC, Sector == "335" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Electrical Equipment/Appliances Manufacturing"), size = 1.25) +
   geom_line(data=subset(QSPC, Sector == "336" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Transportation Equipment Manufacturing"), size = 1.25) +
-  geom_line(data=subset(QSPC, Sector == "333" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Machinery Manufacturing"), size = 1.25) +
+  #geom_line(data=subset(QSPC, Sector == "333" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Machinery Manufacturing"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.70), breaks = c(0,.20,.40,.60,.80), expand = c(0,0)) +
   ylab("% of Plants Citing This Reason") +
-  ggtitle("Still Stressed Out") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Key Industries Still Cite Materials Shortage and Logistics Constraints for Underutilization") +
+  ggtitle("The Chip Shortage is Finally Easing") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Car and Electronics Manufacturers are Finally Cite Materials Shortage Less") +
   theme_apricitas + theme(legend.position = c(.40,.75)) +
   scale_color_manual(name= "% Citing Materials Shortages for Not Running at Full Capacity",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Computers/Electronics Manufacturing","Transportation Equipment Manufacturing","Machinery Manufacturing","Electrical Equipment/Appliances Manufacturing","Chemical Manufacturing")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(.1861*(today()-as.Date("2014-04-01")))), ymin = 0-(.3*.70), ymax = 0) +
@@ -105,7 +106,7 @@ QSPC_Demand_Graph <- ggplot() + #plotting QSPC Demand
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-04-01")))), ymin = 0-(.3*.90), ymax = 0) +
   coord_cartesian(clip = "off")
 
-QSPC_Category <- QSPC %>%
+QSPC_Category_Q4 <- QSPC %>%
   mutate(Sector = gsub("311","Food",Sector)) %>%
   mutate(Sector = gsub("312","Beverages/Tobacco",Sector)) %>%
   mutate(Sector = gsub("313","Textile",Sector)) %>%
@@ -128,23 +129,83 @@ QSPC_Category <- QSPC %>%
   mutate(Sector = gsub("337","Furniture & Related",Sector)) %>%
   mutate(Sector = gsub("339","Miscellaneous",Sector)) %>%
   subset(date == as.Date("2022-10-01")) %>%
+  mutate(date = "Q4 2022") %>%
   subset(Measure == "Insufficient supply of materials") %>%
   subset(Sector != "All") %>%
   mutate(Sector = factor(Sector,levels = c("Textile","Textile Products","Leather Products","Primary Metal","Paper","Nonmetallic Mineral Products","Petroleum & Coal Products","Plastics & Rubber Products","Fabricated Metal Products","Food","Beverages/Tobacco","Apparel","Chemical","Miscellaneous","Wood Products","Electrical Equipment & Appliances","Printing & Related","Furniture & Related","Machinery","Transportation Equipment","Computer & Electronic Products")))
 
+QSPC_Category_Q1 <- QSPC %>%
+  mutate(Sector = gsub("311","Food",Sector)) %>%
+  mutate(Sector = gsub("312","Beverages/Tobacco",Sector)) %>%
+  mutate(Sector = gsub("313","Textile",Sector)) %>%
+  mutate(Sector = gsub("314","Textile Products",Sector)) %>%
+  mutate(Sector = gsub("315","Apparel",Sector)) %>%
+  mutate(Sector = gsub("316","Leather Products",Sector)) %>%
+  mutate(Sector = gsub("321","Wood Products",Sector)) %>%
+  mutate(Sector = gsub("322","Paper",Sector)) %>%
+  mutate(Sector = gsub("323","Printing & Related",Sector)) %>%
+  mutate(Sector = gsub("324","Petroleum & Coal Products",Sector)) %>%
+  mutate(Sector = gsub("325","Chemical",Sector)) %>%
+  mutate(Sector = gsub("326","Plastics & Rubber Products",Sector)) %>%
+  mutate(Sector = gsub("327","Nonmetallic Mineral Products",Sector)) %>%
+  mutate(Sector = gsub("331","Primary Metal",Sector)) %>%
+  mutate(Sector = gsub("332","Fabricated Metal Products",Sector)) %>%
+  mutate(Sector = gsub("333","Machinery",Sector)) %>%
+  mutate(Sector = gsub("334","Computer & Electronic Products",Sector)) %>%
+  mutate(Sector = gsub("335","Electrical Equipment & Appliances",Sector)) %>%
+  mutate(Sector = gsub("336","Transportation Equipment",Sector)) %>%
+  mutate(Sector = gsub("337","Furniture & Related",Sector)) %>%
+  mutate(Sector = gsub("339","Miscellaneous",Sector)) %>%
+  subset(date == as.Date("2023-01-01")) %>%
+  mutate(date = "Q1 2023") %>%
+  subset(Measure == "Insufficient supply of materials") %>%
+  subset(Sector != "All") %>%
+  mutate(Sector = factor(Sector,levels = c("Textile","Textile Products","Leather Products","Primary Metal","Paper","Nonmetallic Mineral Products","Petroleum & Coal Products","Plastics & Rubber Products","Fabricated Metal Products","Food","Beverages/Tobacco","Apparel","Chemical","Miscellaneous","Wood Products","Electrical Equipment & Appliances","Printing & Related","Furniture & Related","Machinery","Transportation Equipment","Computer & Electronic Products")))
 
-QSPC_Category_graph <- ggplot(data = QSPC_Category, aes(x = Sector, y = Value/100, fill = "Insufficient Supply of Materials, Q4 2022")) + #plotting Deposits, Insured and Uninsured
+QSPC_Category_TOTAL <- rbind(QSPC_Category_Q4,QSPC_Category_Q1)
+
+QSPC_Category_graph <- ggplot(data = QSPC_Category_TOTAL, aes(x = Sector, y = Value/100, fill = date)) + #plotting Deposits, Insured and Uninsured
   geom_bar(stat = "identity", position = "dodge", color = NA) +
   xlab("Sector") +
   ylab("Percent of Manufacturers") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.20,.4,.6), limits = c(0,.62), expand = c(0,0)) +
   ggtitle("Capacity Constraints") +
   labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Cars, Computers, and Chips Have Biggest Supply Chain Issues") +
-  theme_apricitas + theme(legend.position = c(.63,.1)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= "% of US Manufacturers Citing",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  theme_apricitas + theme(legend.position = c(.67,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "% of Manufacturers With Materials Shortage",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Q4 2022","Q1 2023")) +
   coord_flip()
 
-ggsave(dpi = "retina",plot = QSPC_Category_graph, "QSPC Category Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+QSPC_Category_Q4_graph <- ggplot(data = QSPC_Category_Q4, aes(x = Sector, y = Value/100, fill = date)) + #plotting Deposits, Insured and Uninsured
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("Sector") +
+  ylab("Percent of Manufacturers") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.20,.4,.6), limits = c(0,.62), expand = c(0,0)) +
+  ggtitle("Capacity Constraints") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Cars, Computers, and Chips Have Biggest Supply Chain Issues") +
+  theme_apricitas + theme(legend.position = c(.67,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "% of Manufacturers With Materials Shortage",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Q4 2022","Q1 2023")) +
+  coord_flip()
+
+QSPC_Category_Q1 <- QSPC_Category_Q1 %>%
+  mutate(Sector = factor(Sector,levels = c("Petroleum & Coal Products","Primary Metal","Beverages/Tobacco","Paper","Nonmetallic Mineral Products","Textile","Textile Products","Printing & Related","Plastics & Rubber Products","Food","Furniture & Related","Wood Products","Fabricated Metal Products","Chemical","Leather Products","Miscellaneous","Transportation Equipment","Machinery","Apparel","Electrical Equipment & Appliances","Computer & Electronic Products")))
+
+QSPC_Category_Q1_graph <- ggplot(data = QSPC_Category_Q1, aes(x = Sector, y = Value/100, fill = date)) + #plotting Deposits, Insured and Uninsured
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("Sector") +
+  ylab("Percent of Manufacturers") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.20,.4,.6), limits = c(0,.62), expand = c(0,0)) +
+  ggtitle("Capacity Constraints") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Cars, Computers, and Chips Have Biggest Supply Chain Issues") +
+  theme_apricitas + theme(legend.position = c(.6,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "% of Manufacturers With Materials Shortage",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Q1 2023")) +
+  coord_flip()
+
+
+
+ggsave(dpi = "retina",plot = QSPC_Category_graph, "QSPC Category Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = QSPC_Category_Q4_graph, "QSPC Category Q4 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = QSPC_Category_Q1_graph, "QSPC Category Q1 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 ggsave(dpi = "retina",plot = QSPC_Supply_Graph, "QSPC Supply Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = QSPC_Supply_Selected_Graph, "QSPC Selected Supply Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
