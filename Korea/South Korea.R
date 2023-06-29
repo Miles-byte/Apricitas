@@ -184,13 +184,13 @@ EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting US Crude Productio
   geom_line(data=EXP_PRICE_SEMICONDUCTOR, aes(x=time,y= data_value/data_value[1]*100, color= "Semiconductors"), size = 1.25) +
   geom_line(data=EXP_PRICE_COMPUTER, aes(x=time,y= data_value/data_value[1]*100, color= "Computers, Electronic & Optical Equipment"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(50,140),breaks = c(60,80,100,120,140), expand = c(0,0)) +
+  scale_y_continuous(limits = c(40,140),breaks = c(40,60,80,100,120,140), expand = c(0,0)) +
   ylab("Index: Jan 2016 = 100") +
   ggtitle("Korea's Trade Troubles") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "Prices for Korean Tech Exports Fell Dramatically at the End of 2022") +
   theme_apricitas + theme(legend.position = c(.45,.15)) +
   scale_color_manual(name= "Export Price Index, Contractual Currency Basis, South Korea" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 50-(.3*90), ymax = 50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 40-(.3*100), ymax = 40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph, "NETEXP Chips Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
