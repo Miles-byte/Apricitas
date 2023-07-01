@@ -10,7 +10,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 US_ENERGY_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "27", #energy commodity code
   #CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -22,7 +22,7 @@ US_ENERGY_EXPORTS <- getCensus(
 US_ENERGY_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   I_COMMODITY = "27", #energy commodity code
   #CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -38,13 +38,13 @@ US_ENERGY_NET_EXP_Graph <- ggplot() + #plotting nat gas exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data = US_ENERGY_NET_EXP_MERGE, aes(x = time, y = Net/1000000000, color = "US Net Energy Exports"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-25,7), breaks = c(-25,-20,-15,-10,-5,0,5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-25,10), breaks = c(-25,-20,-15,-10,-5,0,5,10), expand = c(0,0)) +
   ylab("Dollars") +
-  ggtitle("The Energy Shock") +
+  ggtitle("The US is Now an Energy Exporter") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Net Energy Exports are at a Modern Record High") +
   theme_apricitas + theme(legend.position = c(.20,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = -25-(.3*32), ymax = -25) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = -25-(.3*35), ymax = -25) +
   coord_cartesian(clip = "off")
 
 #US Import Price Index Growth
@@ -122,11 +122,11 @@ FX_CONTRIB_Graph <- ggplot(FX_CONTRIB, aes(fill="Exchange Rate Contribution to C
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = -.01-(.3*0.065), ymax = -0.01) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = US_ENERGY_NET_EXP_Graph, "US Net Energy Exports.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = IMPORT_PRICE_INDEX_Graph, "US Import Price Indices.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = NOMINAL_BROAD_DOLLAR_Graph, "Nominal Broad US Dollar Index.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = IMPORTS_SHARE_GDP_Graph, "Imports Share of GDP.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = FX_CONTRIB_Graph, "FX Contrib.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_ENERGY_NET_EXP_Graph, "US Net Energy Exports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = IMPORT_PRICE_INDEX_Graph, "US Import Price Indices.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = NOMINAL_BROAD_DOLLAR_Graph, "Nominal Broad US Dollar Index.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = IMPORTS_SHARE_GDP_Graph, "Imports Share of GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = FX_CONTRIB_Graph, "FX Contrib.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

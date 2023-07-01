@@ -473,7 +473,7 @@ NGDP_specs <- list(
   'datasetname' = 'NIPA',
   'TableName' = 'T10105',
   'Frequency' = 'Q',
-  'Year' = '2017,2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -489,7 +489,7 @@ RGDP_specs <- list(
   'datasetname' = 'NIPA',
   'TableName' = 'T10106',
   'Frequency' = 'Q',
-  'Year' = '2017,2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -549,7 +549,7 @@ RGDP_Contributions_Specs <- list(
   'datasetname' = 'NIPA',
   'TableName' = 'T10102',
   'Frequency' = 'Q',
-  'Year' = '2017,2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -587,7 +587,7 @@ PRIVATE_SALES_Specs <- list(
   'datasetname' = 'NIPA',
   'TableName' = 'T10401',
   'Frequency' = 'Q',
-  'Year' = '2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2006, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -739,7 +739,7 @@ REAL_PCE_BREAKDOWN_SPECS <- list(
   'datasetname' = 'NIUnderlyingDetail',
   'TableName' = 'U20403',
   'Frequency' = 'M',
-  'Year' = '2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -818,7 +818,7 @@ FIXED_RESI_INVEST_SPECS <- list(
   'datasetname' = 'NIUnderlyingDetail',
   'TableName' = 'U50406',
   'Frequency' = 'Q',
-  'Year' = '2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -867,7 +867,7 @@ FIXED_IP_INVEST_SPECS <- list(
   'datasetname' = 'NIPA',
   'TableName' = 'T50306',
   'Frequency' = 'Q',
-  'Year' = '2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -897,7 +897,7 @@ FIXED_EQUIP_INVEST_SPECS <- list(
   'datasetname' = 'NIUnderlyingDetail',
   'TableName' = 'U50506',
   'Frequency' = 'Q',
-  'Year' = '2018,2019,2020,2021,2022,2023',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 

@@ -10,7 +10,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 US_NAT_GAS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "VES_WGT_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2022",
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "2711110000", #nat gas commodity code
   CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -36,7 +36,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
 US_NAT_GAS_EXPORTS_DOL <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = "from 2016 to 2023",
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "2711110000", #nat gas commodity code
   #CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -74,7 +74,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
 US_RUSSIA_CRUDE_REFINED_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","VES_WGT_MO","GEN_VAL_MO","I_COMMODITY", "CTY_CODE"), 
-  time = "from 2013 to 2022",
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   I_COMMODITY = "2709", #crude oil commodity code
   I_COMMODITY = "2710", #refined products commodity code
   CTY_CODE = "4621", #Russia country code

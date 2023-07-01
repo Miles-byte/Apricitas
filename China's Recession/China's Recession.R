@@ -114,7 +114,7 @@ RETAIL_SALES_graph <- ggplot() + #plotting index of service production
 ggsave(dpi = "retina",plot = RETAIL_SALES_graph, "Retail Sales.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
 #Passenger and Ton-KM
-statscnQueryLastN(60, lang = "en")
+statscnQueryLastN(100, lang = "cn")
 
 PASSENGER_KM <- statscnQueryData('A0904',dbcode='hgyd',lang = "cn", rowcode = "sj", colcode = "zb") %>%
   mutate(Passenger_km = 旅客周转量_当期值) %>%
@@ -141,7 +141,7 @@ PASSENGER_TON_KM_graph <- ggplot() + #plotting index of service production
   geom_line(data=subset(PASSENGER_KM,Passenger_km != 0), aes(x=date,y=Passenger_km/28.82607,color= "Passenger-kms, Rolling 1-Year Average"), size = 1.25)+ 
   xlab("Date") +
   ylab("Index, Jan 2019 = 100") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(35,120),breaks = c(40,60,80,100,120), expand = c(0,0)) +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(35,120),breaks = c(40,60,80,100,120), expand = c(0,0)) +
   ggtitle("Only Half Locked") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China data", subtitle = "Freight Travel Remains as Strong as Ever even as Passenger Travel Collapses") +
   theme_apricitas + theme(legend.position = c(.65,.65)) +
