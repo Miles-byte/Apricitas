@@ -1,4 +1,4 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(statcanR,cansim,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
@@ -24,7 +24,7 @@ EPOPUSA_Graph <- ggplot() + #plotting Emplyoment-population ratio
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0.69-(.3*0.14), ymax = 0.69) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = EPOPUSA_Graph, "EPOPUSA.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = EPOPUSA_Graph, "EPOPUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
 EPOPCAN <- fredr(series_id = "LREM25TTCAM156S",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #Canada Epop
 EPOPAUS <- fredr(series_id = "LREM25TTAUM156S",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #Aus EPop
@@ -49,7 +49,502 @@ EPOP_PEER_Graph <- ggplot() + #Plotting Anglophone Employment Levels
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = .695-(.3*.19), ymax = .695) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = EPOP_PEER_Graph, "EPOPPEER.png", type = "cairo-png") 
+ggsave(dpi = "retina",plot = EPOP_PEER_Graph, "EPOPPEER.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
+#Male Employment
+EPOPUSA_MALE <- fredr(series_id = "LREM25MAUSM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "USA")
+EPOPCAN_MALE <- fredr(series_id = "LREM25MACAM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Canada")
+EPOPAUS_MALE <- fredr(series_id = "LREM25MAAUM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Australia")
+EPOPJPN_MALE <- fredr(series_id = "LREM25MAJPM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Japan")
+EPOPGER_MALE <- fredr(series_id = "LREM25MADEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Germany")
+EPOPUK_MALE <- fredr(series_id = "LREM25MAGBQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "UK")
+EPOPAUT_MALE <- fredr(series_id = "LREM25MAATQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Austria")
+EPOPBEL_MALE <- fredr(series_id = "LREM25MABEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Belgium")
+EPOPCHI_MALE <- fredr(series_id = "LREM25MACLM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Chile")
+EPOPCHZ_MALE <- fredr(series_id = "LREM25MACZQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Czechia")
+EPOPDEN_MALE <- fredr(series_id = "LREM25MADKQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Denmark")
+EPOPEST_MALE <- fredr(series_id = "LREM25MAEEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Estonia")
+EPOPFIN_MALE <- fredr(series_id = "LREM25MAFIQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Finland")
+EPOPFRAN_MALE <- fredr(series_id = "LREM25MAFRQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "France")
+EPOPGRE_MALE <- fredr(series_id = "LREM25MAGRQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Greece")
+EPOPHUN_MALE <- fredr(series_id = "LREM25MAHUQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Hungary")
+EPOPICE_MALE <- fredr(series_id = "LREM25MAISQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Iceland")
+EPOPIRE_MALE <- fredr(series_id = "LREM25MAIEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Ireland")
+EPOPISR_MALE <- fredr(series_id = "LREM25MAILM156N",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Israel")
+EPOPITA_MALE <- fredr(series_id = "LREM25MAITQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Italy")
+EPOPKOR_MALE <- fredr(series_id = "LREM25MAKRM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Korea")
+EPOPLAT_MALE <- fredr(series_id = "LVALREM25MASTSAQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Latvia")
+EPOPLIT_MALE <- fredr(series_id = "LTULREM25MASTSAQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Lithuania")
+EPOPNET_MALE <- fredr(series_id = "LREM25MANLQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Netherlands")
+EPOPNZ_MALE <- fredr(series_id = "LREM25MANZQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "New Zealand")
+EPOPNOR_MALE <- fredr(series_id = "LREM25MANOQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Norway")
+EPOPPOL_MALE <- fredr(series_id = "LREM25MAPLQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Poland")
+EPOPPOR_MALE <- fredr(series_id = "LREM25MAPTQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Portugal")
+EPOPSLK_MALE <- fredr(series_id = "LREM25MASKQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Slovak Republic")
+EPOPSLO_MALE <- fredr(series_id = "LREM25MASIQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Slovenia")
+EPOPESP_MALE <- fredr(series_id = "LREM25MAESQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Spain")
+EPOPSWE_MALE <- fredr(series_id = "LREM25MASEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Sweden")
+EPOPSWI_MALE <- fredr(series_id = "LREM25MACHQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Switzerland")
+
+EPOP_MALE_GAP <- rbind(EPOPUSA_MALE, EPOPCAN_MALE, EPOPAUS_MALE, EPOPJPN_MALE, EPOPGER_MALE, EPOPUK_MALE, EPOPAUT_MALE, EPOPBEL_MALE, EPOPCHI_MALE, EPOPCHZ_MALE, 
+                       EPOPDEN_MALE, EPOPEST_MALE, EPOPFIN_MALE, EPOPFRAN_MALE, EPOPGRE_MALE, EPOPHUN_MALE, EPOPICE_MALE, EPOPIRE_MALE, EPOPISR_MALE, EPOPITA_MALE,
+                       EPOPKOR_MALE, EPOPLAT_MALE, EPOPLIT_MALE, EPOPNET_MALE, EPOPNZ_MALE, EPOPNOR_MALE, EPOPPOL_MALE, EPOPPOR_MALE, EPOPSLK_MALE, EPOPSLO_MALE, 
+                       EPOPESP_MALE, EPOPSWE_MALE, EPOPSWI_MALE) %>%
+  group_by(date) %>%
+  filter(n() >= 24) %>%
+  ungroup() %>%
+  group_by(date, name) %>%
+  summarise(avg_value = mean(value, na.rm = TRUE)) %>%
+  mutate(group = if_else(name == "USA", "USA", "Other")) %>%
+  drop_na() %>%
+  group_by(date, group) %>%
+  summarise(avg_value = mean(avg_value, na.rm = TRUE)) %>%
+  tidyr::spread(key = group, value = avg_value) %>%
+  mutate(gap = USA - Other) %>%
+  transmute(date, gap, gender = "Male")
+
+#FEMALE EMPLOYMENT
+EPOPUSA_FEMALE <- fredr(series_id = "LREM25FEUSM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "USA")
+EPOPCAN_FEMALE <- fredr(series_id = "LREM25FECAM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Canada")
+EPOPAUS_FEMALE <- fredr(series_id = "LREM25FEAUM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Australia")
+EPOPJPN_FEMALE <- fredr(series_id = "LREM25FEJPM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Japan")
+EPOPGER_FEMALE <- fredr(series_id = "LREM25FEDEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Germany")
+EPOPUK_FEMALE <- fredr(series_id = "LREM25FEGBQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "UK")
+EPOPAUT_FEMALE <- fredr(series_id = "LREM25FEATQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Austria")
+EPOPBEL_FEMALE <- fredr(series_id = "LREM25FEBEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Belgium")
+EPOPCHI_FEMALE <- fredr(series_id = "LREM25FECLM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Chile")
+EPOPCHZ_FEMALE <- fredr(series_id = "LREM25FECZQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Czechia")
+EPOPDEN_FEMALE <- fredr(series_id = "LREM25FEDKQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Denmark")
+EPOPEST_FEMALE <- fredr(series_id = "LREM25FEEEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Estonia")
+EPOPFIN_FEMALE <- fredr(series_id = "LREM25FEFIQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Finland")
+EPOPFRAN_FEMALE <- fredr(series_id = "LREM25FEFRQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "France")
+EPOPGRE_FEMALE <- fredr(series_id = "LREM25FEGRQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Greece")
+EPOPHUN_FEMALE <- fredr(series_id = "LREM25FEHUQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Hungary")
+EPOPICE_FEMALE <- fredr(series_id = "LREM25FEISQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Iceland")
+EPOPIRE_FEMALE <- fredr(series_id = "LREM25FEIEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Ireland")
+EPOPISR_FEMALE <- fredr(series_id = "LREM25FEILM156N",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Israel")
+EPOPITA_FEMALE <- fredr(series_id = "LREM25FEITQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Italy")
+EPOPKOR_FEMALE <- fredr(series_id = "LREM25FEKRM156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Korea")
+EPOPLAT_FEMALE <- fredr(series_id = "LVALREM25FESTSAQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Latvia")
+EPOPLIT_FEMALE <- fredr(series_id = "LTULREM25FESTSAQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Lithuania")
+EPOPNET_FEMALE <- fredr(series_id = "LREM25FENLQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Netherlands")
+EPOPNZ_FEMALE <- fredr(series_id = "LREM25FENZQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "New Zealand")
+EPOPNOR_FEMALE <- fredr(series_id = "LREM25FENOQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Norway")
+EPOPPOL_FEMALE <- fredr(series_id = "LREM25FEPLQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Poland")
+EPOPPOR_FEMALE <- fredr(series_id = "LREM25FEPTQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Portugal")
+EPOPSLK_FEMALE <- fredr(series_id = "LREM25FESKQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Slovak Republic")
+EPOPSLO_FEMALE <- fredr(series_id = "LREM25FESIQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Slovenia")
+EPOPESP_FEMALE <- fredr(series_id = "LREM25FEESQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Spain")
+EPOPSWE_FEMALE <- fredr(series_id = "LREM25FESEQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Sweden")
+EPOPSWI_FEMALE <- fredr(series_id = "LREM25FECHQ156S",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q") %>%
+  transmute(date,value,name = "Switzerland")
+
+
+EPOP_FEMALE_GAP <- rbind(EPOPUSA_FEMALE, EPOPCAN_FEMALE, EPOPAUS_FEMALE, EPOPJPN_FEMALE, EPOPGER_FEMALE, EPOPUK_FEMALE, EPOPAUT_FEMALE, EPOPBEL_FEMALE, EPOPCHI_FEMALE, EPOPCHZ_FEMALE, 
+                     EPOPDEN_FEMALE, EPOPEST_FEMALE, EPOPFIN_FEMALE, EPOPFRAN_FEMALE, EPOPGRE_FEMALE, EPOPHUN_FEMALE, EPOPICE_FEMALE, EPOPIRE_FEMALE, EPOPISR_FEMALE, EPOPITA_FEMALE,
+                     EPOPKOR_FEMALE, EPOPLAT_FEMALE, EPOPLIT_FEMALE, EPOPNET_FEMALE, EPOPNZ_FEMALE, EPOPNOR_FEMALE, EPOPPOL_FEMALE, EPOPPOR_FEMALE, EPOPSLK_FEMALE, EPOPSLO_FEMALE, 
+                     EPOPESP_FEMALE, EPOPSWE_FEMALE, EPOPSWI_FEMALE) %>%
+  group_by(date) %>%
+  filter(n() >= 24) %>%
+  ungroup() %>%
+  group_by(date, name) %>%
+  summarise(avg_value = mean(value, na.rm = TRUE)) %>%
+  mutate(group = if_else(name == "USA", "USA", "Other")) %>%
+  drop_na() %>%
+  group_by(date, group) %>%
+  summarise(avg_value = mean(avg_value, na.rm = TRUE)) %>%
+  tidyr::spread(key = group, value = avg_value) %>%
+  mutate(gap = USA - Other) %>%
+  transmute(date, gap, gender = "Female")
+
+EPOP_GAP <- rbind(EPOP_MALE_GAP,EPOP_FEMALE_GAP) %>%
+  mutate(gender = factor(gender,levels = c("Male","Female")))
+
+EPOP_GAP_BAR_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = EPOP_GAP, aes(x = date, y = gap/200, fill = gender), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.05), breaks = c(-.10,-0.05,0,0.05), expand = c(0,0)) +
+  ylab("Gap in 25-54 Employment Rates, %") +
+  ggtitle("America's Female Employment Failure") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "America's Low Prime-Age Employment is Mostly Thanks to Lower Female Employment Rates") +
+  theme_apricitas + theme(legend.position = c(0.425,0.25), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= "Gap Between US and OECD High-Income Avg. 25-54 Employment Rates",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.10-(.3*.15), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+EPOP_GAP_LINE_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = EPOP_GAP, aes(x = date, y = gap/100, color = gender), size = 1.25, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.05), breaks = c(-.10,-0.05,0,0.05), expand = c(0,0)) +
+  ylab("Gap in 25-54 Employment Rates, %") +
+  ggtitle("America's Female Employment Failure") +
+  labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "America's Low Prime-Age Employment is Mostly Thanks to Lower Female Employment Rates") +
+  theme_apricitas + theme(legend.position = c(0.425,0.25), legend.key.size = unit(0.5,"cm")) +
+  scale_color_manual(name= "Gap Between US and OECD High-Income Avg. 25-54 Employment Rates",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.10-(.3*.15), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = EPOP_GAP_BAR_GRAPH, "EPOP Gap Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = EPOP_GAP_LINE_GRAPH, "EPOP Gap Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#Quebec Graph
+QC_EPOP_MALE <- get_cansim_vector("v2063906")
+QC_EPOP_FEMALE <- get_cansim_vector("v2063915")
+
+EPOP_MALE_1970 <- bls_api("LNS12300061", startyear = 1970) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_1980 <- bls_api("LNS12300061", startyear = 1980) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_1990 <- bls_api("LNS12300061", startyear = 1990) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2000 <- bls_api("LNS12300061", startyear = 2000) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2010 <- bls_api("LNS12300061", startyear = 2010) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_MALE_2020 <- bls_api("LNS12300061", startyear = 2020) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest)
+
+US_EPOP_MALE <- rbind(EPOP_MALE_1970,EPOP_MALE_1980,EPOP_MALE_1990,EPOP_MALE_2000,EPOP_MALE_2010,EPOP_MALE_2020) %>%
+  subset(date > as.Date("1976-01-01"))
+
+EPOP_FEMALE_1970 <- bls_api("LNS12300062", startyear = 1970) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_1980 <- bls_api("LNS12300062", startyear = 1980) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_1990 <- bls_api("LNS12300062", startyear = 1990) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2000 <- bls_api("LNS12300062", startyear = 2000) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2010 <- bls_api("LNS12300062", startyear = 2010) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_FEMALE_2020 <- bls_api("LNS12300062", startyear = 2020) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest)
+
+US_EPOP_FEMALE <- rbind(EPOP_FEMALE_1970,EPOP_FEMALE_1980,EPOP_FEMALE_1990,EPOP_FEMALE_2000,EPOP_FEMALE_2010,EPOP_FEMALE_2020) %>%
+  subset(date > as.Date("1976-01-01"))
+
+
+EPOP_US_QUEBEC_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
+  annotate(geom = "vline",x = as.Date("1997-09-01"), xintercept = as.Date("1997-09-01"), size = 0.75,color = "white", linetype = "dashed") +
+  annotate(geom = "text", label = "Quebec Universal",x = as.Date("1993-01-01"), y = 0.5, size = 4,color = "white") +
+  annotate(geom = "text", label = "Childcare Passed",x = as.Date("1993-01-01"), y = 0.475, size = 4,color = "white") +
+  geom_line(data=QC_EPOP_MALE, aes(x=Date,y= VALUE/100, color= "Québécois Men"), size = 1.25) +
+  geom_line(data=QC_EPOP_FEMALE, aes(x=Date,y= VALUE/100, color= "Québécoise Women"), size = 1.25) +
+  geom_line(data=US_EPOP_MALE, aes(x=date,y= value/100, color= "American Men"), size = 1.25) +
+  geom_line(data=US_EPOP_FEMALE, aes(x=date,y= value/100, color= "American Women"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.40,.95), breaks = c(.40,.50,.60,.70,.80,.90), expand = c(0,0)) +
+  ylab("Employment Rate") +
+  ggtitle("Quebec's Fuller Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and Stats Canada data",subtitle = "Quebec's Employment Rates Have Exceeded Pre-Pandemic Levels—And Beaten America's") +
+  theme_apricitas + theme(legend.position = c(.725,.22)) +
+  scale_color_manual(name= "25-54 Employment-Population Ratios" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1976-01-01")-(.1861*(today()-as.Date("1976-01-01"))), xmax = as.Date("1976-01-01")-(0.049*(today()-as.Date("1976-01-01"))), ymin = .40-(.3*.55), ymax = .40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EPOP_US_QUEBEC_GRAPH, "EPOP US Quebec Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+SHED_2013 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202013.csv")
+SHED_2014 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202014.csv")
+SHED_2015 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202015.csv")
+SHED_2016 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202016.csv")
+SHED_2017 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202017.csv")
+SHED_2018 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202018.csv")
+SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
+SHED_2020 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202020.csv")
+SHED_2021 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202021.csv")
+SHED_2022 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202022.csv")
+
+SHED_2022_NONWORK_REASONS <- SHED_2022 %>%
+  subset(ppage >= 25 & ppage <= 54)
+  
+SHED_2022_CANT_FIND <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_a, weight = weight,format = "long") %>%
+  subset(D22_a == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_CHILDCARE <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_b, weight = weight,format = "long") %>%
+  subset(D22_b == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_FAMILY <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_c, weight = weight,format = "long") %>%
+  subset(D22_c == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_LOSE_BENEFITS <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_d, weight = weight,format = "long") %>%
+  subset(D22_d == "Yes") %>%
+  transmute(ppgender, reason = "Would Lose Government Benefits", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_COVID <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_e, weight = weight,format = "long") %>%
+  subset(D22_e == "Yes") %>%
+  transmute(ppgender, reason = "COVID Concerns", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_HEALTH_DISABILITY <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_f, weight = weight,format = "long") %>%
+  subset(D22_f == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_SCHOOL <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_g, weight = weight,format = "long")  %>%
+  subset(D22_g == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_RETIRED <- crosstab(df = SHED_2022_NONWORK_REASONS, x = ppgender, y = D22_h, weight = weight,format = "long")  %>%
+  subset(D22_h == "Yes") %>%
+  transmute(ppgender, reason = "Retired", pct, date = as.Date("2022-01-01"))
+
+SHED_2022_RESPONSES <- rbind(SHED_2022_CANT_FIND,SHED_2022_CHILDCARE,SHED_2022_FAMILY,SHED_2022_LOSE_BENEFITS,SHED_2022_COVID,SHED_2022_HEALTH_DISABILITY,SHED_2022_SCHOOL,SHED_2022_RETIRED)
+
+#2021
+SHED_2021_NONWORK_REASONS <- SHED_2021 %>%
+  subset(ppage >= 25 & ppage <= 54)
+
+SHED_2021_CANT_FIND <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_a, weight = weight,format = "long") %>%
+  subset(D22_a == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_CHILDCARE <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_b, weight = weight,format = "long") %>%
+  subset(D22_b == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_FAMILY <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_c, weight = weight,format = "long") %>%
+  subset(D22_c == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_LOSE_BENEFITS <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_d, weight = weight,format = "long") %>%
+  subset(D22_d == "Yes") %>%
+  transmute(ppgender, reason = "Would Lose Government Benefits", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_COVID <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_e, weight = weight,format = "long") %>%
+  subset(D22_e == "Yes") %>%
+  transmute(ppgender, reason = "COVID Concerns", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_HEALTH_DISABILITY <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_f, weight = weight,format = "long") %>%
+  subset(D22_f == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_SCHOOL <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_g, weight = weight,format = "long")  %>%
+  subset(D22_g == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2021-01-01"))
+
+SHED_2021_RETIRED <- crosstab(df = SHED_2021_NONWORK_REASONS, x = ppgender, y = D22_h, weight = weight,format = "long")  %>%
+  subset(D22_h == "Yes") %>%
+  transmute(ppgender, reason = "Retired", pct, date = as.Date("2021-01-01"))
+  
+SHED_2021_RESPONSES <- rbind(SHED_2021_CANT_FIND,SHED_2021_CHILDCARE,SHED_2021_FAMILY,SHED_2021_LOSE_BENEFITS,SHED_2021_HEALTH_DISABILITY,SHED_2021_SCHOOL,SHED_2021_RETIRED)
+
+#2020
+SHED_2020_NONWORK_REASONS <- SHED_2020 %>%
+  subset(ppage >= 25 & ppage <= 54) %>%
+  mutate_at(vars(D21_a, D21_b, D21_c, D21_d, D21_e, D21_f, D21_g), 
+            ~ifelse(D1A == "Yes", "No", .))
+  
+SHED_2020_CANT_FIND <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_b, weight = weight,format = "long") %>%
+  subset(D21_b == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_CHILDCARE <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_c, weight = weight,format = "long") %>%
+  subset(D21_c == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_FAMILY <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_d, weight = weight,format = "long") %>%
+  subset(D21_d == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_HEALTH_DISABILITY <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_e, weight = weight,format = "long") %>%
+  subset(D21_e == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_SCHOOL <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_f, weight = weight,format = "long") %>%
+  subset(D21_f == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_RETIRED <- crosstab(df = SHED_2020_NONWORK_REASONS, x = ppgender, y = D21_g, weight = weight,format = "long") %>%
+  subset(D21_g == "Yes") %>%
+  transmute(ppgender, reason = "Retired", pct, date = as.Date("2020-01-01"))
+
+SHED_2020_RESPONSES <- rbind(SHED_2020_CANT_FIND,SHED_2020_CHILDCARE,SHED_2020_FAMILY,SHED_2020_HEALTH_DISABILITY,SHED_2020_SCHOOL,SHED_2020_RETIRED)
+
+#2019
+SHED_2019_NONWORK_REASONS <- SHED_2019 %>%
+  subset(ppage >= 25 & ppage <= 54) %>%
+  mutate_at(vars(D21_a, D21_b, D21_c, D21_d, D21_e, D21_f, D21_g), 
+            ~ifelse(D1A == "Yes", "No", .))
+
+SHED_2019_CANT_FIND <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_b, weight = weight,format = "long") %>%
+  subset(D21_b == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_CHILDCARE <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_c, weight = weight,format = "long") %>%
+  subset(D21_c == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_FAMILY <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_d, weight = weight,format = "long") %>%
+  subset(D21_d == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_HEALTH_DISABILITY <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_e, weight = weight,format = "long") %>%
+  subset(D21_e == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_SCHOOL <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_f, weight = weight,format = "long") %>%
+  subset(D21_f == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_RETIRED <- crosstab(df = SHED_2019_NONWORK_REASONS, x = ppgender, y = D21_g, weight = weight,format = "long") %>%
+  subset(D21_g == "Yes") %>%
+  transmute(ppgender, reason = "Retired", pct, date = as.Date("2019-01-01"))
+
+SHED_2019_RESPONSES <- rbind(SHED_2019_CANT_FIND,SHED_2019_CHILDCARE,SHED_2019_FAMILY,SHED_2019_HEALTH_DISABILITY,SHED_2019_SCHOOL,SHED_2019_RETIRED)
+
+#2018
+SHED_2018_NONWORK_REASONS <- SHED_2018 %>%
+  subset(ppage >= 25 & ppage <= 54) %>%
+  mutate_at(vars(D21_a, D21_b, D21_c, D21_d, D21_e, D21_f, D21_g), 
+            ~ifelse(D1A == "Yes", "No", .))
+
+SHED_2018_CANT_FIND <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_a, weight = weight2b,format = "long") %>%
+  subset(D21_a == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_CHILDCARE <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_b, weight = weight2b,format = "long") %>%
+  subset(D21_b == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_FAMILY <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_c, weight = weight2b,format = "long") %>%
+  subset(D21_c == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_HEALTH_DISABILITY <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_d, weight = weight2b,format = "long") %>%
+  subset(D21_d == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_SCHOOL <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_e, weight = weight2b,format = "long") %>%
+  subset(D21_e == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_RETIRED <- crosstab(df = SHED_2018_NONWORK_REASONS, x = ppgender, y = D21_f, weight = weight2b,format = "long") %>%
+  subset(D21_f == "Yes") %>%
+  transmute(ppgender, reason = "Retired", pct, date = as.Date("2018-01-01"))
+
+SHED_2018_RESPONSES <- rbind(SHED_2018_CANT_FIND,SHED_2018_CHILDCARE,SHED_2018_FAMILY,SHED_2018_HEALTH_DISABILITY,SHED_2018_SCHOOL,SHED_2018_RETIRED)
+
+#2017
+SHED_2017_NONWORK_REASONS <- SHED_2017 %>%
+  subset(ppage >= 25 & ppage <= 54) %>%
+  mutate_at(vars(D21_a, D21_b, D21_c, D21_d, D21_e, D21_f), 
+            ~ifelse(D1_d == "No", "No", .)) %>%
+  mutate_at(vars(D21_b), ~ifelse(D21_a == "Yes", "Yes", .)) #The "business conditions" question for D21_a is being folded into D21_b here
+
+SHED_2017_CANT_FIND <- crosstab(df = SHED_2017_NONWORK_REASONS, x = ppgender, y = D21_b, weight = weight5b,format = "long") %>%
+  subset(D21_b == "Yes") %>%
+  transmute(ppgender, reason = "Can't Find Work", pct, date = as.Date("2017-01-01"))
+
+SHED_2017_CHILDCARE <- crosstab(df = SHED_2017_NONWORK_REASONS, x = ppgender, y = D21_c, weight = weight5b,format = "long") %>%
+  subset(D21_c == "Yes") %>%
+  transmute(ppgender, reason = "Childcare Issues", pct, date = as.Date("2017-01-01"))
+
+SHED_2017_FAMILY <- crosstab(df = SHED_2017_NONWORK_REASONS, x = ppgender, y = D21_d, weight = weight5b,format = "long") %>%
+  subset(D21_d == "Yes") %>%
+  transmute(ppgender, reason = "Other Family or Personal Obligations", pct, date = as.Date("2017-01-01"))
+
+SHED_2017_HEALTH_DISABILITY <- crosstab(df = SHED_2017_NONWORK_REASONS, x = ppgender, y = D21_e, weight = weight5b,format = "long") %>%
+  subset(D21_e == "Yes") %>%
+  transmute(ppgender, reason = "Health Limitations or Disability", pct, date = as.Date("2017-01-01"))
+
+SHED_2017_SCHOOL <- crosstab(df = SHED_2017_NONWORK_REASONS, x = ppgender, y = D21_f, weight = weight5b,format = "long") %>%
+  subset(D21_f == "Yes") %>%
+  transmute(ppgender, reason = "School or Training", pct, date = as.Date("2017-01-01"))
+
+SHED_2017_RESPONSES <- rbind(SHED_2017_CANT_FIND,SHED_2017_CHILDCARE,SHED_2017_FAMILY,SHED_2017_HEALTH_DISABILITY,SHED_2017_SCHOOL)
+
+
+SHED_AGGREGATE_RESPONSES <- rbind(SHED_2017_RESPONSES,SHED_2018_RESPONSES,SHED_2019_RESPONSES,SHED_2020_RESPONSES,SHED_2021_RESPONSES,SHED_2022_RESPONSES)
+
+
+SHED_FEMALE_NONWORK_REASONS_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = subset(SHED_AGGREGATE_RESPONSES, reason %in% c("Can't Find Work","Childcare Issues","Other Family or Personal Obligations") & ppgender == "Female"), aes(x = date, y = pct/100, color = reason), size = 1.25, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.125), breaks = c(0,0.05,0.10), expand = c(0,0)) +
+  ylab("%, Could Select Multiple Responses") +
+  ggtitle("America's Female Employment Failure") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Household Obligations are the Most Frequently Cited Work Obstacle for American Women") +
+  theme_apricitas + theme(legend.position = c(0.425,0.15), legend.key.size = unit(0.5,"cm")) +
+  scale_color_manual(name= "Reasons for Not Working Last Month, American Women Aged 25-54",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Can't Find Work","Childcare Issues","Other Family or Personal Obligations")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*.125), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SHED_FEMALE_NONWORK_REASONS_GRAPH, "SHED FEMALE NONWORK REASONS Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 p_unload(all)  # Remove all add-ons
 
