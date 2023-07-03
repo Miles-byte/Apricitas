@@ -174,9 +174,9 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
                        na.value = "grey50",
                        guide = "colourbar",
                        aesthetics = "fill",
-                      breaks = c(0,10,20,30), 
-                      labels = c("$0B","$10B","$20B","$30B"),
-                      limits = c(0,35)) +
+                      breaks = c(0,10,20,30,40), 
+                      labels = c("$0B","$10B","$20B","$30B","$40B"),
+                      limits = c(0,40)) +
   coord_sf(crs = 5070) +
   ggtitle("     New Manufacturing Construction Over The Last 12M") +
   theme(plot.title = element_text(size = 24)) +
@@ -283,7 +283,7 @@ MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xl
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(name = factor(name, levels = c("Computer/Electronic/Electrical","Chemical","Food/Beverage/Tobacco","Transportation Equipment","Nonmetallic Mineral","Plastic/Rubber","Fabricated Metal","Other")))
 
-MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of annual inflation
+MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturing construction
   geom_bar(data = MFG_SPENDING_CATEGORIES, aes(x = date, y = value/1000, fill = name), color = NA, size = 0, stat= "identity") +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
