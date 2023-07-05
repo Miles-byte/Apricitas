@@ -888,3 +888,5 @@ cat("\014")  # ctrl+L
 rm(list = ls())
 
 dev.off()
+
+p_unload(all)
