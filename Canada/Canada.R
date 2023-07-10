@@ -25,7 +25,7 @@ CAPACITY_GRAPH <- ggplot(data = CAPACITY, aes(x = date, y = value/100, fill = na
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.25,0.5,0.75,1), limits = c(0,1), expand = c(0,0)) +
   ggtitle("Canadian Capacity Crunch") +
-  labs(caption = "Graph created by @JosephPolitano using Bank of Canada data", subtitle = "Canadian Firms Say They Would Have Difficulty Meeting Increased Demand at Elevated Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Canada data", subtitle = "Canadian Firms Now Say They Would Have Difficulty Meeting Increased Demand at Normal Rates") +
   theme_apricitas + theme(legend.position = c(.5,.85)) +
   scale_fill_manual(name= "Rate the Current Ability of Your Firm to Meet an Unexpected Increase in Demand",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Significant Difficulty","Some Difficulty")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1999-07-01")-(.1861*(today()-as.Date("1999-07-01"))), xmax = as.Date("1999-07-01")-(0.049*(today()-as.Date("1999-07-01"))), ymin = 0-(.3*1), ymax = 0) +

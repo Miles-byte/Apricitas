@@ -9,11 +9,11 @@ Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
 OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 OwnIllnessNoWork=OwnIllnessNoWork[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
+OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2023-06-01"), "months")
 
 OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
 OwnIllnessPartTime=OwnIllnessPartTime[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
+OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2023-06-01"), "months")
 
 PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
 Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
@@ -189,7 +189,7 @@ EPOP_RECOVERIES_2007 <- fredr(series_id = "LNS12300060", observation_start = as.
 EPOP_RECOVERIES_2020 <- fredr(series_id = "LNS12300060", observation_start = as.Date("2020-01-01")) %>%
   mutate(month = seq(1:nrow(.))) %>%
   mutate(recovery = value - value[1]) %>%
-  subset(date <= as.Date("2023-03-01"))
+  subset(date <= today())
 
 RECOVERIES_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data=EPOP_RECOVERIES_1990, aes(x=month,y= recovery/100,color= "1990 Recession"), size = 1.25)+ 
@@ -208,7 +208,7 @@ RECOVERIES_Graph <- ggplot() + #plotting permanent and temporary job losers
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = 0-(.3*.27), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RECOVERIES_Graph, "Recoveries.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = RECOVERIES_Graph, "Recoveries.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 Black_White_Employment_Graph <- ggplot() + #plotting black-white unemployment graph
@@ -239,7 +239,7 @@ Black_White_Epop_graph <- ggplot() + #plotting black-white unemployment graph
   coord_cartesian(clip = "off")
 
 Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
-  annotate(geom = "hline", y = 0.751, yintercept = .751, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "hline", y = 0.751, yintercept = .753, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "Women's Employment Rates are at a Record High", x = as.Date("2007-06-01"), y = 0.76, color ="#FFE98F", size = 5) +
   geom_line(data=EPOP_FEMALE, aes(x=date,y= value/100,color= "Women"), size = 1.25)+ 
   geom_line(data=EPOP_MALE, aes(x=date,y= value/100,color= "Men"), size = 1.25)+ 
@@ -1055,7 +1055,6 @@ SEARCH_PORTALS <- bls_api("CES5051929001", startyear = 2005, registrationKey = "
 MEDIA_SOCIAL <- bls_api("CES5051620001", startyear = 2005, registrationKey = "BLS_KEY") %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-
 TECH_EMPLOYMENT_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
   geom_line(data=DATA_PROCESSING, aes(x=date,y= value,color= "Computing Infrastructure, Data Processing, Web Hosting, & Related"), size = 1.25)+ 
   geom_line(data=SOFTWARE_PUBLISHERS, aes(x=date,y= value,color= "Software Publishers"), size = 1.25) + 
@@ -1072,6 +1071,65 @@ TECH_EMPLOYMENT_Graph <- ggplot() + #plotting weekly initial claims for 2014-201
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TECH_EMPLOYMENT_Graph, "Tech Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+DATA_PROCESSING_IND <- bls_api("CES5051800001", startyear = 2020, registrationKey = "BLS_KEY") %>% #data processing employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Computing Infrastructure, Data Processing, Web Hosting, & Related") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+SOFTWARE_PUBLISHERS_IND <- bls_api("CES5051320001", startyear = 2020, registrationKey = "BLS_KEY") %>% #software employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Software Publishers") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+SEARCH_PORTALS_IND <- bls_api("CES5051929001", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Web Search Portals and All Other Information Services") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+MEDIA_SOCIAL_IND <- bls_api("CES5051620001", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Streaming Services, Social Networks, & Related") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+CUSTOM_COMPUTER_PROG_IND <- bls_api("CES6054151101", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Custom Computer Programming Services") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+COMPUTER_SYSTEM_DESIGN_IND <- bls_api("CES6054151201", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Computer Systems Design Services") %>%
+  mutate(value = (value-value[nrow(.)]))
+
+TECH_EMPLOY_GROWTH_IND <- rbind(DATA_PROCESSING_IND,MEDIA_SOCIAL_IND,SEARCH_PORTALS_IND,SOFTWARE_PUBLISHERS_IND,CUSTOM_COMPUTER_PROG_IND,COMPUTER_SYSTEM_DESIGN_IND) %>%
+  group_by(date) %>%
+  filter(n() > 5) %>%
+  mutate(series_id = factor(series_id,levels = rev(c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related"))))
+
+TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400,600), limits = c(-75,600), expand = c(0,0)) +
+  ggtitle("The Tech Boom and Techcession") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "So Far, Employment in the Tech Sector Has Stalled But Not Really Contracted") +
+  theme_apricitas + theme(legend.position = c(0.35,0.82), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
+  scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related")) +
+  theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -100-(.3*600), ymax = -100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TECH_EMPLOY_GROWTH_IND_graph, "Tech Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 
 #
 ECI_WAG_YOY <- fredr(series_id = "ECIWAG",observation_start = as.Date("2002-01-01"), units = "pc1")
@@ -1399,7 +1457,7 @@ NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Inc
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.15), breaks = c(0,0.02,0.04,0.06,0.08,0.1,0.12,0.14), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
-  ggtitle("US Labor Income Growth is Still Elevated") +
+  ggtitle("US Labor Income Growth Has Normalized") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Nominal Income is Declining But Still a Touch Too High To Maintain Target Inflation") +
   theme_apricitas + theme(legend.position = c(.5,.9)) +
   #scale_color_manual(name = NULL, values = "black") +
@@ -1411,53 +1469,53 @@ ggsave(dpi = "retina",plot = NGLI_Growth_QTR_Graph, "NGLI Growth Quarter.png", t
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PARTTIME_Graph, "Part Time for Economic Reasons.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LGOVED_Graph, "LGOVED.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = FOODSERV_Graph, "FOODSERV.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Nursing_Graph, "Nursing.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = FOODSERV_REVENUE_Graph, "Food Service.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = ARTS_Graph, "Arts.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Couriers_Graph, "Couriers.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PWD_Graph, "People With Disabilities.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = TRNSPT_Graph, "Transport.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Childcare_Graph, "Childcare.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = ICNSA14_Graph, "ICNSA14.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = ICNSA19_Graph, "ICNSA19.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Industry_Layoffs_Graph, "Industry Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Total_Layoffs_Graph, "Total Layoffs.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EPOP_SA_NSA_Graph, "EPOP NSA SA.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = OwnIllness_Graph, "OwnIllness.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PandemicLostWork_Graph, "Lost Work.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PandemicTelework_Graph, "Telework.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EPop55Plus_Graph, "Epop 55.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = UnpaidAbsences_Graph, "Unpaid Absences.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job Loss.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = NILFUnemploy_Graph, "Not In Labor Force vs Unemployment.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PARTTIME_Graph, "Part Time for Economic Reasons.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = LGOVED_Graph, "LGOVED.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = FOODSERV_Graph, "FOODSERV.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Nursing_Graph, "Nursing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = FOODSERV_REVENUE_Graph, "Food Service.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = ARTS_Graph, "Arts.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Couriers_Graph, "Couriers.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PWD_Graph, "People With Disabilities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = TRNSPT_Graph, "Transport.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Childcare_Graph, "Childcare.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = ICNSA14_Graph, "ICNSA14.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = ICNSA19_Graph, "ICNSA19.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Industry_Layoffs_Graph, "Industry Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Total_Layoffs_Graph, "Total Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EPOP_SA_NSA_Graph, "EPOP NSA SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = OwnIllness_Graph, "OwnIllness.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PandemicLostWork_Graph, "Lost Work.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PandemicTelework_Graph, "Telework.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EPop55Plus_Graph, "Epop 55.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = UnpaidAbsences_Graph, "Unpaid Absences.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job Loss.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = NILFUnemploy_Graph, "Not In Labor Force vs Unemployment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png",width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = RESIDENTIAL_BUILDING_Graph, "Residential Building Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 

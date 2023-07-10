@@ -69,6 +69,22 @@ PRO_Graph <- ggplot() + #plotting US Crude Production
 
 ggsave(dpi = "retina",plot = PRO_Graph, "PRO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+INDPRO_CAR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "901Y032", item_code1 = "I11ACU",item_code2 = "2", start_time = "201801", cycle = "M") %>%
+  mutate(time = as.Date(as.yearmon(time, "%Y%m")))
+
+KOREA_IP_CARS_graph <- ggplot() + #plotting MOVE
+  geom_line(data=INDPRO_CAR, aes(x=time,y= data_value/data_value[1]*100,color= "Motor Vehicles, Trailers, and Semitrailers"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,140), breaks = c(60,80,100,120,140), expand = c(0,0)) +
+  ylab("Index, Jan 2018 = 100") +
+  ggtitle("Korea's Car Industry") +
+  labs(caption = "Graph created by @JosephPolitano using KOSTAT Data",subtitle = "South Korean Vehicle Production Is at a Record High") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +
+  scale_color_manual(name= "Industrial Production, South Korea",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 60-(.3*80), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = KOREA_IP_CARS_graph, "Korea IP Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 BUS_NATIONAL_TENDENCY_EXPORTS <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "512Y015", item_code1 = "C0000", item_code2 = "AM",start_time = "201801", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
@@ -104,7 +120,7 @@ NETEXP_Graph <- ggplot() + #plotting US Crude Production
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(-5,12.5),breaks = c(-5,0,5,10), expand = c(0,0)) +
   ylab("Billions of US Dollars, Monthly") +
   ggtitle("Korea's Trade Toubles") +
-  labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "South Korea's Economy Shrank in Q4—Thanks in Part to Weakening Net Exports") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "South Korea's Is Back to Being a Net Exporter of Goods") +
   theme_apricitas + theme(legend.position = c(.45,.15)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -5-(.3*17.5), ymax = -5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -146,7 +162,7 @@ NETEXP_COUNTRY_Graph <- ggplot() + #plotting US Crude Production
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(-5,8.5),breaks = c(-5,0,5,10), expand = c(0,0)) +
   ylab("Billions of US Dollars, Monthly") +
-  ggtitle("Korea's Trade Toubles") +
+  ggtitle("Korea's Trade Troubles") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "Korean Net Exports to China Collapsed Amidst the Latter's Slowdown") +
   theme_apricitas + theme(legend.position = c(.45,.82)) +
   scale_color_manual(name= "South Korean Goods Net Exports, NSA" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("China","United States","European Union and United Kingdom","Japan","Australia")) +

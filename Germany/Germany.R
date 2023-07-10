@@ -179,6 +179,50 @@ CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
 
 ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+#Downloading Quarterly 9 Digit Bulk Industrial Production Data
+IP_9DIGIT_BULK <- retrieve_data(tablename = "42131BV203", genesis=c(db='de')) 
+
+IP_EV_EURO <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 %in% c("GP19-291024500","GP19-291024300")) %>%
+  mutate(GP19A9 = gsub("GP19-291024500", "Battery Electric Vehicles",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291024300", "Plug-in Hybrids",GP19A9)) %>%
+  transmute(category = factor(GP19A9, levels = c("Plug-in Hybrids","Battery Electric Vehicles")), value = PRODAW_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+IP_EV_NUMBER <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 %in% c("GP19-291024500","GP19-291024300")) %>%
+  mutate(GP19A9 = gsub("GP19-291024500", "Battery Electric Vehicles",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291024300", "Plug-in Hybrids",GP19A9)) %>%
+  transmute(category = factor(GP19A9, levels = c("Plug-in Hybrids","Battery Electric Vehicles")), value = PRO008_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+EV_STACKED_EURO_graph <- ggplot(data = IP_EV, aes(x = date, y = value/1000000000, fill = category)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Euros") +
+  ggtitle("The German EV Surge") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "€"), breaks = c(0,5,10,15), limits = c(0,15), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Value of German EV Output is Rapidly Growing as the Industry Retools") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Value of German Quarterly Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV, aes(x = date, y = value/1000, fill = category)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Thousands of Vehicles") +
+  ggtitle("The German EV Surge") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400), limits = c(0,400), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced is Rapidly Growing as the Industry Retools") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "German Quarterly Production, Thousands of Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = EV_STACKED_EURO_graph, "Germany EV Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EV_STACKED_NUMBER_graph, "Germany EV Stacked Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 HICP <- get_eurostat("prc_hicp_manr")
 
 HICP_DE <- HICP %>%
@@ -246,8 +290,10 @@ ggsave(dpi = "retina",plot = CONSTRUCT_MANU_SERV_graph, "Manu Serv Graph.png", t
 
 #EU Russia Gas Imports
 
-EUROSTAT_NATURAL_GAS_DATA <- get_eurostat("nrg_ti_gasm") %>%
-  subset(time >= as.Date("2018-01-01")) %>%
+EUROSTAT_NATURAL_GAS_DATA_BULK <- get_eurostat("nrg_ti_gasm") 
+
+EUROSTAT_NATURAL_GAS_DATA <- EUROSTAT_NATURAL_GAS_DATA_BULK %>%
+  #subset(time >= as.Date("2018-01-01")) %>%
   subset(geo == "EU27_2020") %>%
   subset(unit == "MIO_M3") %>%
   subset(siec == "G3000")
@@ -322,7 +368,7 @@ EU_STACKED_GAS_IMPORTS_graph <- ggplot(data = EU_STACKED_GAS_IMPORTS, aes(x = ti
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*57.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EU_STACKED_GAS_IMPORTS_graph, "EU Stacked Gas Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 #has to be manually updated from DeStatis downloads
 IFO_MATERIAL_SHORTAGE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Germany/IFO_Shortage.csv.csv", sep = ";") %>%
