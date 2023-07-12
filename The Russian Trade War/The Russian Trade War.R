@@ -10,7 +10,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 US_NAT_GAS_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "VES_WGT_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  time = paste("from 2016 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "2711110000", #nat gas commodity code
   CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -36,7 +36,7 @@ US_NAT_GAS_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
 US_NAT_GAS_EXPORTS_DOL <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
-  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  time = paste("from 2016 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "2711110000", #nat gas commodity code
   #CTY_CODE = "4XXX", # europe country code
   CTY_CODE = "-" #world country code
@@ -101,9 +101,9 @@ test <- listCensusMetadata(
   name = "timeseries/intltrade/exports/hs", 
   type = "variables")
 
-ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US Nat Gas Exports.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = US_RUSSIA_CRUDE_REFINED_Graph, "US Russia Crude Imports.png", type = "cairo-png") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_DOL_Graph, "US Nat Gas Exports Dollars.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_Graph, "US Nat Gas Exports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_RUSSIA_CRUDE_REFINED_Graph, "US Russia Crude Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = US_NAT_GAS_EXPORTS_DOL_Graph, "US Nat Gas Exports Dollars.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

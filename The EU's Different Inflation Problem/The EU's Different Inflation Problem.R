@@ -559,10 +559,11 @@ ggsave(dpi = "retina",plot = NEGOTIATED_LCI_graph, "Negotiated LCI.png", type = 
 
 
 #HICP Contribution
-PRC_HICP_CTRB <- get_eurostat_data("PRC_HICP_CTRB",
-  filters=c("FOOD","IGD_NNRG","NRG","SERV"),
-  date_filter=">2001-01-01") %>%
-  mutate(time = as.Date(as.yearmon(time,"%Y-%m"))) %>%
+PRC_HICP_CTRB_BULK <- get_eurostat("prc_hicp_ctrb")
+
+PRC_HICP_CTRB <- PRC_HICP_CTRB_BULK %>%
+  subset(coicop %in% c("FOOD","IGD_NNRG","NRG","SERV")) %>%
+  subset(time >= as.Date("2001-01-01")) %>%
   select(coicop, time, values) %>%
   mutate(coicop = gsub("FOOD","Food, Alcohol, and Tobacco",coicop)) %>%
   mutate(coicop = gsub("IGD_NNRG", "Non-Energy Industrial Goods",coicop)) %>%
@@ -576,13 +577,13 @@ HICP_CONTRIBUTION <- ggplot() + #plotting components of annual inflation
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.025,.11), breaks = c(-.025,0,.025,.05,.075,.1), expand = c(0,0)) +
   ylab("Annual Inflation, Percent") +
   ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Eurozone Inflation is More About Supply Shocks to Food, Energy, and Goods") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Eurozone Inflation is Now Less About Energy, Morea About Food and Core Goods and Services") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_fill_manual(name= "Contributions to Eurozone HICP Inflation",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco"), labels = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = -0.025-(.3*.135), ymax = -0.025) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = HICP_CONTRIBUTION, "HICP Contribution.png", type = "cairo-png") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = HICP_CONTRIBUTION, "HICP Contribution.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 

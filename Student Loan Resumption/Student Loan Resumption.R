@@ -1,4 +1,4 @@
-pacman::p_load(bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(jsonlite,fs,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -44,10 +44,140 @@ UA <- 'Mozilla/5.0 (Windows NT 10.0; Win64;' |>
 httr::GET(url1, httr::user_agent(UA), 
           httr::write_disk(tf <- tempfile(fileext = ".xlsx")))
 
-LOAN_BY_DEBT_SIZE <- read_xls(tf)
+LOAN_BY_DEBT_SIZE <- read_xls(tf) %>%
+  slice(-(1:5), -((n()-1):n())) %>%
+  setNames(c("year","quarter","dol_<5k","num_<5k","dol_5-10k","num_5-10k","dol_10-20k","num_10-20k","dol_20-40k","num_20-40k","dol_40-60k","num_40-60k","dol_60-80k","num_60-80k","dol_80-100k","num_80-100k","dol_100-200k","num_100-200k","dol_200k+","num_200k+")) %>%
+  mutate(date = as.Date(as.yearqtr(paste(year, quarter), format = "%Y Q%q"))) %>%
+  select(-year,-quarter) %>%
+  mutate(across(where(is.character), ~ round(as.numeric(.), 1))) #%>%
+  #mutate(dol_sum = rowSums(select(., starts_with("dol")), na.rm = TRUE),
+         #num_sum = rowSums(select(., starts_with("num")), na.rm = TRUE)) #%>%
+  #mutate(across(starts_with("dol"), ~ . / dol_sum)) %>%
+  #mutate(across(starts_with("num"), ~ . / num_sum))
 
-  
-  
+DOL_LOAN_BY_DEBT_SIZE <- LOAN_BY_DEBT_SIZE %>%
+  select(date, starts_with("dol")) %>%
+  rename_with(~ sub("dol_", "", .), starts_with("dol")) %>%
+  rename_with(~ sub("(\\d)", "\\$\\1", .)) %>%
+  pivot_longer(cols = `<$5k`:`$200k+`) %>%
+  mutate(name = factor(name, levels = rev(c("<$5k","$5-10k","$10-20k","$20-40k","$40-60k","$60-80k","$80-100k","$100-200k","$200k+"))))
+
+
+NUM_LOAN_BY_DEBT_SIZE <- LOAN_BY_DEBT_SIZE %>%
+  select(date, starts_with("num")) %>%
+  rename_with(~ sub("num_", "", .), starts_with("num")) %>%
+  rename_with(~ sub("(\\d)", "\\$\\1", .)) %>%
+  pivot_longer(cols = `<$5k`:`$200k+`) %>%
+  mutate(name = factor(name, levels = rev(c("<$5k","$5-10k","$10-20k","$20-40k","$40-60k","$60-80k","$80-100k","$100-200k","$200k+"))))
+
+color_func <- colorRampPalette(c("#ea3c2e","#d12215","#a21b10","#74130c","#460b07","#170402"))
+
+# Use the color gradient function to generate 10 colors
+colors <- color_func(9)
+
+NUM_LOAN_BY_DEBT_SIZE_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_bar(data = NUM_LOAN_BY_DEBT_SIZE, aes(x = date, y = value, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,50), breaks = c(0,10,20,30,40,50), expand = c(0,0)) +
+  ylab("Number") +
+  ggtitle("Number of Student Loan Debtors by Balance") +
+  labs(caption = "Graph created by @JosephPolitano using Department of Education data",subtitle = "Most Debtors Do Not Owe That Much, With 75% Having Less Than $40k in Remaining Debt") +
+  theme_apricitas + theme(legend.position = "right", plot.title = element_text(size = 20)) +
+  scale_fill_manual(name = NULL, values = colors, breaks = c(c("<$5k","$5-10k","$10-20k","$20-40k","$40-60k","$60-80k","$80-100k","$100-200k","$200k+"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-04-01")-(.1861*(today()-as.Date("2017-04-01"))), xmax = as.Date("2017-04-01")-(0.049*(today()-as.Date("2017-04-01"))), ymin = 0-(.3*50), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+DOL_LOAN_BY_DEBT_SIZE_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_bar(data = DOL_LOAN_BY_DEBT_SIZE, aes(x = date, y = value/1000, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.25, suffix = "T"),limits = c(0,1.75), breaks = c(0,.250,.500,.750,1,1.250,1.5,1.75), expand = c(0,0)) +
+  ylab("Number") +
+  ggtitle("Dollars Outstanding of Student Loan Debtors by Balance") +
+  labs(caption = "Graph created by @JosephPolitano using Department of Education data",subtitle = "Most Outstanding Loans Belong to High-Balance Debtors, With 60% From Those with $60k+") +
+  theme_apricitas + theme(legend.position = "right", plot.title = element_text(size = 20)) +
+  scale_fill_manual(name = NULL, values = colors, breaks = c(c("<$5k","$5-10k","$10-20k","$20-40k","$40-60k","$60-80k","$80-100k","$100-200k","$200k+"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-04-01")-(.1861*(today()-as.Date("2017-04-01"))), xmax = as.Date("2017-04-01")-(0.049*(today()-as.Date("2017-04-01"))), ymin = 0-(.3*1.7), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DOL_LOAN_BY_DEBT_SIZE_GRAPH, "DOL Loan by Size.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = NUM_LOAN_BY_DEBT_SIZE_GRAPH, "NUM Loan by Size.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#NOTE: NAME OF SPREADSHEET HAS TO BE UPDATED AS NEW SHEETS COME OUT
+FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2023Q1.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
+  slice(-(1:3)) %>%
+  setnames(c("date","Mortgage","HELOC","Auto","Credit Card","Student Loan","Other","All","X")) %>%
+  select(-Other,-All,-X) %>%
+  mutate(date = seq.Date(from = as.Date("2003-01-01"), by = "3 months", length = nrow(.))) %>%
+  mutate(across(where(is.character), ~ as.numeric(.))) %>%
+  pivot_longer(cols = Mortgage:`Student Loan`)
+
+FRBNY_CONSUMER_CREDIT_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_line(data = FRBNY_CONSUMER_CREDIT, aes(x = date, y = value/100, color = name), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.25),limits = c(0,.15), breaks = c(0,.0250,.0500,.0750,.1,.125,.15), expand = c(0,0)) +
+  ylab("% of Total Balance") +
+  ggtitle("% of Balance 90+ Days Delinquent") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data",subtitle = "Student Loans Had High Delinquency Rates Pre-Pandemic") +
+  theme_apricitas + theme(legend.position = c(0.12,0.85)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c(c("Student Loan","Credit Card","Auto","HELOC","Mortgage"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*0.15), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FRBNY_CONSUMER_CREDIT_GRAPH, "FRBNY Consumer Credit Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#DOE FINANCIAL REPORT
+ANNUAL_PAYMENTS <- data.frame(date =  seq.Date(from = as.Date("2012-01-01"), to = as.Date("2022-01-01"), by = "year"),
+                              Principal = c(18,26.4,36.3,50,55.9,62.6,63.5,67,55.3,33.3,41.3),
+                              Interest = c(5.5,8.1,10.8,13.4,15.5,17.6,19.5,22.4,12.9,2.3,2.6),
+                              Fees = c(1.7,1.7,1.8,1.8,1.8,1.9,1.9,1.9,1.7,1.6,1.6)) %>%
+                    pivot_longer(cols = Principal:Fees)
+
+ANNUAL_DISBURSEMENTS <- data.frame(date =  seq.Date(from = as.Date("2012-01-01"), to = as.Date("2022-01-01"), by = "year"),
+                                   `Stafford Subsidized` = c(27.1,26.5,25.9,24,23.8,23.4,20.3,20,19.1,18.3,15.7),
+                                   `Stafford Unsubsidized` = c(58.4,56.1,54.7,52.7,52.3,51.4,49,48.1,46.1,44.1,45.5),
+                                   `Parent PLUS` = c(20.7,19.4,18.9,19.2,19,18.7,23.1,22.7,21.7,20.8,22.2),
+                                   `Consolidation and Other` = c(36,27.5,34.5,46.4,45.5,49,41.6,39.8,30.4,21.5,36.9)) %>%
+  setNames(c("date","Stafford Subsidized","Stafford Unsubsidized","Parent PLUS","Consolidation and Other")) %>%
+  pivot_longer(cols = `Stafford Subsidized`:`Consolidation and Other`)
+
+ANNUAL_PAYMENTS_GRAPH <- ggplot(data = ANNUAL_PAYMENTS, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,25,50,75,100), limits = c(0,105), expand = c(0,0)) +
+  ggtitle("Federal Student Loans Payments, Incl. Refinancing") +
+  labs(caption = "Graph created by @JosephPolitano using Department of Education Annual Financial Report Data", subtitle = "The Pandemic-era Forebearance Caused Student Loan Payments to Fall Dramatically") +
+  theme_apricitas + theme(legend.position = c(.12,.82)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("Principal", "Interest", "Fees")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 0-(.3*100), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ANNUAL_PAYMENTS_GRAPH, "Annual Student Loan Payments.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
+  transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
+  group_by(year = year(date), month = month(date)) %>% 
+  filter(date == max(date), !(year == year(Sys.Date()) & month == month(Sys.Date())))
+
+DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_line(data = DOE_TGA_DEPOSITS, aes(x = date, y = (value*12)/1000, color = "Department of Education Monthly Receipts, Annual Rate (TGA)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,100), breaks = c(25,50,75,100), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Monthly Payments to the Department of Education") +
+  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Have Hit a 10-Year Low") +
+  theme_apricitas + theme(legend.position = c(0.5,0.95)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-10-01")-(.1861*(today()-as.Date("2005-10-01"))), xmax = as.Date("2005-10-01")-(0.049*(today()-as.Date("2005-10-01"))), ymin = 0-(.3*100), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_GRAPH, "DOE TGA DEPOSITS GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 cat("\014")  # ctrl+L
 
 rm(list = ls())

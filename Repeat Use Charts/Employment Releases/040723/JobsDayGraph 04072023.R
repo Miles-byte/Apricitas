@@ -224,16 +224,16 @@ Black_White_Employment_Graph <- ggplot() + #plotting black-white unemployment gr
   coord_cartesian(clip = "off")
 
 Black_White_Epop_graph <- ggplot() + #plotting black-white unemployment graph
-  geom_line(data=Black_White_Epop, aes(x=date,y= Black/100,color= "Black/African-American Prime Age (25-54) Employment Population Ratio (NSA)"), size = 1.25)+ 
-  #geom_line(data=Black_White_Epop, aes(x=date,y= White/100,color= "White"), size = 1.25)+ 
-  annotate(geom = "hline", y = 0.783, yintercept = .783, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate(geom = "text", label = "Black/African American Employment Rates are at a Record High", x = as.Date("2012-06-01"), y = 0.79, color ="#FFE98F", size = 5) +
+  geom_line(data=Black_White_Epop, aes(x=date,y= Black/100,color= "Black/African-American"), size = 1.25)+ 
+  geom_line(data=Black_White_Epop, aes(x=date,y= White/100,color= "White"), size = 1.25)+ 
+  #annotate(geom = "hline", y = 0.783, yintercept = .783, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "Black/African American Employment Rates are at a Record High", x = as.Date("2012-06-01"), y = 0.79, color ="#FFE98F", size = 5) +
   xlab("Date") +
   ylab("%") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.64,.825),breaks = c(.65,.70,.75,.80,.85), expand = c(0,0)) +
-  ggtitle("A Stronger Labor Market") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Black Employment Rates are at a Record High") +
-  theme_apricitas + theme(legend.position = c(.51,.95)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.64,.85),breaks = c(.65,.70,.75,.80,.85), expand = c(0,0)) +
+  ggtitle("25-54 Employment Rates (NSA)") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Black Employment Rates Near Record Highs, and White Employment Rates Have Fully Recovered") +
+  theme_apricitas + theme(legend.position = c(.25,.15)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = .64-(.3*.21), ymax = .64) +
   coord_cartesian(clip = "off")

@@ -423,7 +423,7 @@ US_EU_JPN_Production <- ggplot() + #plotting MOVE
 ggsave(dpi = "retina",plot = US_EU_JPN_Production, "US EU JPN Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
-Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2023/07/June-2023-MUVVI-Spreadsheet.xlsx") %>%
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 

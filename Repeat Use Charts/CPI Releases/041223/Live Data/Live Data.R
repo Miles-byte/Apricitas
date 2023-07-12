@@ -372,7 +372,7 @@ CPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-Manheim_Bulk <- read.xlsx("https://manheim.go-vip.net/publish/wp-content/uploads/sites/2/2023/05/ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2023/07/June-2023-MUVVI-Spreadsheet.xlsx") %>%
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 
