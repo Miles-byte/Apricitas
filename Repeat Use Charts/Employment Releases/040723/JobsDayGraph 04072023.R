@@ -1458,7 +1458,7 @@ NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Inc
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.15), breaks = c(0,0.02,0.04,0.06,0.08,0.1,0.12,0.14), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("US Labor Income Growth Has Normalized") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Nominal Income is Declining But Still a Touch Too High To Maintain Target Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "In Q2, Nominal Labor Income Sunk Below a Level Necessary To Maintain Target Inflation") +
   theme_apricitas + theme(legend.position = c(.5,.9)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black")) +

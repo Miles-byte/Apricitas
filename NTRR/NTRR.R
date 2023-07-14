@@ -1,7 +1,7 @@
 pacman::p_load(readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 NTRR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/NTRR/NTRR.csv") %>%
-  mutate(date = as.Date(date))
+  mutate(date = as.Date(date, "%m/%d/%Y"))
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -13,14 +13,14 @@ CPIRENT <- fredr(series_id = "CUSR0000SEHA",observation_start = as.Date("2005-04
 #NTRR CPI
 NTRR_Graph <- ggplot() + #plotting NTRR & ATRR
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= NTRR/100,color= "New Tenant Repeat Rent Index"), size = 1.25)+ 
-  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= ATRR/100,color= "All Tenant Repeat Rent Index"), size = 1.25)+ 
   geom_line(data=subset(CPIRENT,date > as.Date("2005-01-01")), aes(x=date,y= value/100,color= "CPI: Rent of Primary Residence"), size = 1.25)+ 
+  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= ATRR/100,color= "All Tenant Repeat Rent Index"), size = 1.25)+ 
+  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= NTRR/100,color= "New Tenant Repeat Rent Index"), size = 1.25)+ 
   xlab("Date") +
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,.125), breaks = c(-0.05,0,.05,0.1), expand = c(0,0)) +
-  ggtitle("The New Key Inflation Indicator") +
-  labs(caption = "Graph created by @JosephPolitano using Cleveland Fed & BLS data via Adams, Loewenstein, Montag, and Vebrugge (2022)", subtitle = "Rent Inflation for New Tenants is High But Rapidly Declining") +
+  ggtitle("The New Key Dis-Inflation Indicator") +
+  labs(caption = "Graph created by @JosephPolitano using Cleveland Fed & BLS data via Adams, Loewenstein, Montag, and Vebrugge (2022)", subtitle = "Rent Inflation for New Tenants Has Declined Substantially") +
   theme_apricitas + theme(legend.position = c(.47,.84)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("New Tenant Repeat Rent Index","All Tenant Repeat Rent Index","CPI: Rent of Primary Residence")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-04-01")-(.1861*(today()-as.Date("2005-04-01"))), xmax = as.Date("2005-04-01")-(0.049*(today()-as.Date("2005-04-01"))), ymin = -0.05-(.3*.175), ymax = -.05) +
@@ -31,11 +31,11 @@ ggsave(dpi = "retina",plot = NTRR_Graph, "NTRR Graph.png", type = "cairo-png", w
 #NTRR ZORI and Apartment List
 
 ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_sm_month.csv?t=1665666510") %>%
-  select(-RegionID, -SizeRank) %>%
   subset(RegionName == "United States") %>%
+  select(-RegionID, -SizeRank, -RegionType, -StateName) %>%
   transpose() %>%
   `colnames<-`(.[1, ]) %>%
-  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2022-11-01"), "months"))) %>%
+  mutate(date = c(seq(as.Date("2014-12-01"), as.Date("2023-06-01"), "months"))) %>%
   .[-1, ] %>%
   mutate(`United States` = as.numeric(`United States`)) %>%
   mutate(`United States` = (`United States`-lag(`United States`,12))/lag(`United States`,12))

@@ -1045,7 +1045,7 @@ BEA_GDP_STATE <- states %>%
   ggplot(aes(fill = CAGR_bucket)) +
   geom_sf(color = NA) +
   geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_manual(values = c("#EE6055","#FFE98F","#F5B041", "#AED581", "#00A99D"),
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
                     na.value = "grey50", 
                     guide = "legend", 
                     labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
