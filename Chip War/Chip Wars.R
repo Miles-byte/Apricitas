@@ -293,10 +293,14 @@ EU_CHIP_MACHINES <- EU_EXPORTS %>%
   as.data.frame(value = melt(.)) %>%
   transmute(date = seq(from = as.Date("2016-01-01"), by = "month", length = nrow(.)), exports = x)
 
+DUTCH_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/DUTCH_EXPORTS.csv") %>%
+  transmute(date = as.Date(Date),Exports_China,Exports_HK)
+
 EURO_EXCHANGE_RATE <- fredr("EXUSEU", observation_start = as.Date("2016-01-01"))
 
 EU_CHIP_DOLLAR <- left_join(EU_CHIP_EXPORTS,EURO_EXCHANGE_RATE)
 EU_CHIP_MACHINES_DOLLAR <- left_join(EU_CHIP_MACHINES,EURO_EXCHANGE_RATE)
+DUTCH_EXPORTS_DOLLAR <- left_join(DUTCH_EXPORTS,EURO_EXCHANGE_RATE)
 
 EU_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   geom_line(data=EU_CHIP_EXPORTS, aes(x=date,y= exports/1000000000,color= "Semiconductors and Related Items"), size = 1.25) + 
@@ -324,9 +328,22 @@ EU_IC_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exp
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = -0.02-(.3*1.27), ymax = -0.02) +
   coord_cartesian(clip = "off")
 
+DUTCH_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exports
+  #geom_line(data=EU_CHIP_DOLLAR, aes(x=date,y= (exports/value)/1000000000,color= "Semiconductors and Related Items"), size = 1.25) + 
+  geom_line(data=DUTCH_EXPORTS_DOLLAR, aes(x=date,y= ((Exports_China+Exports_HK)/value)/1000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "M",prefix = "$", accuracy = 1),limits = c(0,500), breaks = c(0,250,500), expand = c(0,0)) +
+  ylab("Millions of Dollars, Monthly") +
+  ggtitle("Dutch Chipmaking Equipment Exports to China") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Key Dutch Chipmaking Equipment Exports to China are at a Record High") +
+  theme_apricitas + theme(legend.position = c(.425,.87), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "Dutch Exports to China and HK",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Machines For Manufacturing Semiconductors & Related Items")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*500), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DUTCH_EXPORTS_CHINA_Dollar_Graph, "Dutch Chip Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Dollar_Graph, "EU IC Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Graph, "EU IC Exports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-
 
 KOR_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/KOR_EXPORTS.csv") %>%
   mutate(Date = as.Date(Date)) %>%
