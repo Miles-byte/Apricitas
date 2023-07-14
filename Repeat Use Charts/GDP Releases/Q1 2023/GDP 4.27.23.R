@@ -942,7 +942,121 @@ PCE_PC_YEAR_Graph <- ggplot() + #plotting Wage Growth
 
 ggsave(dpi = "retina",plot = PCE_PC_YEAR_Graph, "PCE PC Growth Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
+FIXED_EQUIP_INVEST_SPECS_REAL <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50506',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
 
+FIXED_EQUIP_INVEST_REAL <- beaGet(FIXED_EQUIP_INVEST_SPECS_REAL, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+FIXED_EQUIP_INVEST_SPECS_NOMINAL <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50505',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_EQUIP_INVEST_NOMINAL <- beaGet(FIXED_EQUIP_INVEST_SPECS_NOMINAL, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+US_CHIP_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
+  geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = (u50506_c272rx_18_special_industry_machinery_n_e_c_chained_dollars_level_6/u50506_c272rx_18_special_industry_machinery_n_e_c_chained_dollars_level_6[1]*FIXED_EQUIP_INVEST_NOMINAL$u50505_c272rc_18_special_industry_machinery_n_e_c_current_dollars_level_6[1])/1000, color = "Real 2018 Dollars"), size = 1.25) + 
+  geom_line(data = FIXED_EQUIP_INVEST_NOMINAL, aes(x=date, y = (u50505_c272rc_18_special_industry_machinery_n_e_c_current_dollars_level_6/1000), color = "Nominal"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,90), expand = c(0,0)) +
+  ylab("Index, Q1 2018 = 100") +
+  ggtitle("US Chip Equipment Spending Has Surged") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Nominal Business Investment in Special Industry Equipment Has Doubled Since 2018") +
+  theme_apricitas + theme(legend.position = c(.51,.23)) +
+  scale_color_manual(name= "Private Fixed Investment, Special Industry Machinery N.E.C. (Mostly Semiconductor Equipment)",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(legend.title = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*90), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+RegionalSearch <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"), "Regional", "LineCode")$ParamValue
+
+BEA_GDP_STATE_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP9", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_STATE <- beaGet(BEA_GDP_STATE_SPECS, iTableStyle = FALSE) %>%
+  rename_with(~ coalesce(stringr::str_extract(., "(?<=\\s)[A-Za-z ]+(?=\\sMillions)"), "Unknown"), .cols = everything()) %>%
+  select(-`United States`,-`Rocky Mountain`,-`Unknown`,-`Far West`,-`Rocky Mountain`,-`Southwest`,-`Southeast`,-`Plains`,-`Great Lakes`,-`Mideast`,-`New England`) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  subset(date >= as.Date("2019-10-01")) %>%
+  pivot_longer(-date, names_to = "state_name", values_to = "GDP") %>%
+  arrange(state_name, date) %>%
+  group_by(state_name) %>%
+  mutate(CAGR = (GDP / first(GDP)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
+  filter(date == max(date))
+
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+states <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states <- states %>%
+  mutate(states = state_name)
+
+states <- left_join(states, BEA_GDP_STATE, by = "state_name")
+
+BEA_GDP_STATE <- ggplot() +
+  geom_sf(data = states, aes(fill = CAGR)) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.05,0.05)) +
+  ggtitle("       Annualized GDP Growth Since Q4 2019") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+
+BEA_GDP_STATE <- states %>%
+  mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.01, 0.02, 0.03, Inf), labels = c("<0", "0-0.01", "0.01-0.02", "0.02-0.03", "0.03+"))) %>%
+  ggplot(aes(fill = CAGR_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#FFE98F","#F5B041", "#AED581", "#00A99D"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
+  ggtitle("     Annualized Real GDP Growth Since Q4 2019") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_STATE, "BEA GDP STATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = US_CHIP_FIXED_EQUIP_INVEST_GRAPH, "US Chip Equipment Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GDPQuarterlyContrib_Graph, "Quarterly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RFSALEDOMPRIV_Graph, "Real Final Private Sales.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = RFSALEDOMPRIV_PCT_Graph, "Real Final Private Sales PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

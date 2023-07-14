@@ -158,7 +158,8 @@ WTIEIA <- eia_series("PET.RWTC.D", start = "2019", end = today())
 WTIEIA <- as.data.frame(WTIEIA$data)
 
 Relative_Importance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/RelativeImportance.csv") %>%
-  `colnames<-`(c("Category","2018-01-01","2020-01-01","2022-01-01")) %>%
+  `colnames<-`(c("Category","2018-01-01","2020-01-01","2022-01-01","2023-01-01")) %>%
+  select(-`2023-01-01`) %>% #DELETE THIS BEFORE JAN CPI
   pivot_longer(cols=c(-Category),names_to="Original_Vars")%>%
   pivot_wider(names_from=c(Category)) %>%
   mutate(Original_Vars = as.Date(Original_Vars)) %>%

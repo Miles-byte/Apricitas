@@ -1467,8 +1467,175 @@ NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Inc
 
 ggsave(dpi = "retina",plot = NGLI_Growth_QTR_Graph, "NGLI Growth Quarter.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+AL <- fredr(series_id = "ALNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Alabama")
+AK <- fredr(series_id = "AKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Alaska")
+AZ <- fredr(series_id = "AZNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Arizona")
+AR <- fredr(series_id = "ARNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Arkansas")
+CA <- fredr(series_id = "CANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "California")
+CO <- fredr(series_id = "CONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Colorado")
+CT <- fredr(series_id = "CTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Connecticut")
+DE <- fredr(series_id = "DENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Delaware")
+DC <- fredr(series_id = "DCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "District of Columbia")
+FL <- fredr(series_id = "FLNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Florida")
+GA <- fredr(series_id = "GANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Georgia")
+HI <- fredr(series_id = "HINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Hawaii")
+ID <- fredr(series_id = "IDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Idaho")
+IL <- fredr(series_id = "ILNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Illinois")
+IN <- fredr(series_id = "INNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Indiana")
+IA <- fredr(series_id = "IANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Iowa")
+KS <- fredr(series_id = "KSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Kansas")
+KY <- fredr(series_id = "KYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Kentucky")
+LA <- fredr(series_id = "LANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Louisiana")
+ME <- fredr(series_id = "MENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Maine")
+MD <- fredr(series_id = "MDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Maryland")
+MA <- fredr(series_id = "MANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Massachusetts")
+MI <- fredr(series_id = "MINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Michigan")
+MN <- fredr(series_id = "MNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Minnesota")
+MS <- fredr(series_id = "MSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Mississippi")
+MO <- fredr(series_id = "MONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Missouri")
+MT <- fredr(series_id = "MTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Montana")
+NE <- fredr(series_id = "NENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Nebraska")
+NV <- fredr(series_id = "NVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Nevada")
+NH <- fredr(series_id = "NHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Hampshire")
+NJ <- fredr(series_id = "NJNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Jersey")
+NM <- fredr(series_id = "NMNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Mexico")
+NY <- fredr(series_id = "NYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New York")
+NC <- fredr(series_id = "NCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "North Carolina")
+ND <- fredr(series_id = "NDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "North Dakota")
+OH <- fredr(series_id = "OHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Ohio")
+OK <- fredr(series_id = "OKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Oklahoma")
+OR <- fredr(series_id = "ORNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Oregon")
+PA <- fredr(series_id = "PANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Pennsylvania")
+RI <- fredr(series_id = "RINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Rhode Island")
+SC <- fredr(series_id = "SCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "South Carolina")
+SD <- fredr(series_id = "SDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "South Dakota")
+TN <- fredr(series_id = "TNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Tennessee")
+TX <- fredr(series_id = "TXNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Texas")
+UT <- fredr(series_id = "UTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Utah")
+VT <- fredr(series_id = "VTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Vermont")
+VA <- fredr(series_id = "VANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Virginia")
+WA <- fredr(series_id = "WANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Washington")
+WV <- fredr(series_id = "WVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "West Virginia")
+WI <- fredr(series_id = "WINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Wisconsin")
+WY <- fredr(series_id = "WYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Wyoming")
 
-ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
+JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY) %>%
+  select(date, value, name) %>%
+  arrange(name, date) %>%
+  group_by(name) %>%
+  mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
+  mutate(Growth = ((value - first(value)) / first(value))) %>%
+  filter(date == max(date))
+
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+states_job_growth <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states_job_growth <- states_job_growth %>%
+  mutate(name = state_name)
+
+states_job_growth <- left_join(states_job_growth, JOB_GROWTH, by = "name")
+
+JOB_GROWTH_STATE <- states_job_growth %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.015, 0.03, 0.045, 0.06, Inf), labels = c("<0", "0-0.015", "0.015-0.03", "0.03-0.045", "0.045-0.06","0.06+"))) %>%
+  ggplot(aes(fill = Growth_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#FFE98F","#F5B041","#AFEEEE","#AED581", "#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<0%", "0-1.5%", "1.5-3%", "3-4.5%", "4.5-6%+","6%+")) +
+  ggtitle("     Growth in Nonfarm Payrolls Since Jan 2020") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE, "Job Growth By State Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+PAYEMS_2020 <- fredr(series_id = "PAYEMS",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Rest of America")
+
+TX_FL_US_PAYEMS <- rbind(FL,TX,PAYEMS_2020) %>%
+  select(date, value, name) %>%
+  group_by(name) %>%
+  mutate(value = (value - first(value))) %>%
+  pivot_wider() %>%
+  mutate(`Rest of America` = `Rest of America`-Texas-Florida) %>%
+  drop_na() %>%
+  pivot_longer(cols = Florida:`Rest of America`) %>%
+  mutate(name = factor(name, levels = rev(c("Texas", "Florida", "Rest of America"))))
+  
+TX_FL_US_PAYEMS_graph <- ggplot(data = TX_FL_US_PAYEMS, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Millions of Jobs") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,5), expand = c(0,0)) +
+  ggtitle("The State of US Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Texas and Florida Have Created the Most New Jobs Since the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.625,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Nonfarm Payrolls, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Texas","Florida","Rest of America")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_FL_US_PAYEMS_graph, "TX FL Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

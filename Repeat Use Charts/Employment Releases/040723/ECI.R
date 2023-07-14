@@ -128,7 +128,7 @@ GLI_GROWTH_NORM_graph <- ggplot() + #plotting Wage Growth
 ggsave(dpi = "retina",plot = GLI_GROWTH_NORM_graph, "GLI Growth Norm graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-EPOP_1990 <- bls_api("LNS12300060", startyear = 1990) %>% 
+EPOP_1990 <- bls_api("LNS12300060", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 EPOP_2000 <- bls_api("LNS12300060", startyear = 2000) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))

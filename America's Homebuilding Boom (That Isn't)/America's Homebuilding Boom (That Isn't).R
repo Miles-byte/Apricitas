@@ -9,7 +9,6 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
-
 TOTAL_HOUSING_GROWTH <- fredr(series_id = "ETOTALUSQ176N", units = "pc1") #downloading total housing growth
 TOTAL_HOUSING_STARTS <- fredr(series_id = "HOUST") #downloading total housing starts
 TOTAL_HOUSING_STARTS_SUBSET <- fredr(series_id = "HOUST", observation_start = as.Date("2000-01-01")) #downloading total housing starts
@@ -70,31 +69,34 @@ TSY_MBS_SPREAD <- fredr(series_id = "MORTGAGE30US") %>% #calculating treasury sp
   mutate_if(is.numeric, ~mean(.))
 
 #Downloading Rent data for class A and B/C cities
-CPIRENTA <- bls_api("CUSR0000SEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTA <- bls_api("CUSR0000SEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -3))) 
-CPIRENTBC <- bls_api("CUURN000SEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTBC <- bls_api("CUURN000SEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -3))) 
 
 #Downloading Rent data for Superstar vs Secondary Cities
-CPIRENTNY <- bls_api("CUURS12ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTNY <- bls_api("CUURS12ASEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
-CPIRENTLA <- bls_api("CUURS49ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTLA <- bls_api("CUURS49ASEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
-CPIRENTSF <- bls_api("CUURS49BSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTSF <- bls_api("CUURS49BSEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4)))
 
-CPIRENTATL <- bls_api("CUURS35CSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTATL <- bls_api("CUURS35CSEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
-CPIRENTMIA <- bls_api("CUURS35BSEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTMIA <- bls_api("CUURS35BSEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4))) 
-CPIRENTPHO <- bls_api("CUURS48ASEHA", startyear = 2015, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTPHO <- bls_api("CUURS48ASEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(calculations = as.numeric(str_sub(.$calculations, start= -4)))
+CPIRENTTPA <- bls_api("CUURS35DSEHA", startyear = 2015, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(calculations = as.numeric(str_sub(.$calculations, start= -4)))
 
@@ -150,14 +152,16 @@ RENT_STAR_CITIES_Graph<- ggplot() + #plotting rent by A/B/C City Size
   coord_cartesian(clip = "off")
 
 RENT_SMALL_CITIES_Graph<- ggplot() + #plotting rent by minor city
-  geom_line(data=CPIRENTATL, aes(x=date,y= calculations/100, color= "Atlanta"), size = 1.25) +
-  geom_line(data=CPIRENTMIA, aes(x=date,y= calculations/100, color= "Miami"), size = 1.25) +
-  geom_line(data=CPIRENTPHO, aes(x=date,y= calculations/100, color= "Phoenix"), size = 1.25) +
+  #geom_line(data=CPIRENTATL, aes(x=date,y= calculations/100, color= "Atlanta"), size = 1.25) +
+  #geom_line(data=CPIRENTMIA, aes(x=date,y= calculations/100, color= "Miami"), size = 1.25) +
+  geom_line(data=CPIRENTPHO, aes(x=date,y= calculations/100, color= "Phoenix Metro"), size = 1.25) +
+  geom_line(data=CPIRENTTPA, aes(x=date,y= calculations/100, color= "Tampa Metro"), size = 1.25) +
+  geom_line(data=CPIRENT, aes(x=date,y= (calculations/100) ,color= "US Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.01,.22), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.01,.24), expand = c(0,0)) +
   ylab("Percent") +
-  ggtitle("Superstar Upset") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices Growth in Smaller Metros Has Caught Up to Larger Metros") +
+  ggtitle("Really Hot But Cooling Off") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Prices Growth in Booming Metros Has Been Higher Than the US Average") +
   theme_apricitas + theme(legend.position = c(.45,.65)) +
   scale_color_manual(name= "CPI: Rent of Primary Residence by Metro Area" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -0.01-(.3*.22), ymax = -0.01) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -959,6 +963,45 @@ ZHVI_Counties <- ggplot() +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = ZHVI_Counties, "ZHVI_Counties.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ZHVI_STATES <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/State_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1689276452") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName, -StateName) %>%
+  #transpose() %>%
+  gather(key = "date", value = "value",-1) %>%
+  transmute(date = as.Date(gsub("X","",date), "%Y.%m.%d"), state_name = RegionName, value) %>%
+  group_by(state_name) %>%
+  mutate(value = (value-lag(value,12))/lag(value,12)) %>%
+  subset(date == max(date)) %>%
+  ungroup()
+
+states <- states %>%
+  mutate(states = state_name)
+
+states <- left_join(states, ZHVI_STATES, by = "state_name")
+
+ZHVI_STATES <- ggplot() +
+  geom_sf(data = states %>% mutate(value = case_when(
+    value > 0.10 ~ 0.10,
+    value < -0.10 ~ -0.10,
+    TRUE ~ value
+  )), aes(fill = value)) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#00A99D",
+                      low = "#EE6055",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+                      limits = c(-0.10,0.10)) +
+  ggtitle("   Zillow Home Value Change Over The Last 12M") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+
+ggsave(dpi = "retina",plot = ZHVI_STATES, "ZHVI_States.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #SELECTED MAJOR METRO AREAS GRAPH
 
