@@ -89,6 +89,42 @@ GLI_NTRR <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
 ggsave(dpi = "retina",plot = GLI_NTRR, "GLI NTRR.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+#NTRR 95% CI GraphNTRR_95_Graph <- ggplot() + #plotting NTRR & ATRR
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= NTRR/100,color= "New Tenant Repeat Rent Index"), size = 1.25, alpha = 1)+ 
+  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= NTRR_lower_confinterval/100,color= "Upper Bound of 95% Confidence Interval"), size = 1.25, alpha = 0.4)+ 
+  geom_line(data=subset(NTRR,date > as.Date("2005-01-01")), aes(x=date,y= NTRR_upper_confinterval/100,color= "Lower Bound of 95% Confidence Interval"), size = 1.25, alpha = 0.4)+ 
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,.15), breaks = c(-0.05,0,.05,0.1,0.15), expand = c(0,0)) +
+  ggtitle("NTRR Confidence Intervals") +
+  labs(caption = "Graph created by @JosephPolitano using Cleveland Fed & BLS data via Adams, Loewenstein, Montag, and Vebrugge (2022)", subtitle = "Most Recent Quarters Have Higher Confidence Intervals As Full Data is Not Yet Available") +
+  theme_apricitas + theme(legend.position = c(.47,.84)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#EE6055","#00A99D","#EE6055","#A7ACD9"), breaks = c("New Tenant Repeat Rent Index","Upper Bound of 95% Confidence Interval","Lower Bound of 95% Confidence Interval"), guide = guide_legend(override_aes = list(alpha = c(1,0.4,0.4)))) +
+  scale_alpha_manual(name= NULL,values = c(1,.4,.4)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-04-01")-(.1861*(today()-as.Date("2005-04-01"))), xmax = as.Date("2005-04-01")-(0.049*(today()-as.Date("2005-04-01"))), ymin = -0.05-(.3*.175), ymax = -.05) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NTRR_95_Graph, "GLI NTRR 95.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CPI_NTRR_INDEXED <- ggplot() + #plotting NTRR & ATRR
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=subset(NTRR_INDEXED,date < as.Date("2015-01-01")), aes(x=date,y= INDEXED,color= "New Tenant Repeat Rent Index"), size = 1.25)+ 
+  geom_line(data=subset(CPI_INDEXED,date < as.Date("2015-01-01")), aes(x=date,y= value,color= "CPI Rent"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Index, Q1 2005 = 100") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(100,130), breaks = c(100,110,120,130), expand = c(0,0)) +
+  ggtitle("Index vs Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Cleveland Fed & BLS data via Adams, Loewenstein, Montag, and Vebrugge (2022)", subtitle = "In the 2008 Recession, the CPI Index did Not Track the NTRR Index. Will 2023 See the Same?") +
+  theme_apricitas + theme(legend.position = c(.47,.84)) +
+  scale_color_manual(name= "Q1 Annual Data",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  scale_alpha_manual(name= NULL,values = c(1,.4,.4)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(as.Date("2014-01-01")-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(as.Date("2014-01-01")-as.Date("2005-01-01"))), ymin = 100-(.3*30), ymax = 100) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_NTRR_INDEXED, "CPI NTRR Indexed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 cat("\014")  # ctrl+L
 
 rm(list = ls())
