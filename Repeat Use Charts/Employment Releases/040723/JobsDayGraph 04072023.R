@@ -1,62 +1,62 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(sf,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
-Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 Childcare=Childcare[order(nrow(Childcare):1),]
 Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
-OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 OwnIllnessNoWork=OwnIllnessNoWork[order(nrow(OwnIllnessNoWork):1),]
 OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2023-06-01"), "months")
 
-OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 OwnIllnessPartTime=OwnIllnessPartTime[order(nrow(OwnIllnessNoWork):1),]
 OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2023-06-01"), "months")
 
 PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
 Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
 
-EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 EPOP55Plus=EPOP55Plus[order(nrow(EPOP55Plus):1),]
 EPOP55Plus$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
-UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 UnpaidAbsences=UnpaidAbsences[order(nrow(UnpaidAbsences):1),]
 UnpaidAbsences$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
 
-Layoffs_TNSPT_WARE <- bls_api("JTU480099000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
+Layoffs_TNSPT_WARE <- bls_api("JTU480099000000000LDL", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 Layoffs_TNSPT_WARE=Layoffs_TNSPT_WARE[order(nrow(Layoffs_TNSPT_WARE):1),]
 Layoffs_TNSPT_WARE$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
 
-Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = 2022, Sys.getenv("BLS_KEY"))
+Layoffs_RETAIL <- bls_api("JTU440000000000000LDL", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 Layoffs_RETAIL=Layoffs_RETAIL[order(nrow(Layoffs_RETAIL):1),]
 Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months")
 
-Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY")) %>%
+Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = 2023, Sys.getenv("BLS_KEY"))
+EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
 EPOP_L_SA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
-EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY"))
+EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 EPOP_L_NSA=EPOP_L_NSA[order(nrow(EPOP_L_NSA):1),]
 EPOP_L_NSA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
 #have to split black epop into two separate dataframes because BLS API only allows 10 years of data at a time
 Black_Epop1 <- bls_api("LNU02300066", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = 2023, Sys.getenv("BLS_KEY")) %>% select(-latest)
+Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)
 
 #binding black epops together and creating date
 Black_Epop <- rbind(Black_Epop1,Black_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
 White_Epop1 <- bls_api("LNU02300063", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = 2023, Sys.getenv("BLS_KEY")) %>% select(-latest)
+White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)
 
 White_Epop <- rbind(White_Epop1,White_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
@@ -1275,9 +1275,9 @@ RETAIL_RBIND <- rbind(BUILDING_GARDEN_SUPPLIES_RETAIL,FURNITURE_HOME_ELECTRONICS
   mutate(name = "Housing Related Retailers") %>%
   mutate(value = value-value[nrow(.)])
 
-RE_CREDIT <- bls_api("CES5552229201", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RE_CREDIT <- bls_api("CES5552229201", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-LOAN_BROKERS <- bls_api("CES5552231001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+LOAN_BROKERS <- bls_api("CES5552231001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FINANCE_RBIND <- rbind(RE_CREDIT,LOAN_BROKERS) %>%
@@ -1288,9 +1288,9 @@ FINANCE_RBIND <- rbind(RE_CREDIT,LOAN_BROKERS) %>%
   mutate(name = "Housing Related Creditors and Loan Brokers") %>%
   mutate(value = value-value[nrow(.)])
 
-ARCHITECTURE <- bls_api("CES6054130001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ARCHITECTURE <- bls_api("CES6054130001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-INTERIOR_DESIGN <- bls_api("CES6054141001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+INTERIOR_DESIGN <- bls_api("CES6054141001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 SERVICES_RBIND <- rbind(ARCHITECTURE,INTERIOR_DESIGN) %>%
@@ -1301,26 +1301,26 @@ SERVICES_RBIND <- rbind(ARCHITECTURE,INTERIOR_DESIGN) %>%
   mutate(name = "Architectural, Engineering, and Interior Design Services") %>%
   mutate(value = value-value[nrow(.)])
 
-PLASTICS_PIPE_MANU <- bls_api("CES3232612001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+PLASTICS_PIPE_MANU <- bls_api("CES3232612001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-PAINT_MANU <- bls_api("CES3232550001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+PAINT_MANU <- bls_api("CES3232550001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-FURNITURE_MANU <- bls_api("CES3133712001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+FURNITURE_MANU <- bls_api("CES3133712001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-APPLIANCE_MANU <- bls_api("CES3133520001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+APPLIANCE_MANU <- bls_api("CES3133520001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-CONSTRUCTION_MACHINERY_MANU <- bls_api("CES3133312001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CONSTRUCTION_MACHINERY_MANU <- bls_api("CES3133312001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-ARCHITECTURAL_METALS_MANU <- bls_api("CES3133230001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ARCHITECTURAL_METALS_MANU <- bls_api("CES3133230001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-CEMENT_CONCRETE <- bls_api("CES3132730001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CEMENT_CONCRETE <- bls_api("CES3132730001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-WOOD_PRODUCT <- bls_api("CES3132100001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+WOOD_PRODUCT <- bls_api("CES3132100001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-LOGGING <- bls_api("CES1011330001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+LOGGING <- bls_api("CES1011330001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-SAND_GRAVEL_MINING <- bls_api("CES1021232101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+SAND_GRAVEL_MINING <- bls_api("CES1021232101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 MANUFACTURING_RBIND <- rbind(PLASTICS_PIPE_MANU,PAINT_MANU,FURNITURE_MANU,APPLIANCE_MANU,CONSTRUCTION_MACHINERY_MANU,ARCHITECTURAL_METALS_MANU,CEMENT_CONCRETE,WOOD_PRODUCT,LOGGING,SAND_GRAVEL_MINING) %>%
@@ -1365,7 +1365,7 @@ ggsave(dpi = "retina",plot = HOUSING_RELATED_EMPLOYMENT_IND_graph, "Housing Rela
 
 PCE_2018 <- fredr("PCE", observation_start = as.Date("2018-01-01"), units = "pc1")
 
-GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
@@ -1390,19 +1390,19 @@ GLI_PCE_graph <- ggplot() + #plotting Wage Growth
 
 ggsave(dpi = "retina",plot = GLI_PCE_graph, "GLI PCE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-QCEW_FINANCE_YOY <- bls_api("ENUUS00030552", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+QCEW_FINANCE_YOY <- bls_api("ENUUS00030552", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
   drop_na()
 
-QCEW_INFO_YOY <- bls_api("ENUUS0003051022", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+QCEW_INFO_YOY <- bls_api("ENUUS0003051022", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
   drop_na()
 
-QCEW_TOTAL_YOY <- bls_api("ENUUS00030510", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+QCEW_TOTAL_YOY <- bls_api("ENUUS00030510", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "3 months"))) %>%
@@ -1569,9 +1569,15 @@ WI <- fredr(series_id = "WINA",observation_start = as.Date("2020-01-01"),realtim
   mutate(name = "Wisconsin")
 WY <- fredr(series_id = "WYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
   mutate(name = "Wyoming")
+PR <- fredr(series_id = "SMS72000000000000001",observation_start = as.Date("2020-01-01")) %>%
+  mutate(series_id = "PR") %>%
+  mutate(name = "Puerto Rico")
+VI <- fredr(series_id = "SMS78000000000000001",observation_start = as.Date("2020-01-01")) %>%
+  mutate(series_id = "VI") %>%
+  mutate(name = "Virgin Islands")
 
-JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY) %>%
-  select(date, value, name) %>%
+JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY, PR, VI) %>%
+  select(date, value, name, series_id) %>%
   arrange(name, date) %>%
   group_by(name) %>%
   mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
@@ -1581,23 +1587,24 @@ JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, 
 devtools::install_github("UrbanInstitute/urbnmapr")
 library(urbnmapr)
 
-states_job_growth <- get_urbn_map("states", sf = TRUE) %>%
+states_job_growth <- get_urbn_map("territories_states", sf = TRUE) %>%
   st_as_sf()
 
 states_job_growth <- states_job_growth %>%
   mutate(name = state_name)
 
-states_job_growth <- left_join(states_job_growth, JOB_GROWTH, by = "name")
+states_job_growth <- left_join(states_job_growth, JOB_GROWTH, by = "name") %>%
+  drop_na()
 
 JOB_GROWTH_STATE <- states_job_growth %>%
   mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.015, 0.03, 0.045, 0.06, Inf), labels = c("<0", "0-0.015", "0.015-0.03", "0.03-0.045", "0.045-0.06","0.06+"))) %>%
   ggplot(aes(fill = Growth_bucket)) +
   geom_sf(color = NA) +
-  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_manual(values = c("#EE6055","#FFE98F","#F5B041","#AFEEEE","#AED581", "#00A99D","#3083DC"),
+  geom_sf(data = states_job_growth, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"),
                     na.value = "grey50", 
                     guide = "legend", 
-                    labels = c("<0%", "0-1.5%", "1.5-3%", "3-4.5%", "4.5-6%+","6%+")) +
+                    labels = c("<0%", "0-1.5%", "1.5-3%", "3-4.5%", "4.5-6%","6%+")) +
   ggtitle("     Growth in Nonfarm Payrolls Since Jan 2020") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
@@ -1633,6 +1640,27 @@ TX_FL_US_PAYEMS_graph <- ggplot(data = TX_FL_US_PAYEMS, aes(x = date, y = value/
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TX_FL_US_PAYEMS_graph, "TX FL Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#Adding Puerto Rico
+  
+JOB_GROWTH <- JOB_GROWTH %>%
+  mutate(series_id = gsub("NA","",series_id)) %>%
+  .[order(.$Growth), ] %>%
+  mutate(series_id = factor(series_id, levels = .$series_id))
+
+JOB_GROWTH_STATE_BAR_GRAPH <- ggplot(data = JOB_GROWTH, aes(x = series_id, y = Growth, fill = "Nonfarm Payrolls Growth Since Jan 2020")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +#plotting Deposits, Insured and Uninsured
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("State") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,0.05,0.10), limits = c(-.12,.11), expand = c(0,0)) +
+  ggtitle("Job Growth By State/Territory") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Most States Have Now Seen Payrolls Fully Recover From the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.67,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  theme(axis.text.x = element_text(size = 7))
+
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_BAR_GRAPH, "Growth State Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

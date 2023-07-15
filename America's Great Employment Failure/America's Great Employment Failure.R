@@ -255,6 +255,25 @@ ggsave(dpi = "retina",plot = EPOP_GAP_BAR_GRAPH, "EPOP Gap Bar Graph.png", type 
 ggsave(dpi = "retina",plot = EPOP_GAP_LINE_GRAPH, "EPOP Gap Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+Immigrant_Arrivals <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/Employment%20Releases/110422/Labor%20Market%20Mystery/Immigrant_Arrivals.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  mutate(value = as.numeric(as.numeric(gsub(",","",Immigrant_Arrivals)))) %>%
+  drop_na()
+
+Immigrant_Arrivals_Graph <- ggplot() + #CPS with NFP adjusted concepts
+  geom_line(data = Immigrant_Arrivals, aes(x=Date, y = value/1000, color = "Immigrant Arrivals, Temporary Workers and Families"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "K"),limits = c(0,1250), breaks = c(0,250,500,750,1000,1250), expand = c(0,0)) +
+  ylab("Arrivals, Thousands, Quarterly") +
+  ggtitle("Coming Back") +
+  labs(caption = "Graph created by @JosephPolitano using ICE data",subtitle = "US Immigrant Arrivals are Increasing, Though Still Below Pre-COVID Levels") +
+  theme_apricitas + theme(legend.position = c(.65,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Immigrant_Arrivals_Graph, "Immigrant Arrivals Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 #Quebec Graph
 QC_EPOP_MALE <- get_cansim_vector("v2063906")
 QC_EPOP_FEMALE <- get_cansim_vector("v2063915")

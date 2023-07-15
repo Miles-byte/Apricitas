@@ -22,31 +22,31 @@ Relative_Importance <- read.csv("https://raw.githubusercontent.com/Miles-byte/Ap
   `colnames<-`(c("date","Category","value","Indicator")) %>%
   mutate(Indicator = "Relative_Importance")
 
-CPI_ALL <- bls_api("CUUR0000SA0", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_ALL <- bls_api("CUUR0000SA0", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "All") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_FOOD <- bls_api("CUUR0000SAF1", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_FOOD <- bls_api("CUUR0000SAF1", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Food") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_ENERGY <- bls_api("CUUR0000SA0E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_ENERGY <- bls_api("CUUR0000SA0E", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Energy") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_COM_LFE <- bls_api("CUUR0000SACL1E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_COM_LFE <- bls_api("CUUR0000SACL1E", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Goods_LFE") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_SERV_LE <- bls_api("CUUR0000SASLE", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_SERV_LE <- bls_api("CUUR0000SASLE", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Services_LE") %>%
   subset(date >= as.Date("2017-12-01")) %>%
@@ -115,31 +115,31 @@ CPI_CONTRIBUTION <- drop_na(CPI_CONTRIBUTION)
 
 #adding seasonally adjusted data for seasonally adjusted monthly charts
 
-CPI_ALL_SA <- bls_api("CUSR0000SA0", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_ALL_SA <- bls_api("CUSR0000SA0", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "All") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_FOOD_SA <- bls_api("CUSR0000SAF1", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_FOOD_SA <- bls_api("CUSR0000SAF1", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Food") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_ENERGY_SA <- bls_api("CUSR0000SA0E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_ENERGY_SA <- bls_api("CUSR0000SA0E", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Energy") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_COM_LFE_SA <- bls_api("CUSR0000SACL1E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_COM_LFE_SA <- bls_api("CUSR0000SACL1E", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Goods_LFE") %>%
   subset(date >= as.Date("2017-12-01")) %>%
   select(date, value, Category)
 
-CPI_SERV_LE_SA <- bls_api("CUSR0000SASLE", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPI_SERV_LE_SA <- bls_api("CUSR0000SASLE", startyear = 2017, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(Category = "Services_LE") %>%
   subset(date >= as.Date("2017-12-01")) %>%
