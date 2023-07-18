@@ -156,6 +156,23 @@ ANNUAL_PAYMENTS_GRAPH <- ggplot(data = ANNUAL_PAYMENTS, aes(x = date, y = value,
 
 ggsave(dpi = "retina",plot = ANNUAL_PAYMENTS_GRAPH, "Annual Student Loan Payments.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+ANNUAL_DISBURSEMENTS_GRAPH <- ggplot(data = ANNUAL_DISBURSEMENTS, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,25,50,75,100,125,150,175), limits = c(0,175), expand = c(0,0)) +
+  ggtitle("Federal Student Loans Disbursements, Incl. Refinancing") +
+  labs(caption = "Graph created by @JosephPolitano using Department of Education Annual Financial Report Data", subtitle = "Student Loan Disbursements Have Been Declining For Years, Especially During COVID") +
+  theme_apricitas + theme(legend.position = c(.82,.9)) +
+  theme(plot.title = element_text(size = 20)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#6A4C93","#3083DC","#A7ACD9"), breaks = c("Stafford Subsidized", "Stafford Unsubsidized", "Parent PLUS","Consolidation and Other")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 0-(.3*175), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ANNUAL_DISBURSEMENTS_GRAPH, "Annual Disbursements Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 
 DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
@@ -176,6 +193,7 @@ DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_GRAPH, "DOE TGA DEPOSITS GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 
 cat("\014")  # ctrl+L
