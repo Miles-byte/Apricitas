@@ -1,4 +1,4 @@
-pacman::p_load(jsonlite,fs,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggpattern,jsonlite,fs,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -172,8 +172,6 @@ ANNUAL_DISBURSEMENTS_GRAPH <- ggplot(data = ANNUAL_DISBURSEMENTS, aes(x = date, 
 
 ggsave(dpi = "retina",plot = ANNUAL_DISBURSEMENTS_GRAPH, "Annual Disbursements Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-
-
 DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
   group_by(year = year(date), month = month(date)) %>% 
@@ -194,6 +192,135 @@ DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
 
 ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_GRAPH, "DOE TGA DEPOSITS GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+ENROLLMENT_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loan%20Resumption/ENROLLMENT_NUMBERS.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  setNames(c("date","Associate","Bachelor's","Other Undergrad","Graduate/Professional")) %>%
+  pivot_longer(cols = c(Associate:`Graduate/Professional`)) %>%
+  mutate(name = factor(name, levels = rev(c("Bachelor's","Associate","Other Undergrad","Graduate/Professional"))))
+
+ENROLLMENT_DATA_GRAPH <- ggplot(data = ENROLLMENT_DATA, aes(x = date, y = value/1000000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Enrollment, Millions") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(0,5,10,15,20,25), limits = c(0,25), expand = c(0,0)) +
+  scale_x_date(breaks = as.Date(c("2019-07-01","2020-07-01","2021-07-01","2022-07-01","2023-07-01")), labels = c("2019","2020","2021","2022","2023")) +
+  ggtitle("Spring Semester Enrollment by Year") +
+  labs(caption = "Graph created by @JosephPolitano using National Student Clearinghouse Research Center Data", subtitle = "Undergrad and Graduate Enrollment Has Been Declining For Years, Especially During COVID") +
+  theme_apricitas + theme(legend.position = c(.82,.85)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#6A4C93","#3083DC","#A7ACD9"), breaks = c("Bachelor's","Associate","Other Undergrad","Graduate/Professional")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ENROLLMENT_DATA_GRAPH, "ENROLLMENT DATA GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Who is repaying graph
+SHED_2019 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202019.csv")
+SHED_2022 <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Household%20Illiquidity/SHED%20Data%202022.csv")
+
+replacement_vec <- c("Less than \\$5,000" = "<$10k",
+                     "\\$5,000 to \\$7,499" = "<$10k",
+                     "\\$7,500 to \\$9,999" = "<$10k",
+                     "\\$10,000 to \\$12,499" = "$10k-$25k",
+                     "\\$12,500 to \\$14,999" = "$10k-$25k",
+                     "\\$15,000 to \\$19,999" = "$10k-$25k",
+                     "\\$20,000 to \\$24,999" = "$10k-$25k",
+                     "\\$25,000 to \\$29,999" = "$25k-$50k",
+                     "\\$30,000 to \\$34,999" = "$25k-$50k",
+                     "\\$35,000 to \\$39,999" = "$25k-$50k",
+                     "\\$40,000 to \\$49,999" = "$25k-$50k",
+                     "\\$50,000 to \\$59,999" = "$50k-$75k",
+                     "\\$60,000 to \\$74,999" = "$50k-$75k",
+                     "\\$75,000 to \\$84,999" = "$75k-$100k",
+                     "\\$85,000 to \\$99,999" = "$75k-$100k",
+                     "\\$100,000 to \\$124,999" = "$100k-$150k",
+                     "\\$125,000 to \\$149,999" = "$100k-$150k",
+                     "\\$150,000 to \\$174,999" = "$150k+",
+                     "\\$175,000 to \\$199,999" = "$150k+",
+                     "\\$200,000 to \\$249,999" = "$150k+",
+                     "\\$250,000 or more" = "$150k+")
+
+for(i in seq_along(replacement_vec)) {
+  SHED_2019$ppincimp <- gsub(names(replacement_vec)[i], replacement_vec[i], SHED_2019$ppincimp)
+}
+
+replacement_vec_2022 <- c("Less than \\$10,000" = "<$10k",
+                     "\\$10,000 to \\$24,999" = "$10k-$25k",
+                     "\\$25,000 to \\$49,999" = "$25k-$50k",
+                     "\\$50,000 to \\$74,999" = "$50k-$75k",
+                     "\\$75,000 to \\$99,999" = "$75k-$100k",
+                     "\\$100,000 to \\$149,999" = "$100k-$150k",
+                     "\\$150,000 or more" = "$150k+")
+
+for(i in seq_along(replacement_vec_2022)) {
+  SHED_2022$ppinc7 <- gsub(names(replacement_vec_2022)[i], replacement_vec_2022[i], SHED_2022$ppinc7)
+}
+
+SLOAN_SHED_2019 <- crosstab(df = SHED_2019, x = ppincimp, y = SL4, weight = weight,format = "long") %>%
+  filter(!(str_starts(SL4, "D") | str_starts(SL4, "I") | str_starts(SL4, "R"))) %>%
+  transmute(Income = ppincimp, Payment = SL4, pct, year = as.character("2019"))
+SLOAN_SHED_2022 <- crosstab(df = SHED_2022, x = ppinc7, y = SL4, weight = weight,format = "long") %>%
+  filter(!str_starts(SL4, "D")) %>%
+  transmute(Income = ppinc7, Payment = SL4, pct, year = as.character("2022"))
+
+total_weight <- sum(SHED_2022$weight)
+
+SLOAN_SHED_2022 <- SHED_2022 %>%
+  group_by(ppinc7, SL4) %>%
+  summarise(weighted_count = sum(weight), 
+            raw_count = n()) %>%
+  mutate(percentage = weighted_count / total_weight * 100) %>%
+  filter(!grepl('^(R|D|I|$)', SL4)) %>%
+  mutate(SL4 = factor(SL4, levels = rev(c("$1,000 or above","$500 to $999","$400 to $499","$300 to $399","$200 to $299","$100 to $199","$1 to $99")))) %>%
+  mutate(ppinc7 = factor(ppinc7, levels = c("<$10k","$10k-$25k","$25k-$50k","$50k-$75k","$75k-$100k","$100k-$150k","$150k+")))
+  
+SLOAN_SHED_2019 <- SHED_2019 %>%
+  group_by(ppincimp, SL4) %>%
+  summarise(weighted_count = sum(weight), 
+            raw_count = n()) %>%
+  mutate(percentage = weighted_count / total_weight * 100) %>%
+  filter(!grepl('^(R|D|I|$)', SL4)) %>%
+  mutate(SL4 = factor(SL4, levels = rev(c("$1,000 or above","$500 to $999","$400 to $499","$300 to $399","$200 to $299","$100 to $199","$1 to $99")))) %>%
+  mutate(ppincimp = factor(ppincimp, levels = c("<$10k","$10k-$25k","$25k-$50k","$50k-$75k","$75k-$100k","$100k-$150k","$150k+")))
+  
+SLOAN_SHED_2019_GRAPH <- ggplot(data = SLOAN_SHED_2019, aes(x = ppincimp, y = percentage/100, fill = SL4)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("Date") +
+  ylab("Percent of General Population") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), breaks = c(0,0.001,0.002,0.003,0.004,0.005,0.006), limits = c(0,0.006), expand = c(0,0)) +
+  ggtitle("2022 Required Student Loan Payment Distribution") +
+  labs(caption = "Graph created by @JosephPolitano using National Student Clearinghouse Research Center Data", subtitle = "Student Loans Were Distributed, But Payments Were Concentrated Among the Upper-Middle Class") +
+  theme_apricitas + theme(legend.position = c(.15,.75)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_fill_manual(name= "Monthly Payment",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#6A4C93","#3083DC","#A7ACD9"))
+
+SLOAN_SHED_2022 <- SHED_2022 %>%
+  group_by(ppinc7, SL4) %>%
+  summarise(weighted_count = sum(weight), 
+            raw_count = n()) %>%
+  mutate(percentage = weighted_count / total_weight * 100) %>%
+  filter(!grepl('^(R|D|I|$)', SL4)) %>%
+  mutate(SL4 = factor(SL4, levels = rev(c("$1,000 or above","$500 to $999","$400 to $499","$300 to $399","$200 to $299","$100 to $199","$1 to $99")))) %>%
+  mutate(ppinc7 = factor(ppinc7, levels = c("<$10k","$10k-$25k","$25k-$50k","$50k-$75k","$75k-$100k","$100k-$150k","$150k+")))
+
+SLOAN_SHED_2022_GRAPH <- ggplot(data = SLOAN_SHED_2022, aes(x = ppinc7, y = percentage/100, fill = SL4)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab("Date") +
+  ylab("Percent of General Population") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), breaks = c(0,0.001,0.002,0.003,0.004,0.005,0.006), limits = c(0,0.006), expand = c(0,0)) +
+  ggtitle("2022 Required Student Loan Payment Distribution") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve Survey of Household Economic Decisionmaking Data", subtitle = "Total Private and Public Payments Declined Dramatically, Especially Among Lower-Income Cohorts") +
+  theme_apricitas + theme(legend.position = c(.15,.75)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_fill_manual(name= "Monthly Payment",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#6A4C93","#3083DC","#A7ACD9"))
+
+ggsave(dpi = "retina",plot = SLOAN_SHED_2019_GRAPH, "SLOAN SHED 2019 DATA GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = SLOAN_SHED_2022_GRAPH, "SLOAN SHED 2022 DATA GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+#Tax Numbers
 
 
 cat("\014")  # ctrl+L

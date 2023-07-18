@@ -4,7 +4,7 @@ library(blscrapeR)
 Inventory <- fredr(series_id = "N864RX1Q020SBEA",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
 Capacity_Util <- fredr(series_id = "CAPUTLG33611S",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 Assemblies <- fredr(series_id = "MVATOTASSS",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
-  mutate(Shortfall = 10.91-value) %>%
+  mutate(date = as.Date(date), Shortfall = value - (mean(value[year(date) == 2019]))) %>%
   mutate(Cumulative_Shortfall = (cumsum(Shortfall)+4.5665)/12)
 AssembliesNSA <- fredr(series_id = "MVATOTASSN",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 
@@ -129,8 +129,6 @@ Cumulative_Shortfall_Graph <- ggplot(subset(Assemblies, date > as.Date("2020-01-
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-02-01")-(.1861*(today()-as.Date("2020-02-01"))), xmax = as.Date("2020-02-01")-(0.049*(today()-as.Date("2020-02-01"))), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
-subset(Assemblies, date > as.Date("2020-01-01"))
-
 VMT_Graph <- ggplot() + #plotting capacity utilization in Automobiles
   geom_line(data=VMT, aes(x=date,y= value/1000, color = "Vehicle Miles Travelled"), size = 1.25)+ 
   xlab("Date") +
@@ -177,6 +175,12 @@ Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Aut
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 0-(.3*160), ymax = 0) +
   coord_cartesian(clip = "off")
 
+Assemblies <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&series=75edc36fae13b9ecdb1266e03ab34902&lastobs=100&from=&to=&filetype=csv&label=omit&layout=seriescolumn") %>%
+  setNames(.[1, ]) %>%
+  .[-1, ] %>%
+  transmute(date = as.Date(paste0(`Time Period`,"-01")), value = as.numeric(MVA.TOTASS.S)) %>%
+  subset(date >= as.Date("2018-01-01"))
+
 Assemblies_Graph <- ggplot() + #plotting auto assemblies
   geom_line(data=Assemblies, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies"), size = 1.25)+ 
   annotate(geom = "hline", y = 10.91, yintercept = 10.91, color = "#FFE98F", linetype = "dashed", size = 1.25) +
@@ -187,7 +191,7 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Fixing the Assembly Line") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Have Almost Climbed Back to Their Pre-Pandemic Average") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Have Climbed Back to Their Pre-Pandemic Average") +
   theme_apricitas + theme(legend.position = c(0.75,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
