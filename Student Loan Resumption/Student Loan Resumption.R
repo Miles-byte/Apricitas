@@ -289,7 +289,7 @@ SLOAN_SHED_2019_GRAPH <- ggplot(data = SLOAN_SHED_2019, aes(x = ppincimp, y = pe
   xlab("Date") +
   ylab("Percent of General Population") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), breaks = c(0,0.001,0.002,0.003,0.004,0.005,0.006), limits = c(0,0.006), expand = c(0,0)) +
-  ggtitle("2022 Required Student Loan Payment Distribution") +
+  ggtitle("2019 Required Student Debt Payment Distribution") +
   labs(caption = "Graph created by @JosephPolitano using National Student Clearinghouse Research Center Data", subtitle = "Student Loans Were Distributed, But Payments Were Concentrated Among the Upper-Middle Class") +
   theme_apricitas + theme(legend.position = c(.15,.75)) +
   theme(plot.title = element_text(size = 23)) +
@@ -310,7 +310,7 @@ SLOAN_SHED_2022_GRAPH <- ggplot(data = SLOAN_SHED_2022, aes(x = ppinc7, y = perc
   xlab("Date") +
   ylab("Percent of General Population") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), breaks = c(0,0.001,0.002,0.003,0.004,0.005,0.006), limits = c(0,0.006), expand = c(0,0)) +
-  ggtitle("2022 Required Student Loan Payment Distribution") +
+  ggtitle("2022 Required Student Debt Payment Distribution") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Survey of Household Economic Decisionmaking Data", subtitle = "Total Private and Public Payments Declined Dramatically, Especially Among Lower-Income Cohorts") +
   theme_apricitas + theme(legend.position = c(.15,.75)) +
   theme(plot.title = element_text(size = 23)) +
@@ -321,6 +321,27 @@ ggsave(dpi = "retina",plot = SLOAN_SHED_2022_GRAPH, "SLOAN SHED 2022 DATA GRAPH.
 
 
 #Tax Numbers
+REPAY_EXAMPLE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loan%20Resumption/REPAYE.csv")
+
+REPAY_EXAMPLE_GRAPH <- ggplot() + #plotting components of annual inflation
+  annotate("hline", y = 272, yintercept = 272, color = "white", size = 1.25, linetype = "dashed") +
+  annotate("text",label = c("Standard Repayment Plan"), y = 260, x = 35, color = "white", size = 5, linetype = "dashed") +
+  geom_line(data = REPAY_EXAMPLE, aes(x = Earnings/1000, y = (REPAYE), color = "REPAYE Income Driven Repayment Plan"), size = 1.25) +
+  geom_line(data = REPAY_EXAMPLE, aes(x = Earnings/1000, y = (SAVE_2023), color = "New SAVE Income Driven Repayment Plan (2023 Terms)"), size = 1.25) +
+  geom_line(data = REPAY_EXAMPLE, aes(x = Earnings/1000, y = (SAVE_2024), color = "New SAVE Income Driven Repayment Plan (2024 Terms)"), size = 1.25) +
+  xlab("Annual Earnings") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1),limits = c(0,400), breaks = c(100,200,300,400), expand = c(0,0)) +
+  ylab("Monthly Payment") +
+  ggtitle("Structure of New Income-Driven Repayment Plans") +
+  scale_x_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "k"),limits = c(0,100), breaks = c(0,25,50,75,100), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Department of Education data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Have Hit a 10-Year Low") +
+  theme_apricitas + theme(legend.position = c(0.485,0.86)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_color_manual(name = "Monthly Payments For a Hypothetical Single Borrower With $27k in Debt at 3.9% ", values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("REPAYE Income Driven Repayment Plan","New SAVE Income Driven Repayment Plan (2023 Terms)","New SAVE Income Driven Repayment Plan (2024 Terms)")) +
+  annotation_custom(apricitas_logo_rast, xmin = 5-(.1861*100), xmax = 5-(0.049*100), ymin = 0-(.3*400), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REPAY_EXAMPLE_GRAPH, "REPAYE EXAMPLE Graph GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 cat("\014")  # ctrl+L

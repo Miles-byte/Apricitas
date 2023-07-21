@@ -654,11 +654,6 @@ ggsave(dpi = "retina",plot = NETHERLANDS_FOREIGN_TURNOVER_CHIP_MACHINES, "Dutch 
 install_github("pcdi/rstatscn")
 library(rstatscn)
 
-statscnQueryZb(dbcode='hgyd', lang = "en") #lists all datasets with monthly national data
-statscnQueryZb(dbcode='hgjd', lang = "en") #lists all datasets with quarterly national data
-statscnQueryZb('A0403',dbcode='hgyd', lang = "en")
-statscnQueryZb('A030202',dbcode='hgjd', lang = "en")
-CPI <- statscnQueryData('A0403',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") #headline inflation data (A01)
 #please note: the package is weird in that it will only let me retrieve a certain n of previous results, so I just used 60 here
 statscnQueryLastN(100, lang = "en")
 
@@ -721,7 +716,7 @@ CHINA_FIXED_INVESTMENT_ELECTRONICS <- ggplot() + #plotting Chinese Semiconductor
   geom_line(data=subset(FIXED_INVESTMENT,`Investment in Fixed Assets, Manufacture of _Communication Equipment, Computers and Other _Electronic Equipment, Accumulated Growth Rate` != 0), aes(x=date,y= `Investment in Fixed Assets, Manufacture of _Communication Equipment, Computers and Other _Electronic Equipment, Accumulated Growth Rate`/100, color= "Manufacture of Communication Equipment, Computers, and Other Electronic Equipment"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.075,.375), breaks = c(0,0.1,0.2,0.3), expand = c(0,0)) +
-  ylab("Index, Jan 2015 = 100") +
+  ylab("Growth in Fixed Investment, Year-on-Year") +
   ggtitle("Chinese Electronic Investment") +
   labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "Chinese Electronic Manufacturing Investment Slowed as Software/Services Investment Rebounds") +
   theme_apricitas + theme(legend.position = c(.525,.9)) +
