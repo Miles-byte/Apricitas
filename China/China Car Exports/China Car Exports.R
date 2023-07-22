@@ -79,7 +79,7 @@ PASSENGER_KM_graph <- ggplot() + #plotting index of service production
   ggtitle("China's Car Travel Crash") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China data", subtitle = "Chinese Highway Travel is Still Below 40% of Pre-Pandemic Averages") +
   theme_apricitas + theme(legend.position = c(.65,.85)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*160), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -95,7 +95,7 @@ IND_PRO_MV <- statscnQueryLastN(700, lang = "en") %>%
   .[order(nrow(.):1),] %>%
   mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Motor Vehicles, Current Period`,12)))
   
-IND_PRO_MV_NEV <- ggplot() + #plotting Chinese Motor Vehicle Production
+IND_PRO_MV_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
   geom_line(data= IND_PRO_MV, aes(x=date,y=`Output of Motor Vehicles, Current Period`/100 ,color= "Chinese Industrial Production of Motor Vehicles, Monthly"), size = 1.25) +
   geom_line(data= IND_PRO_MV, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
   xlab("Date") +
@@ -108,11 +108,11 @@ IND_PRO_MV_NEV <- ggplot() + #plotting Chinese Motor Vehicle Production
   annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_MV$date)-(.1861*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), xmax = min(IND_PRO_MV$date)-(0.049*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), ymin = 0-(.3*3.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = IND_PRO_MV_NEV, "China Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = IND_PRO_MV_GRAPH, "China Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 IND_PRO_NEV <- statscnQueryData('A02092W',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") 
 
-IND_PRO_NEV <- statscnQueryLastN(700, lang = "en") %>%
+IND_PRO_NEV <- statscnQueryLastN(100, lang = "en") %>%
   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
   subset(date >= as.Date("1992-01-01")) %>%
   subset(.,`Output of New Energy Vehicles, Current Period` != 0)
@@ -281,13 +281,13 @@ RU_IND_PRO_CAR_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
   geom_line(data= subset(RU_IND_PRO_CAR, date >= as.Date("2018-01-01")), aes(x=date,y=value/2,color= "Russian Industrial Production of Motor Vehicles"), size = 1.25) +
   geom_line(data= subset(CHINA_EXPORTS_SPLIT, country == "Russia"), aes(x=date,y=exports/exports[49]*100,color= "Chinese Exports of Motor Vehicles to Russia"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,500), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
   ylab("Index, Jan 2022 = 100") +
   ggtitle("Russian Car Production & Trade") +
   labs(caption = "Graph created by @JosephPolitano using Rosstat Data seasonally adjusted usint X-13ARIMA & GACC Data",subtitle = "Sanctions Crushed Russian Car Output, But Chinese Imports are Helping Make Up the Loss") +
   theme_apricitas + theme(legend.position = c(.415,.8)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Russian Industrial Production of Motor Vehicles","Chinese Exports of Motor Vehicles to Russia")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(CHINA_EXPORTS_SPLIT$date)-(.1861*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), xmax = min(CHINA_EXPORTS_SPLIT$date)-(0.049*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), ymin = 0-(.3*200), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(CHINA_EXPORTS_SPLIT$date)-(.1861*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), xmax = min(CHINA_EXPORTS_SPLIT$date)-(0.049*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), ymin = 0-(.3*500), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RU_IND_PRO_CAR_GRAPH, "RU Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
