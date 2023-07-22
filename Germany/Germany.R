@@ -194,7 +194,7 @@ IP_EV_NUMBER <- IP_9DIGIT_BULK %>%
   mutate(GP19A9 = gsub("GP19-291024300", "Plug-in Hybrids",GP19A9)) %>%
   transmute(category = factor(GP19A9, levels = c("Plug-in Hybrids","Battery Electric Vehicles")), value = PRO008_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
 
-EV_STACKED_EURO_graph <- ggplot(data = IP_EV, aes(x = date, y = value/1000000000, fill = category)) + #plotting permanent and temporary job losers
+EV_STACKED_EURO_graph <- ggplot(data = IP_EV_EURO, aes(x = date, y = value/1000000000, fill = category)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Euros") +
@@ -206,7 +206,7 @@ EV_STACKED_EURO_graph <- ggplot(data = IP_EV, aes(x = date, y = value/1000000000
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV, aes(x = date, y = value/1000, fill = category)) + #plotting permanent and temporary job losers
+EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1000, fill = category)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Thousands of Vehicles") +

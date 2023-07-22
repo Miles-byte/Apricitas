@@ -177,6 +177,36 @@ RUSSIA_OIL_GAS_REV_graph <- ggplot() + #plotting russian gas data
 
 ggsave(dpi = "retina",plot = RUSSIA_OIL_GAS_REV_graph, "Russia Oil Gas Rev Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
 
+RU_IND_PRO <- read.xlsx("https://rosstat.gov.ru/storage/mediabank/ind_baza_2018.xlsx", sheet = 2)
+
+RU_IND_PRO_CAR <- RU_IND_PRO %>%
+  subset(X2 == "29.1") %>%
+  select(-К.содержанию,-X2) %>%
+  transpose() %>%
+  transmute(Monthly_growth = as.numeric(V1)) %>%
+  mutate(Vehicle_IND_PRO = cumprod(1 + (Monthly_growth-100)/100)*(10000/Monthly_growth[1])) %>%
+  select(Vehicle_IND_PRO) %>%
+  ts(., start = c(2015,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  transmute(date = seq(from = as.Date("2015-01-01"), by = "month", length = nrow(.)), value = x)
+
+RU_IND_PRO_CAR_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= RU_IND_PRO_CAR, aes(x=date,y=value,color= "Russian Industrial Production of Motor Vehicles, Monthly"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,250), breaks = c(0,50,100,150,200,250,300), expand = c(0,0)) +
+  ylab("Index, Jan 2015 = 100") +
+  ggtitle("Russian Motor Vehicle Production") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data seasonally adjusted usint X-13ARIMA",subtitle = "Russian Motor Vehicle Production Remains Extremely Depressed in the Wake of Sanctions") +
+  theme_apricitas + theme(legend.position = c(.415,.2)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(RU_IND_PRO_CAR$date)-(.1861*(max(RU_IND_PRO_CAR$date)-min(RU_IND_PRO_CAR$date))), xmax = min(RU_IND_PRO_CAR$date)-(0.049*(max(RU_IND_PRO_CAR$date)-min(RU_IND_PRO_CAR$date))), ymin = 0-(.3*250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RU_IND_PRO_CAR_GRAPH, "RU Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 cat("\014")  # ctrl+L
 
 rm(list = ls())

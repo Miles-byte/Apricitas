@@ -32,7 +32,7 @@ US_CANADA_INDPRO_graph <- ggplot() + #plotting components of annual inflation
   ylab("Index, Jan 2018=100") +
   ggtitle("Canada, Chips, and the Car Shortage") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve and Statistics Canada data",subtitle = "Canadian Auto Production Has Suffered More Thanks to The Chip Shortage & EV Retooling") +
-  theme_apricitas + theme(legend.position = c(.22,.25)) +
+  theme_apricitas + theme(legend.position = c(.72,.2)) +
   scale_color_manual(name= "Industrial Production of Motor Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*130), ymax = 0) +
   coord_cartesian(clip = "off")

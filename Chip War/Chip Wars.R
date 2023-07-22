@@ -18,25 +18,25 @@ library("ecos")
 #   lang = "E"
 # )
 
-JPN_TRADE_DATA <- estat_getStatsData(
-  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
-  statsDataId = "0003334002", #Labor Force Survey Basic Tabulation
-  lang = "E", #english language
-  limit = 5000,
-  cdArea = "50105"
-)
-
-JPN_TRADE_DATA2 <- estat_getStatsData(
-  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
-  statsDataId = "0003228235", #Labor Force Survey Basic Tabulation
-  lang = "E", #english language
-  limit = 5000,
-  cdArea = "50105"
-)
+# JPN_TRADE_DATA <- estat_getStatsData(
+#   appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+#   statsDataId = "0003334002",
+#   lang = "E", #english language
+#   limit = 5000,
+#   cdArea = "50105"
+# )
+# 
+# JPN_TRADE_DATA2 <- estat_getStatsData(
+#   appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+#   statsDataId = "0003228235",
+#   lang = "E", #english language
+#   limit = 5000,
+#   cdArea = "50105"
+# )
 
 JPN_TRADE_DATA_2016_2020 <- estat_getStatsData(
   appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
-  statsDataId = "0003313967", #Labor Force Survey Basic Tabulation
+  statsDataId = "0003313967",
   lang = "E", #english language
   #limit = 5000,
   cdCat01 = c("70323000","70131000"),
@@ -45,7 +45,7 @@ JPN_TRADE_DATA_2016_2020 <- estat_getStatsData(
 
 JPN_TRADE_DATA_2021_Plus <- estat_getStatsData(
   appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
-  statsDataId = "0003425295", #Labor Force Survey Basic Tabulation
+  statsDataId = "0003425295",
   lang = "E", #english language
   #limit = 5000,
   cdCat01 = c("70323000","70131000"),

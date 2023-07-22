@@ -1,4 +1,4 @@
-pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(wiesbaden,keyring,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 #Using an updated version of the Chinese national stats bureau rstatscn package that fixes a json error in the old database
 install_github("pcdi/rstatscn")
@@ -85,32 +85,7 @@ PASSENGER_KM_graph <- ggplot() + #plotting index of service production
 
 ggsave(dpi = "retina",plot = PASSENGER_KM_graph, "Passenger KM.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-#NEX Graph
-statscnQueryLastN(60, lang = "en")
-
-NEX <- statscnQueryData('A0801',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") %>%
-  mutate(date = rownames(.)) %>%
-  .[order(nrow(.):1),] %>%
-  mutate(date = as.Date(as.yearmon(date))) %>%
-  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(`Balance of Imports and Exports, Current Period`,12)))
-
-NEX_graph <- ggplot() + #plotting index of service production
-  #geom_line(data=subset(NEX,`Balance of Imports and Exports, Current Period` != 0), aes(x=date,y=`Balance of Imports and Exports, Current Period`/1000000,color= "China Net Exports"), size = 1.25)+ 
-  geom_line(data=subset(NEX,rollmean != 0), aes(x=date,y=rollmean/1000000,color= "China Net Exports, Rolling 1-Year Monthly Average"), size = 1.25)+ 
-  xlab("Date") +
-  ylab("Billions of Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,90),breaks = c(0,25,50,75), expand = c(0,0)) +
-  ggtitle("Solo Circulation") +
-  labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China data", subtitle = "China's Net Exports Are Rising—Offsetting Weakness in Domestic Consumption") +
-  theme_apricitas + theme(legend.position = c(.375,.85)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*95), ymax = 0) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = NEX_graph, "NEX Graph.png", type = "cairo-png") #cairo gets rid of anti aliasing
-
-statscnQueryZb('A0209',dbcode='hgyd', lang = "en")
-
+#Ind Pro MV Graph
 IND_PRO_MV <- statscnQueryData('A020923',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") 
 
 IND_PRO_MV <- statscnQueryLastN(700, lang = "en") %>%
@@ -175,20 +150,270 @@ FIXED_INVESTMENT_CAR <- statscnQueryLastN(100, lang = "en") %>%
   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
   filter(month(.[1, 'date']) == month(.$date))
 
-CHINA_FIXED_INVESTMENT_ELECTRONICS <- ggplot() + #plotting Chinese Semiconductor Production
+CHINA_FIXED_INVESTMENT_CARS <- ggplot() + #plotting Chinese Semiconductor Production
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=subset(FIXED_INVESTMENT_CAR,`Investment in Fixed Assets, Manufacture of Cars, _Accumulated Growth Rate` != 0), aes(x=date,y= `Investment in Fixed Assets, Manufacture of Cars, _Accumulated Growth Rate`/100, color= "Growth in Chinese Investment in Fixed Assets, Manufacture of Cars"), size = 1.25) +
+  geom_line(data=subset(FIXED_INVESTMENT_CAR,`Investment in Fixed Assets, Manufacture of Cars, _Accumulated Growth Rate` != 0), aes(x=date,y= `Investment in Fixed Assets, Manufacture of Cars, _Accumulated Growth Rate`/100, color= "Manufacturing of Cars"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.075,.375), breaks = c(0,0.1,0.2,0.3), expand = c(0,0)) +
-  ylab("Index, Jan 2015 = 100") +
-  ggtitle("Chinese Electronic Investment") +
-  labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "Chinese Electronic Manufacturing Investment Slowed as Software/Services Investment Rebounds") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.21,.21), breaks = c(-.2,-.1,0,0.1,0.2,0.3), expand = c(0,0)) +
+  ylab("Growth, Year-on-Year") +
+  ggtitle("Chinese Car Manufacturing Investment") +
+  labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese Car Manufacturing Investment is Rebounding From Massive Pandemic-era Contractions") +
   theme_apricitas + theme(legend.position = c(.525,.9)) +
-  scale_color_manual(name= paste0("China, Investment in Fixed Assets, Jan to ", month(FIXED_INVESTMENT$date[1], label = TRUE, abbr = TRUE), ", Growth"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Manufacture of Communication Equipment, Computers, and Other Electronic Equipment","Information Transmission, Computer Services, and Software")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(FIXED_INVESTMENT$date)-(.1861*(max(FIXED_INVESTMENT$date)-min(FIXED_INVESTMENT$date))), xmax = min(FIXED_INVESTMENT$date)-(0.049*(max(FIXED_INVESTMENT$date)-min(FIXED_INVESTMENT$date))), ymin = -0.075-(.3*.45), ymax = -0.075) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= paste0("China, Investment in Fixed Assets, Jan to ", month(FIXED_INVESTMENT_CAR$date[1], label = TRUE, abbr = TRUE), ", Growth"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(FIXED_INVESTMENT_CAR$date)-(.1861*(max(FIXED_INVESTMENT_CAR$date)-min(FIXED_INVESTMENT_CAR$date))), xmax = min(FIXED_INVESTMENT_CAR$date)-(0.049*(max(FIXED_INVESTMENT_CAR$date)-min(FIXED_INVESTMENT_CAR$date))), ymin = -0.21-(.3*.42), ymax = -0.21) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = CHINA_FIXED_INVESTMENT_ELECTRONICS, "China Fixed Investment Electronics Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CHINA_FIXED_INVESTMENT_CARS, "China Fixed Investment Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+EU_countries <- c("Austria", "Belgium", "Bulgaria", "Croatia", "Republic of Cyprus", 
+                  "Czech Republic", "Denmark", "Estonia", "Finland", "France", 
+                  "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia", 
+                  "Lithuania", "Luxembourg", "Malta", "Netherlands", "Poland", 
+                  "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Sweden","Czechia(Czech Republic)","Czechia(Czech Republic)","United Kingdom")
+
+Asia_countries <- c("Afghanistan", "Armenia", "Azerbaijan", "Bangladesh", "Bhutan", 
+                    "Brunei", "Cambodia", "China", "Georgia", "India", "Indonesia", 
+                    "Japan", "Kazakhstan", "Kyrgyzstan", "Laos", "Malaysia", 
+                    "Maldives", "Mongolia", "Myanmar", "Nepal", "North Korea", 
+                    "Pakistan", "Philippines","Singapore", "South Korea", 
+                    "Sri Lanka", "Taiwan", "Tajikistan", "Thailand", "Turkmenistan", 
+                    "Uzbekistan", "Vietnam","T\xa8\xb9rkiye","Hong Kong,China", "Taiwan,China","Lao","Macao,China","Republic of Korea","Viet Nam","Timor-Leste","Armenia(Before 2023)","Azerbai jan(Before 2023)")
+
+Middle_East_countries <- c("Bahrain", "Cyprus", "Egypt", "Iran", "Iraq", "Israel", 
+                           "Jordan", "Kuwait", "Lebanon", "Oman", "Palestine", 
+                           "Qatar", "Saudi Arabia", "Syria", "Turkey", 
+                           "United Arab Emirates", "Yemen")
+
+Oceania_countries <- c("Australia", "Fiji", "Kiribati", "Marshall Islands", 
+                       "Micronesia (Federated States of)", "Nauru", "New Zealand", 
+                       "Palau", "Papua New Guinea", "Samoa", "Solomon Islands", 
+                       "Tonga", "Tuvalu", "Vanuatu", "Cook Islands", "Niue", 
+                       "American Samoa", "French Polynesia", "Guam", "New Caledonia", 
+                       "Northern Mariana Islands", "Pitcairn", "Tokelau", 
+                       "Wallis and Futuna", "Easter Island", "Hawaiian Islands", 
+                       "Norfolk Island", "Rotuma", "West Papua", "West New Guinea")
+
+North_America_countries <- c("Antigua and Barbuda", "Bahamas", "Barbados", "Belize", 
+                             "Canada", "Costa Rica", "Cuba", "Dominica", "Dominican Republic", 
+                             "El Salvador", "Grenada", "Guatemala", "Haiti", "Honduras", 
+                             "Jamaica", "Mexico", "Nicaragua", "Panama", "Saint Kitts and Nevis", 
+                             "Saint Lucia", "Saint Vincent and the Grenadines", 
+                             "Trinidad and Tobago", "United States")
+
+
+
+CHINA_IMPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/China/China%20Car%20Exports/CAR_IMPORTS_COUNTRY.csv") %>%
+  transmute(date = as.Date(as.yearmon(as.character(Date.of.data), "%Y%m")), country = Trading.partner, imports= as.numeric(gsub(",","",US.dollar)))
+  
+CHINA_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/China/China%20Car%20Exports/CAR_EXPORTS_COUNTRY.csv") %>%
+  transmute(date = as.Date(as.yearmon(as.character(Date.of.data), "%Y%m")), country = Trading.partner, exports= as.numeric(gsub(",","",US.dollar)))
+
+CHINA_EV_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/China/China%20Car%20Exports/EV_EXPORTS_COUNTRY.csv") %>%
+  subset(Commodity.code != 87036000) %>%
+  transmute(date = as.Date(as.yearmon(as.character(Date.of.data), "%Y%m")), country = Trading.partner, exports= as.numeric(gsub(",","",US.dollar)))
+
+CHINA_EXPORTS_SPLIT <- CHINA_EXPORTS %>%
+  mutate(country = if_else(country %in% EU_countries, "European Union & United Kingdom", country)) %>%
+  mutate(country = if_else(country %in% Asia_countries, "Asia Ex-Russia & Middle East", country)) %>%
+  mutate(country = if_else(country %in% Middle_East_countries, "Middle East", country)) %>%
+  mutate(country = if_else(country %in% Oceania_countries, "Oceania", country)) %>%
+  mutate(country = if_else(country %in% North_America_countries, "North America", country)) %>%
+  mutate(country = if_else(country %in% c("Russia", "European Union & United Kingdom","Middle East","Asia Ex-Russia & Middle East","Oceania","North America"), country, "All Other Countries")) %>%
+  group_by(country, date) %>%
+  summarize(exports = sum(exports, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(country = factor(country, levels = rev(c("European Union & United Kingdom","Russia","Middle East","Asia Ex-Russia & Middle East","North America","Oceania","All Other Countries"))))
+
+CHINA_EXPORTS_SPLIT_GRAPH <- ggplot(data = CHINA_EXPORTS_SPLIT, aes(x = date, y = exports/1000000000, fill = country)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 0.5, suffix = "B", prefix = "$"), breaks = c(0,2.50,5.00,7.50), limits = c(0,7.50), expand = c(0,0)) +
+  ggtitle("Chinese Passenger Vehicle Exports") +
+  labs(caption = "Graph created by @JosephPolitano using GACC", subtitle = "Chinese Vehicle Exports Have Grown Globally, But Particularly in the EU and Russia") +
+  theme_apricitas + theme(legend.position = c(.38,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#3083DC","#FF8E72","#A7ACD9","#6A4C93"), breaks = c("European Union & United Kingdom","Russia","Middle East","Asia Ex-Russia & Middle East","Oceania","North America","All Other Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*1.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINA_EXPORTS_SPLIT_GRAPH, "CHINA EXPORTS SPLIT GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CHINA_EV_EXPORTS_SPLIT <- CHINA_EV_EXPORTS %>%
+  group_by(date) %>%
+  summarize(exports = sum(exports, na.rm = TRUE)) %>%
+  merge(.,CHINA_EXPORTS %>%
+          group_by(date) %>%
+          summarize(exports = sum(exports, na.rm = TRUE)), by = "date") %>%
+  transmute(date, `Electric Vehicles` = exports.x, `Non-Electric Vehicles` = exports.y-exports.x) %>%
+  pivot_longer(cols = `Electric Vehicles`:`Non-Electric Vehicles`) %>%
+  mutate(name = factor(name, levels = rev(c("Electric Vehicles","Non-Electric Vehicles"))))
+  
+CHINA_EV_EXPORTS_SPLIT_GRAPH <- ggplot(data = CHINA_EV_EXPORTS_SPLIT, aes(x = date, y = value/1000000000, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 0.5, suffix = "B", prefix = "$"), breaks = c(0,2.50,5.00,7.50), limits = c(0,7.50), expand = c(0,0)) +
+  ggtitle("Chinese Passenger Vehicle Exports") +
+  labs(caption = "Graph created by @JosephPolitano using GACC", subtitle = "Chinese Electric Vehicle Exports Have Surged Dramatically Over The Last 3 Years") +
+  theme_apricitas + theme(legend.position = c(.38,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#3083DC","#FF8E72","#A7ACD9","#6A4C93"), breaks = c("Electric Vehicles","Non-Electric Vehicles")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*7.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINA_EV_EXPORTS_SPLIT_GRAPH, "CHINA EV EXPORTS SPLIT GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+RU_IND_PRO <- read.xlsx("https://rosstat.gov.ru/storage/mediabank/ind_baza_2018.xlsx", sheet = 2)
+
+RU_IND_PRO_CAR <- RU_IND_PRO %>%
+  subset(X2 == "29.1") %>%
+  select(-К.содержанию,-X2) %>%
+  transpose() %>%
+  transmute(Monthly_growth = as.numeric(V1)) %>%
+  mutate(Vehicle_IND_PRO = cumprod(1 + (Monthly_growth-100)/100)*(10000/Monthly_growth[1])) %>%
+  select(Vehicle_IND_PRO) %>%
+  ts(., start = c(2015,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  transmute(date = seq(from = as.Date("2015-01-01"), by = "month", length = nrow(.)), value = x)
+
+RU_IND_PRO_CAR_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= subset(RU_IND_PRO_CAR, date >= as.Date("2018-01-01")), aes(x=date,y=value/2,color= "Russian Industrial Production of Motor Vehicles"), size = 1.25) +
+  geom_line(data= subset(CHINA_EXPORTS_SPLIT, country == "Russia"), aes(x=date,y=exports/exports[49]*100,color= "Chinese Exports of Motor Vehicles to Russia"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  ylab("Index, Jan 2022 = 100") +
+  ggtitle("Russian Car Production & Trade") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data seasonally adjusted usint X-13ARIMA & GACC Data",subtitle = "Sanctions Crushed Russian Car Output, But Chinese Imports are Helping Make Up the Loss") +
+  theme_apricitas + theme(legend.position = c(.415,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Russian Industrial Production of Motor Vehicles","Chinese Exports of Motor Vehicles to Russia")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(CHINA_EXPORTS_SPLIT$date)-(.1861*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), xmax = min(CHINA_EXPORTS_SPLIT$date)-(0.049*(max(CHINA_EXPORTS_SPLIT$date)-min(CHINA_EXPORTS_SPLIT$date))), ymin = 0-(.3*200), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RU_IND_PRO_CAR_GRAPH, "RU Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CHINA_NET_EXPORTS <- CHINA_IMPORTS %>%
+  group_by(date) %>%
+  summarize(imports = sum(imports, na.rm = TRUE)) %>%
+  merge(.,CHINA_EXPORTS %>%
+          group_by(date) %>%
+          summarize(exports = sum(exports, na.rm = TRUE)), by = "date")
+
+GER_EXP_list <- retrieve_datalist(tableseries = "51*", genesis=c(db='de'), language = "en")
+
+test_login(genesis=c(db='de', user="DEM56460DY", password="XSYhTyP4JV4!Q4b"))
+save_credentials(db= 'de',user="DEM56460DY", password="XSYhTyP4JV4!Q4b")
+
+GERMANY_CAR_TRADE <- retrieve_data(tablename = "51000BM140", startyear = 2018, genesis=c(db='de'), language = "en")
+
+GERMANY_CAR_NET_EXP <- GERMANY_CAR_TRADE %>%
+  subset(WAM4 == "WA8703") %>%
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, exports = WERTAS_val, imports = WERTES_val)
+  
+JPN_EXPORT_DATA_2016_2020 <- estat_getStatsData(
+  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+  statsDataId = "0003313967",
+  lang = "E", #english language
+  #limit = 5000,
+  cdCat01 = "70503010"
+)
+
+JPN_EXPORT_DATA_2021_Plus <- estat_getStatsData(
+  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+  statsDataId = "0003425295",
+  lang = "E", #english language
+  #limit = 5000,
+  cdCat01 = "70503010"
+)
+
+JPN_IMPORT_DATA_2016_2020 <- estat_getStatsData(
+  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+  statsDataId = "0003313968",
+  lang = "E", #english language
+  #limit = 5000,
+  cdCat01 = "70501010"
+)
+
+JPN_IMPORT_DATA_2021_Plus <- estat_getStatsData(
+  appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
+  statsDataId = "0003425296",
+  lang = "E", #english language
+  #limit = 5000,
+  cdCat01 = "70501010"
+)
+
+JAPAN_EXPORT_CARS <- rbind(JPN_EXPORT_DATA_2016_2020,JPN_EXPORT_DATA_2021_Plus) %>%
+  filter(str_detect(`Quantity-Value by Principal Commodity`, fixed("Value", ignore_case = TRUE))) %>%
+  subset(`Quantity-Value by Principal Commodity` != "Value-Year") %>%
+  mutate(`Quantity-Value by Principal Commodity` = gsub("Value-","",`Quantity-Value by Principal Commodity`)) %>%
+  mutate(date = as.Date(paste0(`Quantity-Value by Principal Commodity`,"-01-",Year),format = "%B-%d-%Y")) %>%
+  group_by(date) %>%
+  summarise(sum_value = sum(value, na.rm = TRUE)) %>%
+  subset(sum_value != 0) %>%
+  ungroup() %>%
+  select(-date) %>%
+  ts(., start = c(2016,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  transmute(date = seq(from = as.Date("2016-01-01"), by = "month", length = nrow(.)), exports = x)
+
+JAPAN_IMPORTS_CARS <- rbind(JPN_IMPORT_DATA_2016_2020,JPN_IMPORT_DATA_2021_Plus) %>%
+  filter(str_detect(`Quantity-Value by Principal Commodity`, fixed("Value", ignore_case = TRUE))) %>%
+  subset(`Quantity-Value by Principal Commodity` != "Value-Year") %>%
+  mutate(`Quantity-Value by Principal Commodity` = gsub("Value-","",`Quantity-Value by Principal Commodity`)) %>%
+  mutate(date = as.Date(paste0(`Quantity-Value by Principal Commodity`,"-01-",Year),format = "%B-%d-%Y")) %>%
+  group_by(date) %>%
+  summarise(sum_value = sum(value, na.rm = TRUE)) %>%
+  subset(sum_value != 0) %>%
+  ungroup() %>%
+  select(-date) %>%
+  ts(., start = c(2016,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  transmute(date = seq(from = as.Date("2016-01-01"), by = "month", length = nrow(.)), imports = x)
+
+YEN_EXCHANGE_RATE <- fredr("EXJPUS", observation_start = as.Date("2016-01-01"))
+
+JPN_CAR_NET_EXP <- merge(JAPAN_IMPORTS_CARS,JAPAN_EXPORT_CARS,by = "date") %>%
+  merge(.,YEN_EXCHANGE_RATE, by = "date") %>%
+  subset(date >= as.Date("2018-01-01"))
+
+NET_EXPORTS_GRAPH <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data= CHINA_NET_EXPORTS, aes(x=date,y=(exports-imports)/1000000000,color= "China"), size = 1.25) +
+  geom_line(data= GERMANY_CAR_NET_EXP, aes(x=date,y=(exports-imports)/1000000,color= "Germany"), size = 1.25) +
+  geom_line(data= JPN_CAR_NET_EXP, aes(x=date,y=((exports-imports)/value)/1000000,color= "Japan"), size = 1.25) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 0.5, suffix = "B", prefix = "$"), breaks = c(-7.5,-5,-2.5,0,2.50,5.00,7.50,10), limits = c(-7.5,10), expand = c(0,0)) +
+  ggtitle("Net Passenger Vehicle Exports") +
+  labs(caption = "Graph created by @JosephPolitano using GACC, Destatis, and E-Stat Japan Data", subtitle = "New Chinese Vehicle Exports Have Risen Dramatically, But Are Still Below Germany/Japan") +
+  theme_apricitas + theme(legend.position = c(.2,.6)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#3083DC","#FF8E72","#A7ACD9","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -7.5-(.3*17.5), ymax = -7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+GROSS_EXPORTS_GRAPH <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data= CHINA_NET_EXPORTS, aes(x=date,y=(exports)/1000000000,color= "China"), size = 1.25) +
+  geom_line(data= GERMANY_CAR_NET_EXP, aes(x=date,y=(exports)/1000000,color= "Germany"), size = 1.25) +
+  geom_line(data= JPN_CAR_NET_EXP, aes(x=date,y=((exports)/value)/1000000,color= "Japan"), size = 1.25) +
+  xlab("Date") +
+  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(-7.5,-5,-2.5,0,5.00,10,15,20), limits = c(0,20), expand = c(0,0)) +
+  ggtitle("Gross Passenger Vehicle Exports") +
+  labs(caption = "Graph created by @JosephPolitano using GACC, Destatis, and E-Stat Japan Data", subtitle = "New Chinese Vehicle Exports Have Risen Dramatically, But Are Still Below Germany/Japan") +
+  theme_apricitas + theme(legend.position = c(.2,.6)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#3083DC","#FF8E72","#A7ACD9","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*20), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NET_EXPORTS_GRAPH, "Net Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = GROSS_EXPORTS_GRAPH, "Gross Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all add-ons
