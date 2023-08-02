@@ -4,21 +4,21 @@ install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
 
-ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-01-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
 
-ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-01-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
 
 ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   geom_line(data=ECI_WAG, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized"), size = 1.25) +
-  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
+  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annual Percent Growth"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
@@ -30,8 +30,8 @@ ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   coord_cartesian(clip = "off")
 
 ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  #geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized (NSA)"), size = 1.25) +
   geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= annualpct ,color= "Annual Percent Growth"), size = 1.25) +
-  geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized (NSA)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
@@ -42,10 +42,17 @@ ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
+
+
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI Core Wage Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI Wage Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
@@ -61,7 +68,7 @@ GLI_BEA_YOY <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-
   #mutate(value = (value-lag(value,4))/lag(value,4)) %>%
   #drop_na()
 
-GLI_EPOP_YOY <- bls_api("LNS12000060", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+GLI_EPOP_YOY <- bls_api("LNS12000060", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
   select(-latest) %>%
@@ -156,3 +163,44 @@ EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+ECI_YOY_GROWTH_NAICS_1 <- bls_api("CIU2020000000000I", startyear = 2001, endyear = 2020, calculations = TRUE, Sys.getenv("BLS_KEY"))
+ECI_YOY_GROWTH_NAICS_2 <- bls_api("CIU2020000000000I", startyear = 2021, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>%
+  select(-latest)
+
+ECI_YOY_GROWTH_NAICS_RBIND <- rbind(ECI_YOY_GROWTH_NAICS_1,ECI_YOY_GROWTH_NAICS_2) %>%
+  mutate(period = gsub("Q0", "", period)) %>%
+  mutate(date = as.Date(as.yearqtr(paste(year, period), "%Y%q"))) %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+  
+
+ECI_YOY_GROWTH_SIC_1 <- bls_api("ECU20002I", startyear = 1976, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) 
+ECI_YOY_GROWTH_SIC_2 <- bls_api("ECU20002I", startyear = 1996, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>%
+  select(-latest)
+
+ECI_YOY_GROWTH_SIC_RBIND <- rbind(ECI_YOY_GROWTH_SIC_1,ECI_YOY_GROWTH_SIC_2) %>%
+  mutate(period = gsub("Q0", "", period)) %>%
+  mutate(date = as.Date(as.yearqtr(paste(year, period), "%Y%q"))) %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+  
+ECI_YOY_AGGREGATE_RBIND <- rbind(ECI_YOY_GROWTH_SIC_RBIND,ECI_YOY_GROWTH_NAICS_RBIND) %>%
+  arrange(date)
+
+ECI_YOY_AGGREGATE_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  geom_line(data=ECI_YOY_GROWTH_SIC_RBIND, aes(x=date,y= value ,color= "SIC-OCS Industry/Occupation Classification Methods (1977-2005)"), size = 1.25) +
+  geom_line(data=ECI_YOY_GROWTH_NAICS_RBIND, aes(x=date,y= value ,color= "NAICS-SOC Industry/Occupation Classification Methods (2001-Present)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.10), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10), expand = c(0,0)) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("Wage Growth in the Long Run") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Nominal Wage Growth is Cooling and Nearing the Upper End of Sustainable Historical Levels") +
+  theme_apricitas + theme(legend.position = c(.59,.89)) +
+  scale_color_manual(name= "ECI Private Sector Wages and Salaries",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1977-01-01")-(.1861*(today()-as.Date("1977-01-01"))), xmax = as.Date("1977-01-01")-(0.049*(today()-as.Date("1977-01-01"))), ymin = 0-(.3*0.10), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ECI_YOY_AGGREGATE_Graph, "ECI_YOY_AGGREGATE_GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

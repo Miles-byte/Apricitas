@@ -383,14 +383,14 @@ T5YIE <- ggplot() + #plotting inflation breakevens
 
 T5YIE2019 <- ggplot() + #plotting inflation breakevens
   annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.0225, ymax = 0.0275, fill = "#EE6055", color = NA, alpha = 0.4) +
-  geom_line(data=FIVEYEARBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year Inflation Breakevens"), size = 1.25) +
   geom_line(data=FIVEYEARFWDBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year, 5 Year Forward Inflation Breakevens"), size = 1.25) +
+  geom_line(data=FIVEYEARBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year Inflation Breakevens"), size = 1.25) +
   annotate("text", label = "Breakevens Approximately Consistent With 2% Inflation Target", x = as.Date("2020-05-01"), y = 0.0287, color = "#EE6055", alpha = 0.6, size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
-  ggtitle("Long-Run Market Inflation Expectations Are Low") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "5 & 10 Year Inflation Breakevens are Below a Level Consistent With The Fed's 2% Target") +
+  ggtitle("Long-Run Market Inflation Expectations Are Stable") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "5 & 10 Year Inflation Breakevens are Within a Level Consistent With The Fed's 2% Target") +
   theme_apricitas + theme(legend.position = c(.30,.92), plot.title = element_text(size = 22)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   theme(legend.key.width =  unit(.82, "cm")) +

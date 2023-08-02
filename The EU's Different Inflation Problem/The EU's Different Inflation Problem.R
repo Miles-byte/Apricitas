@@ -316,21 +316,19 @@ EA_MANU_SURVEY_DEMAND_Materials_graph <- ggplot() + #plotting BIE
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.60), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
   ylab("Percent") +
-  ggtitle("The Shortage Economy") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Manufacturers Say Materials Constraints are Binding, but Easing") +
-  theme_apricitas + theme(legend.position = c(.45,.45)) +
-  scale_color_manual(name= "Factors Limiting Production in EA-19 Manufacturing Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials and Equipment","Other (Including COVID)","Financial Constraints")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.60), ymax = 0) +
+  ggtitle("The Eurozone Supply Chain Crisis is Easing") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Manufacturers Say Materials Constraints are Easing Significantly") +
+  theme_apricitas + theme(legend.position = c(.45,.45), plot.title = element_text(size = 26)) +
+  scale_color_manual(name= "Factors Limiting Production in EA-20 Manufacturing Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials and Equipment","Other (Including COVID)","Financial Constraints")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(today()-as.Date("2004-01-01"))), ymin = 0-(.3*.60), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EA_MANU_SURVEY_DEMAND_Materials_graph, "EA_MANU_SURVEY_DEMAND_MATERIALS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 #
-EA_SERV_SURVEY <- get_eurostat_data("EI_BSSE_Q_R2",
-                                    filters=c("EA19","SA","BS-FLB1-PC","BS-FLB2-PC","BS-FLB3-PC","BS-FLB4-PC","BS-FLB5-PC","BS-FLB6-PC"),
-                                    date_filter=">2004-01-01") %>%
-  mutate(time = as.Date(as.yearqtr(time,"%Y-Q%q"))) %>%
-  subset(geo == "EA19") %>%
+EA_SERV_SURVEY <- get_eurostat("ei_bsse_q_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLB1-PC","BS-FLB2-PC","BS-FLB3-PC","BS-FLB4-PC","BS-FLB5-PC","BS-FLB6-PC")) %>%
   select(indic, time, values) %>%
   pivot_wider(names_from = indic, values_from = values)
 
@@ -346,7 +344,7 @@ EU_SERV_SURVEY_graph <- ggplot() + #plotting BIE
   ggtitle("The Shortage Economy") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Service Sector Firms Say Labor Constraints are Tight as COVID Constraints Ease") +
   theme_apricitas + theme(legend.position = c(.50,.67)) +
-  scale_color_manual(name= "Factors Limiting Production in EA-19 Service Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials, Equipment, or Space","Other (Including COVID)","Financial Constraints")) + #, breaks = c("None or Insufficient Demand","Shortage of Materials, Equipment, or Space","Shortage of Labor","Financial Constraints","Other (Including COVID)")) +
+  scale_color_manual(name= "Factors Limiting Production in EA-20 Service Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials, Equipment, or Space","Other (Including COVID)","Financial Constraints")) + #, breaks = c("None or Insufficient Demand","Shortage of Materials, Equipment, or Space","Shortage of Labor","Financial Constraints","Other (Including COVID)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.6), ymax = 0) +
   coord_cartesian(clip = "off")
 

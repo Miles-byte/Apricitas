@@ -350,10 +350,10 @@ TIGHT_ECONOMIC_CONDITIONS_STACKED_GRAPH <- ggplot(data = TIGHT_ECONOMIC_CONDITIO
   xlab("Date") +
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.25,0.5,0.75,1), limits = c(0,1), expand = c(0,0)) +
-  ggtitle("Banks Are Souring on the Economy") +
+  ggtitle("Banks Are Still Sour on the Economy") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Banks are Citing the Worsening Economic Outlook as a Reason to Tighten Credit Standards") +
-  theme_apricitas + theme(legend.position = c(.64,.85), legend.title = element_text(size = 13), legend.text = element_text(size =12)) +
-  scale_fill_manual(name= "% Banks: Tightening, Econ Outlook is:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Somewhat Important Reason","Very Important Reason")) +
+  theme_apricitas + theme(legend.position = c(.622,.85), legend.title = element_text(size = 13), legend.text = element_text(size =12)) +
+  scale_fill_manual(name= "% Banks: Tightening, Econ Outlook:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Somewhat Important Reason","Very Important Reason")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1999-07-01")-(.1861*(today()-as.Date("1999-07-01"))), xmax = as.Date("1999-07-01")-(0.049*(today()-as.Date("1999-07-01"))), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off")  
 
@@ -374,6 +374,47 @@ TIGHT_ECONOMIC_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = TIGHT_ECONOMIC_Graph, "Tight Economic Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = TIGHT_ECONOMIC_CONDITIONS_STACKED_GRAPH, "Tight Economic Graph Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+EASE_VERY_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRELVOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Very")
+EASE_SOMEWHAT_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRELSOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Somewhat")
+EASE_NOT_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRELNOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Ease_Not")
+TIGHT_VERY_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRTLVOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Very")
+TIGHT_SOMEWHAT_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRTLSOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Somewhat")
+TIGHT_NOT_OTHER_LIQUIDITY <- fredr(series_id = "SUBLPDCIRTLNOTHNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+  mutate(response = "Tight_Not")
+
+TIGHT_OTHER_LIQUIDITY <- rbind(EASE_VERY_OTHER_LIQUIDITY,EASE_SOMEWHAT_OTHER_LIQUIDITY,EASE_NOT_OTHER_LIQUIDITY,TIGHT_VERY_OTHER_LIQUIDITY,TIGHT_SOMEWHAT_OTHER_LIQUIDITY,TIGHT_NOT_OTHER_LIQUIDITY) %>%
+  select(date, value, response) %>%
+  pivot_wider(names_from = response) %>%
+  replace(is.na(.), 0) %>%
+  mutate(Total = Ease_Very+Ease_Somewhat+Ease_Not+Tight_Very+Tight_Somewhat+Tight_Not)
+
+TIGHT_OTHER_LIQUIDITY_STACKED <- TIGHT_OTHER_LIQUIDITY %>%
+  mutate(Tight_Very = Tight_Very/Total) %>%
+  mutate(Tight_Somewhat = Tight_Somewhat/Total) %>%
+  select(date, Tight_Very, Tight_Somewhat) %>%
+  pivot_longer(cols = c(Tight_Very,Tight_Somewhat)) %>%
+  mutate(name = gsub("Tight_Very", "Very Important Reason", name)) %>%
+  mutate(name = gsub("Tight_Somewhat", "Somewhat Important Reason", name))
+
+TIGHT_OTHER_LIQUIDITY_STACKED_GRAPH <- ggplot(data = TIGHT_OTHER_LIQUIDITY_STACKED, aes(x = date, y = value, fill = name)) +
+  geom_col(stat = "identity", position = "stack", color = NA, width = 92) +
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.25,0.5,0.75,1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle("Regional Banks Tighten Over Liquidity Fears") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Regional Banks are Increasingly Citing Liquidity Struggles as a Reason to Tighten Credit Standards") +
+  theme_apricitas + theme(legend.position = c(.62,.85), legend.title = element_text(size = 13), legend.text = element_text(size =12), plot.title = element_text(size = 25)) +
+  scale_fill_manual(name= "% of Banks <$50B in Assets: Tightening, Liquidity Position is:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Somewhat Important Reason","Very Important Reason")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-10-01")-(.1861*(today()-as.Date("2007-10-01"))), xmax = as.Date("2007-10-01")-(0.049*(today()-as.Date("2007-10-01"))), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off")  
+
+ggsave(dpi = "retina",plot = TIGHT_OTHER_LIQUIDITY_STACKED_GRAPH, "Tight Other Liquidity Graph Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 CON_TIGHTENING <- fredr(series_id = "SUBLPDMHSXWBNQ",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL)

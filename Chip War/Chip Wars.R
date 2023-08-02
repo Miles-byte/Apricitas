@@ -580,6 +580,18 @@ JAPAN_IP_ITEM <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xl
   #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
   mutate_if(is.character,as.numeric)
 
+JAPAN_IP_ITEM_2020 <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2020_hsm1e.xlsx") %>%
+  select(-`Seasonally.adjusted.Index.by.Commodity.:.Industrial.Production.(2020=100.0)`,-X3) %>%
+  drop_na() %>%
+  data.table::transpose() %>%
+  as.data.frame() %>%
+  select(-V1) %>%
+  row_to_names(1) %>%
+  clean_names(.) %>%
+  mutate(date = seq.Date(from = as.Date("2018-01-01"), by = "month", length.out = nrow(.))) %>%
+  #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
+  mutate_if(is.character,as.numeric)
+
 JAPAN_IP_Semiconductor_Manufacturing_Equipment <- ggplot() + #plotting Japanese Semiconductor Manufacturing Equipment
   geom_line(data=subset(JAPAN_IP_ITEM, date > as.Date("2012-12-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[1]*100,color= "Semiconductor Manufacturing Equipment"), size = 1.25) +
   xlab("Date") +
@@ -592,7 +604,22 @@ JAPAN_IP_Semiconductor_Manufacturing_Equipment <- ggplot() + #plotting Japanese 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 90-(.3*370), ymax = 90) +
   coord_cartesian(clip = "off")
 
+JAPAN_IP_Semiconductor_Manufacturing_Equipment_2020 <- ggplot() + #plotting Japanese Semiconductor Manufacturing Equipment
+  geom_line(data=subset(JAPAN_IP_ITEM_2020, date > as.Date("2012-12-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[1]*100,color= "Semiconductor Manufacturing Equipment"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,200), breaks = c(100,150,200), expand = c(0,0)) +
+  ylab("Index, Jan 2015 = 100") +
+  ggtitle("Japanese Chipmaking Equipment Production") +
+  labs(caption = "Graph created by @JosephPolitano using METI Data",subtitle = "Japanese Production of Chipmaking Equipment Has Fallen From 2022 Highs But Remains Strong") +
+  theme_apricitas + theme(legend.position = c(.4,.75), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "Industrial Production, Japan",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 70-(.3*130), ymax = 70) +
+  coord_cartesian(clip = "off")
+
+
 ggsave(dpi = "retina",plot = JAPAN_IP_Semiconductor_Manufacturing_Equipment, "Japan Chip Machine Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = JAPAN_IP_Semiconductor_Manufacturing_Equipment_2020, "Japan Chip Machine Manufacturing 2020.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 EXP_PRICE_SEMICONDUCTOR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "3091AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
@@ -876,8 +903,8 @@ ggsave(dpi = "retina",plot = TAIWAN_EXPORTS_ORDERS_CHINA_Dollar_Graph, "Taiwan E
 
 SEMI_EQUP_JPN_TWN_NTH_GRAPH <- ggplot() + #plotting Japanese Semiconductor Manufacturing Equipment
   geom_line(data=subset(TWN_IND_PRO, date >= as.Date("2016-01-01")), aes(x=date,y= Manufacture.of.Electronic.and.Semi.conductors.Production.Equipment/Manufacture.of.Electronic.and.Semi.conductors.Production.Equipment[37]*100,color= "Taiwan, Semiconductor and Other Electronic Production Equipment"), size = 1.25) +
-  geom_line(data=subset(JAPAN_IP_ITEM, date >= as.Date("2016-01-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[37]*100,color= "Japan, Semiconductor Manufacturing Equipment"), size = 1.25) +
   geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjDailyTurnoverForeign_12/SeasonallyAdjDailyTurnoverForeign_12[37]*100,color= "Netherlands, Machinery and Equipment, n.e.c. (Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(JAPAN_IP_ITEM_2020, date >= as.Date("2016-01-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[13]*100,color= "Japan, Semiconductor Manufacturing Equipment"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,240), breaks = c(100,200,300,400), expand = c(0,0)) +
   ylab("Index, Jan 2019 = 100") +

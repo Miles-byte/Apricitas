@@ -206,6 +206,203 @@ RU_IND_PRO_CAR_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
 
 ggsave(dpi = "retina",plot = RU_IND_PRO_CAR_GRAPH, "RU Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+RU_IND_PRO_ADJUSTED <- RU_IND_PRO %>%
+  select(-К.содержанию) %>%
+  transpose() %>%
+  select(-V1,-V2,-V3,-V4,-V136,-V137) %>%
+  setNames(.[1,]) %>%
+  .[-1,] %>%
+  mutate(across(everything(), as.numeric)) %>%
+  mutate(across(everything(), 
+                ~cumprod(1 + (. - 100)/100) * (10000 / .[1])
+  )
+  ) %>%
+  ts(., start = c(2015,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2015-01-01"), by = "month", length = nrow(.)))
+
+start_date1 <- as.Date("2021-09-01")
+end_date1 <- as.Date("2022-02-01")
+start_date2 <- as.Date("2022-04-01")
+end_date2 <- as.Date("2022-09-01")
+
+# calculate the average for each numeric column in the two date ranges
+avg_2021 <- RU_IND_PRO_AFFECTED_GRAPH %>% 
+  filter(date >= start_date1 & date <= end_date1) %>%
+  summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = 'drop')
+
+avg_2023 <- RU_IND_PRO_AFFECTED_GRAPH %>% 
+  filter(date >= start_date2 & date <= end_date2) %>%
+  summarise(across(where(is.numeric), mean, na.rm = TRUE), .groups = 'drop')
+
+percentage_change_long <- percentage_change %>%
+  gather(key = "column", value = "percentage_change")
+
+# Calculate the ranks
+percentage_change_long <- percentage_change_long %>%
+  mutate(rank = rank(-percentage_change, na.last = "keep", ties.method = "min"))
+
+# Sort by rank
+percentage_change_long <- percentage_change_long %>%
+  arrange(rank)
+
+
+RU_IND_PRO_DOWNWARD_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`291`/`291`[37]*100,color= "Motor Vehicles"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`309`/`309`[37]*100,color= "Transportation Equipment n.e.c (Bikes, Motorcycles, etc)"), size = 1.25) +
+  #geom_line(data= subset(RU_IND_PRO_ADJUSTED, date > as.Date("2019-01-01")), aes(x=date,y=`283`/`283`[37]*100,color= "Agricultural and Forestry Machinery"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`282`/`282`[37]*100,color= "Other General Purpose Machinery"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`275`/`275`[37]*100,color= "Household Appliances"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,135), breaks = c(0,50,100,150,200,250,300), expand = c(0,0)) +
+  ylab("Index, Jan 2022 = 100") +
+  ggtitle("Russia's War Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data seasonally adjusted usint X-13ARIMA",subtitle = "Russian Production of High-Complexity Consumer Goods Has Tanked Since the Invasion") +
+  theme_apricitas + theme(legend.position = c(.65,.15)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*135), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+RU_IND_PRO_UPWARD_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`25`/`25`[37]*100,color= "Fabricated Metal Products"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`26`/`26`[37]*100,color= "Computer, Electronic, and Optical Products"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`303`/`303`[37]*100,color= "Other Transportation Equipment: Aircraft, Spacecraft, and Related Machinery"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`30`/`30`[37]*100,color= "Other Transportation Equipment"), size = 1.25) +
+  geom_line(data= subset(RU_IND_PRO_ADJUSTED, date >= as.Date("2019-01-01")), aes(x=date,y=`27`/`27`[37]*100,color= "Electrical Equipment"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,135), breaks = c(0,50,100,150,200,250,300), expand = c(0,0)) +
+  ylab("Index, Jan 2022 = 100") +
+  ggtitle("Russia's War Economy") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data seasonally adjusted usint X-13ARIMA",subtitle = "Russian Production of Items Used for or Related to the War are Ramping Up") +
+  theme_apricitas + theme(legend.position = c(.515,.2)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*135), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RU_IND_PRO_UPWARD_GRAPH, "RU Ind Pro Upward Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RU_IND_PRO_DOWNWARD_GRAPH, "RU Ind Pro Downward Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+Vacation_CPI <- data.frame(
+  Date = as.Date(c("1/1/2022", "2/1/2022", "3/1/2022", "4/1/2022", "5/1/2022", "6/1/2022",
+                   "7/1/2022", "8/1/2022", "9/1/2022", "10/1/2022", "11/1/2022", "12/1/2022",
+                   "1/1/2023", "2/1/2023", "3/1/2023", "4/1/2023", "5/1/2023", "6/1/2023"),
+                 format = "%m/%d/%Y"),
+  Value = c(28071.63, 32466.65, 55979.85, 58758.55, 54633.09, 64203.26,
+            64076.69, 67311.17, 62246.92, 56349.34, 58566.75, 53790.11,
+            52062.93, 54750.76, 61846.10, 68967.99, 76164.69, 81065.95)
+)
+
+RU_VACATION_TURKEY_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= Vacation_CPI, aes(x=Date,y=Value/Value[1]*100,color= "Russian CPI: Vacation Trip to Turkey"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(90,300), breaks = c(0,50,100,150,200,250,300), expand = c(0,0)) +
+  ylab("Index, Jan 2022 = 100") +
+  ggtitle("Russia's Exodus") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data",subtitle = "The Costs of Russian Trips to Turkey Have Almost Triped Since the Start of the Invasion") +
+  theme_apricitas + theme(legend.position = c(.515,.2)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-02-01")-(.1861*(today()-as.Date("2022-02-01"))), xmax = as.Date("2022-02-01")-(0.049*(today()-as.Date("2022-02-01"))), ymin = 90-(.3*210), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RU_VACATION_TURKEY_GRAPH, "RU VACATION TURKEY GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+date <- Sys.Date()
+LEADING_INDIC_FILE_TEST_BASE_URL <- "https://rosstat.gov.ru/storage/mediabank/IPU_kp_"
+LEADING_INDIC_FILE_TEST_FILE_URL <- paste0(LEADING_INDIC_FILE_TEST_BASE_URL, format(date, "%Y-%m"), ".xlsx") 
+
+while (http_status(HEAD(LEADING_INDIC_FILE_TEST_FILE_URL))$category != "Success") {
+  date <- date - months(1)
+  LEADING_INDIC_FILE_TEST_FILE_URL <- paste0(LEADING_INDIC_FILE_TEST_BASE_URL, format(date, "%Y-%m"), ".xlsx")
+}
+
+RU_LEAD_INDIC_UNCERTAINTY <- read.xlsx(LEADING_INDIC_FILE_TEST_FILE_URL,17) %>%
+  slice(-(c(1,2,3,4))) %>%
+  slice(-((n()-2):n())) %>%
+  setnames(c("Industry", "year", "1","2","3","4","5","6","7","8","9","10","11","12")) %>%
+  fill(Industry, .direction = "down") %>%
+  mutate_at(vars(2:14), as.numeric) %>%
+  mutate(Industry = recode(Industry, 
+                           "Добыча полезных ископаемых" = "Mining",
+                           "Обрабатывающие производства" = "Manufacturing",
+                           "Обеспечение электрической энергией, газом и паром; кондиционирование воздуха" = "Supply of electricity, gas, and steam; air conditioning")) %>%
+  pivot_longer(
+    cols = `1`:`12`,
+    names_to = "month",
+    values_to = "value"
+  ) %>%
+  unite("date", year, month, sep = "-", remove = FALSE) %>%
+  mutate(date=ym(date)) %>%
+  pivot_wider(
+    names_from = Industry,
+    values_from = value
+  )  %>%
+  drop_na()
+
+RU_LEAD_INDIC_MATERIAL_SHORTAGE <- read.xlsx(LEADING_INDIC_FILE_TEST_FILE_URL,22) %>%
+  slice(-(c(1,2,3,4))) %>%
+  slice(-((n()-2):n())) %>%
+  setnames(c("Industry", "year", "1","2","3","4","5","6","7","8","9","10","11","12")) %>%
+  fill(Industry, .direction = "down") %>%
+  mutate_at(vars(2:14), as.numeric) %>%
+  mutate(Industry = recode(Industry, 
+                           "Добыча полезных ископаемых" = "Mining",
+                           "Обрабатывающие производства" = "Manufacturing",
+                           "Обеспечение электрической энергией, газом и паром; кондиционирование воздуха" = "Supply of electricity, gas, and steam; air conditioning")) %>%
+  pivot_longer(
+    cols = `1`:`12`,
+    names_to = "month",
+    values_to = "value"
+  ) %>%
+  unite("date", year, month, sep = "-", remove = FALSE) %>%
+  mutate(date=ym(date)) %>%
+  pivot_wider(
+    names_from = Industry,
+    values_from = value
+  )  %>%
+  drop_na()
+
+RU_LEAD_INDIC_LABOR_SHORTAGE <- read.xlsx(LEADING_INDIC_FILE_TEST_FILE_URL,23) %>%
+  slice(-(c(1,2,3,4))) %>%
+  slice(-((n()-2):n())) %>%
+  setnames(c("Industry", "year", "1","2","3","4","5","6","7","8","9","10","11","12")) %>%
+  fill(Industry, .direction = "down") %>%
+  mutate_at(vars(2:14), as.numeric) %>%
+  mutate(Industry = recode(Industry, 
+                           "Добыча полезных ископаемых" = "Mining",
+                           "Обрабатывающие производства" = "Manufacturing",
+                           "Обеспечение электрической энергией, газом и паром; кондиционирование воздуха" = "Supply of electricity, gas, and steam; air conditioning")) %>%
+  pivot_longer(
+    cols = `1`:`12`,
+    names_to = "month",
+    values_to = "value"
+  ) %>%
+  unite("date", year, month, sep = "-", remove = FALSE) %>%
+  mutate(date=ym(date)) %>%
+  pivot_wider(
+    names_from = Industry,
+    values_from = value
+  ) %>%
+  drop_na()
+
+RU_IMPEDIMENTS_PRODUCTION <- ggplot() + #plotting BIE
+  #geom_line(data=RU_LEAD_INDIC_UNCERTAINTY, aes(x=date,y= Manufacturing/100,color= "Economic Uncertainty"), size = 1.25) +
+  geom_line(data=subset(RU_LEAD_INDIC_MATERIAL_SHORTAGE, date >= as.Date("2013-01-01")), aes(x=date,y= Manufacturing/100,color= "Shortage of Raw Materials and Supplies"), size = 1.25) +
+  geom_line(data=subset(RU_LEAD_INDIC_LABOR_SHORTAGE, date >= as.Date("2013-01-01")), aes(x=date,y= Manufacturing/100,color= "Shortage of Skilled Workers"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.3), breaks = c(0,0.1,0.2,0.3,0.4), expand = c(0,0)) +
+  ylab("Pct (Could Select Multiple Options)") +
+  ggtitle("Russia's Manufacturing Shortages") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat data",subtitle = "Material Shortages Eased After the Initial Sanctions Shock—But Labor Shortages are Growing") +
+  theme_apricitas + theme(legend.position = c(.60,.9)) +
+  scale_color_manual(name= "Factors Limiting Production in Russian Manufacturing Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-01-01")))), ymin = 0-(.3*.25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RU_IMPEDIMENTS_PRODUCTION, "RU Impediments Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 
 cat("\014")  # ctrl+L
 

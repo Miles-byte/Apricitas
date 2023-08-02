@@ -1,4 +1,4 @@
-pacman::p_load(eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(seasonal,eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -6,8 +6,8 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-test_login(genesis=c(db='de', user="DEM56460DY", password="XSYhTyP4JV4!Q4b"))
-save_credentials(db= 'de',user="DEM56460DY", password="XSYhTyP4JV4!Q4b")
+test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD")))
+save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
 
 IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
 
@@ -134,6 +134,7 @@ GDP <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), language = "e
   subset(WERT05 == "X13JDKSB") %>%
   select(JAHR, QUARTG, BIP004_val) %>%
   transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = BIP004_val) %>%
+  arrange(date) %>%
   subset(date >= as.Date("2000-01-01"))
 
 US_GDP <- fredr(series_id = "A939RX0Q048SBEA", observation_start = as.Date("2000-01-01"))
@@ -222,6 +223,25 @@ EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1
 ggsave(dpi = "retina",plot = EV_STACKED_EURO_graph, "Germany EV Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EV_STACKED_NUMBER_graph, "Germany EV Stacked Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+HEATPUMP_NUMBER <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 %in% c("GP19-282513801","GP19-282513809")) %>%
+  mutate(GP19A9 = gsub("GP19-282513801","Heat Pump",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-282513809","Heat Pump",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO008_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/1000, fill = "German Quarterly Production, Thousands of Heat Pumps")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Thousands of Heat Pumps") +
+  ggtitle("The German Heat Pump Surge") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,50,100,150), limits = c(0,150), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Heat Pumps Produced is Rapidly Growing amidst the Energy Transition") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HEATPUMP_NUMBER_graph, "Germany Heat Pump Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 HICP <- get_eurostat("prc_hicp_manr")
 
@@ -410,12 +430,16 @@ EU_MANU_SURVEY_graph <- ggplot() + #plotting car manufacturing
 
 ggsave(dpi = "retina",plot = EU_MANU_SURVEY_graph, "EU MANU SURVEY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-EMP_EXP <- get_eurostat("ei_bsee_m_r2") %>%
-  subset(geo == "DE") %>%
-  subset(unit == "BAL") %>%
-  select(indic, time, values) %>%
-  pivot_wider(names_from = indic, values_from = values) %>%
-  subset(time > as.Date("2018-01-01"))
+#SMDX 3.0 FULL DATASET NOT COMPRESSED
+EMP_EXP <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/EI_BSEE_M_R2/1.0?compress=false"))
+#EMP_EXP <- get_eurostat("ei_bsee_m_r2") %>%
+  
+EMP_EXP <- EMP_EXP %>%
+  subset(geo == "DE" & unit == "BAL") %>%
+  transmute(indic, time = as.Date(as.yearmon(TIME_PERIOD, format = "%Y-%m")), value = as.numeric(OBS_VALUE)) %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  pivot_wider(names_from = indic, values_from = value)
+  
   
 EMP_EXP_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=EMP_EXP, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
@@ -424,37 +448,127 @@ EMP_EXP_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=EMP_EXP, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  #scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-10,10), expand = c(0,0), breaks = c(-0.6,-0.4,-0.2,0,0.2)) +
-  ylab("Balance") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-35,25), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
+  ylab("Balance, Increase minus Decrease") +
   ggtitle("Germany's Slowdown") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak Even as Sectors Like Retail Trade Recover") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak—Expecially in Industry") +
   theme_apricitas + theme(legend.position = c(.80,.20)) +
   scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -0.6-(.3*0.8), ymax = -0.6) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*60), ymax = -35) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EMP_EXP_graph, "Emp Exp.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+HOUSING_list <- retrieve_datalist(tableseries = "31*", genesis=c(db='de'), language = "en")
+
+HOUSING_STARTS <- retrieve_data(tablename = "31111BM001", genesis=c(db='de')) %>%
+  filter(BAUGB1 %in% c("WOHNGEBAEUDE","GEBW01")) %>% #ALL CONSTRUCTION AND SINGLE-FAMILY CONSTRUCTION
+  filter(BAUTK1 == "ARTBT5") %>% #NEW CONSTRUCTION
+  transmute(Type = BAUGB1,date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),value = WOHN01_val) %>%
+  pivot_wider(names_from = Type) %>%
+  arrange(date) %>%
+  transmute(`Single-Family` = GEBW01, `Multi-Family` = WOHNGEBAEUDE-GEBW01) %>%
+  ts(., start = c(2003,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2003-01-01"), by = "month", length = nrow(.))) %>%
+  setNames(c("Single-Family","Multi-Family", "date")) %>%
+  pivot_longer(cols = c(`Single-Family`:`Multi-Family`))
+
+GER_STACKED_HOUSING_STARTS_graph <- ggplot(data = HOUSING_STARTS, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
+  ylab("Units, Thousands, Monthly") +
+  ggtitle("German Housing Starts are Falling") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,5,10,15,20,25,30,35), limits = c(0,37.5), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Housing Starts are Down Significantly, With Single Family Starts Near Record Lows") +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*37.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GER_STACKED_HOUSING_STARTS_graph, "GER STACKED HOUSING STARTS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
-?retrieve_data()
+FACTORY_CONSTRUCTION_BULK <- retrieve_data(tablename = "31111BM001", genesis=c(db='de'))
 
-61111-0003:
+FACTORY_CONSTRUCTION <- FACTORY_CONSTRUCTION_BULK %>%
+  filter(BAUGB1 == c("GEBFABRIK01")) %>% #ALL FACTORY CONSTRUCTION
+  filter(BAUTK1 == "ARTBT5") %>% #NEW CONSTRUCTION
+  transmute(date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),volume = FLC003_val,value = VKB001_val) %>%
+  arrange(date) %>%
+  select(-date) %>%
+  # ts(., start = c(2003,1), frequency = 12) %>%
+  # seas() %>%
+  # final() %>%
+  # as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2003-01-01"), by = "month", length = nrow(.))) 
+
+  
+GER_FACTORY_CONSTRUCTION_graph <- ggplot() + #plotting permanent and temporary job losers
+  #geom_line(data=FACTORY_CONSTRUCTION, aes(x=date,y= value,color="value"), size = 1.25) +
+  geom_line(data=FACTORY_CONSTRUCTION, aes(x=date,y= volume,color="volume"), size = 1.25) +
+  #geom_line(data=EMP_EXP, aes(x=date,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
+  ylab("Units, Thousands, Monthly") +
+  ggtitle("German Factory Construction is Falling") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,5,10,15,20,25,30,35), limits = c(0,37.5), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Housing Starts are Down Significantly, With Single Family Starts Near Record Lows") +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*37.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = GER_STACKED_HOUSING_STARTS_graph, "GER STACKED HOUSING STARTS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+GERMAN_GFCF_PRIVATE_EQUIPMENT <- retrieve_data(tablename = "81000BV015", genesis=c(db='de'), language = "en") %>%
+  subset(VGRPB5 == "VGRPVK") %>%
+  subset(WERT05 == "X13JDKSB") %>%
+  select(JAHR, QUARTG, VGR105_val,BAU020_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = VGR105_val) %>%
+  arrange(date) %>%
+  subset(date >= as.Date("2000-01-01"))
+
+GERMAN_GFCF_PRIVATE_EQUIPMENT_graph <- ggplot() + #plotting GDP For US vs Germany
+  geom_line(data=GERMAN_GFCF_PRIVATE_EQUIPMENT, aes(x=date,y= value,color="Real Private Fixed Investment in Equipment, Germany"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", prefix = "€"),limits = c(30,60), expand = c(0,0)) +
+  ylab("Chained Billions of Dollars") +
+  ggtitle("Germany's Slowdown") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis and BEA Data",subtitle = "Since 2018, German Economic Growth Has Been Especially Weak") +
+  theme_apricitas + theme(legend.position = c(.6,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 95-(.3*40), ymax = 95) +
+  coord_cartesian(clip = "off")
+
+GERMAN_GFCF_EQUIPMENT_CATEGORIES <- retrieve_data(tablename = "81000BV009", genesis=c(db='de'), language = "en") %>%
+  subset(VGRPB5 == "VGRPVK") %>%
+  subset(WERT05 == "X13JDKSB") %>%
+  select(JAHR, QUARTG, VGR008_val, INV006_val, INV012_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), Equipment = VGR008_val, Machines = INV006_val, Vehicles = INV012_val) %>%
+  arrange(date) %>%
+  subset(date >= as.Date("2016-01-01")) %>%
+  mutate(across(where(is.numeric), ~if_else(.x == 0, NA_real_, .x))) %>%
+  mutate(across(where(is.numeric), ~ .x / .x[9]*100))
+
+GERMAN_GFCF_EQUIPMENT_CATEGORIES_graph <- ggplot() + #plotting Fixed Investment
+  geom_line(data=GERMAN_GFCF_EQUIPMENT_CATEGORIES, aes(x=date,y= Machines,color="Equipment: Machinery and Other Devices"), size = 1.25) +
+  geom_line(data=GERMAN_GFCF_EQUIPMENT_CATEGORIES, aes(x=date,y= Vehicles,color="Equipment: Vehicles"), size = 1.25) +
+  geom_line(data=GERMAN_GFCF_EQUIPMENT_CATEGORIES, aes(x=date,y= Equipment,color="Equipment"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(60,120), expand = c(0,0)) +
+  ylab("Index, Q1 2018 = 100") +
+  ggtitle("Germany's Investment Slowdown") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Investment In Fixed Manufacturing Assets Has Not Recovered to Pre-Pandemic Lvels") +
+  theme_apricitas + theme(legend.position = c(.3,.27)) +
+  scale_color_manual(name= "Germany: Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 60-(.3*60), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GERMAN_GFCF_EQUIPMENT_CATEGORIES_graph, "GERMAN GFCF EQUIPMENT CATEGORIES GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 
-42153BM003
-
-Impediments to Production Graph
-Index of Services Output vs Manufacturing and Construction Output Graph
-Inflation Components Graph
-Employment and Employment Expectations Graph
-
-
-str_sub(x, start= -6)
-
-?retrieve_datalist
-?retrieve_valuelabel
 
 p_unload(all)  # Remove all packages using the package manager
 
