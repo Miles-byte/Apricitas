@@ -269,17 +269,17 @@ GERMANY_FOOD_CONSUMPTION <- retrieve_data(tablename = "81000BV016", genesis=c(db
   mutate(value = value/value[8]*100)
 
 EU_FOOD_CONSUMPTION_GRAPH <- ggplot() + #plotting energy intensive manufacturing
-  geom_line(data=FRANCE_FOOD_CONSUMPTION, aes(x=date+15,y= value,color="France, Real Consumption of Food & Nonalcoholic Drink Ex Tobacco"), size = 1.25) +
   geom_line(data=ITALY_FOOD_CONSUMPTION, aes(x=date+45,y= value,color="Italy, Real Consumption of Food & Nonalcoholic Drink Ex Tobacco"), size = 1.25) +
+  geom_line(data=FRANCE_FOOD_CONSUMPTION, aes(x=date+15,y= value,color="France, Real Consumption of Food & Nonalcoholic Drink Ex Tobacco"), size = 1.25) +
   #geom_line(data=NETHERLANDS_FOOD_CONSUMPTION, aes(x=date,y= value,color="Netherlands, Real Consumption of Food, Drink, and Tobacco"), size = 1.25) +
   geom_line(data=GERMANY_FOOD_CONSUMPTION, aes(x=date+45,y= value,color="Germany, Real Consumption of Food, Drink, and Tobacco"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(90,110), expand = c(0,0)) +
   ylab("Index, Nov/Q4 2019 = 100") +
   ggtitle("The European Food Crisis") +
-  labs(caption = "Graph created by @JosephPolitano using INSEE, ISTAT, and CBS Data",subtitle = "Rising Food Prices Have Forced European Households to Cut Back on Food Consumption") +
+  labs(caption = "Graph created by @JosephPolitano using INSEE, ISTAT, and DeStatis Data",subtitle = "Rising Food Prices Have Forced European Households to Cut Back on Food Consumption") +
   theme_apricitas + theme(legend.position = c(.42,.14)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Germany, Real Consumption of Food, Drink, and Tobacco","France, Real Consumption of Food & Nonalcoholic Drink Ex Tobacco","Italy, Real Consumption of Food & Nonalcoholic Drink Ex Tobacco")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 90-(.3*20), ymax = 90) +
   coord_cartesian(clip = "off")
 
@@ -300,12 +300,12 @@ EMP_EXP_NATIONAL_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `FR`,color="France"), size = 1.25) +
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `DE`,color="Germany"), size = 1.25) +
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `EU27_2020`,color="European Union"), size = 2.25) +
-  annotate("text", label = "above line = net expansion\nbelow line = net contraction", x = as.Date("2019-01-01"), y = 96, color = "white", size = 4) +
+  annotate("text", label = "above line = net expansion\nbelow line = net contraction", x = as.Date("2019-01-01"), y = 95, color = "white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(40,120), expand = c(0,0), breaks = c(40,60,80,100,120)) +
   ylab("Index, Net Increase") +
   ggtitle("Europe's Labor Market Slowdown") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak—Especially in Germany") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "European Employment Expectations Are Weak—Especially in Germany") +
   theme_apricitas + theme(legend.position = c(.80,.40)) +
   scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("European Union","Germany","France","Italy","Spain"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25, 1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 40-(.3*80), ymax = 40) +
@@ -474,6 +474,86 @@ EA_SERV_SURVEY_graph <- ggplot() + #plotting BIE
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EA_SERV_SURVEY_graph, "EA_Serv Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+EMP_EXP <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/EI_BSEE_M_R2/1.0?compress=false"))
+
+EMP_EXP_IT <- EMP_EXP %>%
+  subset(geo == "IT" & unit == "BAL") %>%
+  transmute(indic, time = as.Date(as.yearmon(TIME_PERIOD, format = "%Y-%m")), value = as.numeric(OBS_VALUE)) %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  pivot_wider(names_from = indic, values_from = value)
+
+EMP_EXP_IT_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-REM-BAL`,color="Retail Trade"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-20,17.5), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
+  ylab("Balance, Increase minus Decrease") +
+  ggtitle("Italy's Job Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "Italian Construction and Retail Trade Firms Have Strong Hiring Expectations") +
+  theme_apricitas + theme(legend.position = c(.80,.20)) +
+  scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*37.5), ymax = -20) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMP_EXP_IT_graph, "Emp Exp IT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EU_HOUSING_CONSTRUCTION_BULK <- get_eurostat("sts_cobp_m")
+
+EU_SF_MF_CONSTRUCTION <- EU_HOUSING_CONSTRUCTION_BULK %>%
+  filter(indic_bt == "PSQM" & s_adj == "SCA" & geo == "EU27_2020" & unit == "I15" & cpa2_1 %in% c("CPA_F410011","CPA_F410012_410013")) %>%
+  transmute(category = cpa2_1, date = time,value = values) %>%
+  mutate(category = gsub("CPA_F410011","Single-Family Homes",category)) %>%
+  mutate(category = gsub("CPA_F410012_410013","Multi-Family Homes",category)) %>%
+  pivot_wider(names_from = category) %>%
+  mutate(`Single-Family Homes` = `Single-Family Homes`*.87) %>%
+  mutate(`Multi-Family Homes` = `Multi-Family Homes`*.709) %>%
+  pivot_longer(cols = `Single-Family Homes`:`Multi-Family Homes`)
+
+EU_SF_MF_CONSTRUCTION_graph <- ggplot(data = EU_SF_MF_CONSTRUCTION, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
+  ylab("Millions of Square Meters, Annual Rate") +
+  ggtitle("EU Housing Permits are Falling") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M m2"), breaks = c(0,100,200,300,400,500,600), limits = c(0,650), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "EU Housing Starts are Down Significantly and Approaching Record Lows") +
+  theme_apricitas + theme(legend.position = c(.7,.5)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "EU-27 Building Permits, Millions of Square Meters",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_SF_MF_CONSTRUCTION_graph, "EU SF MF.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EMPLOYMENT_NACE_2_BULK <- get_eurostat("namq_10_a10_e")
+
+EMPLOYMENT_INDEXED_NACE_2_ITALY <- EMPLOYMENT_NACE_2_BULK %>%
+  filter(s_adj == "SCA" & geo == "IT" & time >= as.Date("2019-10-01") & unit == "THS_PER" & na_item == "EMP_DC") %>%
+  arrange(time) %>%
+  select(time, values, nace_r2) %>%
+  pivot_wider(names_from = nace_r2, values_from = values) %>%
+  setNames(c("date","Agriculture, Forestry, and Fishing", "Industry ex Construction","Manufacturing","Construction", "Wholesale & Retail Trade, Transport, Food Service, and Accomodations","Information and Communication","Finance and Insurance","Real Estate","Professional, Scientific, Technical, Administrative, and Support Services","Public Administration, Defense, Education, Health, and Social Work", "Arts, Entertainment, Recreation, and Other Service Activities","Total")) %>%
+  mutate(across(where(is.numeric), ~ .x-.x[1])) %>%
+  select(-Manufacturing,-Total) %>%
+  pivot_longer(cols = `Agriculture, Forestry, and Fishing`:`Arts, Entertainment, Recreation, and Other Service Activities`)
+
+EMPLOY_GROWTH_IND_ITA_graph <- ggplot(data = EMPLOYMENT_INDEXED_NACE_2_ITALY, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), expand = c(0,0)) +
+  ggtitle("The Shape of Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
+  theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  #scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_IND_ITA_graph, "Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 SPREADS FIND SPREADS
