@@ -3,6 +3,12 @@ install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
+theme_apricitas <- theme_ft_rc() +
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
 
 ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
@@ -137,15 +143,11 @@ ggsave(dpi = "retina",plot = GLI_GROWTH_NORM_graph, "GLI Growth Norm graph.png",
 
 EPOP_1990 <- bls_api("LNS12300060", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-EPOP_2000 <- bls_api("LNS12300060", startyear = 2000) %>% 
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-EPOP_2010 <- bls_api("LNS12300060", startyear = 2010) %>% 
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-EPOP_2020 <- bls_api("LNS12300060", startyear = 2020) %>% 
+EPOP_2010 <- bls_api("LNS12300060", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(-latest)
 
-EPop <- rbind(EPOP_1990,EPOP_2000,EPOP_2010,EPOP_2020) %>%
+EPop <- rbind(EPOP_1990,EPOP_2010) %>%
   arrange(date)
 
 EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
