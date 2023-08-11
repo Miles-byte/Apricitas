@@ -97,6 +97,10 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
 
 ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Renamed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-test <- read.csv("https://esploradati.istat.it/SDMXWS/rest/dataflow/IT1/163_156_DF_DCCN_SQCQ_3/1.0/?detail=Full&references=Descendants")
+#test <- read.csv("https://esploradati.istat.it/SDMXWS/rest/dataflow/IT1/163_156_DF_DCCN_SQCQ_3/1.0/?detail=Full&references=Descendants")
+PER_CAPITA_NOTES
+
+https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihxw/pn2
+https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610010401&pickMembers%5B0%5D=2.1&pickMembers%5B1%5D=3.1&cubeTimeFrame.startMonth=01&cubeTimeFrame.startYear=2019&cubeTimeFrame.endMonth=01&cubeTimeFrame.endYear=2023&referencePeriods=20190101%2C20230101
 
   

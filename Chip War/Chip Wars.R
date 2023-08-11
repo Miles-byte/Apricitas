@@ -160,7 +160,6 @@ US_CIRCUITS_CHINA_EXPORTS <- getCensus(
   E_COMMODITY = "8542", #integrated circuits commodity code
   E_COMMODITY = "854231", #integrated circuits commodity code
   E_COMMODITY = "854232", #integrated circuits commodity code
-  
   #E_COMMODITY = "8541", #Diodes, transistors and similar semiconductor devices
   E_COMMODITY = "8486", #Machines Principally Used to Manufacture Semiconductor
   #E_COMMODITY = "848071", #Molds For the Manufacture of Semiconductor Devices
@@ -903,13 +902,13 @@ ggsave(dpi = "retina",plot = TAIWAN_EXPORTS_ORDERS_CHINA_Dollar_Graph, "Taiwan E
 
 SEMI_EQUP_JPN_TWN_NTH_GRAPH <- ggplot() + #plotting Japanese Semiconductor Manufacturing Equipment
   geom_line(data=subset(TWN_IND_PRO, date >= as.Date("2016-01-01")), aes(x=date,y= Manufacture.of.Electronic.and.Semi.conductors.Production.Equipment/Manufacture.of.Electronic.and.Semi.conductors.Production.Equipment[37]*100,color= "Taiwan, Semiconductor and Other Electronic Production Equipment"), size = 1.25) +
-  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjDailyTurnoverForeign_12/SeasonallyAdjDailyTurnoverForeign_12[37]*100,color= "Netherlands, Machinery and Equipment, n.e.c. (Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjustedProduction_3/SeasonallyAdjustedProduction_3[37]*100,color= "Netherlands, Machinery and Equipment, n.e.c. (Mostly Chip Machinery/Equipment)"), size = 1.25) +
   geom_line(data=subset(JAPAN_IP_ITEM_2020, date >= as.Date("2016-01-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[13]*100,color= "Japan, Semiconductor Manufacturing Equipment"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,240), breaks = c(100,200,300,400), expand = c(0,0)) +
   ylab("Index, Jan 2019 = 100") +
   ggtitle("Key Global Chipmaking Equipment Production") +
-  labs(caption = "Graph created by @JosephPolitano using METI, CBS, and MOEA Data",subtitle = "Global Production of Chipmaking Equipment Has Remained Relatively Strong") +
+  labs(caption = "Graph created by @JosephPolitano using METI, CBS, and MOEA Data",subtitle = "Global Production of Chipmaking Equipment Has Declined Slightly") +
   theme_apricitas + theme(legend.position = c(.5,.15), plot.title = element_text(size = 25)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*240), ymax = 0) +

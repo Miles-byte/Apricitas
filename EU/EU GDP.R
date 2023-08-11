@@ -123,7 +123,7 @@ EU_GDP_CAGR <- EU_GDP %>%
   group_by(geo) %>%
   mutate(CAGR = (values / first(values)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
   filter(time == max(time)) %>%
-  subset(geo != c("UK","DE","IT")) %>%
+  subset(!(geo %in% c("UK","DE","IT"))) %>%
   mutate(geo = gsub("EL","GR",geo)) %>%
   rbind(.,IS_GDP,UK_GDP,AL_GDP,ME_GDP,BA_GDP,XK_GDP,DE_GDP,IT_GDP)
 
@@ -179,7 +179,8 @@ FRANCE_GDP_INSEE <- FRANCE_GDP_INSEE_list_selected %>%
   add_insee_metadata() %>%
   transmute(date = DATE, value = OBS_VALUE) %>%
   subset(date >= as.Date("2018-01-01")) %>%
-  arrange(date)
+  arrange(date) %>%
+  mutate(value = value/value[7]*100)
 
 GERMANY_GDP_BUNDESBANK <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.DE.Y.A.AG1.CA010.A.I?format=csv&lang=en") %>%
   select(ncol(.)) %>%
@@ -188,16 +189,20 @@ GERMANY_GDP_BUNDESBANK <- read.csv("https://api.statistiken.bundesbank.de/rest/d
   slice(-(1:2)) %>%
   setNames("value") %>%
   mutate(date = seq.Date(from = as.Date("1991-01-01"), by = "3 months", length.out = nrow(.))) %>%
-  subset(date >= as.Date("2018-01-01"))
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
 
 ITALY_GDP_ISTAT <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD")) %>%
   subset(NOTE_VALUATION == "VAL__L_2015_N2") %>%
-  subset(EDITION == EDITION[nrow(.)])
+  subset(EDITION == EDITION[nrow(.)]) %>%
+  transmute(value = obsValue, date = as.Date(as.yearqtr(obsTime, "%Y-Q%q"))) %>%
+  mutate(value = value/value[7]*100)
   
 EU_GDP_EUROSTAT <- EU_GDP %>%
   filter(unit == "CLV10_MEUR" & s_adj == "SCA" & na_item == "B1GQ" & geo == "EU27_2020" & time >= as.Date("2018-01-01")) %>%
   transmute(value = values, date = as.Date(as.yearqtr(time, "%Y-Q%q"))) %>%
-  arrange(date)
+  arrange(date) %>%
+  mutate(value = value/value[7]*100)
   
 SPAIN_DIR <- fromJSON("https://servicios.ine.es/wstempus/js/EN/OPERACIONES_DISPONIBLES")
 SPAIN_PUB_LIST <- get_publications(lang = "en", det = 2)
@@ -206,22 +211,22 @@ SPAIN_GDP_TABLE <- get_series(30679, resource = "table", lang = "en")
 SPAIN_GDP_INE <- get_series("CNTR4851", resource = "data", nlast = 500, lang = "en") %>%
   .$Data %>%
   transmute(date = seq.Date(from = as.Date("1995-01-01"), by = "3 months", length.out = nrow(.)), value = Valor) %>%
-  subset(date >= as.Date("2018-01-01"))
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
   
-
 EU_MAIN_GDP <- ggplot() +
-  geom_line(data = SPAIN_GDP_INE, aes(x=date, y = value/value[7]*100, color = "Spain"), size = 1.25) + 
-  geom_line(data = ITALY_GDP_ISTAT, aes(x=date, y = value/value[7]*100, color = "Italy"), size = 1.25) + 
-  geom_line(data = FRANCE_GDP_INSEE, aes(x=date, y = value/value[7]*100, color = "France"), size = 1.25) + 
-  geom_line(data = GERMANY_GDP_BUNDESBANK, aes(x=date, y = value/value[7]*100, color = "Germany"), size = 1.25) + 
-  geom_line(data = EU_GDP_EUROSTAT, aes(x=date, y = value/value[7]*100, color = "European Union"), size = 2.25) + 
+  geom_line(data = SPAIN_GDP_INE, aes(x=date, y = value, color = "Spain"), size = 1.25) + 
+  geom_line(data = ITALY_GDP_ISTAT, aes(x=date, y = value, color = "Italy"), size = 1.25) + 
+  geom_line(data = FRANCE_GDP_INSEE, aes(x=date, y = value, color = "France"), size = 1.25) + 
+  geom_line(data = GERMANY_GDP_BUNDESBANK, aes(x=date, y = value, color = "Germany"), size = 1.25) + 
+  geom_line(data = EU_GDP_EUROSTAT, aes(x=date, y = value, color = "European Union"), size = 2.25) + 
   annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101, color = "white", size = 4) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,105), expand = c(0,0)) +
   ylab("Index, Q3 2019 = 100") +
   ggtitle("Eurozone GDP Growth") +
-  labs(caption = "Graph created by @JosephPolitano using INSEE, ISTAT, DeStatis, INE, and Eurostat Data",subtitle = "Major Eurozone Economies are Slightly Larger than Pre-Pandemic but Trailing Eurozone Average Growth") +
+  labs(caption = "Graph created by @JosephPolitano using INSEE, ISTAT, DeStatis, INE, and Eurostat Data",subtitle = "Major Economies are Slightly Larger than Pre-Pandemic but Trailing Eurozone Average Growth") +
   theme_apricitas + theme(legend.position = c(.62,.24)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("European Union","Germany","France","Italy","Spain"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25, 1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 75-(.3*30), ymax = 75) +
@@ -300,7 +305,7 @@ EMP_EXP_NATIONAL_graph <- ggplot() + #plotting regular vs non-regular employment
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `FR`,color="France"), size = 1.25) +
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `DE`,color="Germany"), size = 1.25) +
   geom_line(data=EMP_EXP_NATIONAL, aes(x=time,y= `EU27_2020`,color="European Union"), size = 2.25) +
-  annotate("text", label = "above line = net expansion\nbelow line = net contraction", x = as.Date("2019-01-01"), y = 95, color = "white", size = 4) +
+  annotate("text", label = "above line = above normal growth\nbelow line = below normal growth", x = as.Date("2019-01-01"), y = 95, color = "white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(40,120), expand = c(0,0), breaks = c(40,60,80,100,120)) +
   ylab("Index, Net Increase") +
@@ -354,10 +359,12 @@ GERMAN_GFCF_PRIVATE_EQUIPMENT_graph <- ggplot() + #plotting GDP For US vs German
   ylab("Chained Billions of Dollars") +
   ggtitle("Germany's Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis and BEA Data",subtitle = "Since 2018, German Economic Growth Has Been Especially Weak") +
-  theme_apricitas + theme(legend.position = c(.6,.87)) +
+  theme_apricitas + theme(legend.position = c(.6,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 95-(.3*40), ymax = 95) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 30-(.3*30), ymax = 30) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GERMAN_GFCF_PRIVATE_EQUIPMENT_graph, "GERMAN GFCF PRIVATE EQUIPMENT GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 GERMAN_GFCF_EQUIPMENT_CATEGORIES <- retrieve_data(tablename = "81000BV009", genesis=c(db='de'), language = "en") %>%
   subset(VGRPB5 == "VGRPVK") %>%
@@ -432,6 +439,12 @@ ITALY_EPOP_ISTAT_graph <- ggplot() + #plotting car manufacturing
 
 ggsave(dpi = "retina",plot = ITALY_EPOP_ISTAT_graph, "Italy Epop Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+EA_MANU_SURVEY <- get_eurostat("ei_bsin_q_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC")) %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
 EA_MANU_SURVEY_DEMAND_Materials_graph <- ggplot() + #plotting BIE
   #geom_line(data=EU_MANU_SURVEY, aes(x=time,y= (`BS-FLP1-PC`+`BS-FLP2-PC`)/100,color= "None or Insufficient Demand"), size = 1.25) +
   geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP6-PC`/100,color= "Financial Constraints"), size = 1.25) +
@@ -466,40 +479,98 @@ EA_SERV_SURVEY_graph <- ggplot() + #plotting BIE
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.6), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
   ylab("Percent") +
-  ggtitle("The Shortage Economy") +
+  ggtitle("Eurozone Service Sector Constraints") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Service Sector Firms Say Labor Constraints are Tight as COVID Constraints Ease") +
-  theme_apricitas + theme(legend.position = c(.50,.67)) +
+  theme_apricitas + theme(legend.position = c(.40,.67)) +
   scale_color_manual(name= "Factors Limiting Production in EA-20 Service Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials, Equipment, or Space","Other (Including COVID)","Financial Constraints")) + #, breaks = c("None or Insufficient Demand","Shortage of Materials, Equipment, or Space","Shortage of Labor","Financial Constraints","Other (Including COVID)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.6), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EA_SERV_SURVEY_graph, "EA_Serv Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-EMP_EXP <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/EI_BSEE_M_R2/1.0?compress=false"))
+EA_CONS_SURVEY <- get_eurostat("ei_bsbu_m_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLBA2-PC","BS-FLBA4-PC","BS-FLBA5-PC","BS-FLBA6-PC","BS-FLBA7-PC")) %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
 
-EMP_EXP_IT <- EMP_EXP %>%
-  subset(geo == "IT" & unit == "BAL") %>%
-  transmute(indic, time = as.Date(as.yearmon(TIME_PERIOD, format = "%Y-%m")), value = as.numeric(OBS_VALUE)) %>%
-  subset(time >= as.Date("2018-01-01")) %>%
-  pivot_wider(names_from = indic, values_from = value)
-
-EMP_EXP_IT_graph <- ggplot() + #plotting regular vs non-regular employment
-  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
-  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
-  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-REM-BAL`,color="Retail Trade"), size = 1.25) +
-  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
-  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+EA_CONS_SURVEY_graph <- ggplot() + #plotting BIE
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA7-PC`/100,color= "Financial Constraints"), size = 1.25) +
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA6-PC`/100,color= "Other (Including COVID)"), size = 1.25) +
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA4-PC`/100,color= "Shortage of Labor"), size = 1.25) +
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA5-PC`/100,color= "Shortage of Materials and Equipment"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-20,17.5), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
-  ylab("Balance, Increase minus Decrease") +
-  ggtitle("Italy's Job Boom") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "Italian Construction and Retail Trade Firms Have Strong Hiring Expectations") +
-  theme_apricitas + theme(legend.position = c(.80,.20)) +
-  scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*37.5), ymax = -20) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.60), breaks = c(0,.20,.40,.60,.80,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Eurozone Construction Sector Constraints") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EA Construction Companies Say Materials Constraints are Easing But Labor Shortages are High") +
+  theme_apricitas + theme(legend.position = c(.45,.60), plot.title = element_text(size = 26)) +
+  scale_color_manual(name= "Factors Limiting Production in EA-20 Construction Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Shortage of Labor","Shortage of Materials and Equipment","Other (Including COVID)","Financial Constraints")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(today()-as.Date("2004-01-01"))), ymin = 0-(.3*.60), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = EMP_EXP_IT_graph, "Emp Exp IT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = EA_CONS_SURVEY_graph, "EA_CONS Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+EA_FIN_CONSTRAINTS_graph <- ggplot() +
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA7-PC`/100,color= "Construction Sector"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB5-PC`/100,color= "Service Sector"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP6-PC`/100,color= "Manufacturing Sector"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),breaks = c(0,.05,0.1,0.15,0.2), limits = c(0,.225), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Eurozone's Credit Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "EU Firms' Production is Being Hit By Rising Rates and Tightening Monetary Policy") +
+  theme_apricitas + theme(legend.position = c(.50,.91), legend.key.height = unit(0.6,"cm"), legend.spacing.y = unit(0,"cm")) +
+  scale_color_manual(name= "Share of EA-20 Firms Citing Financial Constraints as an Impediment to Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Service Sector","Manufacturing Sector","Construction Sector")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.23), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_FIN_CONSTRAINTS_graph, "EA Fin Constraints Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Lack of Demand
+EA_NO_DEMAND_graph <- ggplot() + #plotting BIE
+  geom_line(data=EA_CONS_SURVEY, aes(x=time,y= `BS-FLBA2-PC`/100,color= "Construction Sector"), size = 1.25) +
+  geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB2-PC`/100,color= "Service Sector"), size = 1.25) +
+  geom_line(data=EA_MANU_SURVEY, aes(x=time,y= `BS-FLP2-PC`/100,color= "Manufacturing Sector"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),breaks = c(0.2,0.4,0.6), limits = c(0,.65), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Eurozone Demand is Waning") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "The Share of EA Firms Citing Demand Shortfalls as a Major Constraint is Up Significantly") +
+  theme_apricitas + theme(legend.position = c(.50,.15), legend.key.height = unit(-1,"cm"), legend.spacing.y = unit(0,"cm")) +
+  scale_color_manual(name= "Share of EA-20 Firms Citing Insufficient Demand as an Impediment to Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Service Sector","Manufacturing Sector","Construction Sector")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(.1861*(today()-as.Date("2004-01-01")))), ymin = 0-(.3*.65), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EA_NO_DEMAND_graph, "EA Demand Constraints.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+RETAILER_ORDERS <- get_eurostat("ei_bsrt_m_r2") %>%
+  subset(geo %in% c("IT","EU27_2020","DE","FR","ES")) %>%
+  subset(time>= as.Date("2018-01-01")) %>%
+  subset(indic == "BS-ROP") %>%
+  subset(s_adj == "SA") %>%
+  transmute(geo,time,value = values) %>%
+  pivot_wider(names_from = geo)
+
+RETAILER_ORDERS_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=RETAILER_ORDERS, aes(x=time,y= `IT`,color="Italy"), size = 1.25) +
+  geom_line(data=RETAILER_ORDERS, aes(x=time,y= `DE`,color="Germany"), size = 1.25) +
+  geom_line(data=RETAILER_ORDERS, aes(x=time,y= `FR`,color="France"), size = 1.25) +
+  geom_line(data=RETAILER_ORDERS, aes(x=time,y= `ES`,color="Spain"), size = 1.25) +
+  geom_line(data=RETAILER_ORDERS, aes(x=time,y= `EU27_2020`,color="European Union"), size = 2.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  annotate("text", label = "above line = net expansion\nbelow line = net contraction", x = as.Date("2022-01-01"), y = -30, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-65,30), expand = c(0,0), breaks = c(-60,-30,0,30)) +
+  ylab("Balance, Increase minus Decrease") +
+  ggtitle("European Retailer Orders") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "European Retailers Expect to Cut Back on Orders From Their Suppliers Over the Next 3M") +
+  theme_apricitas + theme(legend.position = c(.2,.27)) +
+  scale_color_manual(name= "Retailers' Expectations\n# of Orders Placed With Suppliers\nNext 3 Months",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("European Union","France","Germany","Italy","Spain"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25, 1.25, 1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -65-(.3*95), ymax = -65) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RETAILER_ORDERS_graph, "RETAILER ORDERS GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 EU_HOUSING_CONSTRUCTION_BULK <- get_eurostat("sts_cobp_m")
 
@@ -526,6 +597,66 @@ EU_SF_MF_CONSTRUCTION_graph <- ggplot(data = EU_SF_MF_CONSTRUCTION, aes(x = date
 
 ggsave(dpi = "retina",plot = EU_SF_MF_CONSTRUCTION_graph, "EU SF MF.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+
+
+
+
+
+
+
+EMP_EXP_IT <- EMP_EXP_BULK %>%
+  subset(geo == "IT" & unit == "BAL") %>%
+  transmute(indic, time = as.Date(as.yearmon(TIME_PERIOD, format = "%Y-%m")), value = as.numeric(OBS_VALUE)) %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  pivot_wider(names_from = indic, values_from = value)
+
+EMP_EXP_IT_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-REM-BAL`,color="Retail Trade"), size = 1.25) +
+  geom_line(data=EMP_EXP_IT, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-20,17.5), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
+  ylab("Balance, Increase minus Decrease") +
+  ggtitle("Italy's Job Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "Italian Construction and Retail Trade Firms Have Strong Hiring Expectations") +
+  theme_apricitas + theme(legend.position = c(.80,.20)) +
+  scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*37.5), ymax = -20) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMP_EXP_IT_graph, "Emp Exp IT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+EMP_EXP_EA <- EMP_EXP_BULK %>%
+  subset(geo == "EA20" & unit == "BAL" & s_adj == "SA") %>%
+  transmute(indic, time = as.Date(as.yearmon(TIME_PERIOD, format = "%Y-%m")), value = as.numeric(OBS_VALUE)) %>%
+  subset(time >= as.Date("2018-01-01")) %>%
+  pivot_wider(names_from = indic, values_from = value)
+
+EMP_EXP_EA_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=EMP_EXP_EA, aes(x=time,y= `BS-IEME-BAL`,color="Industry"), size = 1.25) +
+  geom_line(data=EMP_EXP_EA, aes(x=time,y= `BS-SEEM-BAL`,color="Services"), size = 1.25) +
+  geom_line(data=EMP_EXP_EA, aes(x=time,y= `BS-REM-BAL`,color="Retail Trade"), size = 1.25) +
+  geom_line(data=EMP_EXP_EA, aes(x=time,y= `BS-CEME-BAL`,color="Construction"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-20,17.5), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
+  ylab("Balance, Increase minus Decrease") +
+  ggtitle("Italy's Job Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "Italian Construction and Retail Trade Firms Have Strong Hiring Expectations") +
+  theme_apricitas + theme(legend.position = c(.80,.20)) +
+  scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*37.5), ymax = -20) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMP_EXP_IT_graph, "Emp Exp IT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+
+
 EMPLOYMENT_NACE_2_BULK <- get_eurostat("namq_10_a10_e")
 
 EMPLOYMENT_INDEXED_NACE_2_ITALY <- EMPLOYMENT_NACE_2_BULK %>%
@@ -535,8 +666,10 @@ EMPLOYMENT_INDEXED_NACE_2_ITALY <- EMPLOYMENT_NACE_2_BULK %>%
   pivot_wider(names_from = nace_r2, values_from = values) %>%
   setNames(c("date","Agriculture, Forestry, and Fishing", "Industry ex Construction","Manufacturing","Construction", "Wholesale & Retail Trade, Transport, Food Service, and Accomodations","Information and Communication","Finance and Insurance","Real Estate","Professional, Scientific, Technical, Administrative, and Support Services","Public Administration, Defense, Education, Health, and Social Work", "Arts, Entertainment, Recreation, and Other Service Activities","Total")) %>%
   mutate(across(where(is.numeric), ~ .x-.x[1])) %>%
-  select(-Manufacturing,-Total) %>%
-  pivot_longer(cols = `Agriculture, Forestry, and Fishing`:`Arts, Entertainment, Recreation, and Other Service Activities`)
+  mutate(`Wholesale & Retail Trade, Transport, Food Service, Accomodations, Arts, Recreation, and Other Services Activities` = `Wholesale & Retail Trade, Transport, Food Service, and Accomodations` + `Arts, Entertainment, Recreation, and Other Service Activities`) %>%
+  mutate(`Professional & Business Services, Information, Communication, Finance, Real Estate and Insurance` = `Information and Communication` + `Finance and Insurance` + `Real Estate` + `Professional, Scientific, Technical, Administrative, and Support Services`) %>%
+  select(-Manufacturing,-Total,-`Information and Communication`, -`Finance and Insurance`,-`Real Estate`,-`Professional, Scientific, Technical, Administrative, and Support Services`,-`Wholesale & Retail Trade, Transport, Food Service, and Accomodations`,-`Arts, Entertainment, Recreation, and Other Service Activities`) %>%
+  pivot_longer(cols = `Agriculture, Forestry, and Fishing`:`Professional & Business Services, Information, Communication, Finance, Real Estate and Insurance`)
 
 EMPLOY_GROWTH_IND_ITA_graph <- ggplot(data = EMPLOYMENT_INDEXED_NACE_2_ITALY, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -547,7 +680,7 @@ EMPLOY_GROWTH_IND_ITA_graph <- ggplot(data = EMPLOYMENT_INDEXED_NACE_2_ITALY, ae
   ggtitle("The Shape of Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
   theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  #scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

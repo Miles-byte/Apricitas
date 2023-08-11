@@ -350,6 +350,20 @@ EU_SERV_SURVEY_graph <- ggplot() + #plotting BIE
 
 ggsave(dpi = "retina",plot = EU_SERV_SURVEY_graph, "EA_Serv Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+
+EA_SERV_SURVEY <- get_eurostat("ei_bsse_q_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLB5-PC","BS-FLB2-PC")) %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
+EA_MANU_SURVEY <- get_eurostat("ei_bsin_q_r2") %>%
+  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+           indic %in% c("BS-FLP6-PC","BS-FLP2-PC")) %>%
+  select(indic, time, values) %>%
+  pivot_wider(names_from = indic, values_from = values)
+
+
 #Fin Constraints
 EA_FIN_CONSTRAINTS_graph <- ggplot() + #plotting BIE
   geom_line(data=EA_SERV_SURVEY, aes(x=time,y= `BS-FLB5-PC`/100,color= "Service Sector"), size = 1.25) +
@@ -574,8 +588,8 @@ HICP_CONTRIBUTION <- ggplot() + #plotting components of annual inflation
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.025,.11), breaks = c(-.025,0,.025,.05,.075,.1), expand = c(0,0)) +
   ylab("Annual Inflation, Percent") +
-  ggtitle("Pandemic Prices") +
-  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Eurozone Inflation is Now Less About Energy, Morea About Food and Core Goods and Services") +
+  ggtitle("Inflation in the Eurozone") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Eurozone Inflation is Less About Direct Energy Costs and More About Food & Core Goods/Services") +
   theme_apricitas + theme(legend.position = c(.30,.80)) +
   scale_fill_manual(name= "Contributions to Eurozone HICP Inflation",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC"), breaks = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco"), labels = c("Services","Non-Energy Industrial Goods","Energy","Food, Alcohol, and Tobacco")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = -0.025-(.3*.135), ymax = -0.025) +
