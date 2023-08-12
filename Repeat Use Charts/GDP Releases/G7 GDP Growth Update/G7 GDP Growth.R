@@ -27,6 +27,10 @@ UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdo
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
+UK <- data.frame(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = 22), 
+  value = c(547003,549491,552545,553966,557458,558071,561480,561339,546515,431794,503509,509621,504255,537175,546487,554821,557524,557810,557286,558005,558812,559956)) %>%
+  mutate(value = value/value[7]*100)
+
 # UK <- fredr(series_id = "NGDPRSAXDCGBQ",observation_start = as.Date("2018-01-01")) %>%
 #   mutate(value = value/value[7]*100)
 
