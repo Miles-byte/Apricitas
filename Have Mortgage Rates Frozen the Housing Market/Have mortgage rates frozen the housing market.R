@@ -33,27 +33,21 @@ states <- get_urbn_map("territories_states", sf = TRUE) %>%
 states <- states %>%
   mutate(NAME = state_name)
 
-states <- merge(states, HOMEOWN_FREE_CLEAR_PCT, by = "NAME")
+states <- merge(states, HOMEOWN_FREE_CLEAR_PCT, by = "NAME") %>%
+  mutate(PCT_CUT = cut(DP04_0092PE, breaks = c(-Inf,30,35,40,45,Inf), labels = c("<30%", "30-35%", "35-40%", "40-45%", ">45%")))
 
 HOMEOWN_FREE_CLEAR_PCT_MAP <- ggplot() +
-  geom_sf(data = states, aes(fill = DP04_0092PE/100)) +
+  geom_sf(data = states, aes(fill = PCT_CUT), color = NA) +
   geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_gradient(high = "#F5B041",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(0.3,-0.4,0.5,0.06), 
-                      labels = c("30%","40%","50%","60%"),
-                      limits = c(0.24,0.54)) +
-  ggtitle("       Annualized GDP Growth Since Q4 2019") +
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<30%", "30-35%", "35-40%", "40-45%", ">45%")) +
+  ggtitle("    Percent of Homeowners Without a Mortgage") +
   theme(plot.title = element_text(size = 24)) +
-  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(caption = "Graph created by @JosephPolitano using Census ACS data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = HOMEOWN_FREE_CLEAR_PCT_MAP, "HOMEOWN_PCT_SHARE_STATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-
-c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")
