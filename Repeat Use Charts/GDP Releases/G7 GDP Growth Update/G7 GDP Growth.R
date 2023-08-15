@@ -65,6 +65,33 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
 JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
+JPN <- data.frame(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = 22), value = c(
+  554961.90,
+  556811.60,
+  553917.10,
+  553177.10,
+  554311.60,
+                                                                                                             556279.50,
+                                                                                                             557411.80,
+                                                                                                             542110.50,
+                                                                                                             544214.00,
+                                                                                                             501472.40,
+                                                                                                             529680.60,
+                                                                                                             539874.40,
+                                                                                                             538517.60,
+                                                                                                             541374.00,
+                                                                                                             539197.70,
+                                                                                                             545156.40,
+                                                                                                             542241.50,
+                                                                                                             549022.60,
+                                                                                                             547313.80,
+                                                                                                             547556.60,
+                                                                                                             552574.30,
+                                                                                                             560740.10)) %>%
+  mutate(value = value/value[7]*100)
+
+#https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2023/qe232/gdemenuea.html
+              
 CAN <- get_cansim_vector("v62305752") %>%
   subset(REF_DATE >= as.Date("2018-01-01")) %>%
   transmute(date = Date, value = VALUE/VALUE[7]*100)
@@ -104,7 +131,7 @@ ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Renamed.png", type = "cairo-png"
 #test <- read.csv("https://esploradati.istat.it/SDMXWS/rest/dataflow/IT1/163_156_DF_DCCN_SQCQ_3/1.0/?detail=Full&references=Descendants")
 PER_CAPITA_NOTES
 
-https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihxw/pn2
-https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610010401&pickMembers%5B0%5D=2.1&pickMembers%5B1%5D=3.1&cubeTimeFrame.startMonth=01&cubeTimeFrame.startYear=2019&cubeTimeFrame.endMonth=01&cubeTimeFrame.endYear=2023&referencePeriods=20190101%2C20230101
+#https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihxw/pn2
+#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610010401&pickMembers%5B0%5D=2.1&pickMembers%5B1%5D=3.1&cubeTimeFrame.startMonth=01&cubeTimeFrame.startYear=2019&cubeTimeFrame.endMonth=01&cubeTimeFrame.endYear=2023&referencePeriods=20190101%2C20230101
 
   
