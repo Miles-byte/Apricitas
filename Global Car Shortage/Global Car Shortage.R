@@ -64,7 +64,7 @@ Assemblies <- fredr(series_id = "MVATOTASSS",observation_start = as.Date("2018-0
 Assemblies_Graph <- ggplot() + #plotting auto assemblies
   geom_line(data=Assemblies, aes(x=date,y= value, color = "US Total Motor Vehicle Assemblies"), size = 1.25)+ 
   annotate(geom = "hline", y = 10.91, yintercept = 10.91, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 11.5, color ="#FFE98F") +
+  annotate(geom = "text", label = "2019 Average", x = as.Date("2021-10-01"), y = 11.5, color ="#FFE98F",size = 5) +
   #geom_line(data=AssembliesNSA, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies (NSA)"), size = 1.25)+ 
   xlab("Date") +
   ylab("Motor Vehicle Assemblies, Millions, Annual Rate") +
