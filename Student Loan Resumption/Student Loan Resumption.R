@@ -197,14 +197,14 @@ DOE_TGA_DEPOSITS_WEEKLY <- read.csv("https://api.fiscaldata.treasury.gov/service
   mutate(value = c(rollmean(value, 21, na.pad = TRUE)))
 
 DOE_TGA_DEPOSITS_DAILY <- ggplot() + #plotting components of annual inflation
-  geom_line(data = DOE_TGA_DEPOSITS_WEEKLY, aes(x = date, y = (value*251)/1000, color = "Department of Education Daily Receipts, Rolling 1-Month Average, Annual Rate (TGA)"), size = 1.25) +
+  geom_line(data = DOE_TGA_DEPOSITS_WEEKLY, aes(x = date, y = (value*251)/1000, color = "Department of Education Daily Receipts\nRolling 21-Business-Day (Roughly 1 Month) Average\nAnnual Rate (TGA)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,100), breaks = c(25,50,75,100), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("Payments to the Department of Education") +
-  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Have Hit a 10-Year Low") +
-  theme_apricitas + theme(legend.position = c(0.53,0.05)) +
-  theme(plot.title = element_text(size = 23)) +
+  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Are Quickly Rising") +
+  theme_apricitas + theme(legend.position = c(0.57,0.12)) +
+  theme(plot.title = element_text(size = 24)) +
   scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-10-01")-(.1861*(today()-as.Date("2005-10-01"))), xmax = as.Date("2005-10-01")-(0.049*(today()-as.Date("2005-10-01"))), ymin = 0-(.3*100), ymax = 0) +
   coord_cartesian(clip = "off")

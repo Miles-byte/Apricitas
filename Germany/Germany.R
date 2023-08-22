@@ -560,7 +560,7 @@ FACTORY_CONSTRUCTION_ROLLMEAN <- full_join(FACTORY_CONSTRUCTION,CONSTRUCTION_PRI
   filter(date >= as.Date("2005-01-01"))
 
 GER_FACTORY_CONSTRUCTION_graph <- ggplot() + #plotting permanent and temporary job losers
-  #geom_line(data=FACTORY_CONSTRUCTION_ROLLMEAN, aes(x=date,y= realavg6/realavg6[1]*100,color="German Real Factory Construction, 6MMA"), size = 1.25) +
+  #geom_line(data=FACTORY_CONSTRUCTION_ROLLMEAN, aes(x=date,y= realavg6/realavg6[181]*100,color="German Real Factory Construction, 6MMA"), size = 1.25) +
   geom_line(data=FACTORY_CONSTRUCTION_ROLLMEAN, aes(x=date,y= realavg12/realavg12[181]*100,color="German Real New Factory Construction, 12MMA"), size = 1.25) +
   ylab("Index: 2020 Avg = 100") +
   ggtitle("German Factory Construction is Falling") +
@@ -762,7 +762,51 @@ ORDER_BACKLOG_graph <- ggplot() + #plotting energy intensive manufacturing
 ggsave(dpi = "retina",plot = ORDER_BACKLOG_graph, "Order Backlog graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ORDER_BACKLOG_SECTORS_graph, "Order Backlog Sectors graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+ORDER_MILITARY_3_DIGIT <- retrieve_data(tablename = "42113BM003", genesis=c(db='de')) %>%
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = AUB002_val, category = WZ08Y3) %>%
+  pivot_wider(names_from = category) %>%
+  arrange(date)
 
+WEAPON_ORDER_BACKLOG_MONTHS_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=subset(ORDER_MILITARY_3_DIGIT, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-254`,color="Months of Order Backlogs, German Weapons and Ammunition Manufacturing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), expand = c(0,0)) +
+  ylab("Months of Order Backlogs") +
+  ggtitle("German Weapon Backlogs are Growing") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Weapon Orders are Still Rising Faster Than Manufacturers Can Ramp Up Production") +
+  theme_apricitas + theme(legend.position = c(.52,.15)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = WEAPON_ORDER_BACKLOG_MONTHS_graph, "Weapon Order Backlog Months graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+IP_WEAPON_9DIGIT <- IP_9DIGIT_BULK %>%
+  filter(grepl("^GP19-2540", GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012300", "Revolvers and Pistols",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012503", "Rifles and Hunting Rifles",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012505", "Shotguns",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012508", "Other Hunting and Sporting Weapons",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012700", "Other Firearms",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254012900", "Other Weapons",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254013001", "Rounds, Cartridges, Other Ammunition, Projectiles, and Parts Thereof",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-254014001", "Parts and Accessories for Revolvers, Pistols, and Similar Weapons",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRODAW_val,volume_1 = PRO005_val, volume_2 = PRO008_val , date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q"))) %>%
+  group_by(category, date)
+
+WEAPON_NUMBER_GRAPH <- ggplot(data = subset(IP_WEAPON_9DIGIT, category == "Rounds, Cartridges, Other Ammunition, Projectiles, and Parts Thereof"), aes(x = date, y = volume_1/1000, fill = "Rounds, Cartridges, Other Ammunition, Projectiles, and Parts Thereof")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Units, Millions") +
+  ggtitle("TEST I THINK THIS IS CIVILIAN") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(0,250,500,750,1000,1250), limits = c(0,1250), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Heat Pumps Produced is Rapidly Growing amidst the Energy Transition") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "German Quarterly Production:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
 p_unload(all)  # Remove all packages using the package manager
 
