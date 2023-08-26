@@ -770,7 +770,7 @@ ORDER_MILITARY_3_DIGIT <- retrieve_data(tablename = "42113BM003", genesis=c(db='
   arrange(date)
 
 WEAPON_ORDER_BACKLOG_MONTHS_graph <- ggplot() + #plotting energy intensive manufacturing
-  geom_line(data=subset(ORDER_MILITARY_3_DIGIT, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-254`,color="Months of Order Backlogs, German Weapons and Ammunition Manufacturing"), size = 1.25) +
+  geom_line(data=subset(ORDER_MILITARY_3_DIGIT, date >= as.Date("2018-01-01")), aes(x=date,y= `WZ08-254`,color="Months of Order Backlogs at Current Rates of Production\nGerman Weapons and Ammunition Manufacturing"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), expand = c(0,0)) +
   ylab("Months of Order Backlogs") +
@@ -778,7 +778,7 @@ WEAPON_ORDER_BACKLOG_MONTHS_graph <- ggplot() + #plotting energy intensive manuf
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Weapon Orders are Still Rising Faster Than Manufacturers Can Ramp Up Production") +
   theme_apricitas + theme(legend.position = c(.52,.15)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-02-01")-(.1861*(today()-as.Date("2018-02-01"))), xmax = as.Date("2018-02-01")-(0.049*(today()-as.Date("2018-02-01"))), ymin = 0-(.3*(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = WEAPON_ORDER_BACKLOG_MONTHS_graph, "Weapon Order Backlog Months graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

@@ -696,6 +696,124 @@ RU_IMPEDIMENTS_PRODUCTION_SECTORS <- ggplot() + #plotting BIE
 
 ggsave(dpi = "retina",plot = RU_IMPEDIMENTS_PRODUCTION_SECTORS, "RU Impediments Production Sectors.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+date <- Sys.Date()
+MONTHLY_BUDGET_BASE_URL <- "https://archive.minfin.gov.ru/common/upload/library/"
+
+while (http_status(HEAD(paste0(MONTHLY_BUDGET_BASE_URL, format(date, "%Y/%m"), "/main/3_fedbud_month_eng_%E2%80%94_month.xlsx")))$category != "Success") {
+  date <- date - months(1)
+}
+
+MONTHLY_BUDGET_BASE_URL <- paste0(MONTHLY_BUDGET_BASE_URL, format(date, "%Y/%m"), "/main/3_fedbud_month_eng_%E2%80%94_month.xlsx")
+
+BUDGET_DATA <- read.xlsx(MONTHLY_BUDGET_BASE_URL) %>%
+  slice(-1,-53,-54,-55) %>%
+  transpose() %>%
+  setNames(make.names(.[2, ], unique = TRUE)) %>% 
+  slice(-1,-2) %>%
+  mutate(date = seq.Date(from = as.Date("2011-01-01"), by = "month", length.out = nrow(.))) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(year = year(date), month = month(date)) %>%
+  group_by(year) %>%
+  mutate(across(where(is.numeric), ~ ifelse(!is.na(lag(.)), . - lag(.), .))) %>%
+  ungroup() %>%
+  mutate(across(where(is.numeric), ~ c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(.,k = 12)))) %>%
+  filter(date > as.Date("2018-01-01"))
+  
+MONTHLY_BUDGET_EXPENDITURES_graph <- ggplot() + #plotting russian GDP data
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=BUDGET_DATA, aes(x=date,y= Total.Expenditure/1000*12,color= "Russia Federal Government Total Expenditures, 12MMT"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Trillions of Rubles") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, prefix = "₽", suffix = "T"), breaks = c(0,10,20,30,40), limits = c(0,40), expand = c(0,0)) +
+  ggtitle("The Rising Costs of Russia's War") +
+  labs(caption = "Graph created by @JosephPolitano using Russian Ministry of Finance data", subtitle = "Russian Government Expenditures Have Risen Significantly Amidst the Invasion of Ukraine") +
+  theme_apricitas + theme(legend.position = c(.475,.2)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*40), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+MONTHLY_BUDGET_DEFICIT_graph <- ggplot() + #plotting russian GDP data
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=BUDGET_DATA, aes(x=date,y= Deficit.......Surplus..../1000*12,color= "Russian Federal Surplus/Deficit, 12MMT"), size = 1.25)+ 
+  geom_line(data=BUDGET_DATA, aes(x=date,y= X.Non.oil.gas.deficit/1000*12,color= "Russian Federal Surplus/Deficit Ex Oil and Gas, 12MMT"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Trillions of Rubles") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, prefix = "₽", suffix = "T"), breaks = c(-20,-15,-10,-5,0,5,10), limits = c(-20,5), expand = c(0,0)) +
+  ggtitle("The Rising Costs of Russia's War") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat data", subtitle = "Russia's Federal Deficit is Rising as the Country Borrows to Pay for Defense Expenditures") +
+  theme_apricitas + theme(legend.position = c(.475,.2)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Russian Federal Surplus/Deficit, 12MMT","Russian Federal Surplus/Deficit Ex Oil and Gas, 12MMT")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*25), ymax = -20) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MONTHLY_BUDGET_EXPENDITURES_graph, "Monthly Budget Expenditures.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = MONTHLY_BUDGET_DEFICIT_graph, "Monthly Budget Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+date <- Sys.Date()
+QUARTERLY_BUDGET_BASE_URL <- "https://archive.minfin.gov.ru/common/upload/library/"
+
+while (http_status(HEAD(paste0(QUARTERLY_BUDGET_BASE_URL, format(date, "%Y/%m"), "/main/3_fedbud_month_eng_%E2%80%94_quater.xlsx")))$category != "Success") {
+  date <- date - months(1)
+}
+
+QUARTERLY_BUDGET_BASE_URL <- paste0(QUARTERLY_BUDGET_BASE_URL, format(date, "%Y/%m"), "/main/3_fedbud_month_eng_%E2%80%94_quater.xlsx")
+
+QUARTERLY_NOMINAL_GDP <- read.xlsx(paste0("https://rosstat.gov.ru/storage/mediabank/VVP_kvartal_s%201995_1%D0%BB-",year(today()-45),".xlsx"),3) %>%
+  slice(4) %>%
+  transpose %>%
+  transmute(date = seq.Date(from = as.Date("2011-01-01"), by = "3 months",length.out = nrow(.)), GDP = as.numeric(V1)) %>%
+  drop_na()
+
+QUARTERLY_BUDGET_DATA <- read.xlsx(QUARTERLY_BUDGET_BASE_URL) %>%
+  slice(-1,-53,-54,-55) %>%
+  transpose() %>%
+  setNames(make.names(.[2, ], unique = TRUE)) %>% 
+  slice(-1,-2) %>%
+  mutate(date = seq.Date(from = as.Date("2011-01-01"), by = "3 months", length.out = nrow(.))) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(year = year(date)) %>%
+  group_by(year) %>%
+  mutate(across(where(is.numeric), ~ ifelse(!is.na(lag(.)), . - lag(.), .))) %>%
+  ungroup() %>%
+  select(Total.Expenditure,Deficit.......Surplus....,X.Non.oil.gas.deficit,date) %>%
+  merge(.,QUARTERLY_NOMINAL_GDP, by = "date") %>%
+  mutate(across(where(is.numeric), ~ c(NA,NA,NA,rollmean(.,4)))) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  transmute(Deficit = Deficit.......Surplus..../GDP,Expenditures = Total.Expenditure/GDP,Deficit_Ex_Oil_Gas = X.Non.oil.gas.deficit/GDP, date)
+
+#DO ROLLMEAN
+QUARTERLY_BUDGET_DEFICIT_graph <- ggplot() + #plotting russian GDP data
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=QUARTERLY_BUDGET_DATA, aes(x=date,y= Deficit,color= "Russian Federal Surplus/Deficit, % of GDP, Rolling 1-Year Total"), size = 1.25)+ 
+  geom_line(data=QUARTERLY_BUDGET_DATA, aes(x=date,y= Deficit_Ex_Oil_Gas,color= "Russian Federal Surplus/Deficit Ex Oil and Gas, % of GDP, Rolling 1-Year Total"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent of GDP") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.10,-0.05,0,0.05), limits = c(-.125,.05), expand = c(0,0)) +
+  ggtitle("The Rising Costs of Russia's War") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat and Ministry of Finance data", subtitle = "Russia's Federal Deficit is Rising as the Country Borrows to Pay for Defense Expenditures") +
+  theme_apricitas + theme(legend.position = c(.475,.1)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Russian Federal Surplus/Deficit, % of GDP, Rolling 1-Year Total","Russian Federal Surplus/Deficit Ex Oil and Gas, % of GDP, Rolling 1-Year Total")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.125-(.3*.175), ymax = -.125) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QUARTERLY_BUDGET_DEFICIT_graph, "Quarterly Budget Deficit.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+QUARTERLY_BUDGET_EXPENDITURES_graph <- ggplot() + #plotting russian GDP data
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=QUARTERLY_BUDGET_DATA, aes(x=date,y= Expenditures,color= "Russian Federal Government Expenditures, % of GDP, Rolling 1-Year Total"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Percent of GDP") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.1,.2), limits = c(0,.25), expand = c(0,0)) +
+  ggtitle("The Rising Costs of Russia's War") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat and Ministry of Finance data", subtitle = "Russia's Federal Spending is Rising as the Country's Defense Expenditures Rise") +
+  theme_apricitas + theme(legend.position = c(.475,.1)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Russian Federal Government Expenditures, % of GDP, Rolling 1-Year Total","Russian Federal Surplus/Deficit Ex Oil and Gas, % of GDP, Rolling 1-Year Total")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QUARTERLY_BUDGET_EXPENDITURES_graph, "Quarterly Budget Expenditures.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 cat("\014")  # ctrl+L
 

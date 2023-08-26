@@ -243,6 +243,39 @@ NOMINAL_DEFENSE_US_PCT_1947_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = NOMINAL_DEFENSE_US_PCT_1947_Graph, "Defense Share of GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+GFS_data <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/c16198276ec7c5a20223555907dda6e18036f97c/Global%20Rearmament/FEDERAL_GOV_FINANCE_STATS.csv") %>%
+  mutate(date = as.Date(date))
+
+GFS_data_grants_Graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=GFS_data, aes(x=date,y= grants_foreign/1000,color="US Federal Grants to Foreign Governments"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,125), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("America's International Goverment Aid") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data",subtitle = "US Bilateral Grants to Foreign Governments Have Increased in the Wake of Russia's Invasion") +
+  theme_apricitas + theme(legend.position = c(.4,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*125), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GFS_data_grants_Graph, "GFS Data Grants Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+GFS_data_weapon_inventories_Graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=GFS_data, aes(x=date,y= weapon_systems/1000,color="Federal Government, Net Acquisition of Weapon Equipment"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  #geom_line(data=GFS_data, aes(x=date,y= inventories/1000,color="Inventories"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-10,25), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("America's Net Military Equipment Sales") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data",subtitle = "The US is Selling or Transferring More Weapon Equipment Than it's Acquiring") +
+  theme_apricitas + theme(legend.position = c(.4,.25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -10-(.3*35), ymax = -10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GFS_data_weapon_inventories_Graph, "GFS Data weapon inventories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 p_unload(all)  # Remove all packages using the package manager
 
