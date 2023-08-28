@@ -11,16 +11,6 @@ save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv(
 
 test <- get_idbank_list("ENQ-CONJ-ACT-IND")
 
-?get_idb
-
-INSEE_DATA_SELECTED <- get_dataset_list() 
-
-ENQ-CONJ-ACT-IND OUTLOOK SURVEY IN GOODS PRODUCING INDUSTRIES
-
-ENQ-CONJ-INV-IND INDUSTRIAL INVESTMENT
-
-IPI-2015 INDUSTRIAL PRODUCTION
-
 EUROSTAT_QUARTERLY_INDPRO_BULK <- get_eurostat("sts_inpr_q")
 
 EU_WEAPON_INDPRO <- EUROSTAT_QUARTERLY_INDPRO_BULK %>%
@@ -81,7 +71,7 @@ EU_WEAPON_BREAKDOWN_MANUFACTURING_graph <- ggplot() + #plotting energy intensive
   ylab("Index, Oct 2022 = 100") +
   ggtitle("Europe's Rearmament") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis, ONS, IStat, and Insee Data",subtitle = "Weapon and Ammunition Output is Rising in Germany in the Wake of Russia's Invasion") +
-  theme_apricitas + theme(legend.position = c(.35,.85)) +
+  theme_apricitas + theme(legend.position = c(.35,.8)) +
   scale_color_manual(name= "Industrial Production, Weapons and Ammunition",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Germany","France","United Kingdom","Italy")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*200), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -172,7 +162,7 @@ NOMINAL_DEFENSE_US_PCT_1972 <- beaGet(NOMINAL_DEFENSE_US_EXP_SPECS, iTableStyle 
   mutate(name = factor(name, levels = c("Ammunition","Vehicles","Missiles","Electronics","Ships","Aircraft")))
 
 NOMINAL_DEFENSE_US_PCT_1972_Graph <- ggplot(NOMINAL_DEFENSE_US_PCT_1972, aes(fill=name, x=date, y=value)) + 
-  geom_bar(position="stack", stat="identity", width = 93, color = NA) + #putting color to NA gets rid of borders
+  geom_bar(position="stack", stat="identity", width = 93, color = NA, size = 0) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
@@ -187,6 +177,42 @@ NOMINAL_DEFENSE_US_PCT_1972_Graph <- ggplot(NOMINAL_DEFENSE_US_PCT_1972, aes(fil
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NOMINAL_DEFENSE_US_PCT_1972_Graph, "Nominal Defense Spending US PCT GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+NOMINAL_DEFENSE_US_PCT_1972_AGGREGATES <- beaGet(NOMINAL_DEFENSE_US_EXP_SPECS, iTableStyle = FALSE) %>%
+  rename_with(~gsub("^T31105", "", .x)) %>%
+  mutate(date = (seq(as.Date("1972-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  select(date,b237rc_5_compensation_of_general_government_employees_current_dollars_level_6,
+         a998rc_10_durable_goods_current_dollars_level_6,
+         a725rc_17_nondurable_goods_current_dollars_level_6,
+         a489rc_21_services_current_dollars_level_6,
+         a808rc_30_structures_current_dollars_level_6,
+         y050rc_31_equipment_current_dollars_level_6,
+         y052rc_38_intellectual_property_products_current_dollars_level_6
+  ) %>%
+  setNames(c("date","Compensation of Defense Employees, Military and Civilian","Intermediate Durable Goods Purchases (For Maintainence of Existing Equipment, etc)","Intermediate Nondurable Goods Purchases (Ammunition, Oil, etc)","Intermediate Services Purchases (Weapon & Personnel Support, etc)","Gross Investment in Structures","Gross Investment In Equipment (New Aircraft, Ships, etc)","Gross Investment in Intellectual Property Products (Software, R&D)")) %>%
+  merge(.,GDP, by = "date") %>%
+  mutate(across(where(is.numeric) & !names(. %in% "GDP"), ~ ./GDP)) %>%
+  select(-GDP) %>%
+  pivot_longer(cols = -date) %>%
+  mutate(name = factor(name, levels = rev(c("Compensation of Defense Employees, Military and Civilian","Intermediate Durable Goods Purchases (For Maintainence of Existing Equipment, etc)","Intermediate Nondurable Goods Purchases (Ammunition, Oil, etc)","Intermediate Services Purchases (Weapon & Personnel Support, etc)","Gross Investment in Structures","Gross Investment In Equipment (New Aircraft, Ships, etc)","Gross Investment in Intellectual Property Products (Software, R&D)"))))
+
+NOMINAL_DEFENSE_US_PCT_1972_AGGREGATES_Graph <- ggplot(NOMINAL_DEFENSE_US_PCT_1972_AGGREGATES, aes(fill=name, x=date, y=value)) + 
+  geom_bar(position="stack", stat="identity", width = 93, color = NA, size = 0) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.25),limits = c(0,0.1), breaks = c(0,.025,.05,.075,.1),expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("US Nominal Defense Spending, % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "The Share of America's Economy Going to Defense is at Peace-Dividend-Era Lows") +
+  theme_apricitas + theme(legend.position = c(.5,.85), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +
+  scale_fill_manual(name= NULL,values = c("#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1972-01-01")-(.1861*(today()-as.Date("1972-01-01"))), xmax = as.Date("1972-01-01")-(0.049*(today()-as.Date("1972-01-01"))), ymin = 0-(.3*.10), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = NOMINAL_DEFENSE_US_PCT_1972_AGGREGATES_Graph, "Nominal Defense Spending US PCT GDP Aggregates Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 UNFILLED_ORDERS_US_MANU <- fredr(series_id = "UDEFUO", observation_start = as.Date("2018-01-01"))
 
@@ -275,6 +301,24 @@ GFS_data_weapon_inventories_Graph <- ggplot() + #plotting energy intensive manuf
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GFS_data_weapon_inventories_Graph, "GFS Data weapon inventories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+UKRAINE_INDPRO <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Global%20Rearmament/Ukraine_Industrial_Production.csv") %>%
+  mutate(date = as.Date(date))
+
+UKRAINE_INDPRO_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=UKRAINE_INDPRO, aes(x=date,y= Military_Fighting_Vehicles,color="Military Fighting Vehicles"), size = 1.25) +
+  geom_line(data=UKRAINE_INDPRO, aes(x=date,y= `Weapons.and.Ammo`,color="Weapons and Ammunition"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,150), expand = c(0,0)) +
+  ylab("Index, Dec 2021 = 100") +
+  ggtitle("Ukraine's Rearmament") +
+  labs(caption = "Graph created by @JosephPolitano using State Statistics Service of Ukraine Data",subtitle = "Weapon and Ammunition Output is Rising in Ukraine in the Wake of Russia's Invasion") +
+  theme_apricitas + theme(legend.position = c(.35,.8)) +
+  scale_color_manual(name= "Ukrainian Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Weapons and Ammunition","Military Fighting Vehicles")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-140-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-140-as.Date("2021-12-01"))), ymin = 0-(.3*150), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UKRAINE_INDPRO_graph, "Ukrainian Industrial Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
