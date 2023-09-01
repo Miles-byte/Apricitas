@@ -50,7 +50,7 @@ ggsave(dpi = "retina",plot = UNFAO_Graph, "UNFAO.png", type = "cairo-png", width
 
 BLACK_SEA <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRisnQjodySbp6-XXPGhdsVMp2stg_gyuxw42pP41tuxeic63IARau6bV1TgjLiw_ciAWsTO5LarPqT/pub?gid=0&single=true&output=csv") %>%
   select(Commodity,Tonnage,Departure) %>%
-  mutate(Departure = as.Date(Departure,"%d-%b-%y")) %>%
+  mutate(Departure = as.Date(Departure,"%d/%m/%Y")) %>%
   group_by(month = lubridate::floor_date(Departure, 'month'), Commodity) %>%
   mutate(Tonnage = sum(as.numeric(gsub(",","",Tonnage)))) %>%
   select(-Departure) %>%
@@ -59,17 +59,17 @@ BLACK_SEA <- read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRisnQjod
   replace(is.na(.), 0)
   
 BLACK_SEA_Graph <- ggplot() + #plotting US Crude Production
-  geom_line(data=BLACK_SEA, aes(x=month,y= (`Sunflower oil`+`Sunflower meal`+Rapeseed+`Sunflower seed`+`Vegetable oil`+`Canola`+`Rapeseed meal`+`Sunflower pellets`+`Soya oil`+`Soya beans`)/1000000, color= "Sunflower, Rapeseed, Soya, incl. Oils & Related"), size = 1.25) +
+  geom_line(data=BLACK_SEA, aes(x=month,y= (`Sunflower oil`+`Sunflower meal`+Rapeseed+`Sunflower seed`+`Vegetable oil`+`Canola`+`Rapeseed meal`+`Sunflower pellets`+`Soya oil`+`Soya beans`)/1000000, color= "Sunflower, Canola, Soya, incl. Oils & Related"), size = 1.25) +
   geom_line(data=BLACK_SEA, aes(x=month,y= Corn/1000000, color= "Corn"), size = 1.25) +
   geom_line(data=BLACK_SEA, aes(x=month,y= (Wheat+Barley)/1000000, color= "Wheat and Barley"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "Mt"),limits = c(0,2.5),breaks = c(0,0.5,1,1.5,2,2.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "Mt"),limits = c(0,2.9),breaks = c(0,0.5,1,1.5,2,2.5), expand = c(0,0)) +
   ylab("Tons,Mt,Monthly") +
   ggtitle("Ukraine and the Global Food Crisis") +
-  labs(caption = "Graph created by @JosephPolitano using Humanitarian Data Exchange data",subtitle = "Ukrainian Exports Via the Black Sea Grain Initiative Helped Alleviate Global Food Supply Issues") +
-  theme_apricitas + theme(legend.position = c(.3,.85)) +
-  scale_color_manual(name= "Ukraine Exports Via Black Sea Grain Initiative",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Corn","Wheat and Barley","Sunflower, Rapeseed, Soya, incl. Oils & Related")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-07-01")-(0.049*(today()-as.Date("2022-07-01"))), ymin = 0-(.3*2.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  labs(caption = "Graph created by @JosephPolitano using Humanitarian Data Exchange data",subtitle = "Ukrainian Exports Via the Black Sea Grain Initiative Have Fallen Significantly") +
+  theme_apricitas + theme(legend.position = c(.3,.90), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Ukraine Exports Via Black Sea Grain Initiative",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Corn","Wheat and Barley","Sunflower, Canola, Soya, incl. Oils & Related")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-08-01")-(.1861*(today()-as.Date("2022-07-01"))), xmax = as.Date("2022-08-01")-(0.049*(today()-as.Date("2022-08-01"))), ymin = 0-(.3*2.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BLACK_SEA_Graph, "Black Sea Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -176,8 +176,9 @@ IMPEDE_Graph <- ggplot() + #plotting BAEI
 
 ggsave(dpi = "retina",plot = IMPEDE_Graph, "Ukraine IMPEDE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-BIGPROBLEM <- read.csv("C:/Users/josep/Documents/Ukraine/BIGPROBLEM.csv") %>%
-  mutate(date = as.Date(date))
+BIGPROBLEM <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Ukraine/BIGPROBLEM.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  drop_na()
   
 BIGPROBLEM_Graph <- ggplot() + #plotting BAEI
   geom_line(data=BIGPROBLEM, aes(x=date,y= SAFE/100, color= "Dangerous to Work"), size = 1.25) +
@@ -186,10 +187,29 @@ BIGPROBLEM_Graph <- ggplot() + #plotting BAEI
   scale_y_continuous(labels = scales::percent_format(),limits = c(0,1),breaks = c(0,.25,.50,.75,1), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Ukraine's War Economy") +
-  labs(caption = "Graph created by @JosephPolitano using Institute for Economic Research and Policy Consulting data",subtitle = "Attacks on Civilian Infrastrucutre Have Hurt Ukrainian Industry") +
-  theme_apricitas + theme(legend.position = c(.45,.78)) +
-  scale_color_manual(name= "Most Important Problems, Percent of Ukrainian Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Electricity, Water, or Heat Supply Interruptions","Dangerous to Work")) +
+  labs(caption = "Graph created by @JosephPolitano using Institute for Economic Research and Policy Consulting data",subtitle = "Attacks on Infrastrucutre Have Hurt Ukrainian Industry, But Adaptation Has Helped a Recovery") +
+  theme_apricitas + theme(legend.position = c(.35,.875)) +
+  scale_color_manual(name= "Most Important Problems, Percent of Ukrainian Firms\n(Respondents Could Select Multiple Answers)",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Electricity, Water, or Heat Supply Interruptions","Dangerous to Work")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-07-10")-(.1861*(today()-as.Date("2022-07-10"))), as.Date("2022-07-10")-(0.049*(today()-as.Date("2022-07-10"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BIGPROBLEM_Graph, "BIGPROBLEM Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+IMPEDE_SECTORS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Ukraine/Ukraine_War_Constraint_Sector.csv") %>%
+  mutate(date = as.Date(date))
+
+IMPEDE_SECTORS_Graph <- ggplot() + #plotting BAEI
+  geom_line(data=IMPEDE_SECTORS, aes(x=date,y= ag/100, color= "Agriculture, Forestry, and Fishing"), size = 1.25) +
+  geom_line(data=IMPEDE_SECTORS, aes(x=date,y= mine/100, color= "Mining and Quarrying"), size = 1.25) +
+  geom_line(data=IMPEDE_SECTORS, aes(x=date,y= manu/100, color= "Manufacturing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1),breaks = c(0,.25,.50,.75,1), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Ukraine's War Economy") +
+  labs(caption = "Graph created by @JosephPolitano using National Bank of Ukraine data",subtitle = "Firms Across Sectors Ukrainian Agricultural Firms are Suffering , Even as Mining and Manufacturing Partially Recover") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= "War/Political Situation Impeding Production, Percent of Ukrainian Firms",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-02-01")-(.1861*(today()-as.Date("2019-02-01"))), as.Date("2019-02-01")-(0.049*(today()-as.Date("2019-02-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = IMPEDE_SECTORS_Graph, "Impede Sectors Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

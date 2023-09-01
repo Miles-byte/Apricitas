@@ -68,7 +68,7 @@ EU_WEAPON_BREAKDOWN_MANUFACTURING_graph <- ggplot() + #plotting energy intensive
   geom_line(data=GERMANY_INDPRO_WEAPONS_DESTATIS, aes(x=date,y= value/value[46]*100,color="Germany"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), expand = c(0,0)) +
-  ylab("Index, Oct 2022 = 100") +
+  ylab("Index, Oct 2021 = 100") +
   ggtitle("Europe's Rearmament") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis, ONS, IStat, and Insee Data",subtitle = "Weapon and Ammunition Output is Rising in Germany in the Wake of Russia's Invasion") +
   theme_apricitas + theme(legend.position = c(.35,.8)) +
@@ -287,14 +287,14 @@ GFS_data_grants_Graph <- ggplot() + #plotting energy intensive manufacturing
 ggsave(dpi = "retina",plot = GFS_data_grants_Graph, "GFS Data Grants Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 GFS_data_weapon_inventories_Graph <- ggplot() + #plotting energy intensive manufacturing
-  geom_line(data=GFS_data, aes(x=date,y= weapon_systems/1000,color="Federal Government, Net Acquisition of Weapon Equipment"), size = 1.25) +
+  geom_line(data=GFS_data, aes(x=date,y= weapon_systems/1000,color="Federal Government, Net Acquisition of Weapon Systems"), size = 1.25) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   #geom_line(data=GFS_data, aes(x=date,y= inventories/1000,color="Inventories"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-10,25), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's Net Military Equipment Sales") +
-  labs(caption = "Graph created by @JosephPolitano using BEA Data",subtitle = "The US is Selling or Transferring More Weapon Equipment Than it's Acquiring") +
+  labs(caption = "Graph created by @JosephPolitano using BEA Data",subtitle = "The US is Selling or Transferring More Weapon Systems Than it's Acquiring") +
   theme_apricitas + theme(legend.position = c(.4,.25)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -10-(.3*35), ymax = -10) +

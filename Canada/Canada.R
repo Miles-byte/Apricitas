@@ -236,7 +236,7 @@ WAGES_GRAPH <- ggplot() + #plotting net tightening data
 ggsave(dpi = "retina",plot = WAGES_GRAPH, "WAGES GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-CAN_JOB_GROWTH <- statcan_data("14-10-0355-01", "eng") %>%
+CAN_JOB_GROWTH <- statcan_data("14-10-0355-02", "eng") %>%
   subset(GEO == "Canada") %>%
   subset(Statistics == "Estimate") %>%
   subset(`Data type` == "Seasonally adjusted") %>%
@@ -245,27 +245,43 @@ CAN_JOB_GROWTH <- statcan_data("14-10-0355-01", "eng") %>%
   pivot_wider(names_from = `North American Industry Classification System (NAICS)`, values_from = VALUE) %>%
   mutate(`Professional & Business Services, Finance, and Real Estate` = `Professional, scientific and technical services [54]`+`Business, building and other support services [55-56]` + `Finance, insurance, real estate, rental and leasing [52-53]`) %>%
   mutate(`Trade, Transportation, and Utilities` = `Utilities [22]`+`Wholesale and retail trade [41, 44-45]`+`Transportation and warehousing [48-49]`) %>%
-  mutate(`Goods-producing` = `Goods-producing sector`-`Utilities [22]`) %>%
+  mutate(`Goods Producing Industries and Construction` = `Goods-producing sector`-`Utilities [22]`) %>%
   mutate(`Education and Health Services` = `Educational services [61]`+`Health care and social assistance [62]`) %>%
   mutate(`Other Services Including Information & Recreation` = `Other services (except public administration) [81]`+`Information, culture and recreation [51, 71]`) %>%
   mutate(`Accomodation and Food Services` = `Accommodation and food services [72]`) %>%
   mutate(`Public Administration` = `Public administration [91]`) %>%
-  select(REF_DATE,`Professional & Business Services, Finance, and Real Estate`,`Trade, Transportation, and Utilities`,`Goods-producing`,`Education and Health Services`,`Other Services Including Information & Recreation`,`Accomodation and Food Services`,`Public Administration`) %>%
+  select(REF_DATE,`Professional & Business Services, Finance, and Real Estate`,`Trade, Transportation, and Utilities`,`Goods Producing Industries and Construction`,`Education and Health Services`,`Other Services Including Information & Recreation`,`Accomodation and Food Services`,`Public Administration`) %>%
   mutate_if(is.numeric, funs(.-.[1])) %>%
   pivot_longer(cols = `Professional & Business Services, Finance, and Real Estate`:`Public Administration`) %>%
-  mutate(name = factor(name,levels = c("Accomodation and Food Services","Trade, Transportation, and Utilities","Goods-producing","Education and Health Services","Professional & Business Services, Finance, and Real Estate","Public Administration","Other Services Including Information & Recreation")))
+  mutate(name = factor(name,levels = c("Accomodation and Food Services","Trade, Transportation, and Utilities","Goods Producing Industries and Construction","Education and Health Services","Professional & Business Services, Finance, and Real Estate","Public Administration","Other Services Including Information & Recreation")))
+
+CAN_JOB_GROWTH_LINE <- CAN_JOB_GROWTH %>%
+  group_by(REF_DATE) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(REF_DATE >= as.Date("2020-01-01")) %>%
+  mutate(name = NA)
+
+CAN_JOB_GROWTH_LINE_MAX <- CAN_JOB_GROWTH %>%
+  filter(value > 0) %>%
+  group_by(REF_DATE) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(REF_DATE >= as.Date("2020-01-01")) %>%
+  mutate(name = NA)
 
 CAN_JOB_GROWTH_GRAPH <- ggplot(data = CAN_JOB_GROWTH, aes(x = REF_DATE, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_point(data = CAN_JOB_GROWTH_LINE, aes(x=REF_DATE, y = value/1000), size = 2, fill ="#970C10", color = "#970C10", shape = 23) +
+  geom_line(data = CAN_JOB_GROWTH_LINE, aes(x=REF_DATE, y = value/1000, color = "null"), size = 1, show.legend = FALSE) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Millions of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-3,-2,-1,0,1), limits = c(-3.5,1.1), expand = c(0,0)) +
   ggtitle("The Shape of Canadian Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
   theme_apricitas + theme(legend.position = c(.625,.315)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Accomodation and Food Services","Trade, Transportation, and Utilities","Goods-producing","Education and Health Services","Professional & Business Services, Finance, and Real Estate","Public Administration","Other Services Including Information & Recreation")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Accomodation and Food Services","Trade, Transportation, and Utilities","Goods Producing Industries and Construction","Education and Health Services","Professional & Business Services, Finance, and Real Estate","Public Administration","Other Services Including Information & Recreation")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#970C10")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -3.5-(.3*4.6), ymax = -3.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

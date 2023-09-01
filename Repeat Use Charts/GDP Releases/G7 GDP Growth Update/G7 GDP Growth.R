@@ -1,4 +1,4 @@
-pacman::p_load(statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(jsonlite,eurostat,statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -27,9 +27,9 @@ UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdo
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-UK <- data.frame(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = 22), 
-  value = c(547003,549491,552545,553966,557458,558071,561480,561339,546515,431794,503509,509621,504255,537175,546487,554821,557524,557810,557286,558005,558812,559956)) %>%
-  mutate(value = value/value[7]*100)
+# UK <- data.frame(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = 22), 
+#   value = c(547003,549491,552545,553966,557458,558071,561480,561339,546515,431794,503509,509621,504255,537175,546487,554821,557524,557810,557286,558005,558812,559956)) %>%
+#   mutate(value = value/value[7]*100)
 
 # UK <- fredr(series_id = "NGDPRSAXDCGBQ",observation_start = as.Date("2018-01-01")) %>%
 #   mutate(value = value/value[7]*100)
@@ -65,36 +65,15 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
 JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-JPN <- data.frame(date = seq.Date(from = as.Date("2018-01-01"), by = "3 months", length.out = 22), value = c(
-  554961.90,
-  556811.60,
-  553917.10,
-  553177.10,
-  554311.60,
-                                                                                                             556279.50,
-                                                                                                             557411.80,
-                                                                                                             542110.50,
-                                                                                                             544214.00,
-                                                                                                             501472.40,
-                                                                                                             529680.60,
-                                                                                                             539874.40,
-                                                                                                             538517.60,
-                                                                                                             541374.00,
-                                                                                                             539197.70,
-                                                                                                             545156.40,
-                                                                                                             542241.50,
-                                                                                                             549022.60,
-                                                                                                             547313.80,
-                                                                                                             547556.60,
-                                                                                                             552574.30,
-                                                                                                             560740.10)) %>%
-  mutate(value = value/value[7]*100)
-
 #https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2023/qe232/gdemenuea.html
-              
-CAN <- get_cansim_vector("v62305752") %>%
-  subset(REF_DATE >= as.Date("2018-01-01")) %>%
-  transmute(date = Date, value = VALUE/VALUE[7]*100)
+
+CAN <- statcan_data("36-10-0104-01", "eng") %>%
+  filter(GEO == "Canada", Prices == "Chained (2012) dollars", Estimates == "Gross domestic product at market prices", REF_DATE  >= as.Date("2018-01-01")) %>%
+  transmute(date = REF_DATE, value = VALUE/VALUE[7]*100)
+
+# CAN <- get_cansim_vector("v62305752") %>%
+#   subset(REF_DATE >= as.Date("2018-01-01")) %>%
+#   transmute(date = Date, value = VALUE/VALUE[7]*100)
 
 # CAN <- fredr(series_id = "NGDPRSAXDCCAQ",observation_start = as.Date("2018-01-01")) %>%
 #   mutate(value = value/value[7]*100)
@@ -107,31 +86,112 @@ AUS_GDP <- read_abs(series_id = "A2304402X") %>%
 
 RGDP_G7_Graph <- ggplot() + #RGDP Index
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
-  geom_line(data=US, aes(x=date,y= value,color= "United States"), size = 1.25) +
   geom_line(data=UK, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN, aes(x=date,y= value,color= "Canada"), size = 1.25) +
   geom_line(data=GER, aes(x=date,y= value,color= "Germany"), size = 1.25) +
   geom_line(data=ITA, aes(x=date,y= value,color= "Italy"), size = 1.25) +
   geom_line(data=FRA, aes(x=date,y= value,color= "France"), size = 1.25) +
   geom_line(data=JPN, aes(x=date,y= value,color= "Japan"), size = 1.25) +
+  geom_line(data=US, aes(x=date,y= value,color= "United States"), size = 1.25) +
   annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101, color = "white", size = 4) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("GDP Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, with Japan and the UK Still Below pre-COVID GDP") +
-  theme_apricitas + theme(legend.position = c(.22,.30)) +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and the UK is the Only Country Still Below pre-COVID GDP") +
+  theme_apricitas + theme(legend.position = c(.2,.30)) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Renamed.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-#test <- read.csv("https://esploradati.istat.it/SDMXWS/rest/dataflow/IT1/163_156_DF_DCCN_SQCQ_3/1.0/?detail=Full&references=Descendants")
-PER_CAPITA_NOTES
+#PER CAPITA
 
-#https://www.ons.gov.uk/economy/grossdomesticproductgdp/timeseries/ihxw/pn2
-#https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610010401&pickMembers%5B0%5D=2.1&pickMembers%5B1%5D=3.1&cubeTimeFrame.startMonth=01&cubeTimeFrame.startYear=2019&cubeTimeFrame.endMonth=01&cubeTimeFrame.endYear=2023&referencePeriods=20190101%2C20230101
+US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
 
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
+  `colnames<-`(c("date","value")) %>%
+  transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
+  subset(., value > 1)  %>%
+  mutate_if(is.character,as.numeric) %>%
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
+
+GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), language = "en") %>%
+  subset(VGRPB5 == "VGRPKM") %>%
+  subset(WERT05 == "X13JDKSB") %>%
+  select(JAHR, QUARTG, BIP004_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = BIP004_val) %>%
+  arrange(date) %>%
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
+
+EU_POP_BULK <- get_eurostat("namq_10_pe")
+
+ITA_POP <- EU_POP_BULK %>%
+  filter(s_adj == "SCA", geo == "IT", time >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = time, value = values)
+
+FRA_POP <- EU_POP_BULK %>%
+  filter(s_adj == "SA", geo == "FR", time >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = time, value = values)
+
+ITA_PER_CAPITA <- merge(ITA_POP,ITA, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
+
+FRA_PER_CAPITA <- merge(FRA_POP,FRA,by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
+
+CAN_POP <- statcan_data("17-10-0009-01", "eng") %>%
+  filter(GEO=="Canada", REF_DATE >= as.Date("2018-01-01")) %>%
+  transmute(date = REF_DATE, value = VALUE)
+
+CAN_PER_CAPITA <- merge(CAN_POP,CAN, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
+
+JAPAN_POP <- fromJSON("https://dashboard.e-stat.go.jp/api/1.0/Json/getData?Lang=EN&IndicatorCode=0201010000000010000")$GET_STATS[3]$STATISTICAL_DATA$DATA_INF$DATA_OBJ$VALUE %>%  
+  filter(`@indicator`=="0201010000000010000", `@cycle` == "1") %>%
+  mutate(`@time` = ifelse(substr(`@time`, 7, 8) == "00", paste0(substr(`@time`, 1, 6), "01"), `@time`)) %>% 
+  mutate(`@time` = as.Date(`@time`, format="%Y%m%d")) %>%
+  transmute(date = `@time`, value = as.numeric(`$`)) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  mutate(quarter = quarter(date)) %>%
+  mutate(year = year(date)) %>%
+  group_by(year, quarter) %>%
+  summarise(value = mean(value, na.rm = TRUE)) %>%
+  mutate(date = as.Date(paste0(year, "-", (quarter - 1) * 3 + 1, "-01")))
+  
+JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
+
+RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
+  #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
+  geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
+  geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
+  geom_line(data=ITA_PER_CAPITA, aes(x=date,y= value,color= "Italy"), size = 1.25) +
+  geom_line(data=FRA_PER_CAPITA, aes(x=date,y= value,color= "France"), size = 1.25) +
+  geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
+  geom_line(data=US_PER_CAPITA, aes(x=date,y= value,color= "United States"), size = 1.25) +
+  annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2018-10-01"), y =101, color = "white", size = 4) +
+  annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-01-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
+  ylab("Index, 2019 Q3 = 100") +
+  ggtitle("GDP Per Capita Growth in the G7") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and the UK Has Had the Largest GDP Per Capita Decline") +
+  theme_apricitas + theme(legend.position = c(.2,.30)) +
+  scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RGDP_G7_Per_Capita_Graph, "G7 Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
   

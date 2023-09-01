@@ -1216,8 +1216,10 @@ GDP_INTEREST_FED_PROFITS_MERGE <- NGDP_1947 %>%
   mutate(Social_Insurance_Interest_Received_INTERP = 
            ifelse(is.na(Social_Insurance_Interest_Received_INTERP),
                   Social_Insurance_Funds_Savings + Social_Insurance_Funds_Admin_Expenses_INTERP + Social_Insurance_Funds_Benefits - Social_Insurance_Funds_Contributions,
-                  Social_Insurance_Interest_Received_INTERP))
+                  Social_Insurance_Interest_Received_INTERP)) %>%
+  select(date, NGDP, Interest_AGG, Interest_Receipts, Social_Insurance_Interest_Received_INTERP, Fed_Profits)
 
+write.csv(GDP_INTEREST_FED_PROFITS_MERGE,"Interest Share of GDP w Fed Profits.csv")
 
 GDP_INTEREST_Graph <- ggplot() + 
   geom_line(data = GDP_INTEREST_FED_PROFITS_MERGE, aes(x=date, y = (Interest_AGG/NGDP), color = "Federal Government Interest Expense as a Share of GDP"), size = 1.25) + 

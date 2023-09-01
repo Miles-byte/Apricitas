@@ -678,7 +678,7 @@ ORDER_BACKLOG_WEAPONS_graph <- ggplot() + #plotting energy intensive manufacturi
   ggtitle("German Weapon & Ammo Backlogs") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Weapon Order Backlogs are Rising Significantly Amidst Continental Rearmament") +
   theme_apricitas + theme(legend.position = c(.42,.8)) +
-  scale_color_manual(name= "Backlog of Orders of Weapons and Ammunition, Germany",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Orders","Foreign Orders","Domestic Orders"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25)))) +
+  scale_color_manual(name= "Backlog of Orders of Weapons and Ammunition, Germany\nIndexed to October 2021",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Orders","Foreign Orders","Domestic Orders"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(unlist(ORDERS_WEAPON[sapply(ORDERS_WEAPON, is.numeric)])) / 10) * 10)), ymax = 0) +
   coord_cartesian(clip = "off")
 

@@ -175,7 +175,8 @@ ggsave(dpi = "retina",plot = ANNUAL_DISBURSEMENTS_GRAPH, "Annual Disbursements G
 DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
   group_by(year = year(date), month = month(date)) %>% 
-  filter(date == max(date), !(year == year(Sys.Date()) & month == month(Sys.Date())))
+  filter(date == max(date)) %>%
+  filter(!(year == year(Sys.Date()) & month == month(Sys.Date())))
 
 DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
   geom_line(data = DOE_TGA_DEPOSITS, aes(x = date, y = (value*12)/1000, color = "Department of Education Monthly Receipts, Annual Rate (TGA)"), size = 1.25) +
@@ -183,7 +184,7 @@ DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,100), breaks = c(25,50,75,100), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("Monthly Payments to the Department of Education") +
-  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Have Hit a 10-Year Low") +
+  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Are Now Rising Rapidly") +
   theme_apricitas + theme(legend.position = c(0.5,0.95)) +
   theme(plot.title = element_text(size = 23)) +
   scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
