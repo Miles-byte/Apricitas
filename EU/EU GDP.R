@@ -247,7 +247,7 @@ FRANCE_FOOD_CONSUMPTION <- get_idbank_list("CONSO-MENAGES-2014") %>% # France Fo
   mutate(value = value/value[23]*100)
 
 #NOTE: EDIT TO REMOVE END DATE
-ITALY_FOOD_CONSUMPTION <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_24_DF_DCCN_QNA_4,1.0/Q........./ALL/?detail=full&startPeriod=2018-01-01&endPeriod=2023-03-31&dimensionAtObservation=TIME_PERIOD")) %>%
+ITALY_FOOD_CONSUMPTION <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_24_DF_DCCN_QNA_4,1.0/Q........./ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD")) %>%
   subset(EDITION == EDITION[nrow(.)]) %>%
   subset(EXPEND_PURPOSE_COICOPCOFOG == "CP01" & VALUATION == "L_2015" & ADJUSTMENT == "Y") %>%
   transmute(value = obsValue/obsValue[8]*100, date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")))
