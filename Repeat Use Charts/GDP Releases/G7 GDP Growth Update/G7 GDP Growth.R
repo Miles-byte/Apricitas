@@ -175,7 +175,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
-  geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
+  #geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
   geom_line(data=ITA_PER_CAPITA, aes(x=date,y= value,color= "Italy"), size = 1.25) +
   geom_line(data=FRA_PER_CAPITA, aes(x=date,y= value,color= "France"), size = 1.25) +
   geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +

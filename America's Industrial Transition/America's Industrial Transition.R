@@ -152,9 +152,10 @@ CENSUS_SUBNATIONAL_MFG_SPENDING <- read.xlsx("https://www.census.gov/constructio
   mutate_all(as.numeric) %>%
   slice(1:12) %>%
   summarize_all(sum) %>%
-  transpose() %>%
-  transmute(DIVISION = as.character(c("1","2","3","4","5","6","7","8","9")), YRSPENDING = V1)
-
+  t() %>%
+  as.data.frame() %>%
+  setNames(c("YRSPENDING")) %>%
+  mutate(DIVISION = c("1","2","3","4","5","6","7","8","9"))
 
 states <- merge(states,CENSUS_SUBNATIONAL_MFG_SPENDING, by = "DIVISION")
 
@@ -286,13 +287,13 @@ MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xl
 MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturing construction
   geom_bar(data = MFG_SPENDING_CATEGORIES, aes(x = date, y = value/1000, fill = name), color = NA, size = 0, stat= "identity") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,220), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Manufacturing Construction Spending") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Makes Up More Than 50% of Manufacturing Construction") +
   theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
   scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*200), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*220), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MFG_SPENDING_CATEGORIES_GRAPH, "MFG Spending Categories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
