@@ -408,7 +408,8 @@ GVA_INDUSTRY_graph <- ggplot() + #plotting Russia car Prices
 
 ggsave(dpi = "retina",plot = GVA_INDUSTRY_graph, "GVA Military Spending Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-REAL_GVA_INDUSTRY <- read.xlsx("https://rosstat.gov.ru/storage/mediabank/VDS_kvartal_OKVED2_s2011.xlsx",6) %>%
+#Have to update link each time, they change it manually
+REAL_GVA_INDUSTRY <- read.xlsx("https://rosstat.gov.ru/storage/mediabank/VDS_kvartal_OKVED2_s%202011_2kv-2023.xlsx",6) %>%
   slice(4,9,10) %>%
   select(-1,-2) %>%
   transpose() %>%
@@ -423,8 +424,8 @@ REAL_GVA_INDUSTRY_GRAPH <- ggplot() + #plotting GVA of Mining and Manufacturing
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(90,125), breaks = c(90,100,110,120,130), expand = c(0,0)) +
   ylab("Index, Q1 2015 = 100") +
-  ggtitle("Russia's Industrial Slowdown") +
-  labs(caption = "Graph created by @JosephPolitano using Rosstat Data",subtitle = "Russia's Manufacturing and Mining Industries Have not Fully Recovered from Sanctions") +
+  ggtitle("Russia's Industrial Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using Rosstat Data",subtitle = "Russia's Manufacturing Industry Has Recovered From Sanctions, While Mining Lags Behind") +
   theme_apricitas + theme(legend.position = c(.4,.15)) +
   scale_color_manual(name= "Russia, Real Gross Value Added by Sector",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-02-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 90-(.3*35), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -468,7 +469,8 @@ RUSSIA_OIL_GAS_REV_graph <- ggplot() + #plotting russian gas data
 
 ggsave(dpi = "retina",plot = RUSSIA_OIL_GAS_REV_graph, "Russia Oil Gas Rev Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-REAL_GDP <- read.xlsx(paste0("https://rosstat.gov.ru/storage/mediabank/VVP_kvartal_s%201995_1%D0%BB-",year(today()-45),".xlsx"),11) %>%
+#Have to update link when new data is released, they update it each time
+REAL_GDP <- read.xlsx(paste0("https://rosstat.gov.ru/storage/mediabank/VVP_kvartal_s_1995_2kv-",year(today()-45),".xlsx"),11) %>%
   slice(4) %>%
   transpose %>%
   transmute(date = seq.Date(from = as.Date("2011-01-01"), by = "3 months",length.out = nrow(.)), GDP = as.numeric(V1)) %>%
@@ -511,7 +513,7 @@ RU_GDP_graph <- ggplot() + #plotting russian GDP data
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(90,100,110,120), limits = c(90,120), expand = c(0,0)) +
   ggtitle("The Russian Recovery") +
   labs(caption = "Graph created by @JosephPolitano using Rosstat data Seasonally Adjusted Using X-13ARIMA", subtitle = "Volatile Higher-Frequency Data Suggest Russia's Economy Has Continued Recovering") +
-  theme_apricitas + theme(legend.position = c(.475,.92)) +
+  theme_apricitas + theme(legend.position = c(.475,.93)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Official Real GDP, Russia", "Monthly Index of Goods & Services Output, Russia")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 90-(.3*30), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

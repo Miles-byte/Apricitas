@@ -422,24 +422,6 @@ CONSTRUCTION_PROD_EU_GRAPH <- ggplot() + #plotting energy intensive manufacturin
 
 ggsave(dpi = "retina",plot = CONSTRUCTION_PROD_EU_GRAPH, "CONSTRUCTION PROD EU GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ITALY_EPOP_ISTAT <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,150_872_DF_DCCV_TAXOCCUMENS1_1,1.0/M....../ALL/?detail=full&startPeriod=2004-01-01&dimensionAtObservation=TIME_PERIOD")) %>%
-  filter(AGE == "Y15-64" & ADJUSTMENT == "Y" & REF_AREA == "IT" & SEX == "9" & EDITION == EDITION[nrow(.)]) %>%
-  transmute(value = obsValue/100, date = as.Date(as.yearmon(obsTime, "%Y-%m")))
-
-ITALY_EPOP_ISTAT_graph <- ggplot() + #plotting car manufacturing
-  geom_line(data=ITALY_EPOP_ISTAT, aes(x=date,y= value,color="Italy, 15-64 Employment Rate, %"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
-  ylab("Percent") +
-  ggtitle("Italy's Job Boom") +
-  labs(caption = "Graph created by @JosephPolitano using ISTAT Data",subtitle = "Italian Employment Rates are at Record Highs") +
-  theme_apricitas + theme(legend.position = c(.5,.90)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(today()-as.Date("2004-01-01"))), ymin = min(ITALY_EPOP_ISTAT$value)-(.3*(max(ITALY_EPOP_ISTAT$value)-min(ITALY_EPOP_ISTAT$value))), ymax = min(ITALY_EPOP_ISTAT$value)) +
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = ITALY_EPOP_ISTAT_graph, "Italy Epop Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
 EA_MANU_SURVEY <- get_eurostat("ei_bsin_q_r2") %>%
   subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
            indic %in% c("BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC")) %>%

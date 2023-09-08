@@ -605,7 +605,7 @@ U1RATE_Graph <- ggplot() + #plotting u1 unemployment rate
   xlab("Date") +
   ylab("Civilian Labor Force Unemployed 15 Weeks and Over, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.0,0.055), expand = c(0,0)) +
-  ggtitle("Long-Term Employment is Rising") +
+  ggtitle("Long-Term Unemployment is Rising") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Long Term Unemployment is Low, but Has Been Increasing in 2023") +
   theme_apricitas + theme(legend.position = c(.5,.1)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +

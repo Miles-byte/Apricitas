@@ -219,7 +219,7 @@ IP_EV_NUMBER <- IP_9DIGIT_BULK %>%
   subset(GP19A9 %in% c("GP19-291024500","GP19-291024300")) %>%
   mutate(GP19A9 = gsub("GP19-291024500", "Battery Electric Vehicles",GP19A9)) %>%
   mutate(GP19A9 = gsub("GP19-291024300", "Plug-in Hybrids",GP19A9)) %>%
-  transmute(category = factor(GP19A9, levels = c("Plug-in Hybrids","Battery Electric Vehicles")), value = PRO008_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+  transmute(category = factor(GP19A9, levels = c("Plug-in Hybrids","Battery Electric Vehicles")), value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
 
 EV_STACKED_EURO_graph <- ggplot(data = IP_EV_EURO, aes(x = date, y = value/1000000000, fill = category)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -520,7 +520,7 @@ FACTORY_CONSTRUCTION_BULK <- retrieve_data(tablename = "31111BM001", genesis=c(d
 FACTORY_CONSTRUCTION <- FACTORY_CONSTRUCTION_BULK %>%
   filter(BAUGB1 == c("GEBFABRIK01")) %>% #ALL FACTORY CONSTRUCTION
   filter(BAUTK1 == "ARTBT5") %>% #NEW CONSTRUCTION
-  transmute(date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),volume = FLC003_val,value = VKB001_val) %>%
+  transmute(date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),volume = FLC003_val,value = WOHN01_val) %>%
   arrange(date) %>%
   select(-date) %>%
   # ts(., start = c(2003,1), frequency = 12) %>%
