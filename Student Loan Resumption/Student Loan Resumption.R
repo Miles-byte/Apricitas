@@ -195,16 +195,17 @@ ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_GRAPH, "DOE TGA DEPOSITS GRAPH.png
 
 DOE_TGA_DEPOSITS_WEEKLY <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_today_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_today_amt) %>%
-  mutate(value = c(rollmean(value, 21, na.pad = TRUE)))
+  mutate(value = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,rollmean(value, 21))) %>%
+  filter(value != 0)
 
 DOE_TGA_DEPOSITS_DAILY <- ggplot() + #plotting components of annual inflation
   geom_line(data = DOE_TGA_DEPOSITS_WEEKLY, aes(x = date, y = (value*251)/1000, color = "Department of Education Daily Receipts\nRolling 21-Business-Day (Roughly 1 Month) Average\nAnnual Rate (TGA)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,100), breaks = c(25,50,75,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,125), breaks = c(25,50,75,100,125), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("Payments to the Department of Education") +
   labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Are Quickly Rising") +
-  theme_apricitas + theme(legend.position = c(0.57,0.12)) +
+  theme_apricitas + theme(legend.position = c(0.4,0.82)) +
   theme(plot.title = element_text(size = 24)) +
   scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-10-01")-(.1861*(today()-as.Date("2005-10-01"))), xmax = as.Date("2005-10-01")-(0.049*(today()-as.Date("2005-10-01"))), ymin = 0-(.3*100), ymax = 0) +

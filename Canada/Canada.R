@@ -414,8 +414,47 @@ BOTTLENECKS_GRAPH <- ggplot() + #plotting Labor Shortage
 
 ggsave(dpi = "retina",plot = BOTTLENECKS_GRAPH, "Bottlenecks Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+DEBT_SERVICE_INDICATORS <- statcan_data("11-10-0065-01", "eng") %>%
+  filter(Estimates %in% c("Debt service ratio","Mortgage debt service ratio","Non-mortgage debt service ratio","Debt service ratio, interest only","Mortgage debt service ratio, interest only","Non-mortgage debt service ratio, interest only","Of which: consumer debt service ratio, interest only") & `Seasonal adjustment` == "Seasonally adjusted at annual rates") %>%
+  transmute(date = REF_DATE, value = VALUE, name = Estimates) %>%
+  pivot_wider()
+  
+DEBT_SERVICE_INDICATORS_GRAPH <- ggplot() +
+  geom_line(data=DEBT_SERVICE_INDICATORS, aes(x=date,y= `Mortgage debt service ratio`/100, color= "Mortgage Debt Service Ratio"), size = 1.25) +
+  geom_line(data=DEBT_SERVICE_INDICATORS, aes(x=date,y= `Mortgage debt service ratio, interest only`/100, color= "Mortgage Debt Service Ratio, Interest Only"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.10), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Rising Cost of Canadian Mortgages") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Canada data",subtitle = "Rising Rates Have Dramatically Raised Mortgage Servicing Costs for Canadian Households") +
+  theme_apricitas + theme(legend.position = c(.525,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0-(.3*.1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DEBT_SERVICE_INDICATORS_GRAPH, "Debt Service Indicators Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+FIVE_YEAR_FIXED <- get_series("FVI_MTG_RATE_5Y_FIX")
+FIVE_YEAR_VARIABLE <- get_series("FVI_MTG_RATE_5Y_VAR")
+
+CANADIAN_MORTGAGE_RATES_GRAPH <- ggplot() +
+  geom_line(data=FIVE_YEAR_VARIABLE, aes(x=date,y= FVI_MTG_RATE_5Y_VAR/100, color= "5-Year Variable Mortgage Rate"), size = 1.25) +
+  geom_line(data=FIVE_YEAR_FIXED, aes(x=date,y= FVI_MTG_RATE_5Y_FIX/100, color= "5-Year Fixed Mortgage Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.08), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Rising Canadian Mortgage Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Canada data",subtitle = "Canadian Mortgage Rates Have Substantially Increased as the Bank of Canada Tightens Policy") +
+  theme_apricitas + theme(legend.position = c(.525,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*.08), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CANADIAN_MORTGAGE_RATES_GRAPH, "Canadian Mortgage Rates Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 p_unload(all)  # Remove all packages using the package manager
+
 
 
 
