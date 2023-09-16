@@ -401,6 +401,169 @@ VACANCY_RATE_Graph <- ggplot() + #plotting rental vacancy rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*.12), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+OCCUPIED_INVENTORY <- fredr(series_id = "EOCCUSQ176N", observation_start = as.Date("2000-01-01"))
+TOTAL_INVENTORY <- fredr(series_id = "ETOTALUSQ176N", observation_start = as.Date("2000-01-01"))
+UNOCCUPIED_RATE <- merge(OCCUPIED_INVENTORY,TOTAL_INVENTORY, by = "date") %>%
+  mutate(value = 1-(value.x/value.y)) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4)))
+
+UNOCCUPIED_RATE_Graph <- ggplot() + #plotting rental vacancy rate
+  geom_line(data=UNOCCUPIED_RATE, aes(x=date,y= value, color= "Unoccupied Housing as a Share of All Housing, Quarterly (Not Seasonally Adjusted)"), size = 1.25) +
+  geom_line(data=UNOCCUPIED_RATE, aes(x=date,y= value_roll, color= "Unoccupied Housing as a Share of All Housing, 1-Year Rolling Average"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.095,.155),breaks = c(.10,.11,.12,.13,.14,.15), expand = c(0,0)) +
+  ylab("Unoccupied Housing as a % of Total") +
+  ggtitle("Unoccupied Housing Rates are at Multi-Decade Lows") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Rates of Unoccupied Housing—For Rent, Sale, Seasonal Use, or Other—are Extremely Low") +
+  theme_apricitas + theme(legend.position = c(.5,.95), plot.title = element_text(size = 22)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Unoccupied Housing as a Share of All Housing, 1-Year Rolling Average","Unoccupied Housing as a Share of All Housing, Quarterly (Not Seasonally Adjusted)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0.095-(.3*.06), ymax = 0.095) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UNOCCUPIED_RATE_Graph, "Unoccupied Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+OFF_MARKET_OCCASIONAL <- fredr(series_id = "EOCCUSEUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Held Off Market for Occasional Use")
+
+OFF_MARKET_ELSEWHERE <- fredr(series_id = "EUREUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Held Off Market, Temporarily Inhabited by Household With Usual Residence Elsewhere")
+
+OFF_MARKET_OTHER <- fredr(series_id = "EOTHUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Held Off Market, Other Reasons (Incl. Abandoned, Needing Repair, Personal/Family Reasons)")
+
+ON_MARKET_RENT <- fredr(series_id = "ERENTUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "On Market for Rent")
+
+ON_MARKET_SALE <- fredr(series_id = "ESALEUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "On Market for Sale")
+
+ON_MARKET_NOT_YET_OCCUPIED <- fredr(series_id = "ERNTSLDUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Rented or Sold but Not Yet Occupied")
+
+SEASONAL <- fredr(series_id = "ESEASONUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Seasonal Housing Units (Primarily Resort Areas)")
+
+TOTAL_INVENTORY <- fredr(series_id = "ETOTALUSQ176N", observation_start = as.Date("2000-01-01")) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4))) %>%
+  mutate(name = "Total")
+
+HOUSING_VACANCY_RBIND <- rbind(OFF_MARKET_OCCASIONAL,OFF_MARKET_ELSEWHERE,OFF_MARKET_OTHER,ON_MARKET_RENT,ON_MARKET_SALE,ON_MARKET_NOT_YET_OCCUPIED,SEASONAL,TOTAL_INVENTORY) %>%
+  select(-value) %>%
+  drop_na() %>%
+  pivot_wider(values_from = value_roll) %>%
+  mutate(across(where(is.numeric), ~ . / Total)) %>%
+  select(-Total) %>%
+  pivot_longer(cols = -date) %>%
+  mutate(name = factor(name, levels = rev(c("Held Off Market, Other Reasons (Incl. Abandoned, Needing Repair, Personal/Family Reasons)","Seasonal Housing Units (Primarily Resort Areas)","Held Off Market for Occasional Use","Held Off Market, Temporarily Inhabited by Household With Usual Residence Elsewhere","On Market for Rent","On Market for Sale","Rented or Sold but Not Yet Occupied"))))
+
+HOUSING_VACANCY_RBIND_BAR_Graph <- ggplot(data = HOUSING_VACANCY_RBIND, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Total Housing, 4Q Rolling Average") +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(0,0.05,0.1,0.15,.20), limits = c(0,0.215), expand = c(0,0)) +
+  ggtitle("US Unoccupied Housing Rates By Reason") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Housing Vacancy Rates Across a Variety of Reasons are Declining Amidst Growing Supply Shortages") +
+  theme_apricitas + theme(legend.position = c(.52,.85), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*.215), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+HOUSING_VACANCY_RBIND <- HOUSING_VACANCY_RBIND %>%
+  mutate(name = factor(name, levels = c("Held Off Market, Other Reasons (Incl. Abandoned, Needing Repair, Personal/Family Reasons)","Seasonal Housing Units (Primarily Resort Areas)","Held Off Market for Occasional Use","Held Off Market, Temporarily Inhabited by Household With Usual Residence Elsewhere","On Market for Rent","On Market for Sale","Rented or Sold but Not Yet Occupied")))
+
+HOUSING_VACANCY_RBIND_LINE_Graph <- ggplot(data = HOUSING_VACANCY_RBIND, aes(x = date, y = value, color = name)) + #plotting permanent and temporary job losers
+  geom_line(size = 1.25) +
+  xlab("Date") +
+  ylab("Percent of Total Housing, 4Q Rolling Average") +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(0,0.01,0.02,0.03,.04,0.05), limits = c(0,0.055), expand = c(0,0)) +
+  ggtitle("US Housing Vacancy Rates By Reason") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Housing Vacancy Rates Across a Variety of Reasons are Declining Amidst Growing Supply Shortages") +
+  theme_apricitas + theme(legend.position = c(.51,.85), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*.055), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HOUSING_VACANCY_RBIND_BAR_Graph, "Housing Vacancy by Bar Line.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+ggsave(dpi = "retina",plot = HOUSING_VACANCY_RBIND_LINE_Graph, "Housing Vacancy by Reason Line.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+OTHER_VACANCY <- read.xlsx("https://www.census.gov/housing/hvs/data/histtab18.xlsx") %>%
+  slice(-1,-2,-3,-4) %>%
+  slice(-nrow(.),-(nrow(.)-1),-(nrow(.)-2)) %>%
+  setNames(c("Category","Q1","Q2","Q3","Q4")) %>%
+  filter(!(Category %in% c(NA,"Other Vacant Explanations2"))) %>%
+  pivot_longer(cols = Q1:Q4, names_to = "Quarter", values_to = "Value") %>%
+  group_by(Category) %>%
+  mutate(Year = 2012 + (row_number() - 1) %/% 4) %>%
+  pivot_wider(names_from = Category, values_from = Value) %>%
+  ungroup() %>%
+  setNames(c("Quarter","Year","US Total","Personal/Family Reasons","Needs Repair","Foreclosure","Being Repaired","Storage","Extended Absence","Legal Proceedings","Preparing to Rent/Sell","Possibly Abandoned/Condemned","Specific Use Housing (Military, Dorms, etc)","Other")) %>%
+  drop_na() %>%
+  mutate(across(!c("Quarter", "Year"), as.numeric)) %>%
+  mutate(across(where(is.numeric), round, digits = 1)) %>%
+  mutate(date = as.Date(as.yearqtr(paste0(Year, Quarter, sep = "-")))) %>%
+  select(-Quarter,-Year) %>%
+  mutate(across(where(is.numeric), ~ (./100)*`US Total`)) %>%
+  merge(TOTAL_INVENTORY, by = "date") %>%
+  mutate(Total = value) %>%
+  mutate(`Foreclosure/Legal Proceedings` = `Foreclosure` + `Legal Proceedings`) %>%
+  mutate(`Extended Absence & Other` = `Extended Absence` + `Other`) %>%
+  select(-value,-value_roll,-name,-`US Total`,-`Foreclosure`,-`Legal Proceedings`,-`Extended Absence`,-`Other`) %>%
+  mutate(across(where(is.numeric), ~ c(0,0,0,rollmean(., 4)))) %>%
+  mutate(across(where(is.numeric), ~ ./`Total`)) %>%
+  select(-Total) %>%
+  drop_na() %>%
+  pivot_longer(cols = -date)
+
+HOUSING_VACANCY_OTHER_LINE_Graph <- ggplot(data = OTHER_VACANCY, aes(x = date, y = value, color = name)) + #plotting permanent and temporary job losers
+  geom_line(size = 1.25) +
+  xlab("Date") +
+  ylab("Percent of Total Housing, 4Q Rolling Average") +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(0,0.002,0.004,0.006,0.008), limits = c(0,0.009), expand = c(0,0)) +
+  ggtitle("US Housing Vacancy Rates By Reason") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Housing Vacancy Rates Across a Variety of Reasons are Declining Amidst Growing Supply Shortages") +
+  theme_apricitas + theme(legend.position = c(.51,.85), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  guides(color=guide_legend(ncol=2)) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#F5B041","#9A348E","#00A99D","#EE6055","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2001-01-01")-(.1861*(today()-as.Date("2001-01-01"))), xmax = as.Date("2001-01-01")-(0.049*(today()-as.Date("2001-01-01"))), ymin = 0-(.3*.055), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+OTHER_VACANCY <- OTHER_VACANCY %>%
+  mutate(name = factor(name, levels = rev(c("Personal/Family Reasons","Needs Repair","Being Repaired","Extended Absence & Other","Foreclosure/Legal Proceedings","Storage","Preparing to Rent/Sell","Possibly Abandoned/Condemned","Specific Use Housing (Military, Dorms, etc)"))))
+
+HOUSING_VACANCY_OTHER_BAR_Graph <- ggplot(data = OTHER_VACANCY, aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Percent of Total Housing, 4Q Rolling Average") +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(0.01,0.02,0.03,0.04), limits = c(0,0.04), expand = c(0,0)) +
+  ggtitle("'Other' Unoccupied Housing By Reason") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Most Housing Classified as 'Other Vacant' is Held for Personal Reasons or Repairs") +
+  theme_apricitas + theme(legend.position = c(.51,.88), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  guides(fill=guide_legend(ncol=2)) +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#F5B041","#9A348E","#00A99D","#EE6055","#FFE98F")),breaks = c("Personal/Family Reasons","Needs Repair","Being Repaired","Extended Absence & Other","Foreclosure/Legal Proceedings","Storage","Preparing to Rent/Sell","Possibly Abandoned/Condemned","Specific Use Housing (Military, Dorms, etc)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-10-01")-(.1861*(today()-as.Date("2012-10-01"))), xmax = as.Date("2012-10-01")-(0.049*(today()-as.Date("2012-10-01"))), ymin = 0-(.3*.04), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HOUSING_VACANCY_OTHER_BAR_Graph, "Other Housing Vacancy by Reason Bar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 AUTHORIZED_NOT_STARTED_Graph <- ggplot() + #plotting authorized not started
   geom_line(data=AUTHORIZED_NOT_STARTED, aes(x=date,y= value, color= "New Privately-Owned Housing Units Authorized but Not Started"), size = 1.25) +
   xlab("Date") +
