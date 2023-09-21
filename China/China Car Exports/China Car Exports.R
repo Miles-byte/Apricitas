@@ -93,11 +93,11 @@ IND_PRO_MV <- statscnQueryLastN(700, lang = "en") %>%
   subset(date >= as.Date("1992-01-01")) %>%
   subset(.,`Output of Motor Vehicles, Current Period` != 0) %>%
   .[order(nrow(.):1),] %>%
-  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Motor Vehicles, Current Period`,12)))
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Motor Vehicles, Current Period`,11)))
   
 IND_PRO_MV_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
   geom_line(data= IND_PRO_MV, aes(x=date,y=`Output of Motor Vehicles, Current Period`/100 ,color= "Chinese Industrial Production of Motor Vehicles, Monthly"), size = 1.25) +
-  geom_line(data= IND_PRO_MV, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
+  geom_line(data= filter(IND_PRO_MV, date > as.Date("1993-01-01")), aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3.50), breaks = c(0,1.00,2.00,3.00,4.00), expand = c(0,0)) +
   ylab("Units, Monthly") +

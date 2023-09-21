@@ -698,6 +698,7 @@ CPI_LESS_ALL <- bls_api("CUSR0000SA0L12E4", startyear = 2018, endyear = 2023, Sy
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   .[order(nrow(.):1),] %>%
   mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(semipct = (value-lag(value,6))/lag(value,6)) %>%
   mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
   subset(., date> as.Date("2018-12-31"))
 
@@ -714,6 +715,59 @@ CPI_LESS_ALL_Graph <- ggplot() +
   scale_color_manual(name= "CPI: All Items Less Food, Shelter, Energy, Used Cars and Trucks",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC"), breaks = c("Year-on-Year Growth","3-Month Annualized Growth")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.09), ymax = 0.0) +
   coord_cartesian(clip = "off")
+
+CPI_HEADLINE <- bls_api("CUSR0000SA0", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(semipct = (value-lag(value,6))/lag(value,6)) %>%
+  mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
+  subset(., date> as.Date("2017-12-31"))
+
+CPI_LESS_SHELTER <- bls_api("CUSR0000SA0L2", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(semipct = (value-lag(value,6))/lag(value,6)) %>%
+  mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
+  subset(., date> as.Date("2017-12-31"))
+
+CPI_LESS_FOOD_ENERGY <- bls_api("CUSR0000SA0L1E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(semipct = (value-lag(value,6))/lag(value,6)) %>%
+  mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
+  subset(., date> as.Date("2017-12-31"))
+
+CPI_LESS_FOOD_ENERGY_SHELTER <- bls_api("CUSR0000SA0L12E", startyear = 2017, endyear = 2023, Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(yrpct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(semipct = (value-lag(value,6))/lag(value,6)) %>%
+  mutate(qtrpct = (value-lag(value,3))/lag(value,3)) %>%
+  subset(., date> as.Date("2017-12-31"))
+
+
+CPI_LESS_ALL_6M_Graph <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = CPI_LESS_ALL, aes(x = date, y = (1+semipct)^2-1, color = "CPI Ex Food, Energy, Shelter, & Used Vehicles"), size = 1.25) +
+  geom_line(data = CPI_LESS_SHELTER, aes(x = date, y = yrpct, color = "CPI Ex Shelter"), size = 1.25) +
+  geom_line(data = CPI_LESS_FOOD_ENERGY, aes(x = date, y = yrpct, color = "CPI Ex Food & Energy"), size = 1.25) +
+  geom_line(data = CPI_LESS_FOOD_ENERGY_SHELTER, aes(x = date, y = yrpct, color = "CPI Ex Food, Energy, & Shelter"), size = 1.25) +
+  geom_line(data = CPI_HEADLINE, aes(x = date, y = yrpct, color = "CPI Total"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.0175,.11), breaks = c(-0.01,0,.01,.02,.03,.04,0.05,0.06,0.07,0.08,0.09,.10,.11), expand = c(0,0)) +
+  ylab("Percent Growth %") +
+  ggtitle("Breaking Down CPI Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation Has Cooled Across Categories—With Lagging Shelter Being the Biggest Remaining Driver") +
+  theme_apricitas + theme(legend.position = c(.32,.80)) +
+  scale_color_manual(name= "Change, Last 6M, Annualized",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC"), breaks = c("CPI Total","CPI Ex Food & Energy","CPI Ex Food, Energy, & Shelter","CPI Ex Food, Energy, Shelter, & Used Vehicles","CPI Ex Shelter")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.0175-(.3*0.1275), ymax = -0.0175) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_LESS_ALL_6M_Graph, "CPI LESS ALL 6M GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+
 
 #PCE and Payrolls Index Graphs
 PCE1YR <- fredr(series_id = "PCE",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL, units = "pc1") #PCE growth 1yr

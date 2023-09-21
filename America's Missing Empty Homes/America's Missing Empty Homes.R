@@ -101,6 +101,7 @@ RENTAL_VACANCY_RATES_2019 <- merge(IN_DEPTH_VACANCY,CURRENT_RES_ELSEWHERE) %>%
   merge(RENTER_OWNER_OCCUPIED) %>%
   mutate(OTHER = OTHER-CURRENT_RES_ELSEWHERE) %>%
   mutate(RENTAL_VACANCY_RATE = FOR_RENT/(RENTER_OCCUPIED + FOR_RENT)) %>%
+  mutate(NON_SEASONAL_VACANCY = (FOR_RENT+FOR_SALE+OTHER)/(TOTAL_OCCUPIED+FOR_RENT+FOR_SALE+OTHER+UNOCCUPIED_RENTED+SOLD+CURRENT_RES_ELSEWHERE)) %>%
   merge(.,counties)
 
 RENTAL_VACANCY_2019_Counties <- ggplot() +
@@ -119,13 +120,36 @@ RENTAL_VACANCY_2019_Counties <- ggplot() +
                       breaks = c(0,0.05),
                       labels = c("0%","5%+"),
                       limits = c(0,0.05)) +
-  ggtitle("            Total Vacancy Rate 2014-2019") +
+  ggtitle("            Rental Vacancy Rate 2014-2019") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using Census data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
-ggsave(dpi = "retina",plot = AGG_VACANCY_2019_Counties, "Aggregate Vacancy Rate 2014-2019.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = RENTAL_VACANCY_2019_Counties, "Rental Vacancy Rate 2014-2019.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+NON_SEASONAL_VACANCY_2019_Counties <- ggplot() +
+  geom_sf(data = RENTAL_VACANCY_RATES_2019 %>% mutate(NON_SEASONAL_VACANCY = case_when(
+    NON_SEASONAL_VACANCY > 0.05 ~ 0.05,
+    TRUE ~ NON_SEASONAL_VACANCY
+  )), aes(fill = NON_SEASONAL_VACANCY, geometry = geometry)) +
+  geom_sf(data = counties, color = "black", fill = NA, lwd = 0.1) + # Black borders for counties
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#FFE98F",
+                      low = "#3083DC",
+                      space = "Lab",
+                      na.value = "grey50",
+                      guide = "colourbar",
+                      aesthetics = "fill",
+                      breaks = c(0,0.05),
+                      labels = c("0%","5%+"),
+                      limits = c(0,0.05)) +
+  ggtitle("  Unoccupied Housing Rate (Ex-Seasonal) 2014-2019") +
+  labs(caption = "Graph created by @JosephPolitano using Census data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(plot.title = element_text(size = 25)) + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+
+ggsave(dpi = "retina",plot = NON_SEASONAL_VACANCY_2019_Counties, "Non Seasonal Vacancy Rate 2014-2019.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 #2019 Rental Vacancy Rates
@@ -189,6 +213,7 @@ RENTAL_VACANCY_RATES_2005_2022 <- merge(final_df_IN_DEPTH_VACANCY,final_df_CURRE
   merge(final_df_RENTER_OWNER_OCCUPIED) %>%
   mutate(OTHER = OTHER-CURRENT_RES_ELSEWHERE) %>%
   mutate(RENTAL_VACANCY_RATE = FOR_RENT/(RENTER_OCCUPIED + FOR_RENT)) %>%
+  mutate(NON_SEASONAL_VACANCY = (FOR_RENT+FOR_SALE+OTHER)/(TOTAL_OCCUPIED+FOR_RENT+FOR_SALE+OTHER+UNOCCUPIED_RENTED+SOLD+CURRENT_RES_ELSEWHERE)) %>%
   full_join(.,counties)
 
 RENTAL_VACANCY_RATES_2005_2022<- ggplot() + #plotting rent by A/B/C City Size
@@ -202,7 +227,8 @@ RENTAL_VACANCY_RATES_2005_2022<- ggplot() + #plotting rent by A/B/C City Size
   geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "Harris County, Texas"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Houston"), size = 1.25) +
   geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "San Francisco County, California"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "San Francisco"), size = 1.25) +
   geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "King County, Washington"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Seattle"), size = 1.25) +
-  geom_line(data=CPIRENTBC, aes(x=date,y= calculations/100, color= "CPI Rent of Primary Residence: Medium/Small Metro Areas"), size = 1.25) +
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "Fulton County, Georgia"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Atlanta"), size = 1.25) +
+  
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.08), expand = c(0,0)) +
   ylab("Percent") +
@@ -213,12 +239,104 @@ RENTAL_VACANCY_RATES_2005_2022<- ggplot() + #plotting rent by A/B/C City Size
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.08), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+NON_SEASONAL_VACANCY_2005_2022_NY_SF <- ggplot() + #plotting rent by A/B/C City Size
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "New York County, New York"), aes(x=YEAR,y= NON_SEASONAL_VACANCY, color= "Manhattan"), size = 1.25) +
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "San Francisco County, California"), aes(x=YEAR,y= NON_SEASONAL_VACANCY, color= "San Francisco"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.055), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Post-Pandemic Rebound") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Vacancy Rates for Manhattan and San Francisco Have Fallen From COVID Highs") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= "Gross Vacancy Rate Excluding Seasonal/Occasional Vacancies" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*.055), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+NON_SEASONAL_VACANCY_2005_2022_NY_SF <- ggplot() + #plotting rent by A/B/C City Size
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "Harris County, Texas"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Houston (Harris County)"), size = 1.25) +
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "Fulton County, Georgia"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Atlanta (Fulton County)"), size = 1.25) +
+  geom_line(data=filter(RENTAL_VACANCY_RATES_2005_2022, NAME == "Maricopa County, Arizona"), aes(x=YEAR,y= RENTAL_VACANCY_RATE, color= "Phoenix (Maricopa County)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.055), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Post-Pandemic Rebound") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Vacancy Rates for Manhattan and San Francisco Have Fallen From COVID Highs") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= "Gross Vacancy Rate Excluding Seasonal/Occasional Vacancies" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*.055), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+years <- c(2005:2019,2021,2022)
+final_df_IN_DEPTH_VACANCY_MSA <- NULL
+final_df_CURRENT_RES_ELSEWHERE_MSA <- NULL
+final_df_RENTER_OWNER_OCCUPIED_MSA <- NULL
+
+for(year in years){
+  IN_DEPTH_VACANCY <- get_acs(
+    geography = "metropolitan statistical area/micropolitan statistical area",
+    #variables = DP04,
+    table = "B25004",
+    cache_table = TRUE,
+    year = year,
+    output = "wide",
+    key = Sys.getenv("CENSUS_KEY"),
+    moe_level = 90,
+    survey = "acs1",
+    show_call = TRUE
+  ) %>%
+    transmute(GEOID,NAME,FOR_RENT = B25004_002E,UNOCCUPIED_RENTED = B25004_003E, FOR_SALE = B25004_004E, SOLD = B25004_005E, SEASONAL = B25004_006E, MIGRANT = B25004_007E, OTHER = B25004_008E) %>%
+    mutate(YEAR = as.Date(paste0(year,"-01-01")))
+  
+  CURRENT_RES_ELSEWHERE <- get_acs(
+    geography = "metropolitan statistical area/micropolitan statistical area",
+    table = "B25005",
+    cache_table = TRUE,
+    year = year,
+    output = "wide",
+    key = Sys.getenv("CENSUS_KEY"),
+    moe_level = 90,
+    survey = "acs1",
+    show_call = TRUE
+  ) %>%
+    transmute(GEOID,NAME,CURRENT_RES_ELSEWHERE = B25005_002E) %>%
+    mutate(YEAR = as.Date(paste0(year,"-01-01")))
+  
+  RENTER_OWNER_OCCUPIED <- RENTER_OWNER_OCCUPIED <- get_acs(
+    geography = "metropolitan statistical area/micropolitan statistical area",
+    table = "B25008",
+    cache_table = TRUE,
+    year = year,
+    output = "wide",
+    key = Sys.getenv("CENSUS_KEY"),
+    moe_level = 90,
+    survey = "acs1",
+    show_call = TRUE
+  ) %>%
+    transmute(GEOID,NAME, TOTAL_OCCUPIED = B25008_001E, OWNER_OCCUPIED = B25008_002E, RENTER_OCCUPIED = B25008_003E) %>%
+    mutate(YEAR = as.Date(paste0(year,"-01-01")))
+  
+  
+  final_df_IN_DEPTH_VACANCY_MSA <- rbind(final_df_IN_DEPTH_VACANCY_MSA, IN_DEPTH_VACANCY)
+  final_df_CURRENT_RES_ELSEWHERE_MSA <- rbind(final_df_CURRENT_RES_ELSEWHERE_MSA, CURRENT_RES_ELSEWHERE)
+  final_df_RENTER_OWNER_OCCUPIED_MSA <- rbind(final_df_RENTER_OWNER_OCCUPIED_MSA, RENTER_OWNER_OCCUPIED)
+}
+
+RENTAL_VACANCY_RATES_2005_2022_MSA <- merge(final_df_IN_DEPTH_VACANCY_MSA,final_df_CURRENT_RES_ELSEWHERE_MSA) %>%
+  merge(final_df_RENTER_OWNER_OCCUPIED_MSA) %>%
+  mutate(OTHER = OTHER-CURRENT_RES_ELSEWHERE) %>%
+  mutate(RENTAL_VACANCY_RATE = FOR_RENT/(RENTER_OCCUPIED + FOR_RENT)) %>%
+  mutate(NON_SEASONAL_VACANCY = (FOR_RENT+FOR_SALE+OTHER)/(TOTAL_OCCUPIED+FOR_RENT+FOR_SALE+OTHER+UNOCCUPIED_RENTED+SOLD+CURRENT_RES_ELSEWHERE))
+
+
+ggsave(dpi = "retina",plot = NON_SEASONAL_VACANCY_2005_2022_NY_SF, "Non Seasonal Vacancy Rate 2005-2022 NY SF.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 states_list <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA",
-            "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-            "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-            "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-            "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+                 "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                 "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                 "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                 "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
 
 states_data_list <- map(states_list, function(st) {
   df <- fredr(series_id = paste0(st, "RVAC"), observation_start = as.Date("1986-01-01")) %>%
@@ -256,16 +374,76 @@ VACANCY_CHANGE_2019_STATE_graph <- ggplot() +
                     na.value = "grey50", 
                     guide = "legend", 
                     labels = c("-4.5% to -3%", "-1.5% to -3%", "0 to -1.5%", "0 to 1.5%", "1.5% to 3%")) +
-  ggtitle("     Growth in Rental Vacancy Rate: 2019-2022") +
+  ggtitle("     Change in Rental Vacancy Rate: 2019-2022") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+VACANCY_CHANGE_2019_STATE_GRADIENT_graph <- ggplot() +
+  geom_sf(data = VACANCY_CHANGE_2019_STATE, aes( fill = change_since_2019, geometry = geometry), color = NA) +
+  geom_sf(data = VACANCY_CHANGE_2019_STATE, aes(geometry = geometry), color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#FFE98F",
+                      low = "#3083DC",
+                      #space = "Lab",
+                      na.value = "grey50",
+                      guide = "colorbar",
+                      #aesthetics = "fill",
+                      breaks = c(-4,-2,0,2,4),
+                      labels = c("-4%","-2%","0%","2%","4%"),
+                      limits = c(-4.5,4.5)) +
+  ggtitle("     Change in Rental Vacancy Rate: 2019-2022") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+ggsave(dpi = "retina",plot = VACANCY_CHANGE_2019_STATE_GRADIENT_graph, "Vacancy Change 2019 2022 Gradient.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+VACANCY_RATE_2022_STATE <- states_data %>%
+  drop_na() %>%
+  mutate(vacancy_bucket = cut(value, breaks = c(-Inf,3.9,4.9,5.9,6.9,7.9,+Inf), labels = c("<4%", "4-4.9%", "5-5.9%", "6-6.9%", "7-7.9%+","8%+")))
+
+VACANCY_RATE_2022_STATE_graph <- ggplot() +
+  geom_sf(data = VACANCY_RATE_2022_STATE, aes(fill = vacancy_bucket, geometry = geometry), color = NA) +
+  geom_sf(data = VACANCY_RATE_2022_STATE, aes(geometry = geometry), color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<4%", "4-4.9%", "5-5.9%", "6-6.9%", "7-7.9%+","8%+")) +
+  ggtitle("        Rental Vacancy Rate, 2022") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+VACANCY_RATE_2022_GRADIENT_STATE_graph <- ggplot() +
+  geom_sf(data = VACANCY_RATE_2022_STATE %>% mutate(value = case_when(
+    value > 9 ~ 9,
+    TRUE ~ value
+  )) , aes(fill = value, geometry = geometry), color = NA) +
+  geom_sf(data = VACANCY_RATE_2022_STATE, aes(geometry = geometry), color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradient(high = "#FFE98F",
+                      low = "#3083DC",
+                      #space = "Lab",
+                      na.value = "grey50",
+                      guide = "colorbar",
+                      #aesthetics = "fill",
+                      breaks = c(3,6,9),
+                      labels = c("3%","6%","9%+"),
+                      limits = c(2.5,9)) +
+  ggtitle("                 Rental Vacancy Rate, 2022") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
 
 
+ggsave(dpi = "retina",plot = VACANCY_RATE_2022_STATE_graph, "Vacancy Rate 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-
-ggsave(dpi = "retina",plot = VACANCY_CHANGE_2019_STATE_graph, "Vacancy Change 2019 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = VACANCY_RATE_2022_GRADIENT_STATE_graph, "Vacancy Rate Gradient 2022.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 RENT_BURDEN_RATE <- get_acs(
   geography = "us",
@@ -365,6 +543,28 @@ RENT_BURDEN_RATE_LINE_graph <- ggplot(data = RENT_OWNER_MERGE %>% filter(name %i
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RENT_BURDEN_RATE_LINE_graph, "Rent Burden Line.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+VACANCY_RATE_METRO <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Missing%20Empty%20Homes/Annual_Vacancy_Metro.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  drop_na()
+
+VACANCY_RATE_METRO_LINE_graph <- ggplot() + #plotting permanent and temporary job losers
+  geom_line(data= VACANCY_RATE_METRO, aes(x=date,y= principal/100, color= "In Principal Cities"), size = 1.25) +
+  geom_line(data= VACANCY_RATE_METRO, aes(x=date,y= suburb/100, color= "In Suburbs"), size = 1.25) +
+  geom_line(data= VACANCY_RATE_METRO, aes(x=date,y= exurb/100, color= "Outside Metro Areas"), size = 1.25) +
+  geom_line(size = 1.25) +
+  xlab("Date") +
+  ylab("Percent of Total Households") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5), breaks = c(0.05,0.075,0.1), limits = c(0.05,0.115), expand = c(0,0)) +
+  ggtitle("Rental Vacancy Rates Across the US") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Falling Vacancy Rates are Widespread, but Especially in Suburbs/Exurbs Post-Pandemic") +
+  theme_apricitas + theme(legend.position = c(.2,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1986-01-01")-(.1861*(today()-as.Date("1986-01-01"))), xmax = as.Date("1986-01-01")-(0.049*(today()-as.Date("1986-01-01"))), ymin = 0.05-(.3*.065), ymax = 0.05) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = VACANCY_RATE_METRO_LINE_graph, "Vacancy Rate Metro Line.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 B25136

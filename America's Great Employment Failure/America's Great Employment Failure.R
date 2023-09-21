@@ -38,14 +38,14 @@ EPOP_PEER_Graph <- ggplot() + #Plotting Anglophone Employment Levels
   geom_line(data=subset(EPOPCAN, date >= as.Date("2000-01-01")), aes(x=date,y= value/100,color= "Canada"), size = 1.25)+ 
   geom_line(data=subset(EPOPGER, date >= as.Date("2000-01-01")), aes(x=date,y= value/100,color= "Germany"), size = 1.25)+ 
   geom_line(data=subset(EPOPJPN, date >= as.Date("2000-01-01")), aes(x=date,y= value/100,color= "Japan"), size = 1.25)+ 
-  geom_line(data=subset(EPOPUSA, date >= as.Date("2000-01-01")), aes(x=date,y= value/100,color= "USA"), size = 2)+ 
+  geom_line(data=subset(EPOPUSA, date >= as.Date("2000-01-01")), aes(x=date,y= value/100,color= "USA"), size = 2.25)+ 
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.695,.885), breaks = c(.7,.75,.8,.85), expand = c(0,0)) +
   ylab("Prime Age 25-54 Employment-Population Ratio, %") +
   ggtitle("America's Great Employment Failure") +
   labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "US Employment Rates have Lagged Significantly Behind its Closest Peer Nations") +
   theme_apricitas + theme(legend.position = c(.35,.83), legend.spacing.y = unit(0, 'cm'),legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +
-  scale_color_manual(name= "Prime Age (25-54) Employment-Population Ratio",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("USA","Japan","Germany","Canada","United Kingdom","Australia")) +
+  scale_color_manual(name= "Prime Age (25-54) Employment-Population Ratio",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("USA","Japan","Germany","Canada","United Kingdom","Australia"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25, 1.25, 1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = .695-(.3*.19), ymax = .695) +
   coord_cartesian(clip = "off")
 
@@ -233,7 +233,7 @@ EPOP_GAP_BAR_GRAPH <- ggplot() + #plotting components of manufacturing construct
   ggtitle("America's Female Employment Failure") +
   labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "America's Low Prime-Age Employment is Mostly Thanks to Lower Female Employment Rates") +
   theme_apricitas + theme(legend.position = c(0.425,0.25), legend.key.size = unit(0.5,"cm")) +
-  scale_fill_manual(name= "Gap Between US and OECD High-Income Avg. 25-54 Employment Rates",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
+  scale_fill_manual(name= "Gap Between US and OECD High-Income Average 25-54 Employment Rates",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.10-(.3*.15), ymax = -.10) +
   coord_cartesian(clip = "off")
 
@@ -241,15 +241,14 @@ EPOP_GAP_LINE_GRAPH <- ggplot() + #plotting components of manufacturing construc
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data = EPOP_GAP, aes(x = date, y = gap/100, color = gender), size = 1.25, stat= "identity") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.05), breaks = c(-.10,-0.05,0,0.05), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.1,.075), breaks = c(-.10,-0.05,0,0.05), expand = c(0,0)) +
   ylab("Gap in 25-54 Employment Rates, %") +
   ggtitle("America's Female Employment Failure") +
   labs(caption = "Graph created by @JosephPolitano using OECD data",subtitle = "America's Low Prime-Age Employment is Mostly Thanks to Lower Female Employment Rates") +
   theme_apricitas + theme(legend.position = c(0.425,0.25), legend.key.size = unit(0.5,"cm")) +
-  scale_color_manual(name= "Gap Between US and OECD High-Income Avg. 25-54 Employment Rates",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.10-(.3*.15), ymax = -.10) +
+  scale_color_manual(name= "25-54 Employment Rates\nGap Between US and OECD High-Income Average",values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72","#EE6055"), breaks = c("Female","Male")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.10-(.3*.125), ymax = -.10) +
   coord_cartesian(clip = "off")
-
 
 ggsave(dpi = "retina",plot = EPOP_GAP_BAR_GRAPH, "EPOP Gap Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = EPOP_GAP_LINE_GRAPH, "EPOP Gap Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

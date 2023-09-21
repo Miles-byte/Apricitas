@@ -200,53 +200,53 @@ DXY_Graph <- ggplot() + #plotting DXY
 #collecting vintages of the SEP Projections, subsetting to 2022 onward, converting dates to month char, and correcting factors
 #note-in 2023 change ending date to 2026 to include 2025 projections
 SEPUNRATE2022 <- fredr(series_id = "UNRATEMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2022-01-01")) %>% subset(date < as.Date("2026-01-01"))
-SEPUNRATE2022$realtime_start <- as.character(SEPUNRATE2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>%factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+SEPUNRATE2022$realtime_start <- as.character(SEPUNRATE2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>% { gsub("2023-06-14","June 2023",.) }  %>% factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
 
 #Adding data for manual updates
 MANUALUNRATE2022 <- data.frame(
   date = c(as.Date("2023-01-01"),as.Date("2024-01-01"),as.Date("2025-01-01")),
   series_id = c("UNRATEMD","UNRATEMD","UNRATEMD"),
-  value = c(4.1,4.5,4.5),
-  realtime_start = c("June 2023","June 2023","June 2023"),
+  value = c(3.8,4.1,4.1),
+  realtime_start = c("September 2023","September 2023","September 2023"),
   realtime_end = c(as.Date("9999-12-31"),as.Date("9999-12-31"),as.Date("9999-12-31")))
 
 SEPUNRATE2022 <- rbind(SEPUNRATE2022, MANUALUNRATE2022)
 
 SEPGDP2022 <- fredr(series_id = "GDPC1MD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2022-01-01")) %>% subset(date < as.Date("2026-01-01")) %>%
   add_row(date = as.Date("2025-01-01"), series_id = "GDPC1MD", value = 1.8, realtime_start = as.Date("2022-12-14"), realtime_end = as.Date("9999-01-01"))
-SEPGDP2022$realtime_start <- as.character(SEPGDP2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>%factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+SEPGDP2022$realtime_start <- as.character(SEPGDP2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>% { gsub("2023-06-14","June 2023",.) }  %>% factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023"))
 
 MANUALGDP2022 <- data.frame(
   date = c(as.Date("2023-01-01"),as.Date("2024-01-01"),as.Date("2025-01-01")),
   series_id = c("UNRATEMD","UNRATEMD","UNRATEMD"),
-  value = c(1,1.1,1.8),
-  realtime_start = c("June 2023","June 2023","June 2023"),
+  value = c(2.1,1.5,1.8),
+  realtime_start = c("September 2023","September 2023","September 2023"),
   realtime_end = c(as.Date("9999-12-31"),as.Date("9999-12-31"),as.Date("9999-12-31")))
 
 SEPGDP2022 <- rbind(SEPGDP2022, MANUALGDP2022)
 
 
 SEPPCEPI2022 <- fredr(series_id = "PCECTPIMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2022-01-01")) %>% subset(date < as.Date("2026-01-01"))
-SEPPCEPI2022$realtime_start <- as.character(SEPPCEPI2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>%factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+SEPPCEPI2022$realtime_start <- as.character(SEPPCEPI2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>% { gsub("2023-06-14","June 2023",.) }  %>% factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
 
 MANUALPCEPI2022 <- data.frame(
   date = c(as.Date("2023-01-01"),as.Date("2024-01-01"),as.Date("2025-01-01")),
   series_id = c("UNRATEMD","UNRATEMD","UNRATEMD"),
-  value = c(3.2,2.5,2.1),
-  realtime_start = c("June 2023","June 2023","June 2023"),
+  value = c(3.3,2.5,2.2),
+  realtime_start = c("September 2023","September 2023","September 2023"),
   realtime_end = c(as.Date("9999-12-31"),as.Date("9999-12-31"),as.Date("9999-12-31")))
 
 SEPPCEPI2022 <- rbind(SEPPCEPI2022, MANUALPCEPI2022)
 
 
 SEPFFR2022 <- fredr(series_id = "FEDTARMD", realtime_start = as.Date("2022-03-16")) %>% subset(realtime_start > as.Date("2022-01-01")) %>% subset(date > as.Date("2022-01-01")) %>% subset(date < as.Date("2026-01-01"))
-SEPFFR2022$realtime_start <- as.character(SEPFFR2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>%factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
+SEPFFR2022$realtime_start <- as.character(SEPFFR2022$realtime_start) %>% { gsub("2023-03-22","March 2023",.) } %>% { gsub("2022-03-16","March 2022",.) } %>% { gsub("2022-09-21","September 2022",.) } %>% { gsub("2022-06-15","June 2022",.) } %>% { gsub("2022-12-14","December 2022",.) }%>% { gsub("2023-06-14","June 2023",.) }  %>% factor(levels = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023"))#the brackets wrap and the period acts as a data market to get gsub to work with pipes
 
 MANUALFFR2022 <- data.frame(
   date = c(as.Date("2023-01-01"),as.Date("2024-01-01"),as.Date("2025-01-01")),
   series_id = c("UNRATEMD","UNRATEMD","UNRATEMD"),
-  value = c(5.6,4.6,3.4),
-  realtime_start = c("June 2023","June 2023","June 2023"),
+  value = c(5.6,5.1,3.9),
+  realtime_start = c("September 2023","September 2023","September 2023"),
   realtime_end = c(as.Date("9999-12-31"),as.Date("9999-12-31"),as.Date("9999-12-31")))
 
 SEPFFR2022 <- rbind(SEPFFR2022, MANUALFFR2022)
@@ -261,7 +261,7 @@ SEPUNRATE2022_Graph <- ggplot(data = SEPUNRATE2022, aes(x = date, y = value/100,
   ggtitle("Unemployment Rate") +
   #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
   theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023","September 2023")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off") +
   theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
@@ -274,7 +274,7 @@ SEPGDP2022_Graph <- ggplot(data = SEPGDP2022, aes(x = date, y = value/100, fill 
   ggtitle("Real GDP Growth") +
   #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
   theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023","September 2023")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off") +
   theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
@@ -287,7 +287,7 @@ SEPPCEPI2022_Graph <- ggplot(data = SEPPCEPI2022, aes(x = date, y = value/100, f
   ggtitle("Inflation (PCEPI)") +
   #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
   theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023","September 2023")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off") +
   theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
@@ -300,7 +300,7 @@ SEPFFR2022_Graph <- ggplot(data = SEPFFR2022, aes(x = date, y = value/100, fill 
   ggtitle("Interest Rates (FFR)") +
   #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
   theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041"), breaks = c("March 2022","June 2022","September 2022","December 2022","March 2023","June 2023","September 2023")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off") +
   theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better

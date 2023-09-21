@@ -437,11 +437,11 @@ ggsave(dpi = "retina",plot = REAL_GVA_INDUSTRY_GRAPH, "RU REAL GVA INDUSTRY GRAP
 date <- Sys.Date()
 VOLUME_SHIPPED_PRODUCTION_URL <- "https://rosstat.gov.ru/storage/mediabank/otgruz_mes_"
 
-while (http_status(HEAD(paste0(VOLUME_SHIPPED_PRODUCTION_URL, format(date, "%m-%Y"), ".xlsx")))$category != "Success") {
+while (http_status(HEAD(paste0(VOLUME_SHIPPED_PRODUCTION_URL, format(date, "%m"), ".xlsx")))$category != "Success") {
   date <- date - months(1)
 }
 
-VOLUME_SHIPPED_PRODUCTION_URL <- paste0(VOLUME_SHIPPED_PRODUCTION_URL, format(date, "%m-%Y"), ".xlsx")
+VOLUME_SHIPPED_PRODUCTION_URL <- paste0(VOLUME_SHIPPED_PRODUCTION_URL, format(date, "%m"), ".xlsx")
 
 VOLUME_SHIPPED_PRODUCTION <- read.xlsx(VOLUME_SHIPPED_PRODUCTION_URL, 2) %>%
   filter(X2 %in% c("06.1","06.2","19.2")) %>%

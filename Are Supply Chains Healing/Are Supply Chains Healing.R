@@ -134,7 +134,7 @@ QSPC_Supply_Selected_Graph <- ggplot() + #plotting BIE
   ylab("% of Plants Citing This Reason") +
   ggtitle("Still Stressed Out") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Key Industries Still Cite Materials Shortage and Logistics Constraints for Underutilization") +
-  theme_apricitas + theme(legend.position = c(.50,.75)) +
+  theme_apricitas + theme(legend.position = c(.40,.85)) +
   scale_color_manual(name= "% Citing Materials Shortages for Plant Capacity Under-utilization",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(.1861*(today()-as.Date("2014-04-01")))), ymin = 0-(.3*.70), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -145,7 +145,7 @@ QSPC_Demand_Graph <- ggplot() + #plotting BIE
   geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient supply of labor"), aes(x=date,y= Value/100,color= "Insufficient Supply of Labor"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.90), breaks = c(0,.20,.40,.60,.80), expand = c(0,0)) +
-  ylab("Index") +
+  ylab("% of Plants Citing This Reason") +
   ggtitle("Supply and Demand Chains") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Firms Aren't Complaining About a Shortage of Orders As Much as Before the Pandemic") +
   theme_apricitas + theme(legend.position = c(.50,.5)) +

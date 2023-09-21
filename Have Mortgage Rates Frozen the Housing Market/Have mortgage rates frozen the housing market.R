@@ -114,7 +114,7 @@ state_lookup <- data.frame(
 
 
 REDFIN_COUNTY_BULK <- read.csv("C:/Users/josep/Documents/COUNTY_HOUSING_DATA_08_15_23.csv")
- 
+
 REDFIN_COUNTY_INVENTORY <- REDFIN_COUNTY_BULK %>%
   filter(period_begin %in% c("6/1/2021","6/1/2023") & property_type_id == "-1") %>%
   select(period_begin, table_id, region, inventory, inventory_yoy) %>%
@@ -173,7 +173,7 @@ REDFIN_COUNTY_INVENTORY <- REDFIN_COUNTY_BULK %>%
          county = replace(county, county == "Petersburg, Virginia","Petersburg city, Virginia"),
          county = replace(county, county == "Newport News, Virginia","Newport News city, Virginia"),
          county = replace(county, county == "Dona Ana County, New Mexico","Doña Ana County, New Mexico"),
-         )
+  )
 
 COUNTY_FREE_CLEAR_MERGE <- full_join(HOMEOWN_FREE_CLEAR_COUNTY,REDFIN_COUNTY_INVENTORY, by = "county")
 
@@ -376,13 +376,13 @@ PCT_DC <- ggplot() +
                     guide = "legend", 
                     labels = c("<30%", "30-35%", "35-40%", "40-45%", ">45%")) +
   scale_color_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
-                    guide = NULL, 
-                    labels = c("<30%", "30-35%", "35-40%", "40-45%", ">45%")) +
+                     guide = NULL, 
+                     labels = c("<30%", "30-35%", "35-40%", "40-45%", ">45%")) +
   ggtitle("    Percent of Homeowners Without a Mortgage") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
   theme(plot.title = element_text(size = 24,hjust = 0.5))
-  
+
 ggsave(dpi = "retina",plot = PCT_DC, "PCT DC graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 PCT_WEST <- ggplot() +
@@ -454,6 +454,5 @@ PCT_MIDWEST <- ggplot() +
   theme(plot.title = element_text(size = 24,hjust = 0.5))
 
 ggsave(dpi = "retina",plot = PCT_MIDWEST, "PCT MIDWEST.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
 
 #ANNUAL SURVEY MOVING EXPECTATIONS

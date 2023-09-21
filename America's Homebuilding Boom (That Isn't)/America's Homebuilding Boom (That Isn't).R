@@ -1,4 +1,4 @@
-pacman::p_load(nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -614,6 +614,24 @@ UNDER_CONSTRUCTION_Graph <- ggplot() + #plotting SF and MF housing
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*2.3), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+TOTAL_HOUSING_STARTS_BULK <- getCensus(
+  name = "timeseries/eits/resconst/",
+  vars = c("data_type_code","time_slot_date","time_slot_id","seasonally_adj","program_code","category_code","geo_level_code","cell_value","error_data"), 
+  time = paste("from 2000 to", format(Sys.Date(), "%Y")),
+  data_type_code = "TOTAL",
+  seasonally_adj = "yes",
+  geo_level_code = "US"
+) %>%
+  mutate(date = as.Date(as.yearmon(time))) %>%
+  mutate(value = as.numeric(cell_value))
+  
+TOTAL_HOUSING_STARTS_SUBSET <- TOTAL_HOUSING_STARTS_BULK %>%
+  filter(category_code == "ASTARTS")
+
+TOTAL_HOUSING_COMPLETIONS <- TOTAL_HOUSING_STARTS_BULK %>%
+  filter(category_code == "ACOMPLETIONS")
+
+
 STARTS_COMPLETIONS_Graph <- ggplot() + #plotting SF and MF housing
   geom_line(data=TOTAL_HOUSING_STARTS_SUBSET, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Started"), size = 1.25) +
   geom_line(data=TOTAL_HOUSING_COMPLETIONS, aes(x=date,y= value/1000, color= "New Privately-Owned Housing Units Completed"), size = 1.25) +
@@ -1074,6 +1092,106 @@ HOUSING_RELATED_EMPLOYMENT_IND_graph <- ggplot(data = HOUSING_RELATED_EMPLOYMENT
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = HOUSING_RELATED_EMPLOYMENT_IND_graph, "Housing Related Employment Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+REAL_PCE_HOUSING_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U20403',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 1959, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+REAL_PCE_HOUSING_BEA <- beaGet(REAL_PCE_HOUSING_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("1959-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  select(date,u20403_dhsgra_151_housing_fisher_quantity_index_level_0) %>%
+  setNames(c("date","Real_Housing_PCE"))
+
+POPULATION <- fredr(series_id = "POPTHM", observation_start = as.Date("1959-01-01"), aggregation_method = "avg", frequency = "q") %>% #population
+  transmute(date, Population = value)
+
+REAL_PCE_HOUSING_POPULATION <- merge(REAL_PCE_HOUSING_BEA,POPULATION, by = "date") %>%
+  transmute(date, Real_Housing_PCE_Per_Capita = Real_Housing_PCE/Population) %>%
+  mutate(Real_Housing_PCE_Per_Capita = Real_Housing_PCE_Per_Capita*100/Real_Housing_PCE_Per_Capita[1])
+
+REAL_PCE_HOUSING_POPULATION_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = REAL_PCE_HOUSING_POPULATION, aes(x=date, y = Real_Housing_PCE_Per_Capita, color = "Real Housing Personal Consumption Expenditures Per Capita"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(95,max(round(REAL_PCE_HOUSING_POPULATION$Real_Housing_PCE_Per_Capita/10)*10)), expand = c(0,0)) +
+  ylab("Index, Q1 1959 = 100") +
+  ggtitle("The Long Shadow of the Great Recession") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data via @Kaerdmann",subtitle = "Real Consumption of Housing Per-Capita Has Barely Increased Since 2008") +
+  theme_apricitas + theme(legend.position = c(.60,.20)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1959-01-01")-(.1861*(today()-as.Date("1959-01-01"))), xmax = as.Date("1959-01-01")-(0.049*(today()-as.Date("1959-01-01"))), ymin = 95-(.3*(max(round(REAL_PCE_HOUSING_POPULATION$Real_Housing_PCE_Per_Capita/10)*10)-95)), ymax = 95) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_PCE_HOUSING_POPULATION_Graph, "Real PCE Housing Population.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CPI_RENT_1960 <- fredr(series_id = "CUUR0000SEHA", observation_start = as.Date("1959-01-01")) %>% #population
+  transmute(date, CPI_RENT_1960 = value)
+CPI_EX_SHELTER_1960 <- fredr(series_id = "CUUR0000SA0L2", observation_start = as.Date("1959-01-01")) %>% #population
+  transmute(date, CPI_EX_SHELTER_1960 = value)
+
+CPI_RENT_EX_SHELTER_1960 <- merge(CPI_RENT_1960,CPI_EX_SHELTER_1960, by = "date") %>%
+  transmute(date, RENT_EX_RENT_CPI_INDEXED = CPI_RENT_1960/CPI_EX_SHELTER_1960) %>%
+  mutate(RENT_EX_RENT_CPI_INDEXED = RENT_EX_RENT_CPI_INDEXED*100/RENT_EX_RENT_CPI_INDEXED[1])
+
+CPI_RENT_EX_SHELTER_1960_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = CPI_RENT_EX_SHELTER_1960, aes(x=date, y = RENT_EX_RENT_CPI_INDEXED, color = "CPI: Rent of Primary Residence Relative to CPI: All Items Ex-Shelter"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(limits = c(75,max(round(CPI_RENT_EX_SHELTER_1960$RENT_EX_RENT_CPI_INDEXED/10)*10)), expand = c(0,0)) +
+  ylab("Index, Q1 1959 = 100") +
+  ggtitle("The Long Shadow of the Great Recession") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Relative to Non-Shelter Items, Rent Prices are Near Post-WWII Record Highs") +
+  theme_apricitas + theme(legend.position = c(.425,.80)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1959-01-01")-(.1861*(today()-as.Date("1959-01-01"))), xmax = as.Date("1959-01-01")-(0.049*(today()-as.Date("1959-01-01"))), ymin = 75-(.3*(max(round(CPI_RENT_EX_SHELTER_1960$RENT_EX_RENT_CPI_INDEXED/10)*10)-75)), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_RENT_EX_SHELTER_1960_Graph, "CPI Rent Ex Shelter 1960.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+listCensusApis()
+listCensusMetadata("timeseries/eits/resconst/")
+
+CONSTRUCTION_STACKED <- getCensus(
+  name = "timeseries/eits/resconst/",
+  vars = c("data_type_code","time_slot_date","time_slot_id","seasonally_adj","program_code","category_code","geo_level_code","cell_value","error_data"), 
+  time = paste("from 2000 to", format(Sys.Date(), "%Y")),
+  category_code = "UNDERCONST",
+  data_type_code = "TOTAL",
+  seasonally_adj = "yes",
+) %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  mutate(value = as.numeric(cell_value)) %>%
+  filter(geo_level_code != "US") %>%
+  mutate(geo_level_code = case_when(
+    geo_level_code == "NO" ~ "Northeast",
+    geo_level_code == "WE" ~ "West",
+    geo_level_code == "SO" ~ "South",
+    geo_level_code == "MW" ~ "Midwest",
+    TRUE ~ geo_level_code
+  )) %>%
+  select(geo_level_code,time, value) %>%
+  mutate(geo_level_code = factor(geo_level_code, levels = rev(c("South","West","Midwest","Northeast"))))
+
+CONSTRUCTION_STACKED_Graph <- ggplot(data = CONSTRUCTION_STACKED, aes(x = time, y = value/1000, fill = geo_level_code)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
+  xlab("Date") +
+  ylab("Units Under Construction") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"), breaks = c(0,0.5,1,1.5), limits = c(0,1.75), expand = c(0,0)) +
+  ggtitle("Housing Under Construction By Region") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Almost Half of America's New Housing Units are Located in the South") +
+  theme_apricitas + theme(legend.position = c(.52,.85)) +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("South","West","Midwest","Northeast")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1.75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CONSTRUCTION_STACKED_Graph, "Construction Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1684841233") %>%
   select(-RegionID, -SizeRank, - RegionType, - StateName, -StateName, - State, - Metro) %>%

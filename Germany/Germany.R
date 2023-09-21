@@ -253,7 +253,7 @@ HEATPUMP_NUMBER <- IP_9DIGIT_BULK %>%
   subset(GP19A9 %in% c("GP19-282513801","GP19-282513809")) %>%
   mutate(GP19A9 = gsub("GP19-282513801","Heat Pump",GP19A9)) %>%
   mutate(GP19A9 = gsub("GP19-282513809","Heat Pump",GP19A9)) %>%
-  transmute(category = GP19A9, value = PRO008_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
 
 HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/1000, fill = "German Quarterly Production, Thousands of Heat Pumps")) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -490,7 +490,7 @@ HOUSING_list <- retrieve_datalist(tableseries = "31*", genesis=c(db='de'), langu
 HOUSING_STARTS <- retrieve_data(tablename = "31111BM001", genesis=c(db='de')) %>%
   filter(BAUGB1 %in% c("WOHNGEBAEUDE","GEBW01")) %>% #ALL CONSTRUCTION AND SINGLE-FAMILY CONSTRUCTION
   filter(BAUTK1 == "ARTBT5") %>% #NEW CONSTRUCTION
-  transmute(Type = BAUGB1,date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),value = WOHN01_val) %>%
+  transmute(Type = BAUGB1,date = as.Date(as.yearmon(paste0(JAHR, '-', gsub("MONAT", "", MONAT)), format = "%Y-%m")),value = FLC003_lock) %>%
   pivot_wider(names_from = Type) %>%
   arrange(date) %>%
   transmute(`Single-Family` = GEBW01, `Multi-Family` = WOHNGEBAEUDE-GEBW01) %>%
@@ -643,7 +643,7 @@ ORDERS_WEAPON <- ORDERS_3_DIGIT %>%
   filter(WZ08Y3 == "WZ08-254") %>% #taking manufacturing and energy intensive manufacturing data 
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
-  transmute(date, value = AUB102_val, destination = ABSAT1) %>%
+  transmute(date, value = AUB101_lock, destination = ABSAT1) %>%
   pivot_wider(names_from = destination) %>%
   arrange(date) %>%
   filter(date >= as.Date("2018-01-01")) %>%
@@ -712,7 +712,7 @@ ORDER_BACKLOG_2_DIGIT <- retrieve_data(tablename = "42155BM002", genesis=c(db='d
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   filter(ABSAT1 == "INSGESAMT" & WERT03 == "X13JDKSB") %>%
-  transmute(date, value = AUB102_val, category = WZ08Y2) %>%
+  transmute(date, value = AUB101_lock, category = WZ08Y2) %>%
   pivot_wider(names_from = category) %>%
   arrange(date) %>%
   filter(date >= as.Date("2018-01-01")) %>%
@@ -722,7 +722,7 @@ ORDER_BACKLOG <- retrieve_data(tablename = "42155BM001", genesis=c(db='de')) %>%
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   filter(ABSAT1 == "INSGESAMT" & WERT03 == "X13JDKSB") %>%
-  transmute(date, value = AUB102_val, category = WZ08Y1) %>%
+  transmute(date, value = AUB101_lock, category = WZ08Y1) %>%
   pivot_wider(names_from = category) %>%
   arrange(date) %>%
   filter(date >= as.Date("2018-01-01")) %>%
