@@ -51,23 +51,35 @@ FFR_FUTURES_MEGA_MERGE_COMPARISON_Graph <- ggplot() + #plotting FFR rate changes
   coord_cartesian(clip = "off")
 
 #Long Run Interest Rate Projections
-LONG_RUN_FOMC_MEDIAN <- fredr(series_id = "FEDTARMDLR",observation_start = as.Date("2012-01-01"))
-THIRTY_YEAR_TSY <- fredr(series_id = "DGS30",observation_start = as.Date("2012-01-01")) %>%
+LONG_RUN_FOMC_MEDIAN <- fredr(series_id = "FEDTARMDLR",observation_start = as.Date("2015-01-01"))
+LONG_RUN_LOWER_CENTRAL <- fredr(series_id = "FEDTARCTLLR",observation_start = as.Date("2015-01-01"))
+LONG_RUN_HIGHER_CENTRAL <- fredr(series_id = "FEDTARCTHLR",observation_start = as.Date("2015-01-01"))
+LONG_RUN_HIGH_RANGE <- fredr(series_id = "FEDTARRHLR",observation_start = as.Date("2015-01-01"))
+LONG_RUN_LOW_RANGE <- fredr(series_id = "FEDTARRLLR",observation_start = as.Date("2015-01-01"))
+THIRTY_YEAR_TSY <- fredr(series_id = "DGS30",observation_start = as.Date("2015-01-01")) %>%
+  drop_na()
+TEN_YEAR_TSY <- fredr(series_id = "DGS10",observation_start = as.Date("2015-01-01")) %>%
   drop_na()
 
-FOMC_VS_30YR_Graph <- ggplot() + #plotting Long Run Median FOMC Predictions
-  geom_line(data=LONG_RUN_FOMC_MEDIAN, aes(x=date,y= value/100,color= "Median Longer-Run FOMC Fed Funds Rate Projections"), size = 1.25) +
-  geom_line(data=THIRTY_YEAR_TSY, aes(x=date,y= value/100,color= "Thirty-Year Treasury Yield"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.05), breaks = c(0.01,0.02,0,.03,.04,.05), expand = c(0,0)) +
-  ylab("Percent") +
-  ggtitle("Low or High?") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "FOMC Officials' September Projections Sit Well Below Today's Bond Rates") +
-  theme_apricitas + theme(legend.position = c(.58,.90)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 0-(.3*.05), ymax = 0) +
-  coord_cartesian(clip = "off")
 
+FOMC_VS_30YR_Graph <- ggplot() + #plotting Long Run Median FOMC Predictions
+  geom_line(data=TEN_YEAR_TSY, aes(x=date,y= value/100,color= "Ten-Year Treasury Yield"), size = 1.25) +
+  geom_line(data=THIRTY_YEAR_TSY, aes(x=date,y= value/100,color= "Thirty-Year Treasury Yield"), size = 1.25) +
+  #geom_line(data=LONG_RUN_LOWER_CENTRAL, aes(x=date,y= value/100,color= "Central Tendency"), size = 1, linetype = "dashed", alpha = 0.75) +
+  #geom_line(data=LONG_RUN_HIGHER_CENTRAL, aes(x=date,y= value/100,color= "Central Tendency"), size = 1, linetype = "dashed", alpha = 0.75) +
+  geom_line(data=LONG_RUN_HIGH_RANGE, aes(x=date,y= value/100,color= "\nLonger-Run FOMC Fed Funds Rate Projections:"), size = 0.75, linetype = "dashed", alpha = 0) +
+  geom_line(data=LONG_RUN_HIGH_RANGE, aes(x=date,y= value/100,color= "Range"), size = 3, alpha = 0.75) +
+  geom_line(data=LONG_RUN_LOW_RANGE, aes(x=date,y= value/100,color= "Range"), size = 3, alpha = 0.75) +
+  geom_line(data=LONG_RUN_FOMC_MEDIAN, aes(x=date,y= value/100,color= "Median"), size = 1.25, linetype = "dashed", alpha = 0.90) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0525), breaks = c(0.01,0.02,0,.03,.04,.05), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Searching for a \"Natural\" Rate") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "FOMC Officials' September Projections Sit Well Below Today's Bond Rates") +
+  theme_apricitas + theme(legend.position = c(.57,.86)) + theme(legend.text = element_text(size = 13), legend.key.height = unit(0,"cm"), legend.key.width =  unit(.82, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","white","#EE6055","#A7ACD9","#9A348E"), breaks = c("Ten-Year Treasury Yield","Thirty-Year Treasury Yield","\nLonger-Run FOMC Fed Funds Rate Projections:","Median","Range"), guide=guide_legend(override.aes=list(linetype=c(1,1,1,2,1), lwd = c(1.25,1.25,.75,.75,3), alpha = c(1,1,0,1,0.75)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.0525), ymax = 0) +
+  coord_cartesian(clip = "off")
 
 #TIPS Graph
 TENYR <- fredr(series_id = "DGS10",observation_start = as.Date("1980-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -173,7 +185,7 @@ T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.02,0.045), breaks = c(-0.02,-.01,0,0.01,0.02,0.03,0.04), expand = c(0,0)) +
   ylab("%") +
   ggtitle("Breaking Down Rising Rates") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Higher Real Rates and Higher Inflation Expectations Drive Higher Interest Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Higher Real Rates Drive Higher Yields as Inflation Expectations Hold Steady") +
   theme_apricitas + theme(legend.position = c(.42,.87), legend.spacing.y = unit(-0.2, "cm")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("5-Year Real Bond Yield","5-Year Breakeven Inflation Expectations")) +

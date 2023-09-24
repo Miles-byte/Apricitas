@@ -70,27 +70,26 @@ DXY <- tq_get("DX-Y.NYB", from = "2018-01-01")
 DXY <- drop_na(DXY) 
 
 #Downloading FFR futures for Jan 23, 24, and 25
-FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2023-01-01")
+FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01")
 FFR_JAN_24 <- drop_na(FFR_JAN_24) %>% mutate(Future = "Jan24") %>% 
   select(date, close, Future)
 
 FFR_JAN_23 <- data.frame(date = FFR_JAN_24$date, close = 100-4.33)
 FFR_JAN_23 <- drop_na(FFR_JAN_23) %>% mutate(Future = "Jan23") 
 
-FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2023-01-01")
+FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01")
 FFR_JAN_25 <- drop_na(FFR_JAN_25) %>% mutate(Future = "Jan25") %>% 
   select(date, close, Future)
 
 FFR_MERGE_23_25 <- rbind(FFR_JAN_23,FFR_JAN_24,FFR_JAN_25) %>% pivot_wider(names_from = Future, values_from = close)
 FFR_MERGE_23_25 <- drop_na(FFR_MERGE_23_25)
 
+FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01") %>%
+  drop_na()
 FFR_JUN_24 <- tq_get("ZQM24.CBT", from = "2021-01-01") %>%
   drop_na()
 FFR_JAN_25 <- tq_get("ZQF25.CBT", from = "2021-01-01") %>%
   drop_na()
-FFR_JAN_24 <- tq_get("ZQF24.CBT", from = "2021-01-01") %>%
-  drop_na()
-
 
 EFFR <- fredr(series_id = "EFFR",observation_start = as.Date("2019-01-01"), frequency = "m", aggregation_method = "avg")
 
@@ -159,7 +158,7 @@ MOVE_Graph <- ggplot() + #plotting MOVE
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
   ylab("Index") +
-  ggtitle("Interest Rate Volatility Remains High") +
+  ggtitle("Interest Rate Volatility: High But Falling") +
   labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Interest Rate Volatility is Still High, But Declined Significantly From Post-SVB Highs") +
   theme_apricitas + theme(legend.position = c(.25,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
@@ -171,13 +170,14 @@ FFR_HIGHER_FROM_LONGER_Graph <- ggplot() + #plotting FFR rate changes in 2023 an
   geom_line(data=FFR_JUN_24, aes(x=date,y= (100-close)/100,color= "June 2024"), size = 1.25) +
   geom_line(data=FFR_JAN_25, aes(x=date,y= (100-close)/100,color= "January 2025"), size = 1.25) +
   geom_line(data=FFR_JAN_24, aes(x=date,y= (100-close)/100,color= "January 2024"), size = 1.25) +
+  #geom_line(data=FFR_JUN_25, aes(x=date,y= (100-close)/100,color= "June 2025"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.06), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Higher For How Long?") +
-  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Even if the Fed Skips a Rate Hike, Rates Are Predicted to Stay High in the Short Term") +
+  labs(caption = "Graph created by @JosephPolitano using Yahoo! Finance data",subtitle = "Rates are Now Predicted as Staying Higher for Longer Even if Peaking at the Same Levels") +
   theme_apricitas + theme(legend.position = c(.275,.65)) +
-  scale_color_manual(name= "FFR Futures Rate",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("January 2024","June 2024","January 2025")) +
+  scale_color_manual(name= "FFR Futures Rate",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("January 2024","June 2024","January 2025","June 2025")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*.06), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -330,13 +330,13 @@ REAL_RATES_GRAPH <- ggplot() + #plotting inflation breakevens
   geom_line(data=TWENTYYEARTIPS, aes(x=date,y= value/100 ,color= "20-Year Real Treasury Yield (Fitted)"), size = 1.25) +
   geom_line(data=THIRTYYEARTIPS, aes(x=date,y= value/100 ,color= "30-Year Real Treasury Yield"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.02), breaks = c(-0.02,-0.01,0,0.01,0.02), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.02,.03), breaks = c(-0.02,-0.01,0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Yield, %") +
   ggtitle("Here's A Tip:") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Inverted") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Real Interest Rates are Above Pre-COVID Levels and the Real Yield Curve is Flat") +
   theme_apricitas + theme(legend.position = c(.48,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("5-Year Real Treasury Yield","7-Year Real Treasury Yield (Fitted)","10-Year Real Treasury Yield","20-Year Real Treasury Yield (Fitted)","30-Year Real Treasury Yield")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.02-(.3*.04), ymax = -0.02) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.02-(.3*.05), ymax = -0.02) +
   coord_cartesian(clip = "off")
 
 T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) + 
@@ -355,12 +355,13 @@ T5RATES_Graph <- ggplot(T5Bind, aes(fill=series_id, x=date, y=value/100)) +
   coord_cartesian(clip = "off")
 
 NFCI_Graph <- ggplot() + #plotting national financial conditions indexes
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data=NFCI, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index"), size = 1.25) +
   geom_line(data=NFCICREDIT, aes(x=date,y= value,color= "Chicago Fed National Financial Conditions Index: Credit Subindex"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(limits = c(-1,1), breaks = c(-1,-0.5,0,0.5,1), expand = c(0,0)) +
   ylab("Index, 0 = Average, Higher Numbers are Tighter") +
-  ggtitle("Easing Up?") +
+  ggtitle("Easing Up") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Financial Conditions are Tight, But Have Been Easing Up a Bit in Recent Months") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
@@ -495,13 +496,13 @@ T5YIE2019 <- ggplot() + #plotting inflation breakevens
   annotate("rect", xmin = as.Date(-Inf), xmax = as.Date(Inf), ymin = 0.0225, ymax = 0.0275, fill = "#EE6055", color = NA, alpha = 0.4) +
   geom_line(data=FIVEYEARFWDBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year, 5 Year Forward Inflation Breakevens"), size = 1.25) +
   geom_line(data=FIVEYEARBREAKEVEN2019, aes(x=date,y= value/100 ,color= "5 Year Inflation Breakevens"), size = 1.25) +
-  annotate("text", label = "Breakevens Approximately Consistent With 2% Inflation Target", x = as.Date("2019-01-01")+((today()-as.Date("2019-01-01"))/3), y = 0.0287, color = "#EE6055", alpha = 0.6, size = 4) +
+  annotate("text", label = "Breakevens Approximately Consistent With 2% Inflation Target", x = as.Date("2018-08-01")+((today()-as.Date("2018-08-01"))/3), y = 0.0287, color = "#EE6055", alpha = 0.6, size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.038), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("TIPS Breakevens, %") +
   ggtitle("Here's A Tip:") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short & Long Term Inflation Expectations are at a Level Consistent with the Fed's Target") +
-  theme_apricitas + theme(legend.position = c(.35,.90)) +
+  theme_apricitas + theme(legend.position = c(.3,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   #theme(legend.key.width =  unit(.82, "cm")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today() - as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today() - as.Date("2019-01-01"))), ymin = 0-(.3*.038), ymax = 0) +
@@ -540,26 +541,48 @@ UNRATE_Graph <- ggplot() + #yield curve
 
 FFR_LOW <- fredr(series_id = "FEDTARRL", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
   drop_na()
-FFR_MID <- fredr(series_id = "FEDTARRM", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
+FFR_MID <- fredr(series_id = "FEDTARMD", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
   drop_na()
 FFR_HIGH <- fredr(series_id = "FEDTARRH", observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
   drop_na()
   
 FFR_DOT_PLOTS <- ggplot() + #plotting inflation breakevens
   geom_line(data=FFR_HIGH, aes(x=date,y= value/100 ,color= "High"), size = 1.25) +
-  geom_line(data=FFR_MID, aes(x=date,y= value/100 ,color= "Midpoint"), size = 1.25) +
+  geom_line(data=FFR_MID, aes(x=date,y= value/100 ,color= "Median"), size = 1.25) +
   geom_line(data=FFR_LOW, aes(x=date,y= value/100 ,color= "Low"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.06), breaks = c(0,0.02,0.04,0.06), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.07), breaks = c(0,0.02,0.04,0.06), expand = c(0,0)) +
   ylab("Fed Funds Rate, %") +
   ggtitle("Forward (Lack of) Guidance") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Range of Interest Rate Projections is Large, Especially in 2024/2025") +
-  theme_apricitas + theme(legend.position = c(.3,.45)) +
-  scale_color_manual(name= "FOMC SEP Interest Rate Projections",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("High","Midpoint","Low")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(365*3)), xmax = as.Date("2022-01-01")-(0.049*(365*3)), ymin = 0-(.3*0.06), ymax = 0) +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Range of Interest Rate Projections is Large, Especially in 2025/2026") +
+  theme_apricitas + theme(legend.position = c(.3,.25)) +
+  scale_color_manual(name= "FOMC SEP Interest Rate Projections",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("High","Median","Low")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(365*3)), xmax = as.Date("2023-01-01")-(0.049*(365*3)), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FFR_DOT_PLOTS, "Dot Plots.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+SEP_UNCERTAINTY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/The%20Federal%20Reserve%20Raises%20Interest%20Rates/SEP_UNCERTAINTY.csv") %>%
+  mutate(date = as.Date(date))
+
+SEP_UNCERTAINTY_GRAPH <- ggplot() + #plotting FOMC uncertainty
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=SEP_UNCERTAINTY, aes(x=date,y= GDP ,color= "GDP"), size = 1.25) +
+  geom_line(data=SEP_UNCERTAINTY, aes(x=date,y= URATE ,color= "Unemployment"), size = 1.25) +
+  geom_line(data=SEP_UNCERTAINTY, aes(x=date,y= CORE ,color= "Core PCE Inflation"), size = 1.25) +
+  annotate("text", label = "Normal Uncertainty Levels ", x = as.Date("2009-01-01")+((today()-as.Date("2019-01-01"))/3), y = 0.0287, color = "white", alpha = 0.6, size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,1), breaks = c(0,0.25,0.5,0.75,1), expand = c(0,0)) +
+  ylab("Net % Saying Higher Than Normal Uncertainty") +
+  ggtitle("FOMC Uncertainty is High But Decreasing") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "A Smaller Majority of FOMC Participants Now Say Uncertainty is Above Normal") +
+  theme_apricitas + theme(legend.position = c(.56,.80)) +
+  scale_color_manual(name= "Net % of FOMC Participants Saying\nUncertainty is Above Normal For",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  theme(legend.key.width =  unit(.82, "cm"), legend.title = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-10-01")-(.1861*(today() - as.Date("2007-10-01"))), xmax = as.Date("2007-10-01")-(0.049*(today() - as.Date("2007-10-01"))), ymin = -.1-(.3*1.1), ymax = -.1) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SEP_UNCERTAINTY_GRAPH, "SEP UNCERTAINTY GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ggsave(dpi = "retina",plot = NFCI_Graph, "NFCI.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

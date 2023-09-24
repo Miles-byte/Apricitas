@@ -1,8 +1,8 @@
 pacman::p_load(httr,quantmod,tidyquant,datetime,yearmon,lubridate,readr,stringi,jsonlite,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
-pacman::p_load(eia)
-library(eia)
+devtools::install_github("jameelalsalam/eia2")
+library("eia2")
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -84,27 +84,39 @@ Capital_Discipline <- data.frame(answer = c("Capital Discipline","Other","ESG Is
 Capital_Discipline$answer <- factor(Capital_Discipline$answer, levels = c("Government Regulations","Lack of Access to Financing","ESG Issues","Other","Capital Discipline"), ordered = TRUE)
 
 #modeled crude production and real production data
-Crude_ProductionWeekly <- eia_series("PET.WCRFPUS2.W", start = "2019")
-Crude_ProductionWeekly <- as.data.frame(Crude_ProductionWeekly$data)
-Crude_ProductionMonthly <- eia_series("PET.MCRFPUS2.M", start = "2019")
-Crude_ProductionMonthly <- as.data.frame(Crude_ProductionMonthly$data)
+Crude_ProductionWeekly <- eia1_series("PET.WCRFPUS2.W") %>%
+  transmute(date = as.Date(period),value) %>%
+  filter(date >= as.Date("2019-01-01"))
+
+Crude_ProductionMonthly <- eia1_series("PET.MCRFPUS2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")),value) %>%
+  filter(date >= as.Date("2019-01-01"))
 
 #crude, gas, and diesel prices
-WTIEIA <- eia_series("PET.RWTC.D", start = 2019, end = today())
-WTIEIA <- as.data.frame(WTIEIA$data) %>% mutate(product = "Crude")
-GASEIA <- eia_series("PET.EER_EPMRU_PF4_RGC_DPG.D", start = "2019", end = today())
-GASEIA <- as.data.frame(GASEIA$data) %>% mutate(product = "Gasoline")
-DIESELEIA <- eia_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D", start = "2019", end = today())
-DIESELEIA <- as.data.frame(DIESELEIA$data) %>% mutate(product = "Diesel")
-DIESELEIA <- subset(DIESELEIA, date != as.Date("2022-02-21")) #random date has a 0 here, likely due to some error in EIA
-KEROSENEEIA <- eia_series("PET.EER_EPJK_PF4_RGC_DPG.D", start = "2019", end = today())
-KEROSENEEIA <- as.data.frame(KEROSENEEIA$data)  %>% mutate(product = "Kerosene_Jet")
+WTIEIA <- eia1_series("PET.RWTC.D") %>%
+  transmute(date = as.Date(period),value, product = "Crude") %>%
+  filter(date >= as.Date("2019-01-01") & value > 0.01)
 
-REFINERY_CAPACITY <- eia_series("PET.MOCLEUS2.M", start = "2019", end = today())
-REFINERY_CAPACITY <- as.data.frame(REFINERY_CAPACITY$data)
+GASEIA <- eia1_series("PET.EER_EPMRU_PF4_RGC_DPG.D") %>%
+  transmute(date = as.Date(period),value, product = "Gasoline") %>%
+  filter(date >= as.Date("2019-01-01") & value > 0.01)
 
-REFINERY_OPERATING_CAPACITY <- eia_series("PET.MOCGGUS2.M", start = "2019", end = today())
-REFINERY_OPERATING_CAPACITY <- as.data.frame(REFINERY_OPERATING_CAPACITY$data)
+DIESELEIA <- eia1_series("PET.EER_EPD2DXL0_PF4_RGC_DPG.D") %>%
+  transmute(date = as.Date(period),value, product = "Diesel") %>%
+  filter(date >= as.Date("2019-01-01") & value > 0.01)
+
+KEROSENEEIA <- eia1_series("PET.EER_EPJK_PF4_RGC_DPG.D") %>%
+  transmute(date = as.Date(period),value, product = "Kerosene_Jet") %>%
+  filter(date >= as.Date("2019-01-01") & value > 0.01)
+
+
+REFINERY_CAPACITY <- eia1_series("PET.MOCLEUS2.M")  %>%
+  transmute(date = as.Date(paste0(period,"-01")),value) %>%
+  filter(date >= as.Date("2019-01-01"))
+
+REFINERY_OPERATING_CAPACITY <- eia1_series("PET.MOCGGUS2.M")  %>%
+  transmute(date = as.Date(paste0(period,"-01")),value) %>%
+  filter(date >= as.Date("2019-01-01"))
 
 #SPR Levels
 SPR_LEVEL <- eia_series("PET.WCSSTUS1.W", start = "2019")
@@ -157,13 +169,13 @@ XOP_Graph <- ggplot() + #plotting returns to XOP
   coord_cartesian(clip = "off")
 
 Crude_Production_Graph <- ggplot() + #plotting US Crude Production
-  geom_line(data=Crude_ProductionMonthly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Monthly Official)"), size = 1.25) +
-  geom_line(data=Crude_ProductionWeekly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Weekly Estimates)"), size = 1.25) +
+  geom_line(data=Crude_ProductionMonthly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Monthly Official Data)"), size = 1.25) +
+  geom_line(data=Crude_ProductionWeekly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Weekly Modeled Estimates)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(9,14),breaks = c(9,10,11,12,13,14), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
-  ggtitle("Sand Trap") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production has not Recovered to Pre-Pandemic Levels, Despite the Jump in Prices") +
+  ggtitle("America's Oil Recovery") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is Closing in on Record High Levels") +
   theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 9-(.3*5), ymax = 9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -177,7 +189,7 @@ Refinery_Capacity_Graph <- ggplot() + #plotting US Crude Production
   ylab("Mbbl Per Day") +
   ggtitle("Unrefined Results") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refineries are Running at Nearly Full Capacity") +
-  theme_apricitas + theme(legend.position = c(.35,.42)) +
+  theme_apricitas + theme(legend.position = c(.25,.35)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 15-(.3*4), ymax = 15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -230,9 +242,9 @@ SPREADS_Graph <- ggplot() + #plotting Gas Prices
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are Easing But Still High-Especially for Diesel and Jet Fuel") +
-  theme_apricitas + theme(legend.position = c(.6,.80)) +
+  theme_apricitas + theme(legend.position = c(.3,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 Spreads_Rbind <- rbind(WTIEIA, GASEIA, DIESELEIA, KEROSENEEIA) %>% pivot_wider(names_from = product, values_from = value)
@@ -245,8 +257,8 @@ SPREADS_DISGraph <- ggplot() + #plotting Refinery Spreads
   scale_y_continuous(labels = scales::dollar_format(), limits = c(-10,125), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
   ggtitle("Dawn of the Spread") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Gasoline Spreads Have Eased-But Diesel and Jet Fuel Spreads Remain High") +
-  theme_apricitas + theme(legend.position = c(.6,.80)) +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Spreads for Refined Products Remain High") +
+  theme_apricitas + theme(legend.position = c(.4,.80)) +
   scale_color_manual(name= "Refinery Spreads" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -10-(.3*135), ymax = -10) +
   coord_cartesian(clip = "off")

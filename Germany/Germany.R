@@ -1,5 +1,4 @@
 pacman::p_load(seasonal,eurostat,rsdmx,wiesbaden,keyring,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
-
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
@@ -8,8 +7,17 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD")))
 save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
+test_login(genesis=c(db='de'))
 
 IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
+
+usethis::edit_r_environ()
+p_load(restatis)
+gen_auth_save()
+
+gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
+RESTATIS_KEY
+test <- gen_table("21311-0001")
 
 IPMAN_ENERGY <- IPMAN %>%
   subset(WZ08V1 %in% c("WZ08-C","WZ08-B-10")) %>% #taking manufacturing and energy intensive manufacturing data 
@@ -208,6 +216,9 @@ ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing
 
 #Downloading Quarterly 9 Digit Bulk Industrial Production Data
 IP_9DIGIT_BULK <- retrieve_data(tablename = "42131BV203", genesis=c(db='de')) 
+
+#GERMAN PRODUCT CLASSIFICATION LIST: https://www.klassifikationsserver.de/klassService/jsp/variant/variantList.jsf?form:_idcl=form:tree:0:4:0:0:link_version_select_plus&form_SUBMIT=1&autoScroll=&javax.faces.ViewState=rO0ABXVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAAAAJ1cQB%2BAAAAAAACdAABOHB0ABwvanNwL3ZhcmlhbnQvdmFyaWFudExpc3QuanNw
+#GP19-261122403 SOLAR PANELS
 
 IP_EV_EURO <- IP_9DIGIT_BULK %>%
   subset(GP19A9 %in% c("GP19-291024500","GP19-291024300")) %>%
