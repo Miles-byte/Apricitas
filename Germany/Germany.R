@@ -12,12 +12,12 @@ test_login(genesis=c(db='de'))
 IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
 
 usethis::edit_r_environ()
-p_load(restatis)
-gen_auth_save()
+#p_load(restatis)
+#gen_auth_save()
 
-gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
-RESTATIS_KEY
-test <- gen_table("21311-0001")
+#gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
+#RESTATIS_KEY
+#test <- gen_table("21311-0001")
 
 IPMAN_ENERGY <- IPMAN %>%
   subset(WZ08V1 %in% c("WZ08-C","WZ08-B-10")) %>% #taking manufacturing and energy intensive manufacturing data 
@@ -256,7 +256,6 @@ EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-
 ggsave(dpi = "retina",plot = EV_STACKED_EURO_graph, "Germany EV Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EV_STACKED_NUMBER_graph, "Germany EV Stacked Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
@@ -278,7 +277,25 @@ HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = HEATPUMP_NUMBER_graph, "Germany Heat Pump Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+SOLAR_NUMBER <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 == c("GP19-261122403")) %>%
+  mutate(GP19A9 = gsub("GP19-261122403","Solar Panels",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+SOLAR_NUMBER_graph <- ggplot(data = SOLAR_NUMBER, aes(x = date, y = value/1000000, fill = "German Quarterly Production, Millions of Solar Panels")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Thousands of Solar Panels") +
+  ggtitle("Germany's Solar Power Surge") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"), breaks = c(0,.250,.500,.750,1.000,1.250), limits = c(0,1.250), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Solar Panels Produced is Rebounding amidst the Energy Transition") +
+  theme_apricitas + theme(legend.position = c(.425,.95)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1.250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SOLAR_NUMBER_graph, "Germany Solar Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 HICP <- get_eurostat("prc_hicp_manr")
 
