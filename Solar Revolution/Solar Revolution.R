@@ -274,6 +274,10 @@ US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
 
 ggsave(dpi = "retina",plot = US_EV_IMPORTS_BREAKDOWN_GRAPH, "US EV Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+#US SOLAR PRODUCTION
 
-  
+8506
+8507
+BATTERIES
+
 #Add Lithium Ion Batteries
