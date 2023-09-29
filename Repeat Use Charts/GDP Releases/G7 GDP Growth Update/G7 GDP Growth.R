@@ -1,4 +1,4 @@
-pacman::p_load(jsonlite,eurostat,statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(readabs,jsonlite,eurostat,statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -123,8 +123,8 @@ UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/econ
 GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), language = "en") %>%
   subset(VGRPB5 == "VGRPKM") %>%
   subset(WERT05 == "X13JDKSB") %>%
-  select(JAHR, QUARTG, BIP004_val) %>%
-  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = BIP004_val) %>%
+  select(JAHR, QUARTG, SUB003_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = SUB003_val) %>%
   arrange(date) %>%
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
@@ -175,7 +175,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
-  #geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
+  geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
   geom_line(data=ITA_PER_CAPITA, aes(x=date,y= value,color= "Italy"), size = 1.25) +
   geom_line(data=FRA_PER_CAPITA, aes(x=date,y= value,color= "France"), size = 1.25) +
   geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
@@ -188,7 +188,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("GDP Per Capita Growth in the G7") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and the UK Has Had the Largest GDP Per Capita Decline") +
-  theme_apricitas + theme(legend.position = c(.2,.30)) +
+  theme_apricitas + theme(legend.position = c(.2,.31)) +
   scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")
