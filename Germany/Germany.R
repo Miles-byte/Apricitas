@@ -9,15 +9,16 @@ test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.get
 save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
 test_login(genesis=c(db='de'))
 
-IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
-
 usethis::edit_r_environ()
-#p_load(restatis)
-#gen_auth_save()
 
-#gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
-#RESTATIS_KEY
-#test <- gen_table("21311-0001")
+p_load(restatis)
+gen_auth_save(RESTATIS_KEY)
+
+gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
+RESTATIS_KEY
+IP_9DIGIT_BULK <- gen_table("42131-0002")
+
+IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
 
 IPMAN_ENERGY <- IPMAN %>%
   subset(WZ08V1 %in% c("WZ08-C","WZ08-B-10")) %>% #taking manufacturing and energy intensive manufacturing data 
