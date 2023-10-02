@@ -9,6 +9,8 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 install_github("seokhoonj/ecos", force = TRUE)
 library("ecos")
 
+ecos.setKey('2DNSQWJY32YGLL8EM95R')
+
 list <- statTableList(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en")
 
 WONUSD <- fredr(series_id = "DEXKOUS", observation_start = as.Date("2018-01-01")) %>%
@@ -29,7 +31,7 @@ WONUSD_Graph <- ggplot() + #plotting Dollar Won Exchange Rate
 ggsave(dpi = "retina",plot = WONUSD_Graph, "WONUSD Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #EDIT OUT API KEY
-GDP <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "200Y004", item_code1 = "1400", start_time = "2018Q1", cycle = "Q") %>% 
+GDP <- statSearch(lang = "en",stat_code = "200Y004", item_code1 = "1400", start_time = "2018Q1", cycle = "Q") %>% 
   mutate(time = as.Date(as.yearqtr(time, "%YQ%q")))
 
 GDP_Graph <- ggplot() + #plotting US Crude Production
@@ -46,11 +48,11 @@ GDP_Graph <- ggplot() + #plotting US Crude Production
 
 ggsave(dpi = "retina",plot = GDP_Graph, "GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-INDPRO <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "901Y033", item_code1 = "AB00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
+INDPRO <- statSearch(lang = "en",stat_code = "901Y033", item_code1 = "AB00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
-SERVPRO <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "901Y033", item_code1 = "AC00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
+SERVPRO <- statSearch(lang = "en",stat_code = "901Y033", item_code1 = "AC00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
-CONSPRO <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "901Y033", item_code1 = "AD00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
+CONSPRO <- statSearch(lang = "en",stat_code = "901Y033", item_code1 = "AD00", item_code2 = "2", start_time = "201812", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 PRO_Graph <- ggplot() + #plotting US Crude Production
@@ -58,18 +60,18 @@ PRO_Graph <- ggplot() + #plotting US Crude Production
   geom_line(data=SERVPRO, aes(x=time,y= data_value/data_value[1]*100, color= "Services"), size = 1.25) +
   geom_line(data=INDPRO, aes(x=time,y= data_value/data_value[1]*100, color= "Industry"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(90,117.5),breaks = c(90,95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(limits = c(90,120),breaks = c(90,95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index: Dec 2018 = 100") +
   ggtitle("Korea's Economic Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "South Korea's Slowdown Has Been Driven by a Massive Fall in Industrial Output") +
   theme_apricitas + theme(legend.position = c(.35,.85)) +
   scale_color_manual(name= "Production Index, South Korea" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Industry", "Services", "Construction")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-12-01")-(.1861*(today()-as.Date("2018-12-01"))), xmax = as.Date("2018-12-01")-(0.049*(today()-as.Date("2018-12-01"))), ymin = 90-(.3*27.5), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-12-01")-(.1861*(today()-as.Date("2018-12-01"))), xmax = as.Date("2018-12-01")-(0.049*(today()-as.Date("2018-12-01"))), ymin = 90-(.3*30), ymax = 90) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = PRO_Graph, "PRO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-INDPRO_CAR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "901Y032", item_code1 = "I11ACU",item_code2 = "2", start_time = "201801", cycle = "M") %>%
+INDPRO_CAR <- statSearch(lang = "en",stat_code = "901Y032", item_code1 = "I11ACU",item_code2 = "2", start_time = "201801", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 KOREA_IP_CARS_graph <- ggplot() + #plotting MOVE
@@ -78,7 +80,7 @@ KOREA_IP_CARS_graph <- ggplot() + #plotting MOVE
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,140), breaks = c(60,80,100,120,140), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("Korea's Car Industry") +
-  labs(caption = "Graph created by @JosephPolitano using KOSTAT Data",subtitle = "South Korean Vehicle Production Is at a Record High") +
+  labs(caption = "Graph created by @JosephPolitano using KOSTAT Data",subtitle = "South Korean Vehicle Production Has More than Recovered From COVID") +
   theme_apricitas + theme(legend.position = c(.425,.85)) +
   scale_color_manual(name= "Industrial Production, South Korea",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 60-(.3*80), ymax = 60) +
@@ -86,10 +88,10 @@ KOREA_IP_CARS_graph <- ggplot() + #plotting MOVE
 
 ggsave(dpi = "retina",plot = KOREA_IP_CARS_graph, "Korea IP Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-BUS_NATIONAL_TENDENCY_EXPORTS <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "512Y015", item_code1 = "C0000", item_code2 = "AM",start_time = "201801", cycle = "M") %>%
+BUS_NATIONAL_TENDENCY_EXPORTS <- statSearch(lang = "en",stat_code = "512Y015", item_code1 = "C0000", item_code2 = "AM",start_time = "201801", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
-BUS_NATIONAL_TENDENCY_PRODUCTION <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "512Y015", item_code1 = "C0000", item_code2 = "AC", start_time = "201801", cycle = "M") %>%
+BUS_NATIONAL_TENDENCY_PRODUCTION <- statSearch(lang = "en",stat_code = "512Y015", item_code1 = "C0000", item_code2 = "AC", start_time = "201801", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 
@@ -110,7 +112,7 @@ BSI_Graph <- ggplot() + #plotting US Crude Production
 ggsave(dpi = "retina",plot = BSI_Graph, "BSI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-NETEXP <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "301Y017", item_code1 = "SA100", start_time = "201801", cycle = "M") %>%
+NETEXP <- statSearch(lang = "en",stat_code = "301Y017", item_code1 = "SA100", start_time = "201801", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 NETEXP_Graph <- ggplot() + #plotting US Crude Production
@@ -128,9 +130,9 @@ NETEXP_Graph <- ggplot() + #plotting US Crude Production
 
 ggsave(dpi = "retina",plot = NETEXP_Graph, "NETEXP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-EXP_PRICE <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014",start_time = "201801", item_code1 = "*AA", item_code2 = "C", cycle = "M") %>%
+EXP_PRICE <- statSearch(lang = "en",stat_code = "402Y014",start_time = "201801", item_code1 = "*AA", item_code2 = "C", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
-IMP_PRICE <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "401Y015",start_time = "201801", item_code1 = "*AA", item_code2 = "C", cycle = "M") %>%
+IMP_PRICE <- statSearch(lang = "en",stat_code = "401Y015",start_time = "201801", item_code1 = "*AA", item_code2 = "C", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 EXP_IMP_PI_Graph <- ggplot() + #plotting US Crude Production
@@ -191,9 +193,9 @@ NETEXP_FOOD_ENERGY_Graph <- ggplot() + #plotting US Crude Production
 
 ggsave(dpi = "retina",plot = NETEXP_FOOD_ENERGY_Graph, "NETEXP Food Energy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-EXP_PRICE_SEMICONDUCTOR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "3091AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
+EXP_PRICE_SEMICONDUCTOR <- statSearch(lang = "en",stat_code = "402Y014", item_code1 = "3091AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
-EXP_PRICE_COMPUTER <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "309AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
+EXP_PRICE_COMPUTER <- statSearch(lang = "en",stat_code = "402Y014", item_code1 = "309AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting US Crude Production
@@ -212,7 +214,6 @@ EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting US Crude Productio
 ggsave(dpi = "retina",plot = EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph, "NETEXP Chips Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-?statSearch
 #ADD KOSSIS DATA NEXT TIME
 p_unload(all)  # Remove all packages using the package manager
 

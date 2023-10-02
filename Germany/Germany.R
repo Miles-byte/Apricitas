@@ -12,7 +12,7 @@ test_login(genesis=c(db='de'))
 usethis::edit_r_environ()
 
 p_load(restatis)
-gen_auth_save(RESTATIS_KEY)
+gen_auth_save()
 
 gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
 RESTATIS_KEY

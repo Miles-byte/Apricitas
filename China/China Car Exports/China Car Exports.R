@@ -141,6 +141,20 @@ IND_PRO_MV_NEV_SHARE_GRAPH <- ggplot() + #plotting Chinese Semiconductor Product
 
 ggsave(dpi = "retina",plot = IND_PRO_MV_NEV_SHARE_GRAPH, "China Ind Pro NEV Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+IND_PRO_NEV_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
+  geom_line(data= IND_PRO_NEV_RBIND, aes(x=date,y=`Output of New Energy Vehicles, Current Period`/100 ,color= "Chinese Industrial Production\nNew Energy (BEV and PHEV) Motor Vehicles, Monthly"), size = 1.25) +
+  #geom_line(data= filter(IND_PRO_MV, date > as.Date("1993-01-01")), aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"),limits = c(0,1), breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Units, Monthly") +
+  ggtitle("Chinese New Energy Vehicle Production") +
+  labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese New Energy Vehicle Production is Surging, Exceeding 800k a Month") +
+  theme_apricitas + theme(legend.position = c(.415,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_NEV_RBIND$date)-(.1861*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), xmax = min(IND_PRO_NEV_RBIND$date)-(0.049*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = IND_PRO_NEV_GRAPH, "China Ind Pro NEV Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 FIXED_INVESTMENT_CAR <- statscnQueryData('A0403',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") %>%
   mutate(date = as.Date(as.yearmon(rownames(.))))
