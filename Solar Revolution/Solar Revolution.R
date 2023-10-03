@@ -4,6 +4,10 @@ pacman::p_load(readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,rem
 install_github("pcdi/rstatscn")
 library(rstatscn)
 
+devtools::install_github("jameelalsalam/eia2")
+library("eia2")
+
+
 #statscnQueryZb(dbcode='hgyd', lang = "en") #lists all datasets with monthly national data
 #statscnQueryZb(dbcode='hgjd', lang = "en") #lists all datasets with quarterly national data
 #statscnQueryZb('A08',dbcode='hgyd', lang = "en")
@@ -695,3 +699,56 @@ Lithium_Exports_Graph <- ggplot() + #plotting Australian Lithium Exports
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Lithium_Exports_Graph, "Lithium Exports AUS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_COAL <- eia1_series("ELEC.GEN.COW.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Coal", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_NATGAS <- eia1_series("ELEC.GEN.NG.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Natural Gas", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_NUCLEAR <- eia1_series("ELEC.GEN.NUC.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_HYDRO <- eia1_series("ELEC.GEN.HYC.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_WIND <- eia1_series("ELEC.GEN.WND.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Wind", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_SOLAR <- eia1_series("ELEC.GEN.TSN.US.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+  
+US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(US_COAL, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Coal"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NATGAS, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Natural Gas"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NUCLEAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Nuclear"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_HYDRO, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Hydro"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_WIND, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Wind"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_COAL, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Coal"), size = 1.25) +
+  geom_line(data= filter(US_NATGAS, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Natural Gas"), size = 1.25) +
+  geom_line(data= filter(US_NUCLEAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Nuclear"), size = 1.25) +
+  geom_line(data= filter(US_HYDRO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Hydro"), size = 1.25) +
+  geom_line(data= filter(US_WIND, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Wind"), size = 1.25) +
+  geom_line(data= filter(US_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Solar"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_NATGAS$value)/10000)*10), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("America's Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_NATGAS$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_GRAPH, "US Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+

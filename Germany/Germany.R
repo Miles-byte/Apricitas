@@ -5,8 +5,8 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD")))
-save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
+#test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD")))
+#save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
 test_login(genesis=c(db='de'))
 
 usethis::edit_r_environ()
@@ -217,7 +217,7 @@ ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing
 
 #Downloading Quarterly 9 Digit Bulk Industrial Production Data
 IP_9DIGIT_BULK <- retrieve_data(tablename = "42131BV203", genesis=c(db='de')) 
-
+write.csv(IP_9DIGIT_BULK,"IP_9DIGIT_BULK_BACKUP.csv") #downloading this data fails so often that I am manually saving it as a CSV for easier use
 #GERMAN PRODUCT CLASSIFICATION LIST: https://www.klassifikationsserver.de/klassService/jsp/variant/variantList.jsf?form:_idcl=form:tree:0:4:0:0:link_version_select_plus&form_SUBMIT=1&autoScroll=&javax.faces.ViewState=rO0ABXVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAAAAJ1cQB%2BAAAAAAACdAABOHB0ABwvanNwL3ZhcmlhbnQvdmFyaWFudExpc3QuanNw
 #GP19-261122403 SOLAR PANELS
 
@@ -277,6 +277,8 @@ HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HEATPUMP_NUMBER_graph, "Germany Heat Pump Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 SOLAR_NUMBER <- IP_9DIGIT_BULK %>%
@@ -628,13 +630,14 @@ ggsave(dpi = "retina",plot = GERMAN_GFCF_PRIVATE_EQUIPMENT_graph, "GER GFCF PRIV
 GERMAN_GFCF_EQUIPMENT_CATEGORIES <- retrieve_data(tablename = "81000BV009", genesis=c(db='de'), language = "en") %>%
   subset(VGRPB5 == "VGRPVK") %>%
   subset(WERT05 == "X13JDKSB") %>%
-  select(JAHR, QUARTG, VGR008_val, INV006_val, INV012_val) %>%
-  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), Equipment = VGR008_val, Machines = INV006_val, Vehicles = INV012_val) %>%
+  select(JAHR, QUARTG, VGR008_val, VGR041_lock, VGR008_lock) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), Equipment = VGR041_lock, Machines = VGR008_val, Vehicles = VGR008_lock) %>%
   arrange(date) %>%
   subset(date >= as.Date("2016-01-01")) %>%
   mutate(across(where(is.numeric), ~if_else(.x == 0, NA_real_, .x))) %>%
   mutate(across(where(is.numeric), ~ .x / .x[9]*100))
 
+#MACHINERY AND OTHER DEVICES PLUS VEHICLES DEFINITELY WRONG
 GERMAN_GFCF_EQUIPMENT_CATEGORIES_graph <- ggplot() + #plotting Fixed Investment
   geom_line(data=GERMAN_GFCF_EQUIPMENT_CATEGORIES, aes(x=date,y= Machines,color="Equipment: Machinery and Other Devices"), size = 1.25) +
   geom_line(data=GERMAN_GFCF_EQUIPMENT_CATEGORIES, aes(x=date,y= Vehicles,color="Equipment: Vehicles"), size = 1.25) +
