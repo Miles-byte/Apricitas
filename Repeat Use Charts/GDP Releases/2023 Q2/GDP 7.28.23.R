@@ -728,6 +728,8 @@ GDPMonthlyContribBEA_Graph <- ggplot(RGDP_Contributions, aes(fill=name, x=date, 
 
 ggsave(dpi = "retina",plot = GDPMonthlyContribBEA_Graph, "GDP Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+
 PRIVATE_SALES_Specs <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -1372,6 +1374,79 @@ RPCE_PC_RECESSION_GRAPH <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RPCE_PC_RECESSION_GRAPH, "PCE Per Capita Recession Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+PCE_PRICE_INDEX_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T20804',
+  'Frequency' = 'M',
+  'Year' = paste(seq(from = 2016, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+PCE_PRICE_INDEX <- beaGet(PCE_PRICE_INDEX_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2017-01-01"), length.out = nrow(.), by = "1 month"))) %>%
+  clean_names() %>%
+  drop_na() %>%
+  select(date, t20804_dpcerg_1_personal_consumption_expenditures_pce_fisher_price_index_level_0, t20804_dpccrg_25_pce_excluding_food_and_energy_fisher_price_index_level_0, t20804_ia001260_28_pce_services_excluding_energy_and_housing_fisher_price_index_level_0) %>%
+  setNames(c("date","pce","pce_lfe","pce_nhs")) %>%
+  arrange(date) %>%
+  transmute(date, pce = (pce-lag(pce,12))/lag(pce,12),pce_lfe = (pce_lfe-lag(pce_lfe,12))/lag(pce_lfe,12), pce_nhs = (pce_nhs-lag(pce_nhs,12))/lag(pce_nhs,12)) %>%
+  drop_na()
+
+PCE_PRICE_INDEX_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=PCE_PRICE_INDEX, aes(x=date,y= pce, color= "Headline PCE Inflation"), size = 1.25) +
+  geom_line(data=PCE_PRICE_INDEX, aes(x=date,y= pce_lfe, color= "PCE Less Food and Energy Inflation"), size = 1.25) +
+  geom_line(data=PCE_PRICE_INDEX, aes(x=date,y= pce_nhs, color= "Core PCE Services Ex Housing Inflation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07), limits = c(0,.072), expand = c(0,0)) +
+  ylab("Percent Growth, Year on Year") +
+  ggtitle("Inflation Continues Cooling") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "PCE Inflation Has Decelerated—With Headline Data Falling The Fastest") +
+  theme_apricitas + theme(legend.position = c(.34,.89)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Headline PCE Inflation","PCE Less Food and Energy Inflation","Core PCE Services Ex Housing Inflation")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(.1861*(today()-as.Date("2018-01-01")))), ymin = 0-(.3*.072), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_PRICE_INDEX_Graph, "PCE Price Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FIXED_NOMINAL_STRUCTURE_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50405',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2010, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_NOMINAL_STRUCTURE_INVEST <- beaGet(FIXED_NOMINAL_STRUCTURE_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2010-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+ALT_POWER_FIXED_INVEST <- FIXED_NOMINAL_STRUCTURE_INVEST %>%
+  select(date,u50405_la001174_18_alternative_electric_current_dollars_level_6,u50405_la001175_19_all_other_electric_current_dollars_level_6) %>%
+  setNames(c("date","Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)")) %>%
+  pivot_longer(cols = -date) %>%
+  mutate(name = factor(name, levels = rev(c("Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)"))))
+
+ALT_POWER_FIXED_INVEST_graph <- ggplot(data = ALT_POWER_FIXED_INVEST, aes(x = date, y = value/1000, fill = name)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Dollars") +
+  ggtitle("America's Changing Power Investments") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,25,50,75,100), limits = c(0,115), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "New BEA Data Shows that Alternative Energy is Making Up a Higher Share of Power Investment") +
+  theme_apricitas + theme(legend.position = c(.425,.89)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Nominal Fixed Investment in Structures",values = c("#EE6055","#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*115), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ALT_POWER_FIXED_INVEST_graph, "Alt Power Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 ##BEA STATE GRAPH
