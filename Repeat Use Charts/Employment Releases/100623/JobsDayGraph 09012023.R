@@ -1466,7 +1466,7 @@ NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Inc
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1.25, linetype = "dashed") +
-  annotate("text", label = "5% Long-Run Pre-COVID Norm",y = 0.054, x = as.Date("2019-02-20"), color = "white", size = 3.5) +
+  annotate("text", label = "5% Long-Run Pre-COVID Norm",y = 0.054, x = as.Date("2019-06-20"), color = "white", size = 3.5) +
   annotate("text", label = "*Note: Q1-Q3 2020 Excluded Because of Volatility",y = 0.08, x = as.Date("2019-02-01"), color = "white", size = 3.5) +
   #geom_point(data = RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
   #guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +

@@ -32,19 +32,21 @@ US_ENERGY_IMPORTS <- getCensus(
   select(time, value)
 
 US_ENERGY_NET_EXP_MERGE <- merge(US_ENERGY_IMPORTS,US_ENERGY_EXPORTS, by = "time") %>%
-  mutate(Net = value.y-value.x)
+  mutate(Net = value.y-value.x) %>%
+  mutate(rollmean = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(Net,12)))
 
 US_ENERGY_NET_EXP_Graph <- ggplot() + #plotting nat gas exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_line(data = US_ENERGY_NET_EXP_MERGE, aes(x = time, y = Net/1000000000, color = "US Net Energy Exports"), size = 1.25) +
+  geom_line(data = US_ENERGY_NET_EXP_MERGE, aes(x = time, y = Net*12/1000000000, color = "US Net Energy Exports"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  geom_line(data = US_ENERGY_NET_EXP_MERGE, aes(x = time, y = rollmean/1000000000, color = "US Net Energy Exports"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-25,10), breaks = c(-25,-20,-15,-10,-5,0,5,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-300,150), breaks = c(-300,-250,-200,-150,-100,-50,0,50,100,150), expand = c(0,0)) +
   ylab("Dollars") +
   ggtitle("The US is Now an Energy Exporter") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "US Net Energy Exports are at a Modern Record High") +
-  theme_apricitas + theme(legend.position = c(.20,.90)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = -25-(.3*35), ymax = -25) +
+  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  scale_color_manual(name= "Dashed = Monthly Annualized, Solid = 12M Moving Total",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = -300-(.3*450), ymax = -300) +
   coord_cartesian(clip = "off")
 
 #US Import Price Index Growth

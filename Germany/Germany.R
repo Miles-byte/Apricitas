@@ -5,18 +5,19 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-#test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD")))
-#save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
+test_login(genesis=c(db='de', user=Sys.getenv("DE647235M8"), password=Sys.getenv("PleaseWork23")))
+save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
 test_login(genesis=c(db='de'))
 
-usethis::edit_r_environ()
+#Attempts using the Restatis Key
+#usethis::edit_r_environ()
 
-p_load(restatis)
-gen_auth_save()
+#p_load(restatis)
+#gen_auth_save()
 
-gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
-RESTATIS_KEY
-IP_9DIGIT_BULK <- gen_table("42131-0002")
+#gen_val2var("WAM8", selection = "WA29*", searchcriterion = "code")
+#RESTATIS_KEY
+#IP_9DIGIT_BULK <- gen_table("42131-0002")
 
 IPMAN <- retrieve_data(tablename = "42153BM001", genesis=c(db='de'))
 
@@ -217,6 +218,7 @@ ggsave(dpi = "retina",plot = CAR_MANUFACTURING_graph, "Germany car Manufacturing
 
 #Downloading Quarterly 9 Digit Bulk Industrial Production Data
 IP_9DIGIT_BULK <- retrieve_data(tablename = "42131BV203", genesis=c(db='de')) 
+
 write.csv(IP_9DIGIT_BULK,"IP_9DIGIT_BULK_BACKUP.csv") #downloading this data fails so often that I am manually saving it as a CSV for easier use
 #GERMAN PRODUCT CLASSIFICATION LIST: https://www.klassifikationsserver.de/klassService/jsp/variant/variantList.jsf?form:_idcl=form:tree:0:4:0:0:link_version_select_plus&form_SUBMIT=1&autoScroll=&javax.faces.ViewState=rO0ABXVyABNbTGphdmEubGFuZy5PYmplY3Q7kM5YnxBzKWwCAAB4cAAAAAJ1cQB%2BAAAAAAACdAABOHB0ABwvanNwL3ZhcmlhbnQvdmFyaWFudExpc3QuanNw
 #GP19-261122403 SOLAR PANELS
@@ -260,6 +262,82 @@ EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1
 ggsave(dpi = "retina",plot = EV_STACKED_EURO_graph, "Germany EV Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EV_STACKED_NUMBER_graph, "Germany EV Stacked Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+IP_CAR_BREAKDOWN <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 %in% c("GP19-291024900","GP19-291024100","GP19-291023450","GP19-291023300","GP19-291023150","GP19-291022307","GP19-291022306","GP19-291022303","GP19-291021009","GP19-291021001","GP19-291024500","GP19-291024300")) %>%
+  mutate(GP19A9 = gsub("GP19-291024900", "Other Incl. Natural Gas",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291024100", "Traditional Hybrid",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291023450", "Diesel Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291023450", "Diesel Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291023300", "Diesel Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291023150", "Diesel Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291022307", "Gasoline Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291022306", "Gasoline Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291022303", "Other Incl. Natural Gas",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291021009", "Gasoline Internal Combustion Engine Only",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291021001", "Other Incl. Natural Gas",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291024500", "Battery Electric Vehicles",GP19A9)) %>%
+  mutate(GP19A9 = gsub("GP19-291024300", "Plug-in Hybrids",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q"))) %>%
+  group_by(category, date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  filter(!(category %in% c("Other Incl. Natural Gas","Traditional Hybrid"))) %>%
+  filter(date >= as.Date("2019-07-01")) %>%
+  mutate(category = factor(category, levels = rev(c("Battery Electric Vehicles","Plug-in Hybrids","Diesel Internal Combustion Engine Only","Gasoline Internal Combustion Engine Only"))))
+
+CAR_BREAKDOWN_STACKED_NUMBER_graph <- ggplot(data = IP_CAR_BREAKDOWN, aes(x = date, y = value/1000000, fill = category)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Number of Vehicles") +
+  ggtitle("German Car Production by Engine") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .25, suffix = "M"), breaks = c(0,.25,.5,0.75,1,1.25), limits = c(0,1.25), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced is Rapidly Growing as the Industry Retools") +
+  theme_apricitas + theme(legend.position = c(.525,.92)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#9A348E","#EE6055","#3083DC","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids", "Diesel Internal Combustion Engine Only","Gasoline Internal Combustion Engine Only"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-07-01")-(.1861*(today()-as.Date("2019-07-01"))), xmax = as.Date("2019-07-01")-(0.049*(today()-as.Date("2019-07-01"))), ymin = 0-(.3*1.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAR_BREAKDOWN_STACKED_NUMBER_graph, "Germany Carb Breakdown Stacked Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#BATTERY MANUFACTURING EUROS DATA
+BATTERY_NUMBER <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 == "GP19-272023000") %>%
+  transmute(category = "Lithium-ion and Other Non-Lead Batteries", value = PRODAW_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+BATTERY_NUMBER_graph <- ggplot(data = BATTERY_NUMBER, aes(x = date, y = value/1000000000, fill = category)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Euros") +
+  ggtitle("The German Battery Surge") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = .25, suffix = "B", prefix = "€"), breaks = c(0,0.25,0.5,0.75,1,1.25), limits = c(0,ceiling(max(BATTERY_NUMBER$value/50000000)/2)/10), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Value of German EV Output is Rapidly Growing as the Industry Retools") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Value of German Quarterly Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*(ceiling(max(BATTERY_NUMBER$value/50000000)/2)/10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BATTERY_NUMBER_graph, "Germany Battery Value Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+WIND_TURBINE <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 == "GP19-281124000") %>%
+  mutate(GP19A9 = gsub("GP19-281124000","Wind Turbines",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+WIND_TURBINE_graph <- ggplot(data = WIND_TURBINE, aes(x = date, y = value, fill = "German Quarterly Production, Wind Turbines")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Number of Wind Turbines") +
+  ggtitle("Germany's Wind Turbine Struggles") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,150,300,450,600), limits = c(0,ceiling(max(WIND_TURBINE$value)/50)*50), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Wind Turbine Output Has Fallen Over the Last Year") +
+  theme_apricitas + theme(legend.position = c(.425,.975)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*(ceiling(max(WIND_TURBINE$value)/50)*50)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = WIND_TURBINE_graph, "Germany Wind Turbine Output.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 HEATPUMP_NUMBER <- IP_9DIGIT_BULK %>%
   subset(GP19A9 %in% c("GP19-282513801","GP19-282513809")) %>%
   mutate(GP19A9 = gsub("GP19-282513801","Heat Pump",GP19A9)) %>%
@@ -298,7 +376,28 @@ SOLAR_NUMBER_graph <- ggplot(data = SOLAR_NUMBER, aes(x = date, y = value/100000
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1.250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+BATTERY_EURO <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 == c("GP19-261122403")) %>%
+  mutate(GP19A9 = gsub("GP19-261122403","Solar Panels",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+
 ggsave(dpi = "retina",plot = SOLAR_NUMBER_graph, "Germany Solar Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#IP_9_DIGIT_ANALYSIS
+IP_9DIGIT_ANALYSIS <- IP_9DIGIT_BULK %>%
+  mutate(date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q"))) %>%
+  mutate(month = month(date), year = year(date))
+
+IP_9DIGIT_ANALYSIS <- IP_9DIGIT_ANALYSIS %>%
+  group_by(GP19A9, month) %>%
+  filter(year == 2019) %>%
+  summarize(ref_val = mean(PRO006_val)) %>%
+  right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
+  mutate(percent_change = ((PRO006_val - ref_val) / ref_val) * 100) %>%
+  select(-ref_val) %>%
+  #filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9))
 
 HICP <- get_eurostat("prc_hicp_manr")
 
@@ -716,6 +815,32 @@ ORDER_BACKLOG_WEAPONS_graph <- ggplot() + #plotting energy intensive manufacturi
 
 ggsave(dpi = "retina",plot = ORDER_BACKLOG_WEAPONS_graph, "Weapon Order Backlog graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+IPMAN_BATTERIES <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 == "WZ08-272") %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 == "X13JDKB") %>% #calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[1]*100))
+
+IPMAN_BATTERIES_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=subset(IPMAN_BATTERIES, date >= as.Date("2018-01-01")), aes(x=date,y= value,color="Industrial Production of Batteries and Accumulators, Germany, Seasonally Adjusted"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(IPMAN_BATTERIES$value)/10)*10)), expand = c(0,0)) +
+  ylab("Volume Index, Jan 2018 = 100") +
+  ggtitle("German Battery Production") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "Real German Battery Production is Up Significantly Over the Last 4 Years") +
+  theme_apricitas + theme(legend.position = c(.52,.175)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(IPMAN_BATTERIES$value)/10)*10)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = IPMAN_BATTERIES_graph, "IPMAN BATTERY graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+
 TRUCK_TOLL_MILEAGE_INDEX <- retrieve_data(tablename = "42191BM001", genesis=c(db='de')) %>%
   filter(WERT03 == "X13JDKSB") %>%
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
@@ -839,6 +964,65 @@ WEAPON_NUMBER_GRAPH <- ggplot(data = subset(IP_WEAPON_9DIGIT, category == "Round
   scale_fill_manual(name= "German Quarterly Production:",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+
+MANU_EMP <- retrieve_datalist(tableseries = "42111*",genesis=c(db='de'), language = "en")
+
+MANU_EMP_AGG <- retrieve_data(tablename = "42111BM001", genesis=c(db='de'))
+MANU_EMP_2DIGIT <- retrieve_data(tablename = "42111BM002", genesis=c(db='de'))
+MANU_EMP_3DIGIT <- retrieve_data(tablename = "42111BM003", genesis=c(db='de'))
+
+MANU_EMP_2DIGIT_EDIT <- MANU_EMP_2DIGIT %>%
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  filter(BTRFT1 == "BETRIEBE") %>%
+  filter(WZ08X2 %in% c("WZ08-20","WZ08-23","WZ08-24","WZ08-17","WZ08-19","WZ08-29")) %>%
+  transmute(name = WZ08X2, date, value = ERH001_lock) %>%
+  pivot_wider() %>%
+  transmute(date, `Energy Intensive Manufacturing` = `WZ08-17`+`WZ08-19`+`WZ08-20`+`WZ08-23`+`WZ08-24`, `Motor Vehicle and Parts Manufacturing` = `WZ08-29`)
+  
+MANU_EMP_AGG_EDIT <- MANU_EMP_AGG %>%
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  filter(BTRFT1 == "BETRIEBE") %>%
+  transmute(name = WZ08M1, date, value = ERH001_lock) %>%
+  pivot_wider() %>%
+  transmute(date, `Total Manufacturing` = `WZ08-C`)
+  
+MANUFACTURING_EMPLOYMENT_graph <- ggplot() + #plotting manufacturing output
+  geom_line(data=filter(MANU_EMP_AGG_EDIT, date >= as.Date("2016-01-01")), aes(x=date,y= `Total Manufacturing`/1000000,color="German Manufacturing Employment"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .1, suffix = "M"),limits = c(5.3,(ceiling(max(MANU_EMP_AGG_EDIT$`ERH001_lock`)/50000)/20)), expand = c(0,0)) +
+  ylab("Employment, Millions") +
+  ggtitle("German Manufacturing Jobs Haven't Recovered") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Manufacturing Employment Still Sits Well Below Pre-Pandemic Levels") +
+  theme_apricitas + theme(legend.position = c(.52,.15), plot.title = element_text(size = 24)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 5.3-(.3*((ceiling(max(MANU_EMP_AGG_EDIT$`ERH001_lock`)/50000)/20)-5.3)), ymax = 5.3) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MANUFACTURING_EMPLOYMENT_graph, "Manufacturing Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+MANU_CHANGE_BREAKDOWN <- merge(MANU_EMP_2DIGIT_EDIT,MANU_EMP_AGG_EDIT) %>%
+  transmute(date, `Energy Intensive Manufacturing`, `Motor Vehicle and Parts Manufacturing`, `All Other Manufacturing` = `Total Manufacturing`-`Energy Intensive Manufacturing`-`Motor Vehicle and Parts Manufacturing`) %>%
+  filter(date >= as.Date("2019-09-01")) %>%
+  mutate(across(where(is.numeric), ~ . - .[1])) %>%
+  pivot_longer(-date)
+
+MANU_CHANGE_BREAKDOWN_GRAPH <- ggplot(data = MANU_CHANGE_BREAKDOWN, aes(x = date, y = value/1000, fill = name)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Employment Chance Since Sep 2019, Thousands") +
+  ggtitle("German Manufacturing Job Losses") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,-100,-200,-300), limits = c(-325,0), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Manufacturing Job Losses Have Been Broad, But Hit Hardest in Select Sectors") +
+  theme_apricitas + theme(legend.position = c(.73,.128)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Motor Vehicle and Parts Manufacturing","Energy Intensive Manufacturing","All Other Manufacturing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-09-01")-(.1861*(today()-as.Date("2019-09-01"))), xmax = as.Date("2019-09-01")-(0.049*(today()-as.Date("2019-09-01"))), ymin = -325-(.3*325), ymax = -325) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MANU_CHANGE_BREAKDOWN_GRAPH, "Manu Change Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 p_unload(all)  # Remove all packages using the package manager
 

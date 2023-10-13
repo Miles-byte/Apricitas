@@ -542,7 +542,7 @@ Total_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri
   mutate_if(is.character,as.numeric) %>%
   drop_na()
   
-Business_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/npel/pn2") %>%
+Business_Fixed_Capital <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/npel/cxnv") %>%
   subset(., nchar(Title)==7) %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
@@ -556,13 +556,13 @@ FIXED_graph <- ggplot() + #Plotting GDP Growth Rates
   geom_line(data=subset(Total_Fixed_Capital, date > as.Date("2011-12-01")), aes(x=date, y=value/value[1]*100, color="Total Real Gross Fixed Capital Formation"), size = 1.25) +
   geom_line(data=subset(Business_Fixed_Capital, date > as.Date("2011-12-01")), aes(x=date, y=value/value[1]*100, color="Business Real Gross Fixed Capital Formation"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(limits = c(90,140), breaks = c(80,90,100,110,120,130,140), expand = c(0,0)) +
+  scale_y_continuous(limits = c(95,145), breaks = c(80,90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Index, Q1 2012 = 100") +
-  ggtitle("Britain's Investing Shortfall") +
-  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "British Fixed Investment, Especially from Businesses, Has Slowed and Stagnated Since Brexit") +
-  theme_apricitas + theme(legend.position = c(.70,.93)) +
+  ggtitle("Breaking Britain's Investment Shortfall") +
+  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = "UK Real Investment Has Finally Rebounded Significantly Above Pre-Brexit Levels") +
+  theme_apricitas + theme(legend.position = c(.70,.96)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D","#A7ACD9","#9A348E"), breaks = c("Total Real Gross Fixed Capital Formation","Business Real Gross Fixed Capital Formation")) + 
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 90-(.3*50), ymax = 90) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 95-(.3*50), ymax = 95) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FIXED_graph, "Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -655,13 +655,13 @@ RETAIL_SALES_INDEX_graph <- ggplot() + #RGDP Index
   geom_line(data=retail_sales_current, aes(x=date,y= value,color= "Nominal Retail Sales"), size = 1.25) +
   geom_line(data=retail_sales_real, aes(x=date,y= value,color= "Real Retail Sales"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,120), breaks = c(80,90,100,110,120), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,125), breaks = c(80,90,100,110,120), expand = c(0,0)) +
   ylab("Index, Jan 2019 = 100") +
-  ggtitle("The UK's Stagnation") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "Real UK's Retail Sales Have Fallen Back To Pre-Pandemic Levels") +
+  ggtitle("The Struggling British Consumer") +
+  labs(caption = "Graph created by @JosephPolitano using ONS Data",subtitle = "Real UK's Retail Sales Remain at Pre-Pandemic Levels—Even as Nominal Spending Rises 20%") +
   theme_apricitas + theme(legend.position = c(.62,.29)) +
   scale_color_manual(name= "Index, Jan 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-90-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-90-as.Date("2019-01-01"))), ymin = 80-(.3*40), ymax = 80) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-90-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-90-as.Date("2019-01-01"))), ymin = 80-(.3*45), ymax = 80) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RETAIL_SALES_INDEX_graph, "Retail Sales Index.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

@@ -114,7 +114,7 @@ JAPAN_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   geom_line(data=JAPAN_CHIP_MACHINES, aes(x=date,y= exports/1000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "¥", accuracy = 1),limits = c(0,225), breaks = c(1,50,100,150,200), expand = c(0,0)) +
-  ylab("Billions of Dollars, Monthly") +
+  ylab("Billions of Yen, Monthly") +
   ggtitle("Japanese Chip Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japan is a Major Supplier of Chinese Chip Equipment, and Just Announced Chip Sanctions") +
   theme_apricitas + theme(legend.position = c(.39,.89)) +

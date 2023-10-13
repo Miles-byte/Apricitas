@@ -752,3 +752,385 @@ US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_GRAPH, "US Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+TX_COAL <- eia1_series("ELEC.GEN.COW.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Coal", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+TX_NATGAS <- eia1_series("ELEC.GEN.NG.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Natural Gas", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+TX_NUCLEAR <- eia1_series("ELEC.GEN.NUC.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+TX_HYDRO <- eia1_series("ELEC.GEN.HYC.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+TX_WIND <- eia1_series("ELEC.GEN.WND.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Wind", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+TX_SOLAR <- eia1_series("ELEC.GEN.TSN.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+TX_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(TX_COAL, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Coal"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_NATGAS, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Natural Gas"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_NUCLEAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Nuclear"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_HYDRO, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Hydro"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_WIND, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Wind"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_COAL, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Coal"), size = 1.25) +
+  geom_line(data= filter(TX_NATGAS, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Natural Gas"), size = 1.25) +
+  geom_line(data= filter(TX_NUCLEAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Nuclear"), size = 1.25) +
+  geom_line(data= filter(TX_HYDRO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Hydro"), size = 1.25) +
+  geom_line(data= filter(TX_WIND, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Wind"), size = 1.25) +
+  geom_line(data= filter(TX_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Solar"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_NATGAS$value)/5000)*5), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("Texas's Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Wind and Solar Now Make Up A Much Larger Share of Texas' Grid") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Texas Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(TX_NATGAS$value)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_GRAPH, "TX Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+
+
+
+
+ERCOT_NUC <- eia1_series("STEO.NUEPGEN_TX.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+ERCOT_HYD <- eia1_series("STEO.HVEPGEN_TX.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+ERCOT_REN <- eia1_series("STEO.RNEPGEN_TX.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+ERCOT_TOTAL <- eia1_series("STEO.TOEPGEN_TX.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+ERCOT_RBIND <- rbind(ERCOT_NUC,ERCOT_HYD,ERCOT_REN,ERCOT_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+CAISO_NUC <- eia1_series("STEO.NUEPGEN_CA.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+CAISO_HYD <- eia1_series("STEO.HVEPGEN_CA.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+CAISO_REN <- eia1_series("STEO.RNEPGEN_CA.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+CAISO_TOTAL <- eia1_series("STEO.TOEPGEN_CA.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+CAISO_RBIND <- rbind(CAISO_NUC,CAISO_HYD,CAISO_REN,CAISO_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+NW_NUC <- eia1_series("STEO.NUEPGEN_NW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NW_HYD <- eia1_series("STEO.HVEPGEN_NW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NW_REN <- eia1_series("STEO.RNEPGEN_NW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NW_TOTAL <- eia1_series("STEO.TOEPGEN_NW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NW_RBIND <- rbind(NW_NUC,NW_HYD,NW_REN,NW_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+
+SW_NUC <- eia1_series("STEO.NUEPGEN_SW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SW_HYD <- eia1_series("STEO.HVEPGEN_SW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SW_REN <- eia1_series("STEO.RNEPGEN_SW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SW_TOTAL <- eia1_series("STEO.TOEPGEN_SW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SW_RBIND <- rbind(SW_NUC,SW_HYD,SW_REN,SW_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+SPP_NUC <- eia1_series("STEO.NUEPGEN_SP.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SPP_HYD <- eia1_series("STEO.HVEPGEN_SP.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SPP_REN <- eia1_series("STEO.RNEPGEN_SP.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SPP_TOTAL <- eia1_series("STEO.TOEPGEN_SP.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SPP_RBIND <- rbind(SPP_NUC,SPP_HYD,SPP_REN,SPP_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+MSO_NUC <- eia1_series("STEO.NUEPGEN_MW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+MSO_HYD <- eia1_series("STEO.HVEPGEN_MW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+MSO_REN <- eia1_series("STEO.RNEPGEN_MW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+MSO_TOTAL <- eia1_series("STEO.TOEPGEN_MW.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+MSO_RBIND <- rbind(MSO_NUC,MSO_HYD,MSO_REN,MSO_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+NY_NUC <- eia1_series("STEO.NUEPGEN_NY.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NY_HYD <- eia1_series("STEO.HVEPGEN_NY.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NY_REN <- eia1_series("STEO.RNEPGEN_NY.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NY_TOTAL <- eia1_series("STEO.TOEPGEN_NY.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NY_RBIND <- rbind(NY_NUC,NY_HYD,NY_REN,NY_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+NE_NUC <- eia1_series("STEO.NUEPGEN_NE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NE_HYD <- eia1_series("STEO.HVEPGEN_NE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+NE_REN <- eia1_series("STEO.RNEPGEN_NE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NE_TOTAL <- eia1_series("STEO.TOEPGEN_NE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+NE_RBIND <- rbind(NE_NUC,NE_HYD,NE_REN,NE_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+
+PJM_NUC <- eia1_series("STEO.NUEPGEN_PJ.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+PJM_HYD <- eia1_series("STEO.HVEPGEN_PJ.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+PJM_REN <- eia1_series("STEO.RNEPGEN_PJ.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+PJM_TOTAL <- eia1_series("STEO.TOEPGEN_PJ.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+PJM_RBIND <- rbind(PJM_NUC,PJM_HYD,PJM_REN,PJM_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+
+SERC_NUC <- eia1_series("STEO.NUEPGEN_SE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SERC_HYD <- eia1_series("STEO.HVEPGEN_SE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+SERC_REN <- eia1_series("STEO.RNEPGEN_SE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SERC_TOTAL <- eia1_series("STEO.TOEPGEN_SE.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+SERC_RBIND <- rbind(SERC_NUC,SERC_HYD,SERC_REN,SERC_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+
+FL_NUC <- eia1_series("STEO.NUEPGEN_FL.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+FL_HYD <- eia1_series("STEO.HVEPGEN_FL.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+FL_REN <- eia1_series("STEO.RNEPGEN_FL.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+FL_TOTAL <- eia1_series("STEO.TOEPGEN_FL.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+FL_RBIND <- rbind(FL_NUC,FL_HYD,FL_REN,FL_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Total > 0) %>%
+  mutate(Clean_Share = (Nuclear + Hydro + Renewables)/Total)
+
+
+US_NUC <- eia1_series("STEO.NUEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+US_REN <- eia1_series("STEO.RTEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Renewables", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_TOTAL <- eia1_series("STEO.TOEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_RBIND <- rbind(US_NUC,US_REN,US_TOTAL) %>%
+  select(-value) %>%
+  pivot_wider(names_from = category, values_from = rollmean) %>%
+  filter(Renewables > 0) %>%
+  mutate(Clean_Share = (Nuclear + Renewables)/Total)
+
+#Chart has to be reformatted 
+US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= ERCOT_RBIND, aes(x=date,y=Clean_Share,color= "Texas (ERCOT)"), size = 1.25) +
+  geom_line(data= CAISO_RBIND, aes(x=date,y=Clean_Share,color= "California"), size = 1.25) +
+  geom_line(data= NW_RBIND, aes(x=date,y=Clean_Share,color= "Northwest and Rockies"), size = 1.25) +
+  geom_line(data= SW_RBIND, aes(x=date,y=Clean_Share,color= "Southwest"), size = 1.25) +
+  geom_line(data= SPP_RBIND, aes(x=date,y=Clean_Share,color= "Southwest Power Pool (SPP)"), size = 1.25) +
+  geom_line(data= MSO_RBIND, aes(x=date,y=Clean_Share,color= "Midcontinent ISO (MISO)"), size = 1.25) +
+  geom_line(data= NY_RBIND, aes(x=date,y=Clean_Share,color= "New York (NYISO)"), size = 1.25) +
+  geom_line(data= NE_RBIND, aes(x=date,y=Clean_Share,color= "New England (ISO-NE)"), size = 1.25) +
+  geom_line(data= PJM_RBIND, aes(x=date,y=Clean_Share,color= "Mid Atlantic (PJM)"), size = 1.25) +
+  geom_line(data= SERC_RBIND, aes(x=date,y=Clean_Share,color= "Southeast (SERC)"), size = 1.25) +
+  geom_line(data= FL_RBIND, aes(x=date,y=Clean_Share,color= "Florida (FRCC)"), size = 1.25) +
+  geom_line(data= US_RBIND, aes(x=date,y=Clean_Share,color= "US Total"), size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0, 0.70), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("America's Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_NATGAS$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
