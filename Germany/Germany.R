@@ -376,6 +376,26 @@ SOLAR_NUMBER_graph <- ggplot(data = SOLAR_NUMBER, aes(x = date, y = value/100000
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*1.250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
+EBIKE_NUMBER <- IP_9DIGIT_BULK %>%
+  subset(GP19A9 == c("GP19-309113000")) %>%
+  mutate(GP19A9 = gsub("GP19-309113000","German Production of Electric Bikes, Scooters, Mopeds, and Motorcycles",GP19A9)) %>%
+  transmute(category = GP19A9, value = PRO006_val, date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q")))
+
+EBIKE_NUMBER_graph <- ggplot(data = EBIKE_NUMBER, aes(x = date, y = value/1000, fill = "German Production of Electric Bikes, Scooters, Mopeds, and Motorcycles")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  ylab("Thousands of Units") +
+  ggtitle("Germany's E-bike Surge") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,100,200,300,400), limits = c(0,ceiling(max(EBIKE_NUMBER$value)/50000)*50), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Solar Panels Produced is Rebounding amidst the Energy Transition") +
+  theme_apricitas + theme(legend.position = c(.45,.95)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*(ceiling(max(EBIKE_NUMBER$value)/50000)*50)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EBIKE_NUMBER_graph, "Germany Ebike Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 BATTERY_EURO <- IP_9DIGIT_BULK %>%
   subset(GP19A9 == c("GP19-261122403")) %>%
   mutate(GP19A9 = gsub("GP19-261122403","Solar Panels",GP19A9)) %>%
@@ -389,15 +409,41 @@ IP_9DIGIT_ANALYSIS <- IP_9DIGIT_BULK %>%
   mutate(date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q"))) %>%
   mutate(month = month(date), year = year(date))
 
-IP_9DIGIT_ANALYSIS <- IP_9DIGIT_ANALYSIS %>%
+IP_9DIGIT_ANALYSIS_06 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
   filter(year == 2019) %>%
   summarize(ref_val = mean(PRO006_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change = ((PRO006_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
-  #filter(date == as.Date("2023-04-01")) %>%
-  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9))
+  filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  filter(is.nan(percent_change) == FALSE)
+
+IP_9DIGIT_ANALYSIS_07 <- IP_9DIGIT_ANALYSIS %>%
+  group_by(GP19A9, month) %>%
+  filter(year == 2019) %>%
+  summarize(ref_val = mean(PRO007_val)) %>%
+  right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
+  mutate(percent_change = ((PRO007_val - ref_val) / ref_val) * 100) %>%
+  select(-ref_val) %>%
+  filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A92 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  select(GP19A92, PRODAW_val,PRO007_val,percent_change) %>%
+  filter(is.nan(percent_change) == FALSE)
+
+IP_9DIGIT_ANALYSIS_VAL <- IP_9DIGIT_ANALYSIS %>%
+  group_by(GP19A9, month) %>%
+  filter(year == 2019) %>%
+  summarize(ref_val = mean(PRODAW_val)) %>%
+  right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
+  mutate(percent_change = ((PRODAW_val - ref_val) / ref_val) * 100) %>%
+  select(-ref_val) %>%
+  filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A92 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  select(GP19A92, PRODAW_val,percent_change) %>%
+  filter(is.nan(percent_change) == FALSE)
+
 
 HICP <- get_eurostat("prc_hicp_manr")
 
@@ -839,6 +885,31 @@ IPMAN_BATTERIES_graph <- ggplot() + #plotting energy intensive manufacturing
 
 ggsave(dpi = "retina",plot = IPMAN_BATTERIES_graph, "IPMAN BATTERY graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+IPMAN_COAL <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 %in% c("WZ08-051","WZ08-052")) %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 == "X13JDKB") %>%#calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
+  pivot_wider(names_from = category) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2013-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[1]*100))
+
+IPMAN_COAL_graph <- ggplot() + #plotting energy intensive manufacturing
+  #geom_line(data=IPMAN_COAL, aes(x=date,y= `WZ08-051`,color="Black Coal"), size = 1.25) +
+  geom_line(data=IPMAN_COAL, aes(x=date,y= `WZ08-052`,color="German Industrial Production of Brown Coal/Lignite"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,120), expand = c(0,0)) +
+  ylab("Volume Index, Jan 2013 = 100") +
+  ggtitle("German Lignite Production") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Brown Coal/Lignite Production is Near Historic Lows") +
+  theme_apricitas + theme(legend.position = c(.52,.175)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*120), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = IPMAN_COAL_graph, "IPMAN Coal graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 TRUCK_TOLL_MILEAGE_INDEX <- retrieve_data(tablename = "42191BM001", genesis=c(db='de')) %>%
