@@ -126,14 +126,14 @@ GLI_GROWTH_NORM_graph <- ggplot() + #plotting Wage Growth
   geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100-GLI_BEA_YOY_NORM$norm,color= "BEA Data"), size = 1.25) +
   geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value-GLI_EPOP_YOY_NORM$norm,color= "ECI * Prime Age Employment"), size = 1.25) +
   annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
-  annotate("text",label = "Deviation from 2017-2020", x = as.Date("2023-01-01"), y =-0.011, color = "white", size = 4) +
-  annotate("text",label = "Avg Annual Growth Rate", x = as.Date("2023-01-01"), y =-0.023, color = "white", size = 4) +
+  annotate("text",label = "Deviation from 2017-2020", x = as.Date("2022-01-01"), y =-0.011, color = "white", size = 4) +
+  annotate("text",label = "Avg Annual Growth Rate", x = as.Date("2022-01-01"), y =-0.023, color = "white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.14,0.125), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
   ggtitle("US Gross Labor Income Growth Deviation") +
   labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, with BEA Numbers Returning to Normal") +
-  theme_apricitas + theme(legend.position = c(.33,.75)) +
+  theme_apricitas + theme(legend.position = c(.27,.75)) +
   scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.14-(.3*0.265), ymax = -.14) +
   coord_cartesian(clip = "off")

@@ -183,7 +183,7 @@ Assemblies <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?
 
 Assemblies_Graph <- ggplot() + #plotting auto assemblies
   geom_line(data=Assemblies, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies"), size = 1.25)+ 
-  annotate(geom = "hline", y = 10.91, yintercept = 10.91, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "hline", y = 10.9030, yintercept = 10.9030, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 11.5, color ="#FFE98F") +
   #geom_line(data=AssembliesNSA, aes(x=date,y= value, color = "Total Motor Vehicle Assemblies (NSA)"), size = 1.25)+ 
   xlab("Date") +
