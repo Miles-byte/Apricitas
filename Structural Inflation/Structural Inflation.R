@@ -91,7 +91,22 @@ QSPC_Supply_Selected_Graph <- ggplot() + #plotting BIE
   scale_color_manual(name= "% Citing Materials Shortages for Not Running at Full Capacity",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Computers/Electronics Manufacturing","Transportation Equipment Manufacturing","Machinery Manufacturing","Electrical Equipment/Appliances Manufacturing","Chemical Manufacturing")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(.1861*(today()-as.Date("2014-04-01")))), ymin = 0-(.3*.70), ymax = 0) +
   coord_cartesian(clip = "off")
-  
+
+QSPC_Food_Graph <- ggplot() + #plotting BIE
+  geom_line(data=subset(QSPC, Sector == "311" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Food Manufacturing\n% Citing Materials Shortages for Not Running at Full Capacity"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.350), breaks = c(0,.10,.20,.30), expand = c(0,0)) +
+  ylab("% of Plants Citing This Reason") +
+  ggtitle("Easing Food Shortages") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "The Share of Food Manufacturers With Materials Shortages Has Fallen Significantly Since 2022") +
+  theme_apricitas + theme(legend.position = c(.375,.75)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(.1861*(today()-as.Date("2014-04-01")))), ymin = 0-(.3*.35), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QSPC_Food_Graph, "QSPC Food Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 QSPC_Demand_Graph <- ggplot() + #plotting QSPC Demand
   geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient orders"), aes(x=date,y= Value/100,color= "Insufficient Orders"), size = 1.25) +
   geom_line(data=subset(QSPC, Sector == "All" & Measure == "Insufficient supply of materials"), aes(x=date,y= Value/100,color= "Insufficient Supply of Materials"), size = 1.25) +
@@ -306,3 +321,22 @@ Uncertainty_Graph <- ggplot() + #plotting BIE
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Uncertainty_Graph, "Uncertainty.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BIE_SALES_LEVELS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Structural%20Inflation/BIE_SALES_DIFF.csv") %>%
+  mutate(date = as.Date(date))
+
+BIE_SALES_LEVELS_graph <- ggplot() + #plotting Wage Growth
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  geom_line(data=BIE_SALES_LEVELS, aes(x=date,y= sales_diff,color= "Firms' Current Sales Levels\n'Compared to Normal Times'"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(-70,10), expand = c(0,0)) +
+  ylab("Index, 0 = Normal") +
+  ggtitle("Slowing Sales Levels") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed Data",subtitle = "Firms' Self-Reported Sales Levels Have Fallen Well Below 'Normal' Levels") +
+  theme_apricitas + theme(legend.position = c(.32,.38)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-10-21")-(.1861*(today()-as.Date("2011-10-21"))), xmax = as.Date("2011-10-21")-(0.049*(today()-as.Date("2011-10-21"))), ymin = -70-(.3*80), ymax = -70) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BIE_SALES_LEVELS_graph, "BIE Sales Levels.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
