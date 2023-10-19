@@ -148,7 +148,7 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
   geom_line(data=Auto_Industrial_Capacity, aes(x=date,y= value, color = "Industrial Capacity: Automobile and Light Duty Motor Vehicles"), size = 1.25)+ 
   xlab("Date") +
   ylab("Industrial Capacity, 2017 = 100") +
-  scale_y_continuous(limits = c(60,160), breaks = c(60,80,100,120,140,160), expand = c(0,0)) +
+  scale_y_continuous(limits = c(60,170), breaks = c(60,80,100,120,140,160), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Capacity Growth") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Still Shows the Scars of 2008") +
@@ -156,7 +156,7 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9")) +
   #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 60-(.3*80), ymax = 60) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 60-(.3*90), ymax = 60) +
   coord_cartesian(clip = "off")
 
 Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Automobiles

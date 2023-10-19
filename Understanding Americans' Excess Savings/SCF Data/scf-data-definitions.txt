@@ -1,0 +1,37 @@
+Year: Triennial observations.
+Category: Wealth Percentile Group (Bottom 25%, 25% to 49.9%, 50% to 74.9%, 75% to 89.9%, Top 10%).	
+Before_Tax_Income: wage income, business and farm income, interest and dividend income, capital gains income, social security and retirement income, transfer and other income, rental income, pension account withdrawals.
+Net_Worth: total assets less total liabilities.	
+Assets: total financial assets plus total nonfinancial assets	
+Financial_Assets: transaction accounts (liquid assets), certificates of deposit, savings bonds, directly held stocks, pooled investment funds (excluding money market funds), directly held bonds (excluding bond funds or savings bonds), cash value life insurance, other managed assets, retirement accounts, other financial assets	
+Transaction_Accounts: money market accounts (including money market deposit accounts and money market pooled investment funds), checking accounts (excluding money market), savings accounts, call accounts, prepaid cards
+Certificates_of_Deposit: Total value of certificates of deposit held by household	
+Savings_Bonds: Total value of savings bonds held by household
+Directly_Held_Bonds: tax-exempt bonds, mortgage-backed bonds, US government and government agency bonds and bills, corporate and foreign bonds
+Directly_Held_Stocks: Total value of directly held stocks held by household	
+Pooled_Investment_Funds: Directly Held Pooled Investment Funds: stock mutual funds, tax-free bond mutual funds, government bond mutual funds, other bond mutual funds, combination mutual funds, other mutual funds	
+Cash_Value_Life_Insurance: Total cash value of whole life insurance held by household
+Other_Managed_Assets: annuities, trusts.
+Retirement_Accounts: individual retirement accounts and Keoghs, account-type pensions on current job, future pensions, currently received account-type pensions.
+Other_Financial_Assets: Loans from households to someone else, future proceeds, royalties, futures, non-public stock, deferred compensation, oil/gas/mineral investment, cash not else classified
+Stock_Holdings: Total value of equity in directly held stocks, stock mutual funds, and combination mutual funds
+Nonfinancial_Assets: primary residence, owned vehicles, other residential real estate (residential property excluding primary residence), net equity in nonresidential real estate, business equity (with either an active or nonactive interest), other nonfinancial assets.
+Primary_Residence: Total value of primary residence of household	
+Owned_Vehicles: Total value of all vehicles held by household	
+Other_Residential_Real_Estate: Total value of other residential real estate held by household
+Net_Equity_in_Nonres_Real_Estate: Total value of net equity in nonresidential real estate held by household
+Business_Equity: Total value of privately-held business(es)	
+Other_Non_Financial_Assets: total value of miscellaneous assets minus other financial assets
+Unrealized_Capital_Gains: unrealized capital gains or losses on the primary residence, businesses, other real estate, and stocks and mutual funds.	
+Debt: home secured debt, other residential real estate debt, installment loans, other lines of credit (not secured by residential real estate), credit card balances, other debt (loans against pensions or life insurance margin loans).	
+Home_Secured_Debt: mortgages and home equity loans secured by primary residence, home equity lines of credit secured by primary residence.	
+Other_Res_Real_Estate_Debt: Total value of debt of other residential property held by household
+Installment_Loans: education loans, vehicle loans, other installment loans.	
+Other_Lines_of_Credit: Total value of other lines of credit held by household	
+Credit_Card_Balances: Total value of credit card balances held by household
+Other_Debt: Loans against pensions, loans against life insurance, margin loans, miscellaneous loans
+Mortgages_Home_Equity_Loans: Total value of mortgages and home equity loans secured by the primary residence held by household
+Home_Equity_Lines_of_Credit: Total value of home equity lines of credit secured by the primary residence held by household
+Vehicle_Installment_Loans: Total value of vehicle loans held by household	
+Education_Installment_Loans: Total value of education loans held by household
+Other_Installment_Loans: Installment loans not classified elsewhere
