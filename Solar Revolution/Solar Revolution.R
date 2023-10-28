@@ -31,17 +31,24 @@ IND_PRO_PV <- statscnQueryLastN(700, lang = "en") %>%
   mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,11))) %>%
   subset(date >= as.Date("2016-01-01"))
 
+IND_PRO_PV1 <- IND_PRO_PV %>%
+  mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
+  subset(.,`Output of Photovoltaic Cells, Current Period` != 0) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,11))) %>%
+  subset(date >= as.Date("2016-01-01"))
+
 IND_PRO_PV_GRAPH <- ggplot() + #plotting Chinese PV Production
-  geom_line(data= IND_PRO_PV, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
-  geom_line(data= IND_PRO_PV, aes(x=date,y=`Output of Photovoltaic Cells, Current Period`/100 ,color= "Chinese Industrial Production of Photovoltaic Cells, Monthly"), size = 1.25) +
+  geom_line(data= IND_PRO_PV1, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
+  geom_line(data= IND_PRO_PV1, aes(x=date,y=`Output of Photovoltaic Cells, Current Period`/100 ,color= "Chinese Industrial Production of Photovoltaic Cells, Monthly"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "GW"),limits = c(0, round(max(IND_PRO_PV$`Output of Photovoltaic Cells, Current Period`/1000))*10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "GW"),limits = c(0, ceiling(max(IND_PRO_PV1$`Output of Photovoltaic Cells, Current Period`/1000))*10), expand = c(0,0)) +
   ylab("GW of Capacity, Monthly") +
   ggtitle("Chinese Solar Panel Production") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese Solar Production is Growing Exponentially and Has Surged Post-Pandemic") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_PV$date)-(.1861*(max(IND_PRO_PV$date)-min(IND_PRO_PV$date))), xmax = min(IND_PRO_PV$date)-(0.049*(max(IND_PRO_PV$date)-min(IND_PRO_PV$date))), ymin = 0-(.3*(round(max(IND_PRO_PV$`Output of Photovoltaic Cells, Current Period`/1000))*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_PV1$date)-(.1861*(max(IND_PRO_PV1$date)-min(IND_PRO_PV1$date))), xmax = min(IND_PRO_PV1$date)-(0.049*(max(IND_PRO_PV1$date)-min(IND_PRO_PV1$date))), ymin = 0-(.3*(ceiling(max(IND_PRO_PV1$`Output of Photovoltaic Cells, Current Period`/1000))*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = IND_PRO_PV_GRAPH, "China Ind Pro PV Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -752,6 +759,27 @@ US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_GRAPH, "US Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_ELECTRICITY_PRODUCTION_LONG_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(US_COAL, date >= as.Date("2002-01-01")), aes(x=date,y=rollmean/1000,color= "Coal"), size = 1.25) +
+  geom_line(data= filter(US_NATGAS, date >= as.Date("2002-01-01")), aes(x=date,y=rollmean/1000,color= "Natural Gas"), size = 1.25) +
+  geom_line(data= filter(US_NUCLEAR, date >= as.Date("2002-01-01")), aes(x=date,y=rollmean/1000,color= "Nuclear"), size = 1.25) +
+  geom_line(data= filter(US_HYDRO, date >= as.Date("2002-01-01")), aes(x=date,y=rollmean/1000,color= "Hydro"), size = 1.25) +
+  geom_line(data= filter(US_WIND, date >= as.Date("2002-01-01")), aes(x=date,y=rollmean/1000,color= "Wind"), size = 1.25) +
+  geom_line(data= filter(US_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Solar"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_NATGAS$value)/10000)*10), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("America's Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
+  theme_apricitas + theme(legend.position = c(.715,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Net Electricity Generation\n12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*((today()-as.Date("2002-01-01")))), ymin = 0-(.3*(ceiling(max(US_NATGAS$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_LONG_GRAPH, "US Electricity Production Long Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 TX_COAL <- eia1_series("ELEC.GEN.COW.TX.99.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Coal", value = generation) %>%
@@ -805,7 +833,28 @@ TX_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_GRAPH, "TX Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+CA_SOLAR <- eia1_series("ELEC.GEN.TSN.CA.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
 
+TX_CA_SOLAR_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(TX_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "Texas"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "Texas"), size = 1.25) +
+  geom_line(data= filter(CA_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=value/1000,color= "California"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(CA_SOLAR, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000,color= "California"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(CA_SOLAR$value)/5000)*5), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("Solar Production in TX and CA") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas is Catching Up, But California Still Leads the Nation in Solar Generation") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Solar Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#00A99D"), breaks = c("California","Texas"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(CA_SOLAR$value)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_CA_SOLAR_PRODUCTION_GRAPH, "TX CA Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 

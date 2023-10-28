@@ -5,8 +5,8 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-test_login(genesis=c(db='de', user=Sys.getenv("DE647235M8"), password=Sys.getenv("PleaseWork23")))
-save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
+#test_login(genesis=c(db='de', user=Sys.getenv("DE647235M8"), password=Sys.getenv("PleaseWork23")))
+#save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
 test_login(genesis=c(db='de'))
 
 #Attempts using the Restatis Key
