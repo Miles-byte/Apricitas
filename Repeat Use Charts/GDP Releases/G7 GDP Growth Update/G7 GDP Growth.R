@@ -6,8 +6,8 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-test_login(genesis=c(db='de', user="DEM56460DY", password="XSYhTyP4JV4!Q4b"))
-save_credentials(db= 'de',user="DEM56460DY", password="XSYhTyP4JV4!Q4b")
+#test_login(genesis=c(db='de', user="DEM56460DY", password="XSYhTyP4JV4!Q4b"))
+#save_credentials(db= 'de',user="DEM56460DY", password="XSYhTyP4JV4!Q4b")
 
 FRANCE_GDP_INSEE_list_selected =
   get_idbank_list("CNT-2014-PIB-EQB-RF") %>% # Gross domestic product balance
@@ -46,10 +46,19 @@ GER <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.DE.
 
 
 ITA <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD")) %>%
-  subset(NOTE_VALUATION == "VAL__L_2015_N2") %>%
-  subset(EDITION == EDITION[nrow(.)]) %>%
+  subset(VALUATION == "L_2015") %>%
+  mutate(PRELIMINARY = grepl("_1$", EDITION),
+         EDITION_CLEAN = gsub("_1$", "", EDITION),
+         EDITION_NUM = as.integer(gsub("M", "", gsub("M", "0", EDITION_CLEAN)))) %>%
+  arrange(desc(EDITION_NUM), PRELIMINARY) %>%
+  filter(EDITION_NUM == max(EDITION_NUM)) %>%
+  group_by(EDITION_NUM) %>%
+  mutate(n = n()) %>%
+  filter(EDITION_NUM == max(EDITION_NUM)) %>%
+  ungroup() %>%
+  filter(ifelse(n > 1, PRELIMINARY, TRUE)) %>%
+  select(-n) %>%
   transmute(value = obsValue/obsValue[7]*100, date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")))
-
 
 # ITA <- fredr(series_id = "CLVMNACSCAB1GQIT",observation_start = as.Date("2018-01-01")) %>%
 #   mutate(value = value/value[7]*100)
@@ -98,8 +107,8 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
-  ggtitle("GDP Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and the UK is the Only Country Still Below pre-COVID GDP") +
+  ggtitle("Real GDP Growth in the G7") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries are Now Above pre-COVID GDP") +
   theme_apricitas + theme(legend.position = c(.2,.30)) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
@@ -112,7 +121,7 @@ ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", 
 US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -181,14 +190,14 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
   geom_line(data=US_PER_CAPITA, aes(x=date,y= value,color= "United States"), size = 1.25) +
   annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2018-10-01"), y =101, color = "white", size = 4) +
-  annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-01-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
+  annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-03-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
-  ggtitle("GDP Per Capita Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and the UK Has Had the Largest GDP Per Capita Decline") +
-  theme_apricitas + theme(legend.position = c(.2,.31)) +
+  ggtitle("Real GDP Per Capita Growth in the G7") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US is Leading the Recovery, and Canada Has Had the Largest GDP Per Capita Decline") +
+  theme_apricitas + theme(legend.position = c(.22,.31)) +
   scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
   coord_cartesian(clip = "off")

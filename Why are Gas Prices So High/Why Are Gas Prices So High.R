@@ -173,12 +173,12 @@ XOP_Graph <- ggplot() + #plotting returns to XOP
 
 Crude_Production_Graph <- ggplot() + #plotting US Crude Production
   geom_line(data=Crude_ProductionMonthly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Monthly Official Data)"), size = 1.25) +
-  geom_line(data=Crude_ProductionWeekly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Weekly Modeled Estimates)"), size = 1.25) +
+  #geom_line(data=Crude_ProductionWeekly, aes(x=date,y= value/1000, color= "US Crude Oil Production (Weekly Modeled Estimates)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(9,14),breaks = c(9,10,11,12,13,14), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
   ggtitle("America's Oil Recovery") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is Closing in on Record High Levels") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is at New Record Highs") +
   theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 9-(.3*5), ymax = 9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

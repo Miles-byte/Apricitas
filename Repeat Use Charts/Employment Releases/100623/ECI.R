@@ -14,13 +14,13 @@ ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.D
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-07-01"), by = "quarter")))
 
 ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-07-01"), by = "quarter")))
 
 ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   geom_line(data=ECI_WAG, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized"), size = 1.25) +
@@ -52,7 +52,7 @@ ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.D
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-04-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-07-01"), by = "quarter")))
 
 
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI Core Wage Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
