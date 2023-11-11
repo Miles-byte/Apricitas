@@ -322,7 +322,6 @@ REAL_ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph <- ggplot() +
 ggsave(dpi = "retina",plot = REAL_ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph, "Real Atlanta Fed Wage Tracker Distrib Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
-
 HOU_1_20 <- bls_api("CXUHOUSINGLB0102M", startyear = 2021, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
   slice(1) %>%
   mutate(quintile = 1)
@@ -480,6 +479,26 @@ CPI_Income_Quintiles_PCT_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = CPI_Income_Quintiles_PCT_Graph, "CPI Income Quintiles Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+PI_DISTRIBUTION_BULK <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Real%20Wages/Distributional_Personal_Income.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  mutate(Total = as.numeric(gsub("\\$","",(gsub("\\,","",Total))))) %>%
+  mutate(across(everything(), ~gsub("%", "", .))) %>%
+  mutate(across(tail(names(.), 11), as.numeric)) %>%
+  setNames(c("date","categories","income","First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eight","Ninth","Tenth")) %>%
+  mutate(across(tail(names(.), 10), ~ . / 100 * .data$income)) %>%
+  transmute(date = as.Date(date), categories, income = First + Second + Third + Fourth + Fifth) %>%
+  pivot_wider(names_from = categories, values_from = income) %>%
+  transmute(date, `Wages & Other Compensation of Employees` = `Compensation of employees`, `Net Government Transfers & Benefits` = `Government social benefits` - `Less: Contributions for government social insurance, domestic` , `Other (Taxes, Interest/Dividends/Rental Income, Business Income, Nonprofit Transfers, etc)`= `Proprietors' income with inventory valuation`+`Rental income of households with capital consumption adjustment`+`Household income receipts on assets`+`From business (net)`+`From nonprofit institutions`-`Less: Taxes`)
+  
+PCEPI_ANNUAL <- fredr("PCEPI", observation_start = as.Date("2000-01-01"), frequency = "a")
+HHCOUNT_ANNUAL <- fredr("TTLHH", observation_start = as.Date("2000-01-01"), frequency = "a")
+
+PI_DISTRIBUTION_BULK <- merge(PI_DISTRIBUTION_BULK,PCEPI_ANNUAL, by = "date") %>%
+  mutate_if(is.numeric, ~ .*1000000000 / (value/100)) %>%
+  select(-series_id,-value,-realtime_start,-realtime_end) %>%
+  merge(.,HHCOUNT_ANNUAL, by = "date") %>%
+  mutate_if(is.numeric, ~ . / value) %>%
+  select(-series_id,-value,-realtime_start,-realtime_end)
 
 MIDDLE_20_GROCERIES <- bls_api("CXUFOODHOMELB0104M", startyear = 2004, registrationKey = Sys.getenv("BLS_KEY")) %>%
   select(-latest) %>%
