@@ -36,7 +36,7 @@ REAL_HOURLY_COMPENSATION_GRAPH <- ggplot() + #indexed fixed investment
 
 ggsave(dpi = "retina",plot = REAL_HOURLY_COMPENSATION_GRAPH, "Real Hourly Compensation Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-REAL_MEDIAN_USUAL_EARNINGS <- fredr("LES1252882800Q", observation_start = as.Date("2015-01-01"))
+REAL_MEDIAN_USUAL_EARNINGS <- fredr("LES1252881600Q", observation_start = as.Date("2015-01-01"))
   
 REAL_MEDIAN_USUAL_EARNINGS_GROWTH <- REAL_MEDIAN_USUAL_EARNINGS %>%
   mutate(growth_rate = ((value / first(value))^(1/row_number()) - 1) * 100)
@@ -46,18 +46,36 @@ REAL_MEDIAN_USUAL_EARNINGS <- REAL_MEDIAN_USUAL_EARNINGS %>%
                          value[20] * (1 + REAL_MEDIAN_USUAL_EARNINGS_GROWTH$growth_rate[20]/100)^(row_number()-20), 
                          value))
 
+NOMINAL_MEDIAN_USUAL_EARNINGS <- fredr("LES1252881500Q", observation_start = as.Date("2015-01-01"))
+
+PCEPI_QUARTERLY <- fredr("PCEPI", observation_start = as.Date("2015-01-01"), frequency = "q", aggregation_method = "avg")
+
+REAL_PCEPI_MEDIAN_USUAL_EARNINGS <- merge(NOMINAL_MEDIAN_USUAL_EARNINGS,PCEPI_QUARTERLY, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+REAL_PCEPI_MEDIAN_USUAL_EARNINGS_GROWTH <- REAL_PCEPI_MEDIAN_USUAL_EARNINGS %>%
+  mutate(growth_rate = ((value / first(value))^(1/row_number()) - 1) * 100)
+
+REAL_PCEPI_MEDIAN_USUAL_EARNINGS <- REAL_PCEPI_MEDIAN_USUAL_EARNINGS %>%
+  mutate(trend = if_else(row_number() > 20, 
+                         value[20] * (1 + REAL_PCEPI_MEDIAN_USUAL_EARNINGS_GROWTH$growth_rate[20]/100)^(row_number()-20), 
+                         value))
+
+
 REAL_MEDIAN_USUAL_EARNINGS_GRAPH <- ggplot() + #indexed fixed investment
-  geom_line(data = REAL_MEDIAN_USUAL_EARNINGS, aes(x=date, y = value/value[20]*100, color = "Median Usual Weekly Real Earnings, Full-Time"), size = 1.25) + 
+  geom_line(data = REAL_MEDIAN_USUAL_EARNINGS, aes(x=date, y = value/value[20]*100, color = "Median Usual Weekly Earnings, Full-Time, Deflated by CPI"), size = 1.25) + 
   geom_line(data = filter(REAL_MEDIAN_USUAL_EARNINGS, date >= as.Date("2019-10-01")), aes(x=date, y = trend/trend[1]*100, color = "Q1 2015-Q4 2019 Trend Growth Rate"), size = 1.25, linetype = "dashed") + 
+  geom_line(data = REAL_PCEPI_MEDIAN_USUAL_EARNINGS, aes(x=date, y = value/value[20]*100, color = "Median Usual Weekly Earnings, Full-Time, Deflated by PCEPI"), size = 1.25) + 
+  geom_line(data = filter(REAL_PCEPI_MEDIAN_USUAL_EARNINGS, date >= as.Date("2019-10-01")), aes(x=date, y = trend/trend[1]*100, color = "Q1 2015-Q4 2019 Trend Growth Rate "), size = 1.25, linetype = "dashed") + 
   annotate("text", label ="Median Real Wages Spike in 2020\nWhen Low-Wage Workers are Laid Off\nand Fall When They're Rehired", x = as.Date("2018-03-01"), y = 102.5, color = "white", size = 4)+
   xlab("Date") +
   scale_y_continuous(limits = c(92.5,110), breaks = c(95,100,105,110), expand = c(0,0)) +
   ylab("Index, Q4 2019 = 100") +
-  ggtitle("Median Real Wages are Flat") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Real Hourly Compensation is Rising, Although it Remains Below the 2015-2019 Trend Line") +
-  theme_apricitas + theme(legend.position = c(.30,.95)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"),guide=guide_legend(override.aes=list(linetype=c(1,2), lwd = c(1.25,.75)))) +
-  theme(legend.key.width =  unit(.82, "cm")) +
+  ggtitle("Median Real Wages are Up But Below-Trend") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Median Real Wages Have Risen Since 2019 But Remain Below the Late-2010s Trend") +
+  theme_apricitas + theme(legend.position = c(.70,.1)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"),breaks = c("Median Usual Weekly Earnings, Full-Time, Deflated by CPI","Q1 2015-Q4 2019 Trend Growth Rate","Median Usual Weekly Earnings, Full-Time, Deflated by PCEPI","Q1 2015-Q4 2019 Trend Growth Rate "),guide=guide_legend(override.aes=list(linetype=c(1,2,1,2), lwd = c(1.25,.75,1.25,.75)))) +
+  theme(legend.key.width =  unit(.82, "cm"), plot.title = element_text(size =27),legend.key.height = unit(0,"cm"), legend.spacing.y = unit(0,"cm"), legend.title = element_text(size = 14), legend.text = element_text(size = 12)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 92.5-(.3*17.5), ymax = 92.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -312,14 +330,56 @@ REAL_ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph <- ggplot() +
   xlab("Date") +
   ylab("%") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.04,.04),breaks = c(-0.04,-0.02,0,.02,0.04), expand = c(0,0)) +
-  ggtitle("Median Real Wage Growth is Positive") +
+  ggtitle("Real Wage Growth is Fastest at the Bottom") +
   labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data Deflated Using CPI", subtitle = "The Median Worker is Now Seeing Real Wage Increases, and the Wage Distribution has Compressed") +
-  theme_apricitas + theme(legend.position = c(.3,.2)) +
+  theme_apricitas + theme(legend.position = c(.3,.225)) +
   scale_color_manual(name= "Median Real Wage Growth by Wage Quartile\n12MMA of Median 12M Wage Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("First (Lowest) Wage Quartile","Second Wage Quartile","Third Wage Quartile","Fourth (Highest) Wage Quartile")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -0.04-(.3*.08), ymax = -0.04) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REAL_ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph, "Real Atlanta Fed Wage Tracker Distrib Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ECIWAG <- fredr("ECIWAG", observation_start = as.Date("2002-01-01"), units = "pc1")
+PCEPI <- fredr("PCEPI", observation_start = as.Date("2002-01-01"), units = "pc1")
+PCEPILFE <- fredr("PCEPILFE", observation_start = as.Date("2002-01-01"), units = "pc1")
+
+ECI_VS_PCEPI_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=PCEPILFE, aes(x=date,y= value/100,color= "Core PCE Inflation (i.e. Excluding Food and Energy)"), size = 1.25) + 
+  geom_line(data=PCEPI, aes(x=date,y= value/100,color= "Headline PCE Inflation"), size = 1.25)+ 
+  geom_line(data=ECIWAG, aes(x=date,y= value/100,color= "Employment Cost Index: Wages & Salaries: Private Industry Workers"), size = 2.25) + 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-0.025,.075),breaks = c(-0.025,0,.025,0.05,0.075), expand = c(0,0)) +
+  ggtitle("Price Volatility Exceeds Wage Volatility") +
+  labs(caption = "Graph created by @JosephPolitano using BEA and BLS", subtitle = "Inflation, Especially in Food/Energy, is Volatile and Thus Drives Short-Run Real Wage Dynamics") +
+  theme_apricitas + theme(legend.position = c(.45,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Employment Cost Index: Wages & Salaries: Private Industry Workers","Headline PCE Inflation","Core PCE Inflation (i.e. Excluding Food and Energy)"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = -0.025-(.3*.1), ymax = -0.025) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ECI_VS_PCEPI_Graph, "ECI vs PCEPI Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+INF_DEMO_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/1ef794ec727fa2b5f851ef3dbd889eb7f35660b8/Real%20Wages/Excess_Inflation_Demo.csv") %>%
+  mutate(Date = as.Date(Date))
+
+INF_DEMO_DATA_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=INF_DEMO_DATA, aes(x=Date,y= White/100,color= "White"), size = 1.25) + 
+  geom_line(data=INF_DEMO_DATA, aes(x=Date,y= Black/100,color= "Black"), size = 1.25)+ 
+  geom_line(data=INF_DEMO_DATA, aes(x=Date,y= Hispanic/100,color= "Hispanic"), size = 1.25) + 
+  geom_line(data=INF_DEMO_DATA, aes(x=Date,y= AAPI/100,color= "AAPI"), size = 1.25) + 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.015,.02),breaks = c(-0.01,0,0.01,0.02), expand = c(0,0)) +
+  ggtitle("Excess CPI Inflation By Demographic") +
+  labs(caption = "Graph created by @JosephPolitano using NY Fed Equitable Growth Indicators", subtitle = "Inflation Has Been Higher for Black/Hispanic Households Since the Start of COVID") +
+  theme_apricitas + theme(legend.position = c(.4,.8)) +
+  scale_color_manual(name= "1-Year Demographic Inflation Rates, Percent Above/Below CPI\nNY Fed's Equitable Growth Indicators",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("White","Black","AAPI","Hispanic")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.015-(.3*.035), ymax = -0.015) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = INF_DEMO_DATA_Graph, "Inf Demo Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 HOU_1_20 <- bls_api("CXUHOUSINGLB0102M", startyear = 2021, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
@@ -452,8 +512,8 @@ CPI_Income_Quintiles_Line_Graph <- ggplot() +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.03,.20),breaks = c(0,0.05,0.10,0.15,0.20), expand = c(0,0)) +
   ggtitle("Inflation Isn't (Quite) Evenly Distributed") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Higher Income Workers Tend to See More Inflation") +
-  theme_apricitas + theme(legend.position = c(.3,.78)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("First (Lowest) Income Quintile","Second Income Quintile","Third Income Quintile","Fourth Income Quintile","Fifth (Highest) Income Quintile")) +
+  theme_apricitas + theme(legend.position = c(.4,.7)) +
+  scale_color_manual(name= "Experimental CPI By Equivalized Household Income Quintiles\nKlick and Stockburger 2021\nCumulative Inflation Since Jan 2020",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("First (Lowest) Income Quintile","Second Income Quintile","Third Income Quintile","Fourth Income Quintile","Fifth (Highest) Income Quintile")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.03-(.3*.23), ymax = -0.03) +
   coord_cartesian(clip = "off")
 
@@ -488,7 +548,7 @@ PI_DISTRIBUTION_BULK <- read.csv("https://raw.githubusercontent.com/Miles-byte/A
   mutate(across(tail(names(.), 10), ~ . / 100 * .data$income)) %>%
   transmute(date = as.Date(date), categories, income = First + Second + Third + Fourth + Fifth) %>%
   pivot_wider(names_from = categories, values_from = income) %>%
-  transmute(date, `Wages & Other Compensation of Employees` = `Compensation of employees`, `Net Government Transfers & Benefits` = `Government social benefits` - `Less: Contributions for government social insurance, domestic` , `Other (Taxes, Interest/Dividends/Rental Income, Business Income, Nonprofit Transfers, etc)`= `Proprietors' income with inventory valuation`+`Rental income of households with capital consumption adjustment`+`Household income receipts on assets`+`From business (net)`+`From nonprofit institutions`-`Less: Taxes`)
+  transmute(date, `Wages & Other Compensation of Employees` = `Compensation of employees`, `Net Government Transfers & Benefits` = `Government social benefits` - `Less: Contributions for government social insurance, domestic` , `Other (Taxes, Asset/Business Income, Nonprofit Transfers, etc)`= `Proprietors' income with inventory valuation`+`Rental income of households with capital consumption adjustment`+`Household income receipts on assets`+`From business (net)`+`From nonprofit institutions`-`Less: Taxes`)
   
 PCEPI_ANNUAL <- fredr("PCEPI", observation_start = as.Date("2000-01-01"), frequency = "a")
 HHCOUNT_ANNUAL <- fredr("TTLHH", observation_start = as.Date("2000-01-01"), frequency = "a")
@@ -497,8 +557,31 @@ PI_DISTRIBUTION_BULK <- merge(PI_DISTRIBUTION_BULK,PCEPI_ANNUAL, by = "date") %>
   mutate_if(is.numeric, ~ .*1000000000 / (value/100)) %>%
   select(-series_id,-value,-realtime_start,-realtime_end) %>%
   merge(.,HHCOUNT_ANNUAL, by = "date") %>%
-  mutate_if(is.numeric, ~ . / value) %>%
-  select(-series_id,-value,-realtime_start,-realtime_end)
+  mutate_if(is.numeric, ~ . / (value*500)) %>%
+  select(-series_id,-value,-realtime_start,-realtime_end) %>%
+  mutate_if(is.numeric, ~ .-.[1]) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = rev(c("Wages & Other Compensation of Employees","Net Government Transfers & Benefits","Other (Taxes, Asset/Business Income, Nonprofit Transfers, etc)"))))
+
+
+PI_DISTRIBUTION_BULK_Graph <- ggplot(PI_DISTRIBUTION_BULK, aes(fill=name, x=date, y=value/1000)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Year") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "k"),limits = c(-2.75,22.5), breaks = c(0,5,10,15,20),expand = c(0,0)) +
+  ylab("2017 Dollars (Adjusted by PCEPI)") +
+  ggtitle("Cumuluative Change in Average Real Post-tax Income\nBottom 50% of Households, 2000-2020") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data on Distribution of Personal Income by Equivalized Household Income",subtitle = "Government Spending, Not Wages, Drove Rising Living Standards for America's Low-Income Half") +
+  theme_apricitas + theme(legend.position = c(.40,.875), plot.title = element_text(size = 22)) +
+  #scale_color_manual(name = NULL, values = "black") +
+  scale_fill_manual(name= NULL,values = (c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")), breaks = c(c("Wages & Other Compensation of Employees","Net Government Transfers & Benefits","Other (Taxes, Asset/Business Income, Nonprofit Transfers, etc)"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -2.75-(.3*25.25), ymax = -2.75) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PI_DISTRIBUTION_BULK_Graph, "PI Distribution Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 MIDDLE_20_GROCERIES <- bls_api("CXUFOODHOMELB0104M", startyear = 2004, registrationKey = Sys.getenv("BLS_KEY")) %>%
   select(-latest) %>%

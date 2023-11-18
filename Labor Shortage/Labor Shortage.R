@@ -69,7 +69,7 @@ BIE_INF_graph <- ggplot() + #plotting Wage Growth
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(-10,85), expand = c(0,0)) +
   ylab("Index, 0 = No Influence") +
   ggtitle("Fading Cost Pushes") +
-  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed Data",subtitle = "Businesses Expect Lower Inflation Over the Next Year—Especially From Labor/Nonlabor Costs") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed Data",subtitle = "Businesses Expect Lower Inflation Over the Next Year—Especially From Nonlabor Costs") +
   theme_apricitas + theme(legend.position = c(.52,.78)) +
   scale_color_manual(name= "Business Forecasts of Future Influence of Different Factors on Their Prices",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Labor Costs","Non-Labor Costs","Margin Adjustment","Sales Levels","Productivity")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-12-18")-(.1861*(today()-as.Date("2011-12-18"))), xmax = as.Date("2011-12-18")-(0.049*(today()-as.Date("2011-12-18"))), ymin = -10-(.3*95), ymax = -10) +

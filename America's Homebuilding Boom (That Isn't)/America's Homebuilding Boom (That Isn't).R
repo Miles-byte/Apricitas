@@ -1,4 +1,4 @@
-pacman::p_load(censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -709,6 +709,26 @@ HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
 
 ggsave(dpi = "retina",plot = HOME_PRICE_graph, "Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+ZHVI_HOME_PRICE <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1700273327") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(RegionName == "United States")
+
+ZILLOW_HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=ZHVI_HOME_PRICE, aes(x=date,y= value/1000, color= "Zillow Home Value Index"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "k"), limits = c(0,375), expand = c(0,0)) +
+  ylab("Dollars") +
+  ggtitle("The Great Pandemic Housing Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data",subtitle = "Nominal Housing Prices Have Hit a Record High, up 42% Since January 2020") +
+  theme_apricitas + theme(legend.position = c(.5,.73)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*375), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ZILLOW_HOME_PRICE_graph, "Zillow Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 # for sale/sold
 SOLD <- fredr(series_id = "HSN1F", observation_start = as.Date("2000-01-01")) #total under construction
 FOR_SALE <- fredr(series_id = "HNFSEPUSSA", observation_start = as.Date("2000-01-01")) #total under construction
@@ -1107,7 +1127,7 @@ REAL_PCE_HOUSING_SPECS <- list(
 REAL_PCE_HOUSING_BEA <- beaGet(REAL_PCE_HOUSING_SPECS, iTableStyle = FALSE) %>%
   mutate(date = (seq(as.Date("1959-01-01"), length.out = nrow(.), by = "3 months"))) %>%
   clean_names() %>%
-  select(date,u20403_dhsgra_151_housing_fisher_quantity_index_level_0) %>%
+  select(date,u20403_dhsgra_153_housing_fisher_quantity_index_level_0) %>%
   setNames(c("date","Real_Housing_PCE"))
 
 POPULATION <- fredr(series_id = "POPTHM", observation_start = as.Date("1959-01-01"), aggregation_method = "avg", frequency = "q") %>% #population
@@ -1191,6 +1211,447 @@ CONSTRUCTION_STACKED_Graph <- ggplot(data = CONSTRUCTION_STACKED, aes(x = time, 
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONSTRUCTION_STACKED_Graph, "Construction Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ZHVI_TOP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.67_1.0_sm_sa_month.csv?t=1699886520") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionName) %>%
+  mutate(value = (value-lag(value, 12))/lag(value, 12)) %>%
+  ungroup() %>% 
+  select(-RegionID, -SizeRank,-RegionType, -StateName) %>%
+  pivot_wider(names_from = "RegionName") %>%
+  filter(date >= as.Date("2002-01-01"))
+  
+ZHVI_MID <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_month.csv?t=1699886520") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionName) %>%
+  mutate(value = (value-lag(value, 12))/lag(value, 12)) %>%
+  ungroup() %>% 
+  select(-RegionID, -SizeRank,-RegionType, -StateName) %>%
+  pivot_wider(names_from = "RegionName") %>%
+  filter(date >= as.Date("2002-01-01"))
+
+ZHVI_LOW <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.0_0.33_sm_sa_month.csv?t=1699886520") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionName) %>%
+  mutate(value = (value-lag(value, 12))/lag(value, 12)) %>%
+  ungroup() %>% 
+  select(-RegionID, -SizeRank,-RegionType, -StateName) %>%
+  pivot_wider(names_from = "RegionName") %>%
+  filter(date >= as.Date("2002-01-01"))
+
+ZHVI_TOP_MID_LOW_GROWTH_Graph <- ggplot() + #plotting rent by A/B/C City Size
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=ZHVI_TOP, aes(x=date,y= `United States`, color= "Top Tier"), size = 1.25) +
+  geom_line(data=ZHVI_LOW, aes(x=date,y= `United States`, color= "Bottom Tier"), size = 1.25) +
+  geom_line(data=ZHVI_MID, aes(x=date,y= `United States`, color= "Middle Tier"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.125,.20), breaks = c(-.1,0,.1,.2), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Compression in the Housing Market") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Top-Tier Homes are Falling in Pirce, While Low and Mid-Tier Homes are Still Rising") +
+  theme_apricitas + theme(legend.position = c(.5,.8)) +
+  scale_color_manual(name= "Zillow Home Value Index\nYear-on-Year Change by Price Tier", values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = -.125-(.3*.325), ymax = -.125) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ZHVI_TOP_MID_LOW_GROWTH_Graph, "ZHVI Top Mid Low Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+ZHVI_METRO_2016 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699901274") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(date == as.Date("2016-01-31")) %>%
+  transmute(RegionName, value_2016 = value)
+
+ZHVI_METRO_REG_2016 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699901274") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionName) %>%
+  mutate(percent12 = (value-lag(value, 12))/lag(value, 12)) %>%
+  mutate(value_lag_12 = log(lag(value,12))) %>%
+  merge(.,ZHVI_METRO_2016) %>%
+  mutate(percent2016 = (value - value_2016)/value_2016) %>%
+  mutate(value_2016 = log(value_2016)) %>%
+  ungroup() %>% 
+  filter(date == as.Date("2020-01-31")) %>%
+  slice(-1)
+
+
+ZHVI_METRO_2020 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699901274") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(date == as.Date("2020-01-31")) %>%
+  transmute(RegionName, value_2020 = value)
+
+ZHVI_METRO_REG <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699901274") %>%
+  gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionName) %>%
+  mutate(percent12 = (value-lag(value, 12))/lag(value, 12)) %>%
+  mutate(value_lag_12 = log(lag(value,12))) %>%
+  merge(.,ZHVI_METRO_2020) %>%
+  mutate(percent2020 = (value - value_2020)/value_2020) %>%
+  mutate(value_2020 = log(value_2020)) %>%
+  ungroup() %>% 
+  filter(date == max(date)) %>%
+  slice(-1)
+
+summary(lm(percent2020 ~ value_2020, data = ZHVI_METRO_REG))
+
+METRO_REG_Graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=ZHVI_METRO_REG, aes(x=value_2020,y=percent2020, color= "2020-Present"))+
+  stat_smooth(data=ZHVI_METRO_REG,method = "lm", aes(x=value_2020,y=percent2020, color= "2020-Present"), size = 1.25) +
+  geom_point(data=ZHVI_METRO_REG_2016, aes(x=value_2016,y=percent2016, color= "2016-2020"))+
+  stat_smooth(data=ZHVI_METRO_REG_2016,method = "lm", aes(x=value_2016,y=percent2016, color= "2016-2020"), size = 1.25) +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.125,.9), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.75,.750), expand = c(0,0), breaks = c(-.75,-.5,-.25,0,0.25,0.5,0.75)) +
+  ggtitle("Change in For-Sale Inventory vs\nShare of Homeowners Without Mortgages") +
+  labs(caption = "Graph created by @JosephPolitano using Redfin and Census ACS 5-Year data", subtitle = "The Relationship Between Inventory Growth and Free-and Clear Ownership is Still Weak") +
+  theme_apricitas + theme(legend.position = "top") +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 15, vjust = 0.5),
+        plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = .175-(.1861*.775), xmax = 0.175-(0.049*.775), ymin = -0.75-(.3*1.5), ymax = -0.75) +
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = COUNTY_FREE_CLEAR_REG_graph, "County Free Clear.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing  
+
+
+ZHVI_NEIGHBORHOOD_2020 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(date == as.Date("2020-01-31")) %>%
+  transmute(RegionID, value_2020 = value)
+
+ZHVI_NEIGHBORHOOD_REG <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionID) %>%
+  mutate(percent12 = (value-lag(value, 12))/lag(value, 12)) %>%
+  mutate(value_lag_12 = log(lag(value,12))) %>%
+  merge(.,ZHVI_NEIGHBORHOOD_2020) %>%
+  mutate(percent2020 = (value - value_2020)/value_2020) %>%
+  mutate(value_2020 = log(value_2020)) %>%
+  ungroup() %>%
+  mutate(months = round(as.numeric(interval(as.Date("2020-01-01"), date) / months(1)))) %>%
+  mutate(annualized_percent = exp(log(1 + percent2020) * (12 / months)) - 1) %>%
+  filter(date == max(date))
+
+ZHVI_NEIGHBORHOOD_2016 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(date == as.Date("2016-01-31")) %>%
+  transmute(RegionID, value_2016 = value)
+
+ZHVI_NEIGHBORHOOD_REG_2016 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionID) %>%
+  mutate(percent12 = (value-lag(value, 12))/lag(value, 12)) %>%
+  mutate(value_lag_12 = log(lag(value,12))) %>%
+  merge(.,ZHVI_NEIGHBORHOOD_2016) %>%
+  mutate(percent2016 = (value - value_2016)/value_2016) %>%
+  mutate(months = round(as.numeric(interval(as.Date("2016-01-01"), date) / months(1)))) %>%
+  mutate(annualized_percent = exp(log(1 + percent2016) * (12 / months)) - 1) %>%
+  mutate(value_2016 = log(value_2016)) %>%
+  ungroup() %>% 
+  filter(date == as.Date("2020-01-31"))
+
+ZHVI_NEIGHBORHOOD_2001 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  filter(date == as.Date("2001-01-31")) %>%
+  transmute(RegionID, value_2002 = value)
+
+ZHVI_NEIGHBORHOOD_REG_2001 <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Neighborhood_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1699920201") %>%
+  gather(key = "date", value = "value",-9,-8,-7,-6,-5,-4,-3, -2, -1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  group_by(RegionID) %>%
+  mutate(percent12 = (value-lag(value, 12))/lag(value, 12)) %>%
+  mutate(value_lag_12 = log(lag(value,12))) %>%
+  merge(.,ZHVI_NEIGHBORHOOD_2001) %>%
+  mutate(percent2001 = (value - value_2001)/value_2001) %>%
+  mutate(value_2001 = log(value_2001)) %>%
+  ungroup() %>% 
+  filter(date == as.Date("2005-01-31"))
+
+NEIGHBORHOOD_REG_Graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=ZHVI_NEIGHBORHOOD_REG, aes(x=value_2020,y=percent2020, color= "Change in Home Value By Neighborhood Price, 2020-Present"), alpha = 0.05)+
+  stat_smooth(data=ZHVI_NEIGHBORHOOD_REG,method = "lm", aes(x=value_2020,y=percent2020, color= "Change in Home Value By Neighborhood Price, 2020-Present"), size = 1.25) +
+  scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9,16.5)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.5,1.750), expand = c(0,0), breaks = c(-.5,0,0.5,1,1.5)) +
+  ggtitle("Home Prices Rose Most in Once-Cheap Areas") +
+  xlab("Natural Log of Starting Home Value") +
+  ylab("Change in Home Value") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data", subtitle = "Since the Start of the Pandemic, America's Cheap Neighborhoods Have Gotten More Expensive") +
+  theme_apricitas + theme(legend.position = c(.50,.90)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 15, vjust = 0.5),
+        plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 9-(.1861*7.5), xmax = 9-(0.049*7.5), ymin = -0.50-(.3*2.25), ymax = -0.50) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NEIGHBORHOOD_REG_Graph, "Neighborhood Reg Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing  
+
+NEIGHBORHOOD_REG_2016_2020_Graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  #geom_point(data=ZHVI_NEIGHBORHOOD_REG, aes(x=value_2020,y=percent2020, color= "2020-Present"), alpha = 0.05)+
+  #stat_smooth(data=ZHVI_NEIGHBORHOOD_REG,method = "lm", aes(x=value_2020,y=percent2020, color= "2020-Present"), size = 1.25) +
+  geom_point(data=ZHVI_NEIGHBORHOOD_REG_2016, aes(x=value_2016,y=percent2016, color= "Change in Home Value By Neighborhood Price, 2016-2020"), alpha = 0.05)+
+  stat_smooth(data=ZHVI_NEIGHBORHOOD_REG_2016,method = "lm", aes(x=value_2016,y=percent2016, color= "Change in Home Value By Neighborhood Price, 2016-2020"), size = 1.25) +
+  #stat_smooth(data=ZHVI_NEIGHBORHOOD_REG_2002,method = "lm", aes(x=value_2002,y=percent2002, color= "2001-2005"), size = 1.25) +
+  scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9,16.5)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.5,1.750), expand = c(0,0), breaks = c(-.5,0,0.5,1,1.5)) +
+  ggtitle("Home Prices Rose Most in Cheap Areas, Even Pre-COVID") +
+  xlab("Natural Log of Starting Home Value") +
+  ylab("Change in Home Value") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data", subtitle = "Cheap Neighborhoods Getting More Expensive Faster is not a New COVID-Era Phenomenon") +
+  theme_apricitas + theme(legend.position = c(.5,.90)) +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 15, vjust = 0.5),
+        plot.title = element_text(size = 20.5)) +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055"))+
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 9-(.1861*7.5), xmax = 9-(0.049*7.5), ymin = -0.50-(.3*2.25), ymax = -0.50) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NEIGHBORHOOD_REG_2016_2020_Graph, "Neighborhood Reg 2016_2020 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing  
+
+#ZHVI DISTRIBUTION
+ZHVI_ZIP_DISTRIBUTION <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1700290221") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName) %>%
+  #transpose() %>%
+  gather(key = "date", value = "value",-5,-4,-3,-2,-1) %>%
+  mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
+  mutate(ZIP = str_pad(RegionName, 5, pad = 0)) %>%
+  mutate(year = year(date)) %>%
+  group_by(ZIP, year) %>%
+  summarize(yearly_average = mean(value, na.rm = TRUE)) %>%
+  ungroup() 
+
+ZHVI_ZIP_DISTRIBUTION_Graph <- ggplot(filter(ZHVI_ZIP_DISTRIBUTION, year %in% c(2000,2005,2010,2015,2020,max(ZHVI_ZIP_DISTRIBUTION$year))), aes(x = yearly_average/1000, y = rev(year), group = rev(year))) + 
+  geom_density_ridges(color = "#252A32",fill = "#FFE98F", scale = 3) + 
+  scale_x_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "k"),limits = c(0,750)) +
+  scale_y_continuous(expand = c(0,0), breaks = c(2000,2005,2010,2015,2020,max(ZHVI_ZIP_DISTRIBUTION$year)), labels = as.character(c(max(ZHVI_ZIP_DISTRIBUTION$year),2020,2015,2010,2005,2000))) +
+  ggtitle("America's Disappearing Cheap Neighborhoods") +
+  xlab("Zillow Home Value Distribution at ZIP Code Level") +
+  ylab("Year") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data", subtitle = "Home Value Distribution has Shifted Right and Flattened as Cheap Areas see Fastest Appreciation") +
+  theme_apricitas +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 15, vjust = 0.5),
+        plot.title = element_text(size = 23)) +
+  guides(size = "none") + 
+  annotation_custom(apricitas_logo_rast, xmin = 0-(.1861*750), xmax = 0-(0.049*750), ymin = 2000-(.3*35), ymax = 2000) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = ZHVI_ZIP_DISTRIBUTION_Graph, "ZHVI ZIP DISTRIBUTION Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing  
+
+
+METRO_SELECT <- c("New York-Newark-Jersey City, NY-NJ-PA",
+                  "Los Angeles-Long Beach-Anaheim, CA",
+                  "Chicago-Naperville-Elgin, IL-IN-WI",
+                  "Dallas-Fort Worth-Arlington, TX",
+                  "Houston-The Woodlands-Sugar Land, TX",
+                  "Washington-Arlington-Alexandria, DC-VA-MD-WV",
+                  "Philadelphia-Camden-Wilmington, PA-NJ-DE-MD",
+                  "Atlanta-Sandy Springs-Alpharetta, GA",
+                  "Miami-Fort Lauderdale-Pompano Beach, FL",
+                  "Phoenix-Mesa-Chandler, AZ",
+                  "Boston-Cambridge-Newton, MA-NH",
+                  "Riverside-San Bernardino-Ontario, CA",
+                  "San Francisco-Oakland-Berkeley, CA",
+                  "Detroit-Warren-Dearborn, MI",
+                  "Seattle-Tacoma-Bellevue, WA",
+                  "Minneapolis-St. Paul-Bloomington, MN-WI",
+                  "Tampa-St. Petersburg-Clearwater, FL",
+                  "San Diego-Chula Vista-Carlsbad, CA",
+                  "Denver-Aurora-Lakewood, CO",
+                  "Baltimore-Columbia-Towson, MD",
+                  "St. Louis, MO-IL",
+                  "Orlando-Kissimmee-Sanford, FL",
+                  "Charlotte-Concord-Gastonia, NC-SC",
+                  "San Antonio-New Braunfels, TX",
+                  "Portland-Vancouver-Hillsboro, OR-WA",
+                  "Pittsburgh, PA",
+                  "Austin-Round Rock-Georgetown, TX",
+                  "Sacramento-Roseville-Folsom, CA",
+                  "Las Vegas-Henderson-Paradise, NV",
+                  "Cincinnati, OH-KY-IN")
+      
+METRO_SELECT_Graph <- ggplot() + #plotting traditional Unemployment/PCE Inflation curve
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == "Cincinnati, OH-KY-IN"), aes(x=value_2020,y=annualized_percent, color= "2020-Present"))+
+  stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == "Cincinnati, OH-KY-IN"),method = "lm", aes(x=value_2020,y=annualized_percent, color= "2020-Present"), size = 1.25) +
+  geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG_2016, Metro == "Cincinnati, OH-KY-IN"), aes(x=value_2016,y=annualized_percent, color= "2016-2020"))+
+  stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG_2016,Metro == "Cincinnati, OH-KY-IN"), method = "lm", aes(x=value_2016,y=annualized_percent, color= "2016-2020"), size = 1.25) +
+  scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(8.75,16), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.125,.5), expand = c(0,0), breaks = c(-.75,-.5,-.25,0,0.25,0.5,0.75)) +
+  theme_apricitas +
+  ggtitle(paste0("Home Value Change in ","Cincinnati, OH-KY-IN", "\nMetro Area By Neighborhood Price Level")) +
+  ylab("Change in Home Value, Annualized %") +
+  xlab("Natural Log of Starting Home Value") +
+  theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+        axis.title.y = element_text(size = 15, vjust = 0.5),
+        plot.title = element_text(size = 23)) +
+  guides(size = "none") +
+  scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = 9-(.1861*7), xmax = 9-(0.049*7), ymin = -.125-(.3*.625), ymax = -.125) +
+  coord_cartesian(clip = "off") 
+  
+  
+ggsave(dpi = "retina",plot = METRO_SELECT_Graph, "Metro Select Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing  
+
+for (metro in METRO_SELECT) {
+  # Create the plot
+  METRO_SELECT_Graph <- ggplot() +
+    annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+    geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG_2016, Metro == metro), 
+               aes(x = value_2016, y = annualized_percent, color = "2016-2020")) +
+    stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG_2016, Metro == metro),
+                method = "lm", aes(x = value_2016, y = annualized_percent, color = "2016-2020"), size = 1.25) +
+    geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), 
+               aes(x = value_2020, y = annualized_percent, color = "2020-Present")) +
+    stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),
+                method = "lm", aes(x = value_2020, y = annualized_percent, color = "2020-Present"), size = 1.25) +
+    ggtitle(metro) +
+    scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9.5,15.5), expand = c(0,0)) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.05,.25), expand = c(0,0), breaks = c(-.05,0,.05,.10,.15,.20,.25)) +
+    theme_apricitas +
+    ggtitle(paste0("Home Value Change in ",gsub("-[^,]*,", ",", metro), "\nMetro Area By Neighborhood Price Level")) +
+    ylab("Change in Home Value, Annualized %") +
+    xlab("Natural Log of Starting Home Value") +
+    theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+          axis.title.y = element_text(size = 15, vjust = 0.5),
+          plot.title = element_text(size = 23.5)) +
+    guides(size = "none") +
+    scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055")) +
+    annotation_custom(apricitas_logo_rast, xmin = 9.3-(.1861*7.3), xmax = 9.3-(0.049*7.3), ymin = -0.045-(.3*.26), ymax = -0.05) +
+    coord_cartesian(clip = "off") 
+    
+  
+  # Save the plot
+  file_name <- paste0("Metro_Select_Graph", gsub("[[:punct:]]", "", metro), ".png")
+  ggsave(filename = file_name, plot = METRO_SELECT_Graph, dpi = "retina", 
+         type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+}
+
+METRO_ARRANGE_PLOTS <- list()
+
+for (metro in METRO_SELECT) {
+  # Create the plot
+  plot_name <- paste0("METRO_ARRANGE_Graph_", gsub("[[:punct:]]|\\s", "_", gsub("-[^,]*,", ",", metro)))
+  METRO_ARRANGE_PLOTS[[plot_name]] <- ggplot() +
+    annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+    geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG_2016, Metro == metro), 
+               aes(x = value_2016, y = annualized_percent, color = "2016-2020")) +
+    stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG_2016, Metro == metro),
+                method = "lm", aes(x = value_2016, y = annualized_percent, color = "2016-2020"), size = 1.25) +
+    geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), 
+               aes(x = value_2020, y = annualized_percent, color = "2020-Present")) +
+    stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),
+                method = "lm", aes(x = value_2020, y = annualized_percent, color = "2020-Present"), size = 1.25) +
+    ggtitle(metro) +
+    scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9.5,15.5), expand = c(0,0)) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.05,.25), expand = c(0,0), breaks = c(-.05,0,.05,.10,.15,.20,.25)) +
+    theme_apricitas +
+    ggtitle(paste0(gsub("-[^,]*,", ",", metro)," Metro Area")) +
+    ylab(NULL) +
+    xlab(NULL) +
+    theme(axis.title.x = element_text(size = 20, hjust = 0.5),
+          axis.title.y = element_text(size = 15, vjust = 0.5),
+          plot.title = element_text(size = 23.5)) +
+    guides(size = "none") +
+    scale_color_manual(name= NULL,values = c("#00A99D","#FFE98F","#EE6055")) +
+    theme(legend.position = "right", panel.grid.major=element_blank(),plot.margin= grid::unit(c(0, 0.1, 0.05, 0), "in")) + 
+    theme(plot.title = element_text(size = 14,hjust = 0.5))
+}
+
+
+NORTHEAST_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_New_York__NY_NJ_PA,
+                             METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Washington__DC_VA_MD_WV,
+                             METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Philadelphia__PA_NJ_DE_MD,
+                             METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Boston__MA_NH,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+NORTHEAST_NEIGHBORHOOD_Graph <- annotate_figure(NORTHEAST_NEIGHBORHOOD_Graph, 
+                                    top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                   bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                   left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = NORTHEAST_NEIGHBORHOOD_Graph, "Northeast Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+CALIFORNIA_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Los_Angeles__CA,
+                                          METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Riverside__CA,
+                                          METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_San_Francisco__CA,
+                                          METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_San_Diego__CA,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+CALIFORNIA_NEIGHBORHOOD_Graph <- annotate_figure(CALIFORNIA_NEIGHBORHOOD_Graph, 
+                                                top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                                bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                                left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = CALIFORNIA_NEIGHBORHOOD_Graph, "California Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+MIDWEST_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Chicago__IL_IN_WI,
+                                           METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Detroit__MI,
+                                           METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Minneapolis__MN_WI,
+                                           METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_St__Louis__MO_IL,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+MIDWEST_NEIGHBORHOOD_Graph <- annotate_figure(MIDWEST_NEIGHBORHOOD_Graph, 
+                                                 top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                                 bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                                 left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = MIDWEST_NEIGHBORHOOD_Graph, "Midwest Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TEXAS_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Dallas__TX,
+                                        METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Houston__TX,
+                                        METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_San_Antonio__TX,
+                                        METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Austin__TX,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+TEXAS_NEIGHBORHOOD_Graph <- annotate_figure(TEXAS_NEIGHBORHOOD_Graph, 
+                                              top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                              bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                              left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = TEXAS_NEIGHBORHOOD_Graph, "Texas Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+SOUTH_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Atlanta__GA,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Miami__FL,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Tampa__FL,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Charlotte__NC_SC,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+SOUTH_NEIGHBORHOOD_Graph <- annotate_figure(SOUTH_NEIGHBORHOOD_Graph, 
+                                            top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                            bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                            left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = SOUTH_NEIGHBORHOOD_Graph, "South Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+WEST_NEIGHBORHOOD_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Phoenix__AZ,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Seattle__WA,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Denver__CO,
+                                      METRO_ARRANGE_PLOTS$METRO_ARRANGE_Graph_Portland__OR_WA,ncol = 2, nrow = 2, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+WEST_NEIGHBORHOOD_Graph <- annotate_figure(WEST_NEIGHBORHOOD_Graph, 
+                                            top = text_grob("Home Value Change by Neighborhood Price Level", face = "bold", size = 26.5, color = "white"),
+                                            bottom = text_grob("Natural Log of Starting Home Value", size = 20, color = "#929299"), 
+                                            left = text_grob("Change in Home Value, Annualized %", size = 15, color = "#929299", rot = 90)) + bgcolor("#252A32")
+
+ggsave(dpi = "retina",plot = WEST_NEIGHBORHOOD_Graph, "West Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1684841233") %>%
