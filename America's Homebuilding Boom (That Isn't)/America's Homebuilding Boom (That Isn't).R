@@ -1443,7 +1443,7 @@ ZHVI_ZIP_DISTRIBUTION_Graph <- ggplot(filter(ZHVI_ZIP_DISTRIBUTION, year %in% c(
   geom_density_ridges(color = "#252A32",fill = "#FFE98F", scale = 3) + 
   scale_x_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "k"),limits = c(0,750)) +
   scale_y_continuous(expand = c(0,0), breaks = c(2000,2005,2010,2015,2020,max(ZHVI_ZIP_DISTRIBUTION$year)), labels = as.character(c(max(ZHVI_ZIP_DISTRIBUTION$year),2020,2015,2010,2005,2000))) +
-  ggtitle("America's Disappearing Cheap Neighborhoods") +
+  ggtitle("America's Disappearing Affordable Neighborhoods") +
   xlab("Zillow Home Value Distribution at ZIP Code Level") +
   ylab("Year") +
   labs(caption = "Graph created by @JosephPolitano using Zillow data", subtitle = "Home Value Distribution has Shifted Right and Flattened as Cheap Areas see Fastest Appreciation") +
@@ -1652,6 +1652,27 @@ WEST_NEIGHBORHOOD_Graph <- annotate_figure(WEST_NEIGHBORHOOD_Graph,
 
 ggsave(dpi = "retina",plot = WEST_NEIGHBORHOOD_Graph, "West Neighborhood Regression.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+TELEWORK_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/America's%20Homebuilding%20Boom%20(That%20Isn't)/TELEWORK_DATA.csv") %>%
+  mutate(Date = as.Date(Date)) %>%
+  setNames(c("date","Teleworked Some Hours","Teleworked All Hours","Total")) %>%
+  select(-Total) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = rev(c("Teleworked All Hours","Teleworked Some Hours"))))
+
+TELEWORK_DATA_Graph <- ggplot(data = TELEWORK_DATA, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Number of Workers, Millions") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"), breaks = c(0,10,20,30,40), limits = c(0,40), expand = c(0,0)) +
+  ggtitle("US Teleworking Over the Last Year") +
+  labs(caption = "Graph created by @JosephPolitano using CPS data", subtitle = "The Number of Americans Teleworking Has Marginally Increased over the Last Year") +
+  theme_apricitas + theme(legend.position = c(.2,.875)) +
+  scale_fill_manual(name= "Number of Workers Who",values = c("#FFE98F","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-10-01")-(.1861*(today()-as.Date("2022-10-01"))), xmax = as.Date("2022-10-01")-(0.049*(today()-as.Date("2022-10-01"))), ymin = 0-(.3*40), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TELEWORK_DATA_Graph, "Telework Data.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ZHVI_FIPS <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/County_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1684841233") %>%
