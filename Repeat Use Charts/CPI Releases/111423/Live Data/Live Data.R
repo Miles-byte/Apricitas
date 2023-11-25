@@ -412,7 +412,7 @@ CPI_Manheim_Used_Car_Vehicles_Growth_Graph <- ggplot() + #plotting Rent and Owne
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Manheim Wholesale Data Suggests Official Used Car Prices Should Decelerate") +
   theme_apricitas + theme(legend.position = c(.46,.085)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Manheim Used Vehicles Value Index, Annual Growth, Lagged 2 Months","CPI: Used Cars and Trucks, Annual Growth")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -.25-(.3*0.65), ymax = -.25) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -.25-(.3*0.85), ymax = -.25) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CPI_Manheim_Used_Car_Vehicles_Growth_Graph, "CPI Manheim Used Vehicles Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

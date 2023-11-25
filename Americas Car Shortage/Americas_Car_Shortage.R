@@ -5,7 +5,8 @@ Inventory <- fredr(series_id = "N864RX1Q020SBEA",observation_start = as.Date("20
 Capacity_Util <- fredr(series_id = "CAPUTLG33611S",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 Assemblies <- fredr(series_id = "MVATOTASSS",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) %>%
   mutate(date = as.Date(date), Shortfall = value - (mean(value[year(date) == 2019]))) %>%
-  mutate(Cumulative_Shortfall = (cumsum(Shortfall)+4.5665)/12)
+  mutate(Cumulative_Shortfall = (cumsum(Shortfall))/12) %>%
+  mutate(Cumulative_Shortfall = Cumulative_Shortfall-Cumulative_Shortfall[24])
 AssembliesNSA <- fredr(series_id = "MVATOTASSN",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 AutoAssemblies <- fredr(series_id = "MVAAUTOASS",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -117,16 +118,16 @@ Auto_Sales_Graph <- ggplot() + #plotting capacity utilization in Automobiles
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*19), ymax = 0) +
   coord_cartesian(clip = "off")
 
-Cumulative_Shortfall_Graph <- ggplot(subset(Assemblies, date > as.Date("2020-01-01")), aes(x = date, y = Cumulative_Shortfall, fill = "Cumulative Shortfall in US Motor Vehicle Production")) + #plotting power generation
+Cumulative_Shortfall_Graph <- ggplot(subset(Assemblies, date > as.Date("2020-01-01")), aes(x = date, y = -Cumulative_Shortfall, fill = "Cumulative Shortfall in US Motor Vehicle Production")) + #plotting power generation
   geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
   xlab("Date") +
   ylab("Millions of Motor Vehicles") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
   ggtitle("Falling Short") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Cumulative Shortfall in US Vehicle Production Sits at Nearly 4.5 Million Units") +
-  theme_apricitas + theme(legend.position = c(.35,.89)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Cumulative Shortfall in US Vehicle Production Sits at Nearly 4.75 Million Units") +
+  theme_apricitas + theme(legend.position = c(.35,.95)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-02-01")-(.1861*(today()-as.Date("2020-02-01"))), xmax = as.Date("2020-02-01")-(0.049*(today()-as.Date("2020-02-01"))), ymin = 0-(.3*5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-03-01")-(.1861*(today()-as.Date("2020-03-01"))), xmax = as.Date("2020-03-01")-(0.049*(today()-as.Date("2020-03-01"))), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 VMT_Graph <- ggplot() + #plotting capacity utilization in Automobiles
@@ -164,15 +165,12 @@ Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Aut
   geom_line(data=Auto_Utilized_Capacity_Merge, aes(x=date,y= value.x*(value.y/100), color = "Industrial Production: Automobile and Light Duty Motor Vehicles"), size = 1.25)+ 
   xlab("Date") +
   ylab("Industrial Capacity, 2017 = 100") +
-  scale_y_continuous(limits = c(00,160), breaks = c(0,20,40,60,80,100,120,140,160), expand = c(0,0)) +
-  #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
+  scale_y_continuous(limits = c(00,170), breaks = c(0,20,40,60,80,100,120,140,160), expand = c(0,0)) +
   ggtitle("Capacity Recovery") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Has Increased More Than 10% Since Early 2020") +
   theme_apricitas + theme(legend.position = c(0.40,0.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
-  #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 0-(.3*160), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0-(.3*170), ymax = 0) +
   coord_cartesian(clip = "off")
 
 Assemblies <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?rel=G17&series=75edc36fae13b9ecdb1266e03ab34902&lastobs=100&from=&to=&filetype=csv&label=omit&layout=seriescolumn") %>%
@@ -218,7 +216,7 @@ Assemblies_Auto_Truck_Graph <- ggplot() + #plotting auto assemblies
 Mannheim <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/mannheim.csv") %>%
   mutate(date = as.Date(date))
 
-CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2019, endyear = 2025, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))#cpi used cars data
 
 CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
@@ -236,11 +234,11 @@ CPI_Mannheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Truc
 
 
 #employment by stage of vehicle manufacturing
-EMP_VEHICLES <- bls_api("CES3133610001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+EMP_VEHICLES <- bls_api("CES3133610001", startyear = 2019, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))#cpi used cars data
-EMP_BODIES <- bls_api("CES3133620001", startyear = 2019,endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+EMP_BODIES <- bls_api("CES3133620001", startyear = 2019,endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))#cpi used cars data
-EMP_PARTS <- bls_api("CES3133630001", startyear = 2019, endyear = 2022, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+EMP_PARTS <- bls_api("CES3133630001", startyear = 2019, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))#cpi used cars data
 
 Employment_Graph <- ggplot() + #plotting auto assemblies
@@ -257,6 +255,104 @@ Employment_Graph <- ggplot() + #plotting auto assemblies
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*650), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ALL_EMPLOYEES_MOTOR_VEHICLE <- fredr(series_id = "CES3133600101",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+ALL_EMPLOYEES_MOTOR_VEHICLE_Graph <- ggplot() + #plotting auto assemblies
+  geom_line(data=ALL_EMPLOYEES_MOTOR_VEHICLE, aes(x=date,y= value/1000, color = "All Employees, Manufacturing: Motor Vehicles & Parts"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), limits = c(0.6,1.1), breaks = c(0.6,0.7,0.8,0.9,1,1.1), expand = c(0,0)) +
+  ggtitle("Employment Impact of the UAW Strikes") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Car Manufacturing Employment Fell by 33k in October Thanks Largely to the UAW Strike") +
+  theme_apricitas + theme(legend.position = c(0.35,0.95), legend.title = element_text(size = 14)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0.6-(.3*0.5), ymax = 0.6) +
+  coord_cartesian(clip = "off")
+
+PPI_MARGINS_NEW_DATA <- fredr(series_id = "PCU441110441110101",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
+PPI_MARGINS_USED_DATA <- fredr(series_id = "PCU441110441110102",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+PPI_Car_Margins_Graph <- ggplot() + #plotting "Used Cars and Trucks" and "Mannheim" price Indexes
+  geom_line(data=PPI_MARGINS_NEW_DATA, aes(x=date,y= value/value[24]*100,color= "PPI: New Car Dealers: New Car Margins"), size = 1.25) +
+  geom_line(data=PPI_MARGINS_USED_DATA, aes(x=date,y= value/value[24]*100,color= "PPI: New Car Dealers: Used Car Margins"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(0,500), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
+  ylab("Index, January 2019 = 100") +
+  ggtitle("Dealer Magins are Compressing") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Gross Margins for Car Dealerships are Coming Down From Record Highs") +
+  theme_apricitas + theme(legend.position = c(.30,.70)) +
+  scale_color_manual(name= "Raw Gross Dealer Margin\n(Retail Prices Less Acquisition Prices)\nIndexed January 2019 = 100",values = c("#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*500), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+UNFILLED_ORDERS_MV_PARTS <- fredr(series_id = "AMVPUO",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+UNFILLED_ORDERS_Graph <- ggplot() + #plotting auto assemblies
+  geom_line(data=UNFILLED_ORDERS_MV_PARTS, aes(x=date,y= value/1000, color = "Unfilled Orders: Durable Goods: Motor Vehicles and Parts"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Employees") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,40), breaks = c(0,10,20,30,40), expand = c(0,0)) +
+  ggtitle("Vehicle Unfilled Orders Remain High") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Roughly $35B in Unfilled Orders for Motor Vehicles Still Remain, Up Significantly From Pre-COVID") +
+  theme_apricitas + theme(legend.position = c(0.5,0.15), legend.title = element_text(size = 14)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*40), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+#QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
+DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2023Q3.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
+  slice(-(1:3)) %>%
+  setnames(c("date","Mortgage","HELOC","Auto","Credit Card","Student Loan","Other","All","X")) %>%
+  select(-Other,-All,-X) %>%
+  mutate(date = seq.Date(from = as.Date("2003-01-01"), by = "3 months", length = nrow(.))) %>%
+  mutate(across(where(is.character), ~ as.numeric(.))) %>%
+  pivot_longer(cols = Mortgage:`Student Loan`)
+
+#QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
+NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2023Q3.xlsx?sc_lang=en", sheet = "Page 14 Data") %>%
+  slice(-(1:4)) %>%
+  select(1:9) %>%
+  setnames(c("date","Auto","CC","Mortgage","HELOC","Student Loan","Other","All","X")) %>%
+  select(-Other,-All,-X) %>%
+  mutate(date = seq.Date(from = as.Date("2003-01-01"), by = "3 months", length = nrow(.))) %>%
+  mutate(across(where(is.character), ~ as.numeric(.))) %>%
+  pivot_longer(cols = Auto:`Student Loan`)
+
+DELINQUENT_FRBNY_CONSUMER_CREDIT_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_line(data = filter(DELINQUENT_FRBNY_CONSUMER_CREDIT,name == "Auto"), aes(x = date, y = value/100, color = "% of Auto Loan Balance 90+ Days Delinquent"), size = 1.25) +
+  geom_line(data = filter(NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT,name == "Auto"), aes(x = date, y = value/100, color = "% of Auto Loan Balance Newly Transitioning into 90+ Days Delinquent"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.055), breaks = c(0,.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
+  ylab("% of Total Balance") +
+  ggtitle("Auto Delinquencies are Rising Again") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data",subtitle = "The Share of Auto Loans in Delinquency has Risen Above its COVID-era Lows") +
+  theme_apricitas + theme(legend.position = c(0.50,0.15)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*0.055), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+SCE_APPLY_DENY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Americas%20Car%20Shortage/SCE_APPLY_REJECTED.csv") %>%
+  mutate(date = as.Date(date))
+
+SCE_APPLY_DENY_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_line(data = SCE_APPLY_DENY, aes(x = date, y = Applied/100, color = "Likelihood of Applying for Auto Loans in the Next 12M"), size = 1.25) +
+  geom_line(data = SCE_APPLY_DENY, aes(x = date, y = Rejected/100, color = "Among Auto Loan Applicants: Expected Likelihood of Rejection"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.35), breaks = c(0,0.1,0.2,0.3), expand = c(0,0)) +
+  ylab("% Likelihood") +
+  ggtitle("Americans Feel Auto Credit Drying Up") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data",subtitle = "Americans Expect to Apply for Fewer Auto Loans and See a Higher Likelihood of Being Rejected") +
+  theme_apricitas + theme(legend.position = c(0.50,0.95)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("Likelihood of Applying for Auto Loans in the Next 12M","Among Auto Loan Applicants: Expected Likelihood of Rejection")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*0.35), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SCE_APPLY_DENY_GRAPH, "SCE Apply Deny Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+ggsave(dpi = "retina",plot = DELINQUENT_FRBNY_CONSUMER_CREDIT_GRAPH, "Auto Delinquencies FRBNY Consumer Credit Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = UNFILLED_ORDERS_Graph, "Unfilled Orders Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = PPI_Car_Margins_Graph, "PPI Car Margins Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Vehicle_Inventory_Graph, "Vehicle Inventory.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Capacity_Utilization_Graph, "Automobile Capacity Utilization.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Auto_Sales_Graph, "Auto Sales Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -270,6 +366,7 @@ ggsave(dpi = "retina",plot = Plant_Underutilization_Graph, "Plant Underutilizati
 ggsave(dpi = "retina",plot = CPI_Mannheim_Used_Car_Vehicles_Graph, "CPI Mannheim.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Cumulative_Shortfall_Graph, "Cumulative Shortfall.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = Employment_Graph, "Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = ALL_EMPLOYEES_MOTOR_VEHICLE_Graph, "All Employees Motor Vehicles Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 

@@ -4,6 +4,9 @@ devtools::install_github("warint/statcanR")
 library(statcanR)
 devtools::install_github("rOpenGov/eurostat")
 library(eurostat)
+install_github("seokhoonj/ecos", force = TRUE)
+library("ecos")
+ecos.setKey('2DNSQWJY32YGLL8EM95R')
 
 
 CANADA_INDPRO <- statcan_data("36-10-0434-04", "eng") %>%
@@ -206,16 +209,15 @@ INDIA <- read.csv2("https://datasource.kapsarc.org/api/explore/v2.1/catalog/data
   mutate(Date = as.Date(as.yearmon(Date,"%Y-%m"))) %>%
   subset(Date >= as.Date("2018-01-01")) %>%
   mutate(Value = as.numeric(Value))
-JAPAN_IP <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2015_gsm1e.xlsx") %>%
-  select(-`Seasonally.adjusted.Index.by.Industry.:.Industrial.Production.(2015=100.0)`,-X3) %>%
+JAPAN_IP <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2020_gsm1e.xlsx") %>%
+  select(-`Seasonally.adjusted.Index.by.Industry.:.Industrial.Production.(2020=100.0)`,-X3) %>%
   transpose() %>%
   select(-V1) %>%
   row_to_names(1) %>%
   clean_names(.) %>%
   #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
-  mutate(date = seq.Date(from = as.Date("2013-01-01"), by = "month", length.out = nrow(.))) %>%
-  mutate_if(is.character,as.numeric) %>%
-  subset(date >= as.Date("2018-01-01"))
+  mutate(date = seq.Date(from = as.Date("2018-01-01"), by = "month", length.out = nrow(.))) %>%
+  mutate_if(is.character,as.numeric)
 
 ASIA_IP_CARS_graph <- ggplot() + #plotting MOVE
   geom_line(data=subset(JAPAN_IP, date >= as.Date("2018-01-01")), aes(x=date,y= motor_vehicles/1.008,color= "Japan"), size = 1.25) +
@@ -422,8 +424,33 @@ US_EU_JPN_Production <- ggplot() + #plotting MOVE
 
 ggsave(dpi = "retina",plot = US_EU_JPN_Production, "US EU JPN Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+KOR_INDPRO <- statSearch(lang = "en",stat_code = "901Y032", item_code1 = "I11ACU",item_code2 = "2", start_time = "201801", cycle = "M") %>%
+  mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
-Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2023/07/June-2023-MUVVI-Spreadsheet.xlsx") %>%
+
+EU_JPN_CAN_MEX_KOR_Production <- ggplot() + #plotting MOVE
+  #geom_line(data=CHINA_IND_PRO_MV, aes(x=date,y= `Output of Motor Vehicles, Current Period`/(sum(`Output of Motor Vehicles, Current Period`[1:11])/11)*100,color= "China"), size = 1.25) +
+  geom_line(data=subset(JAPAN_IP, date >= as.Date("2018-01-01")), aes(x=date,y= motor_vehicles/(sum(motor_vehicles[1:12])/12)*100,color= "Japan"), size = 1.25) +
+  #geom_line(data=INDIA, aes(x=Date,y= Value/(sum(Value[1:12])/12)*100,color= "India"), size = 1.25) +
+  geom_line(data=EU_MOTOR_VEHICLE_SUBSET, aes(x=time,y= values/(sum(values[1:12])/12)*100,color= "European Union"), size = 1.25) +
+  geom_line(data = CANADA_INDPRO, aes(x = REF_DATE, y = VALUE/(sum(VALUE[1:12])/12)*100, color = "Canada"), size = 1.25) +
+  geom_line(data = KOR_INDPRO, aes(x = time, y = data_value/(sum(data_value[1:12])/12)*100, color = "South Korea"), size = 1.25) +
+  geom_line(data = MEXICO_INDPO, aes(x = Date, y = MX_INDPRO_TEP/(sum(MX_INDPRO_TEP[1:12])/12)*100, color = "Mexico\n(Transportation Equipment)"), size = 1.25) +
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 1.25, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,135), breaks = c(0,20,40,60,80,100,120), expand = c(0,0)) +
+  ylab("Index, 2018 Avg = 100") +
+  ggtitle("Global Car Production is Recovering") +
+  labs(caption = "Graph created by @JosephPolitano using METI, MOSPI, NBSS, Eurostat, and Federal Reserve Data",subtitle = "The Global Recovery From the Chips Shortage is Continuing") +
+  theme_apricitas + theme(legend.position = c(.2,.25)) +
+  scale_color_manual(name= "Production of Motor Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Mexico\n(Transportation Equipment)","Canada","European Union","Japan","South Korea")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*120), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_JPN_CAN_MEX_KOR_Production, "EU JPN CAN MEX KOR Production.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2023/11/Oct-2023-ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 
@@ -508,10 +535,10 @@ LOANS_RATES_Graph <- ggplot() + #plotting net tightening data
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_area(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Percent of Loan and Leases") +
+  ylab("Percent Interest") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.02,0.04,0.06,0.08,0.10), limits = c(0,0.10), expand = c(0,0)) +
   ggtitle("Tightening Up") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Auto Loan Interest Rates are Rising as the Fed Tightens Monetary Policy") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Auto Loan Interest Rates Have Risen as the Fed Tightened Monetary Policy") +
   theme_apricitas + theme(legend.position = c(.45,.75)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-02-01")-(.1861*(today()-as.Date("2018-02-01"))), xmax = as.Date("2018-02-01")-(0.049*(today()-as.Date("2018-02-01"))), ymin = 0-(.3*0.10), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -523,16 +550,17 @@ RETAIL_IS_MOTOR <- fredr(series_id = "MRTSIR441USS", observation_start = as.Date
 RETAIL_IS_EX_MOTOR <- fredr(series_id = "MRTSIR4400AUSS", observation_start = as.Date("2018-01-01"))
 
 RETAIL_IS_graph <- ggplot() + #plotting components of annual inflation
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 0.5) +
   geom_line(data = RETAIL_IS_MOTOR, aes(x = date, y = value/value[1]*100, color = "Motor Vehicles and Parts"), size = 1.25) +
   geom_line(data = RETAIL_IS_EX_MOTOR, aes(x = date, y = value/value[1]*100, color = "Excluding Motor Vehicles and Parts"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,160), breaks = c(0,25,50,75,100,125,150), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(50,151), breaks = c(0,25,50,75,100,125,150), expand = c(0,0)) +
   ylab("Index, Jan 2018=100") +
-  ggtitle("Dealership Inventories are Recovering") +
+  ggtitle("Slow Recovery in Dealer Inventories") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Inventory/Sales Have Normalized For Most Retailers, But are Still Slowly Recovering For Dealerships") +
-  theme_apricitas + theme(legend.position = c(.32,.25)) +
-  scale_color_manual(name= "Retail Inventory/Sales Ratio, Indexed to Jan 2018",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Motor Vehicles and Parts","Excluding Motor Vehicles and Parts")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*160), ymax = 0) +
+  theme_apricitas + theme(legend.position = c(.75,.75)) +
+  scale_color_manual(name= "Retail Inventory/Sales Ratio\nIndexed to Jan 2018",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Motor Vehicles and Parts","Excluding Motor Vehicles and Parts")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 50-(.3*101), ymax = 50) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RETAIL_IS_graph, "Retail IS Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -542,7 +570,7 @@ NET_IMPORTS <- fredr(series_id = "AB63RX1Q020SBEA", observation_start = as.Date(
 NET_IMPORTS_Graph <- ggplot() + #plotting real private auto inventories
   geom_line(data=NET_IMPORTS, aes(x=date,y= value*-1,color= "US Net Real Imports of Motor Vehicles"), size = 1.25)+ 
   xlab("Date") +
-  ylab("Billions of Chained 2012 US Dollars") +
+  ylab("Billions of Chained 2017 US Dollars") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,175), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("US Vehicle Imports Have Recovered") +
