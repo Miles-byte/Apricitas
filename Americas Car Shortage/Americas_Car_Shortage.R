@@ -189,7 +189,7 @@ Assemblies_Graph <- ggplot() + #plotting auto assemblies
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,14), breaks = c(0,4,8,12), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Fixing the Assembly Line") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Motor Vehicle Assemblies Have Climbed Back to Their Pre-Pandemic Average") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "Vehicle Assemblies Had Climbed Back to Their Pre-Pandemic Average Before the UAW Strikes") +
   theme_apricitas + theme(legend.position = c(0.75,0.32)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*14), ymax = 0) +
