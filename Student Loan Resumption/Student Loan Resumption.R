@@ -1,4 +1,4 @@
-pacman::p_load(ggpattern,jsonlite,fs,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(Bea.R,ggpattern,jsonlite,fs,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -172,7 +172,7 @@ ANNUAL_DISBURSEMENTS_GRAPH <- ggplot(data = ANNUAL_DISBURSEMENTS, aes(x = date, 
 
 ggsave(dpi = "retina",plot = ANNUAL_DISBURSEMENTS_GRAPH, "Annual Disbursements Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
+DOE_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/deposits_withdrawals_operating_cash?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
   group_by(year = year(date), month = month(date)) %>% 
   filter(date == max(date)) %>%
@@ -193,7 +193,23 @@ DOE_TGA_DEPOSITS_GRAPH <- ggplot() + #plotting components of annual inflation
 
 ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_GRAPH, "DOE TGA DEPOSITS GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-DOE_TGA_DEPOSITS_WEEKLY <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_2?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_today_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
+DOE_TGA_DEPOSITS_2018_GRAPH <- ggplot() + #plotting components of annual inflation
+  geom_line(data = filter(DOE_TGA_DEPOSITS, date >= as.Date("2018-01-01")), aes(x = date, y = (value*12)/1000, color = "Department of Education Monthly Receipts, Annual Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,105), breaks = c(25,50,75,100), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Monthly Payments to the Department of Education") +
+  labs(caption = "Graph created by @JosephPolitano using US Treasury data",subtitle = "Payments to the Department of Education, Most of them Student Loans, Have Rebounded") +
+  theme_apricitas + theme(legend.position = c(0.5,0.95)) +
+  theme(plot.title = element_text(size = 23)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*105), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DOE_TGA_DEPOSITS_2018_GRAPH, "DOE TGA DEPOSITS 2018 GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+DOE_TGA_DEPOSITS_WEEKLY <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/deposits_withdrawals_operating_cash?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_today_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Education%20Department%20programs,Dept%20of%20Education%20(ED))") %>%
   transmute(date = as.Date(record_date), value = transaction_today_amt) %>%
   mutate(value = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,rollmean(value, 21))) %>%
   filter(value != 0)
@@ -363,6 +379,41 @@ REPAY_EXAMPLE_GRAPH <- ggplot() + #plotting components of annual inflation
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REPAY_EXAMPLE_GRAPH, "REPAYE EXAMPLE Graph GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+beaSearch("Capital Transfers")
+
+CAPITAL_TRANSFERS_PAID_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U51100',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+CAPITAL_TRANSFERS_PAID <- beaGet(CAPITAL_TRANSFERS_PAID_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+CAPITAL_TRANSFERS_PAID_GRAPH <- ggplot(data = CAPITAL_TRANSFERS_PAID, aes(x = date, y = u51100_w027rc_14_other_capital_transfers_paid_to_persons_current_dollars_level_6/4000, fill = "Federal Government, Other Capital Transfers to Persons, Quarterly")) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  annotate("text", label = "Spike Caused By\nEmergency Rental Assistance and\nHomeowner Assistance Programs",y = 40, x = as.Date("2019-12-01"), color = "white", size = 4) +
+  annotate("text", label = "Spike Caused By\nStudent Loan Forgiveness",y = 75, x = as.Date("2022-07-01"), color = "white", size = 5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100,120), limits = c(0,120), expand = c(0,0)) +
+  ggtitle("Billions in Student Loans Have Been Forgiven") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Despite the Supreme Court Ruling, The Government Has Still Been Able to Forgive Billions") +
+  theme_apricitas + theme(legend.position = c(.45,.95)) +
+  theme(plot.title = element_text(size = 25)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*120), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAPITAL_TRANSFERS_PAID_GRAPH, "Capital Transfers Paid Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 cat("\014")  # ctrl+L

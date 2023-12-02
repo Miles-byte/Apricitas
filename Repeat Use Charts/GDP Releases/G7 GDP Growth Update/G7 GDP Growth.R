@@ -79,7 +79,7 @@ JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01"))
 #https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2023/qe232/gdemenuea.html
 
 CAN <- statcan_data("36-10-0104-01", "eng") %>%
-  filter(GEO == "Canada", Prices == "Chained (2012) dollars", Estimates == "Gross domestic product at market prices", REF_DATE  >= as.Date("2018-01-01")) %>%
+  filter(GEO == "Canada", Prices == "Chained (2017) dollars", Estimates == "Gross domestic product at market prices", `Seasonal adjustment` == "Seasonally adjusted at annual rates", REF_DATE  >= as.Date("2018-01-01")) %>%
   transmute(date = REF_DATE, value = VALUE/VALUE[7]*100)
 
 # CAN <- get_cansim_vector("v62305752") %>%
