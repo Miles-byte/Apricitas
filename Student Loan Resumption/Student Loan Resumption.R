@@ -380,8 +380,6 @@ REPAY_EXAMPLE_GRAPH <- ggplot() + #plotting components of annual inflation
 
 ggsave(dpi = "retina",plot = REPAY_EXAMPLE_GRAPH, "REPAYE EXAMPLE Graph GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-beaSearch("Capital Transfers")
-
 CAPITAL_TRANSFERS_PAID_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -415,6 +413,124 @@ CAPITAL_TRANSFERS_PAID_GRAPH <- ggplot(data = CAPITAL_TRANSFERS_PAID, aes(x = da
 
 ggsave(dpi = "retina",plot = CAPITAL_TRANSFERS_PAID_GRAPH, "Capital Transfers Paid Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+
+DELIQUENCY_EXPECTATIONS_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY-SCE-Data.xlsx?sc_lang=en", sheet = "Delinquency expectations Demo") %>%
+  slice(-(1:3)) %>%
+  setnames(c("date","Under 40","40-60","Over 60","High School or Less","Some College","BA Or Higher","Under 50k","50-100k","Over 100k","Low Numeracy","High Numeracy","West","Midwest","South","Northeast")) %>%
+  mutate(date = seq.Date(from = as.Date("2013-06-01"), by = "1 months", length = nrow(.))) %>%
+  mutate(across(where(is.character), ~ as.numeric(.))) %>%
+  filter(date >= as.Date("2018-01-01"))
+
+DELIQUENCY_EXPECTATIONS_CREDIT_GRAPH <- ggplot() + #plotting components of annual inflation
+  #geom_line(data = DELIQUENCY_EXPECTATIONS_CREDIT, aes(x = date, y = `High School or Less`/100, color = "High School or Less"), size = 1.25) +
+  geom_line(data = DELIQUENCY_EXPECTATIONS_CREDIT, aes(x = date, y = `Some College`/100, color = "Some College"), size = 1.25) +
+  geom_line(data = DELIQUENCY_EXPECTATIONS_CREDIT, aes(x = date, y = `BA Or Higher`/100, color = "BA or Higher"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.21), breaks = c(0,.05,.10,.15,.2), expand = c(0,0)) +
+  ylab("Mean Probability, %") +
+  ggtitle("Debt Delinquency Expectations Are Up\nAmong Former College Attendees") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data",subtitle = "Those Most Likely to Have Student Loans Worry Most About Falling Behind on Debt Soon") +
+  theme_apricitas + theme(legend.position = c(0.5,0.89)) +
+  scale_color_manual(name = "Mean Probability of Not Making Minimum Debt Payments Over the Next 3 Months", values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("Some College","BA or Higher")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*0.21), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DELIQUENCY_EXPECTATIONS_CREDIT_GRAPH, "Debt Delinquency Expectations Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+DELINQUENCY_RATE_DEBT_CATEGORIES <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Student%20Loan%20Resumption/DELINQUENCY_RATE_DEBT_CATEGORIES.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  pivot_wider(names_from = category, values_from = delinquency_rate) %>%
+  setNames(c("date","Auto & Credit Card Debt","Student, Auto, & Credit Card Debt","Credit Card Debt Only","Mortgage & Credit Card Debt","Student & Credit Card Debt")) %>%
+  pivot_longer(-date) %>%
+  filter(date >= as.Date("2017-12-01"))
+
+DELINQUENCY_RATE_DEBT_CATEGORIES_graph <- ggplot() + #plotting components of annual inflation
+  geom_line(data = DELINQUENCY_RATE_DEBT_CATEGORIES, aes(x = date, y = value/100, color = name), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.045), breaks = c(0,.01,.02,.03,.04), expand = c(0,0)) +
+  ylab("Share of Borrowers, %") +
+  ggtitle("Share of Credit Card Borrowers\nWho are Newly Delinquent, NSA") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data via Haughwout, Lee, Mangrum, Rodriguez, van der Klaauw, Scally, & Wang",subtitle = "Borrowers With Student Debt are More Likely to be Falling Behind on Their Credit Cards") +
+  theme_apricitas + theme(legend.position = c(0.5,0.89), legend.key.height = unit(0,"cm")) +
+  scale_color_manual(name = "Borrowers With", values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("Student, Auto, & Credit Card Debt","Student & Credit Card Debt","Auto & Credit Card Debt","Credit Card Debt Only","Mortgage & Credit Card Debt")) +
+  guides(color = guide_legend(nrow = 3, ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-12-01")-(.1861*(today()-as.Date("2017-12-01"))), xmax = as.Date("2017-12-01")-(0.049*(today()-as.Date("2017-12-01"))), ymin = 0-(.3*.045), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DELINQUENCY_RATE_DEBT_CATEGORIES_graph, "Delinquency Rate Debt Categories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#DATE HAS TO BE UPDATES EVERY THREE MONTHS
+EGI_RETAIL_DATA <- read.xlsx("https://www.newyorkfed.org/medialibrary/Research/Interactives/Data/equitable-growth-indicators/downloads/10-2023-EGI-National_Data", sheet = "Real Retail Spending I") %>%
+  slice(-(1:3)) %>%
+  setnames(c("date","25-34","35-44","45-54",">54","College","Grad School","HS","Some College","$100-150k","$150k-$200k",">$200k","<50k","50k-100k")) %>%
+  mutate(date = as.Date(as.numeric(date), origin = "1899-12-30")) %>%
+  mutate(across(where(is.character), ~ as.numeric(.)))
+
+EGI_RETAIL_DATA_GRAPH <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = EGI_RETAIL_DATA, aes(x = date, y = `>54`/100, color = ">54"), size = 1.25) +
+  geom_line(data = EGI_RETAIL_DATA, aes(x = date, y = `45-54`/100, color = "45-54"), size = 1.25) +
+  geom_line(data = EGI_RETAIL_DATA, aes(x = date, y = `35-44`/100, color = "35-44"), size = 1.25) +
+  geom_line(data = EGI_RETAIL_DATA, aes(x = date, y = `25-34`/100, color = "25-34"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.25,.32), breaks = c(-.2,-.1,0,.1,.2,.3), expand = c(0,0)) +
+  ylab("Percent Change From Jan 2020") +
+  ggtitle("Real Retail Spending, % Change From Jan 2020") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY Data",subtitle = "Young Households Had a Small Relative Cutback in Spending as Student Loan Payments Resume") +
+  theme_apricitas + theme(legend.position = c(0.125,0.85)) +
+  theme(plot.title = element_text(size = 25)) +
+  scale_color_manual(name = "Age Group", values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E"), breaks = c("25-34","35-44","45-54",">54")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-08"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -0.25-(.3*.57), ymax = -0.25) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EGI_RETAIL_DATA_GRAPH, "EGI Retail Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+STUDENT_LOAN_GROWTH <- fredr(series_id = "SLOAS", observation_start = as.Date("2016-01-01"), units = "pc1")
+
+STUDENT_LOAN_GROWTH_GRAPH <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = STUDENT_LOAN_GROWTH, aes(x = date, y = value/100, color = "Year-on-Year Growth in Outstanding Student Loan Debt"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(-0.025,.075), breaks = c(-0.025,0,0.025,0.05,0.075), expand = c(0,0)) +
+  ylab("Year on Year Growth, %") +
+  ggtitle("Student Loan Debt Levels are Shrinking") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "Forgiveness, Forbearance, and Generous Repayment Plans Have Shrunk Student Debt Levels") +
+  theme_apricitas + theme(legend.position = c(0.55,0.925)) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = -0.025-(.3*.1), ymax = -0.025) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = STUDENT_LOAN_GROWTH_GRAPH, "Student Loan Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+PERSONAL_INCOME <- fredr(series_id = "PI", observation_start = as.Date("1975-01-01")) %>%
+  select(date,value)
+PERSONAL_INTEREST_PAYMENTS <- fredr(series_id = "B069RC1", observation_start = as.Date("1975-01-01")) %>%
+  select(date,value)
+
+PERSONAL_INCOME_INTEREST_MERGE <- merge(PERSONAL_INTEREST_PAYMENTS,PERSONAL_INCOME, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+PERSONAL_INCOME_INTEREST_GRAPH <- ggplot() +
+    annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+    geom_line(data = PERSONAL_INCOME_INTEREST_MERGE, aes(x = date, y = value, color = "Interest Payments on Nonmortgage Consumer Debt\nAs a Share of Aggregate Personal Income"), size = 1.25) +
+    xlab("Date") +
+    scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.031), breaks = c(0,0.01,0.02,0.03), expand = c(0,0)) +
+    ylab("Share of Personal Income, %") +
+    ggtitle("American's Interest Expenses are Rising") +
+    labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "The Share of Aggregate Income Going to Interest Payments Has Surged Above 2019 Levels") +
+    theme_apricitas + theme(legend.position = c(0.5,0.95)) +
+    scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#6A4C93","#3083DC","#A7ACD9","#9A348E")) +
+    annotation_custom(apricitas_logo_rast, xmin = as.Date("1975-01-01")-(.1861*(today()-as.Date("1975-01-01"))), xmax = as.Date("1975-01-01")-(0.049*(today()-as.Date("1975-01-01"))), ymin = 0-(.3*.031), ymax = 0) +
+    coord_cartesian(clip = "off")
+  
+ggsave(dpi = "retina",plot = PERSONAL_INCOME_INTEREST_GRAPH, "Personal Income Interest Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+https://fred.stlouisfed.org/series/SLOAS
+PERSONAL INTEREST PAID
+NONMORTGAGE
+https://fred.stlouisfed.org/series/B069RC1
 
 cat("\014")  # ctrl+L
 
