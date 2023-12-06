@@ -363,13 +363,13 @@ CRUDE_OIL_FOOTAGE_DRILLED <- eia1_series("TOTAL.OGPFPUS.M") %>%
 CRUDE_OIL_FOOTAGE_DRILLED_Graph <- ggplot() +
   geom_line(data=filter(CRUDE_OIL_FOOTAGE_DRILLED, date >= as.Date("2005-01-01")), aes(x=date,y= value/1000, color= "US Crude Oil Wells, Total Footage Drilled"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "MMft", accuracy = 1),limits = c(0,25), breaks = c(5,10,15,20,25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "MMft", accuracy = 1),limits = c(0,27.5), breaks = c(5,10,15,20,25), expand = c(0,0)) +
   ylab("Millions of Feet") +
   ggtitle("America's Oil Drilling Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Drilling Levels are Near Modern Highs, but Are Now Declining") +
   theme_apricitas + theme(legend.position = c(.7,.1)) +
   scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*27.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CRUDE_OIL_FOOTAGE_DRILLED_Graph, "Crude Oil Footage Drilled Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

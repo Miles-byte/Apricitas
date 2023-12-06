@@ -1,4 +1,4 @@
-pacman::p_load(tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -175,9 +175,9 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
                        na.value = "grey50",
                        guide = "colourbar",
                        aesthetics = "fill",
-                      breaks = c(0,10,20,30,40), 
-                      labels = c("$0B","$10B","$20B","$30B","$40B"),
-                      limits = c(0,40)) +
+                      breaks = c(0,10,20,30,40,50), 
+                      labels = c("$0B","$10B","$20B","$30B","$40B","$50B"),
+                      limits = c(0,50)) +
   coord_sf(crs = 5070) +
   ggtitle("     New Manufacturing Construction Over The Last 12M") +
   theme(plot.title = element_text(size = 24)) +
