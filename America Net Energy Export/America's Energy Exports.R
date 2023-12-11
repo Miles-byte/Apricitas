@@ -1,4 +1,4 @@
-pacman::p_load(censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(bea.R,censusapi,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -11,6 +11,127 @@ library(blscrapeR)
 
 devtools::install_github("jameelalsalam/eia2")
 library("eia2")
+# 
+# test <- beaSearch()
+# test <- beaParams(beaKey = Sys.getenv("BEA_KEY"),"ITA")
+# test <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"ITA",paramName = "Indicator")
+# test <- as.data.frame(test$ParamValue)
+# test <- beaSets(Sys.getenv("BEA_KEY"))
+# 
+# test <- beaSets("ITA",beaKey =  Sys.getenv("BEA_KEY"))
+
+NAT_GAS_EXP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ExpGdsNaturalGas',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+NAT_GAS_EXP <- beaGet(NAT_GAS_EXP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+
+NAT_GAS_IMP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ImpGdsNaturalGas',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+NAT_GAS_IMP <- beaGet(NAT_GAS_IMP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+PETROLEUM_EXP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ExpGdsPetAndProds',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+PETROLEUM_EXP <- beaGet(PETROLEUM_EXP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+PETROLEUM_IMP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ImpGdsPetAndProds',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+PETROLEUM_IMP <- beaGet(PETROLEUM_IMP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+
+COAL_EXP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ExpGdsCoalAndRelProds',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+COAL_EXP <- beaGet(COAL_EXP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+
+COAL_IMP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'ITA',
+  'Indicator' = 'ImpGdsCoalAndRelProds',
+  'AreaOrCountry' = 'AllCountries',
+  'Frequency' = 'QSA',
+  'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+COAL_IMP <- beaGet(COAL_IMP_SPECS, iTableStyle = TRUE, asWide = FALSE) %>%
+  transmute(date = as.Date(as.yearqtr(TimePeriod, format = "%YQ%q")), value = DataValue)
+
+COAL_NET_EXP <- merge(COAL_EXP,COAL_IMP, by = "date") %>%
+  transmute(date, value = value.x-value.y)
+PET_PRODUCTS_NET_EXPORTS <- merge(PETROLEUM_EXP,PETROLEUM_IMP,by = "date") %>%
+  transmute(date, value = value.x-value.y)
+NAT_GAS_NET_EXPORTS <- merge(NAT_GAS_EXP,NAT_GAS_IMP,by = "date") %>%
+  transmute(date, value = value.x-value.y)
+
+US_ENERGY_NET_EXP_BREAKDOWN_Graph <- ggplot() + #plotting nat gas exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = COAL_NET_EXP, aes(x = date, y = value*4/1000, color = "Coal and Related Products"), size = 1.25) +
+  geom_line(data = PET_PRODUCTS_NET_EXPORTS, aes(x = date, y =  value*4/1000, color = "Petroleum and Products"), size = 1.25) +
+  geom_line(data = NAT_GAS_NET_EXPORTS, aes(x = date, y =  value*4/1000, color = "Natural Gas"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-500,100), breaks = c(-500,-400,-300,-200,-100,0,100), expand = c(0,0)) +
+  ylab("Dollars") +
+  ggtitle("The US is Now an Energy Exporter") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "America's Energy Exports Have Risen Significantly Over the Last Decade") +
+  theme_apricitas + theme(legend.position = c(.80,.25)) +
+  scale_color_manual(name= "Net Exports, Annualized Rate",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED"), breaks = c("Petroleum and Products","Natural Gas","Coal and Related Products")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -500-(.3*600), ymax = -500) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ENERGY_NET_EXP_BREAKDOWN_Graph, "US Energy Net Exports Breakdown.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 
 US_ENERGY_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
@@ -233,7 +354,7 @@ STEO_Crude_Production_Graph <- ggplot() + #plotting US Crude Production
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(0,14),breaks = c(0,2,4,6,8,10,12,14), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
   ggtitle("America's Oil Recovery") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is Closing in on Record High Levels") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is Now at Record High Levels") +
   theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*14), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -246,20 +367,33 @@ FINISHED_MOTOR_GASOLINE_SUPPLIED <- eia1_series("PET.MGFUPUS2.M") %>%
   arrange(date) %>%
   mutate(rollmean = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(value,12)))
 
-FINISHED_MOTOR_GASOLINE_SUPPLIED_Graph <- ggplot() + #plotting US Crude Production
+KEROSENE_JET_FUEL_SUPPLIED <- eia1_series("PET.MKJUPUS2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(value,12)))
+
+DISTILLATE_FUEL_OIL_SUPPLIED <- eia1_series("PET.MDIUPUS2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollmean(value,12)))
+
+
+PETROLEUM_PRODUCT_SUPPLIED_Graph <- ggplot() + #plotting US Crude Production
   #geom_line(data=filter(FINISHED_MOTOR_GASOLINE_SUPPLIED, date >= as.Date("1945-01-01")), aes(x=date,y= value/1000, color= "US Finished Motor Gasoline Supplied"), size = 0.75, linetype = "dashed", alpha = 0.5) +
   geom_line(data=filter(FINISHED_MOTOR_GASOLINE_SUPPLIED, date >= as.Date("1945-01-01")), aes(x=date,y= rollmean/1000, color= "US Finished Motor Gasoline Supplied 12MMA"), size = 1.25) +
+  geom_line(data=filter(KEROSENE_JET_FUEL_SUPPLIED, date >= as.Date("1945-01-01")), aes(x=date,y= rollmean/1000, color= "US Kerosene Type Jet Fuel Supplied 12MMA"), size = 1.25) +
+  geom_line(data=filter(DISTILLATE_FUEL_OIL_SUPPLIED, date >= as.Date("1945-01-01")), aes(x=date,y= rollmean/1000, color= "US Distillate Fuel Oil Supplied 12MMA"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl/d", accuracy = 1), limits = c(0,10),breaks = c(1,2,3,4,5,6,7,8,9,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl/d", accuracy = 1), limits = c(0,10),breaks = c(0,1,2,3,4,5,6,7,8,9,10), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
-  ggtitle("US Gasoline Consumption") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Gasoline Consumption May Have Peaked With the Pandemic") +
-  theme_apricitas + theme(legend.position = c(.75,.2)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  ggtitle("US Petroleum Product Consumption") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Petroleum Product Consumption May Have Peaked With the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.32,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("US Finished Motor Gasoline Supplied 12MMA","US Distillate Fuel Oil Supplied 12MMA","US Kerosene Type Jet Fuel Supplied 12MMA")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1945-01-01")-(.1861*(today()-as.Date("1945-01-01"))), xmax = as.Date("1945-01-01")-(0.049*(today()-as.Date("1945-01-01"))), ymin = 0-(.3*10), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = FINISHED_MOTOR_GASOLINE_SUPPLIED_Graph, "Finished Motor Gasoline Supplied Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PETROLEUM_PRODUCT_SUPPLIED_Graph, "Petroleum Product Supplied Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 FINISHED_MOTOR_GASOLINE_SUPPLIED_2018_Graph <- ggplot() + #plotting US Crude Production
   geom_line(data=filter(FINISHED_MOTOR_GASOLINE_SUPPLIED, date >= as.Date("2018-01-01")), aes(x=date,y= value/1000, color= "US Finished Motor Gasoline Supplied"), size = 0.75, linetype = "dashed", alpha = 0.5) +
@@ -373,6 +507,282 @@ CRUDE_OIL_FOOTAGE_DRILLED_Graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CRUDE_OIL_FOOTAGE_DRILLED_Graph, "Crude Oil Footage Drilled Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ETHANE_NET_EXPORTS <- eia1_series("PET.MENNT_NUS-Z00_2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+PROPANE_NET_EXPORTS <- eia1_series("PET.MPANT_NUS-Z00_2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+NORMAL_BUTANE_NET_EXPORTS <- eia1_series("PET.MBUNT_NUS-Z00_2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+ISOBUTANE_NET_EXPORTS <- eia1_series("PET.MIINT_NUS-Z00_2.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+NATURAL_GASOLINE_NET_EXPORTS <- eia1_series("PET.M_EPLLNG_IMN_NUS-Z00_MBBLD.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+HYDROCARBON_GAS_LIQUID_Graphs <- ggplot() + #plotting US Crude Production
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=filter(ETHANE_NET_EXPORTS, date >= as.Date("2010-01-01")), aes(x=date,y= -value/1000, color= "Ethane"), size = 1.25) +
+  geom_line(data=filter(PROPANE_NET_EXPORTS, date >= as.Date("2010-01-01")), aes(x=date,y= -value/1000, color= "Propane"), size = 1.25) +
+  geom_line(data=filter(NORMAL_BUTANE_NET_EXPORTS, date >= as.Date("2010-01-01")), aes(x=date,y= -value/1000, color= "Butane"), size = 1.25) +
+  #geom_line(data=filter(ISOBUTANE_NET_EXPORTS, date >= as.Date("2010-01-01")), aes(x=date,y= -value, color= "Isobutane"), size = 1.25) +
+  geom_line(data=filter(NATURAL_GASOLINE_NET_EXPORTS, date >= as.Date("2010-01-01")), aes(x=date,y= -value/1000, color= "Natural Gasoline"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl/d", accuracy = 0.5), limits = c(-.15,1.65),breaks = c(0,0.5,1,1.5), expand = c(0,0)) +
+  ylab("Mbbl Per Day") +
+  ggtitle("US Net Hydrocarbon Gas Liquids Exports") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Net US HGL Exports Continue Booming, With Propane Exports Leading the Way") +
+  theme_apricitas + theme(legend.position = c(.25,.75)) +
+  theme(plot.title = element_text(size = 26)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Propane","Butane","Ethane","Natural Gasoline")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -.15-(.3*1.8), ymax = -.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = HYDROCARBON_GAS_LIQUID_Graphs, "Hydrocarbon Gas Liquid Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#NAT GAS PRODUCTION BY PLAY
+
+for (i in 0:11) {
+  date_to_try <- floor_date(Sys.Date(), "month") - months(i)
+  url_to_try <- paste0("https://www.eia.gov/naturalgas/weekly/img/shale_gas_", format(date_to_try, "%Y%m"), ".xlsx")
+  
+  # Attempt to download the file
+  temp_file <- tempfile(fileext = ".xlsx")
+  response <- GET(url_to_try, write_disk(temp_file, overwrite = TRUE))
+  
+  # Check if download was successful and file is not empty
+  if (status_code(response) == 200 && file.info(temp_file)$size > 0) {
+    NAT_GAS_PRODUCTION_BY_PLAY <- tryCatch({
+      read.xlsx(temp_file)
+    }, error = function(e) {
+      NULL
+    })
+    
+    if (!is.null(NAT_GAS_PRODUCTION_BY_PLAY)) {
+      break
+    }
+  }
+}
+
+NAT_GAS_PRODUCTION_BY_PLAY <- NAT_GAS_PRODUCTION_BY_PLAY %>%
+  mutate(Date = as.Date(Date, origin = "1899-12-30")) %>%
+  select(-X14) %>%
+  pivot_longer(-Date) %>%
+  mutate(name = gsub("\\."," ", name)) %>%
+  mutate(name = gsub("U S  s","US S", name)) %>%
+  mutate(name = factor(name, levels = rev(c("Marcellus (PA, WV, OH, and NY)",
+                                        "Permian (TX and NM)",
+                                        "Haynesville (LA and TX)",
+                                        "Utica (OH, PA, and WV)",
+                                        "Eagle Ford (TX)",
+                                        "Woodford (OK)",
+                                        "Niobrara-Codell (CO and WY)",
+                                        "Bakken (ND and MT)",
+                                        "Mississippian (OK)",
+                                        "Barnett (TX)",
+                                        "Fayetteville (AR)",
+                                        "Rest of US Shale"))))
+
+NAT_GAS_PRODUCTION_BY_PLAY_Graph <- ggplot(NAT_GAS_PRODUCTION_BY_PLAY, aes(fill=name, x=Date, y=value)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 32) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "Bcf/d"),limits = c(0,100), breaks = c(25,50,75,100), expand = c(0,0)) +
+  ylab("Billions of Cubic Feed Per Day") +
+  ggtitle("Dry Shale Gas Production by Play") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Booming Production in the Permian and Haynesville Drive US Shale Natural Gas Production") +
+  theme_apricitas + theme(legend.position = c(.25,.59)) +
+  scale_fill_manual(name = NULL, values = rev(c("#5D3A00","#EFBDEB","#074F57","#550C18","#C6D4FF","#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Marcellus (PA, WV, OH, and NY)",
+                                                                                                                                                                                                                 "Permian (TX and NM)",
+                                                                                                                                                                                                                 "Haynesville (LA and TX)",
+                                                                                                                                                                                                                 "Utica (OH, PA, and WV)",
+                                                                                                                                                                                                                 "Eagle Ford (TX)",
+                                                                                                                                                                                                                 "Woodford (OK)",
+                                                                                                                                                                                                                 "Niobrara-Codell (CO and WY)",
+                                                                                                                                                                                                                 "Bakken (ND and MT)",
+                                                                                                                                                                                                                 "Mississippian (OK)",
+                                                                                                                                                                                                                 "Barnett (TX)",
+                                                                                                                                                                                                                 "Fayetteville (AR)",
+                                                                                                                                                                                                                 "Rest of US Shale")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*100), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NAT_GAS_PRODUCTION_BY_PLAY_Graph, "Nat Gas Production by Play Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+TIGHT_OIL_PRODUCTION_BY_PLAY <- read.xlsx("https://www.eia.gov/energyexplained/oil-and-petroleum-products/data/US-tight-oil-production.xlsx") %>%
+  mutate(Date = as.Date(Date, origin = "1899-12-30")) %>%
+  select(-X12) %>%
+  pivot_longer(-Date) %>%
+  mutate(name = gsub("\\."," ", name)) %>%
+  mutate(name = gsub("U S  tight oil","US Tight Oil", name)) %>%
+  mutate(name = factor(name, levels = rev(c("Wolfcamp (TX and NM Permian)",
+                                            "Bakken (ND and MT)",
+                                            "Eagle Ford (TX)",
+                                            "Spraberry (TX Permian)",
+                                            "Bonespring (TX and NM Permian)",
+                                            "Niobrara-Codell (CO and WY)",
+                                            "Mississippian (OK)",
+                                            "Austin Chalk (LA and TX)",
+                                            "Woodford (OK)",
+                                            "Rest of US Tight Oil"))))
+  
+TIGHT_OIL_PRODUCTION_BY_PLAY_Graph <- ggplot(TIGHT_OIL_PRODUCTION_BY_PLAY, aes(fill=name, x=Date, y=value)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 32) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "Mbbl/d"),limits = c(0,9), breaks = c(3,6,9), expand = c(0,0)) +
+  ylab("Millions of Barrels Per Day") +
+  ggtitle("US Tight Oil Production by Play") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Booming Production in the Permian and Haynesville Drive US Shale Natural Gas Production") +
+  theme_apricitas + theme(legend.position = c(.25,.59)) +
+  scale_fill_manual(name = NULL, values = rev(c("#EFBDEB","#C6D4FF","#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Wolfcamp (TX and NM Permian)",
+                                                                                                                                                                                                    "Bakken (ND and MT)",
+                                                                                                                                                                                                    "Eagle Ford (TX)",
+                                                                                                                                                                                                    "Spraberry (TX Permian)",
+                                                                                                                                                                                                    "Bonespring (TX and NM Permian)",
+                                                                                                                                                                                                    "Niobrara-Codell (CO and WY)",
+                                                                                                                                                                                                    "Mississippian (OK)",
+                                                                                                                                                                                                    "Austin Chalk (LA and TX)",
+                                                                                                                                                                                                    "Woodford (OK)",
+                                                                                                                                                                                                    "Rest of US Tight Oil")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*9), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TIGHT_OIL_PRODUCTION_BY_PLAY_Graph, "Tight Oil Production by Play Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+US_CONSUMPTION <- eia1_series("STEO.PATC_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+CHINA_CONSUMPTION <- eia1_series("STEO.PATC_CH.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+EUROPE_CONSUMPTION <- eia1_series("STEO.PATC_R03.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+MIDEAST_CONSUMPTION <- eia1_series("STEO.PATC_R05.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+INDIA_CONSUMPTION <- eia1_series("STEO.PATC_IN.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+AFRICA_CONSUMPTION <- eia1_series("STEO.PATC_R06.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
+
+GLOBAL_CONSUMPTION_GRAPH <- ggplot() + #plotting US Crude Production
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_CONSUMPTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -1250), "month"), y = 2, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data=US_CONSUMPTION, aes(x=date,y= value, color= "United States"), size = 1.25) +
+  geom_line(data=CHINA_CONSUMPTION, aes(x=date,y= value, color= "China"), size = 1.25) +
+  geom_line(data=EUROPE_CONSUMPTION, aes(x=date,y= value, color= "Europe"), size = 1.25) +
+  geom_line(data=MIDEAST_CONSUMPTION, aes(x=date,y= value, color= "Middle East"), size = 1.25) +
+  geom_line(data=INDIA_CONSUMPTION, aes(x=date,y= value, color= "India"), size = 1.25) +
+  geom_line(data=AFRICA_CONSUMPTION, aes(x=date,y= value, color= "Africa"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = " MMbbl/d", accuracy = 1), limits = c(0,22.5),breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  ylab("Mbbl Per Day") +
+  ggtitle("Global Petroleum & Other Liquids Consumption") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data. Note: Europe Excludes Russia",subtitle = "Petroleum Demand Growth Continues to Come from Outside the US, Especially in China") +
+  theme_apricitas + theme(legend.position = c(.15,.41)) +
+  theme(plot.title = element_text(size = 24)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("United States","China","Europe","Middle East","India","Africa")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0-(.3*22.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLOBAL_CONSUMPTION_GRAPH, "Global Consumption Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#ADD DRILLING PRODUCTIVITY REPORT DATA
+
+ANADARKO_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Anadarko Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Anadarko (OK/TX)")
+
+APPALACHIA_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Appalachia Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Appalachia (PA/WV/OH/NY)")
+
+BAKKEN_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Bakken Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Bakken (ND/MT)")
+
+EAGLE_FORD_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Eagle Ford Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Eagle Ford (TX)")
+
+HAYNESVILLE_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Haynesville Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Haynesville (LA/TX)")
+
+NIOBRARA_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Niobrara Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Niobrara (CO/WY/NE/KS)")
+
+PERMIAN_DPR <- read.xlsx("https://www.eia.gov/petroleum/drilling/xls/dpr-data.xlsx", sheet = "Permian Region") %>%
+  setNames(c("date","Rigs","Prod_per_rig_oil","legacy_production_chg_oil","total_production_oil","production_per_rig_gas","legacy_production_chg_gas","total_production_gas")) %>% 
+  slice(-1) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = as.Date(date, origin = "1899-12-30")) %>%
+  mutate(region = "Permian (TX/NM)")
+
+
+DPR_DATA <- rbind(ANADARKO_DPR,APPALACHIA_DPR,BAKKEN_DPR,EAGLE_FORD_DPR,HAYNESVILLE_DPR,NIOBRARA_DPR,PERMIAN_DPR)
+  
+DPR_DATA_NAT_GAS_Graph <- ggplot(DPR_DATA, aes(fill=region, x=date, y=total_production_gas/1000000)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 32) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "Bcf/d"),limits = c(0,110), breaks = c(25,50,75,100), expand = c(0,0)) +
+  ylab("Billions of Cubic Feet Per Day") +
+  ggtitle("Nat Gas Production in Key Shale Regions") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Booming Shale Production in the Permian and Haynesville Drive US Nat Gas Production Growth") +
+  theme_apricitas + theme(legend.position = c(.25,.75)) +
+  scale_fill_manual(name = NULL, values = c("#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*110), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+DPR_DATA_Oil_Graph <- ggplot(DPR_DATA, aes(fill=region, x=date, y=total_production_oil/1000000)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 32) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "MMbbl/d"),limits = c(0,10), breaks = c(3,6,9), expand = c(0,0)) +
+  ylab("Millions of Barrels Per Day") +
+  ggtitle("Oil Production in Key Shale Regions") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Booming Tight Oil Production in the Permian Has Driven US Oil Production Growth") +
+  theme_apricitas + theme(legend.position = c(.25,.75)) +
+  scale_fill_manual(name = NULL, values = c("#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*10), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = DPR_DATA_Oil_Graph, "DPR OIL Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = DPR_DATA_NAT_GAS_Graph, "DPR Nat Gas Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

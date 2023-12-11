@@ -1,4 +1,4 @@
-pacman::p_load(purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(tigris,purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -1676,7 +1676,94 @@ BEA_GDP_STATE_BINS <- states %>%
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_GRADIENT, "BEA GDP STATE GRADIENT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_BINS, "BEA GDP STATE BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
+beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","GeoFips")
 
+BEA_GDP_COUNTIES_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "CAGDP9", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "COUNTY", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_COUNTIES <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  transmute(county_fips = GeoFips, CAGR)
+
+counties_map <- get_urbn_map(map = "counties", sf = TRUE)
+
+counties_map <- left_join(counties_map, BEA_GDP_COUNTIES, by = "county_fips")
+#NOTE: HAVE TO MANUALLY FIX VA INDEPENDENT CITIES AND ONE PART OF ALASKA AND HAWAII
+BEA_GDP_COUNTY_BINS <- counties_map %>%
+  mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.01, 0.02, 0.03, Inf), labels = c("<0", "0-0.01", "0.01-0.02", "0.02-0.03", "0.03+"))) %>%
+  ggplot(aes(fill = CAGR_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
+  ggtitle("     Annualized Real GDP Growth, 2019-2022") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_COUNTY_BINS, "BEA GDP COUNTY BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_GDP_METRO_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "CAGDP9", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "MSA", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_METRO <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(CAGR = (DataValue/first(DataValue )) - 1) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  top_n(100, DataValue) %>%
+  transmute(GEOID = GeoFips, CAGR)
+
+MSA_map <- core_based_statistical_areas(cb = TRUE)
+
+MSA_map <- merge(MSA_map, BEA_GDP_METRO, by = "GEOID") %>%
+  mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+BEA_GDP_MSA_BINS <- MSA_map %>%
+  ggplot() +
+  geom_sf(data = filter(states, state_abbv != c("HI","AK")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf(aes(fill = CAGR_bucket), color = "black", lwd = 0.5) +
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%")) +
+  ggtitle("              Real GDP Growth, 2019-2022\n            50 Largest Metro Areas by GDP") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_BINS, "BEA GDP MSA BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ggsave(dpi = "retina",plot = GDPQuarterlyContrib_Graph, "Quarterly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

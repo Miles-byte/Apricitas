@@ -205,11 +205,11 @@ Refinery_Capacity_Graph <- ggplot() + #plotting US Crude Production
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(15,19),breaks = c(15,16,17,18,19), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
-  ggtitle("Unrefined Results") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refineries are Running at Nearly Full Capacity") +
+  ggtitle("US Refineries are Near Full Capacity") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Refineries Were Running at Nearly Full Capacity Amidst High Crack Spreads") +
   theme_apricitas + theme(legend.position = c(.25,.35)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1400), xmax = as.Date("2019-01-01")-(0.049*1400), ymin = 15-(.3*4), ymax = 15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 15-(.3*4), ymax = 15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 Petroleum_Profits_Graph <- ggplot() + #plotting US Crude Production
@@ -391,13 +391,14 @@ CPI_ENERGY_Graph <- ggplot() + #plotting CPI for Different Energy Goods
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*160), ymax = 0) +
   coord_cartesian(clip = "off")
 
-OPEC_Crude_Production_STEO <- eia_series("STEO.PAPR_OPEC.M", start = "2019", end = "2026")
-OPEC_Crude_Production_STEO <- as.data.frame(OPEC_Crude_Production_STEO$data)
+OPEC_Crude_Production_STEO <- eia1_series("STEO.PAPR_OPEC.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+  arrange(date)
 
 OPEC_Crude_Production_STEO_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = floor_date(as.Date(today() -33), "month"), xmax = as.Date("2023-12-01"), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "Forecast", x = as.Date("2022-04-30"), y = 27.5, color = "#EE6055", size = 5, alpha = 0.6) +
-  geom_line(data=OPEC_Crude_Production_STEO, aes(x=date,y= value, color= "OPEC Crude Oil Production"), size = 1.25) +
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today()-340), "month"), y = 37.5, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data=filter(OPEC_Crude_Production_STEO, date>= as.Date("2019-01-01")), aes(x=date,y= value, color= "OPEC Crude Oil Production"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = " MMbbl", accuracy = 1), limits = c(25,40),breaks = c(25,30,35,40), expand = c(0,0)) +
   ylab("Mbbl Per Day") +
@@ -438,24 +439,25 @@ US_Solar_Wind_Graph <- ggplot() + #plotting US Crude Production
 Nat_Gas_STEO <- eia_series("STEO.NGMPPUS.M", start = "2019", end = "2026")
 Nat_Gas_STEO <- as.data.frame(Nat_Gas_STEO$data)
   
+REFINERY_CAPACITY <- eia1_series("PET.MOCLEUS2.M")  %>%
+  transmute(date = as.Date(paste0(period,"-01")),value) %>%
+  filter(date >= as.Date("2019-01-01"))
 
-Crude_Russia <- eia_series("INTL.57-1-RUS-TBPD.M", start = "2019")
-Crude_Russia <- as.data.frame(Crude_Russia$data)
-Crude_Russia <- select(Crude_Russia,date, value) %>%
-  mutate(country = "Russia")
+Crude_Russia <- eia1_series("INTL.57-1-RUS-TBPD.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")),value = as.numeric(value),country = "Russia") %>%
+  filter(date >= as.Date("2019-01-01"))
 
-Crude_US <- eia_series("INTL.57-1-USA-TBPD.M", start = "2019")
-Crude_US <- as.data.frame(Crude_US$data)
-Crude_US <- select(Crude_US,date, value) %>%
-  mutate(country = "United States")
+Crude_US <- eia1_series("INTL.57-1-USA-TBPD.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")),value,country = "United States") %>%
+  filter(date >= as.Date("2019-01-01"))
 
-Crude_OPEC <- eia_series("INTL.57-1-OPEC-TBPD.M", start = "2019")
-Crude_OPEC <- as.data.frame(Crude_OPEC$data)
-Crude_OPEC <- select(Crude_OPEC,date, value) %>%
-  mutate(country = "OPEC")
+Crude_OPEC <- eia1_series("INTL.57-1-OPEC-TBPD.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")),value,country = "OPEC") %>%
+  filter(date >= as.Date("2019-01-01"))
 
-Crude_NoPEC <- eia_series("INTL.57-1-OPNO-TBPD.M", start = "2019")
-Crude_NoPEC <- as.data.frame(Crude_NoPEC$data)
+Crude_NoPEC <- eia1_series("INTL.57-1-OPNO-TBPD.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")),value) %>%
+  filter(date >= as.Date("2019-01-01"))
 
 #crude that is not from OPEC, Russia, or the US
 Crude_NoPEC_ex_RU <- merge(Crude_NoPEC,Crude_Russia, by = "date") %>%
