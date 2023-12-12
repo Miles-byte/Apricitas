@@ -347,7 +347,7 @@ STEO_Crude_ProductionMonthly <- eia1_series("STEO.COPRPUS.M") %>%
   filter(date >= as.Date("2000-01-01"))
 
 STEO_Crude_Production_Graph <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -40), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -1000), "month"), y = 5.5, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=STEO_Crude_ProductionMonthly, aes(x=date,y= value, color= "US Crude Oil Production"), size = 1.25) +
   xlab("Date") +
@@ -659,28 +659,28 @@ TIGHT_OIL_PRODUCTION_BY_PLAY_Graph <- ggplot(TIGHT_OIL_PRODUCTION_BY_PLAY, aes(f
 
 ggsave(dpi = "retina",plot = TIGHT_OIL_PRODUCTION_BY_PLAY_Graph, "Tight Oil Production by Play Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-US_CONSUMPTION <- eia1_series("STEO.PATC_US.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+US_CONSUMPTION <- eia1_series("STEO.PATC_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
-CHINA_CONSUMPTION <- eia1_series("STEO.PATC_CH.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+CHINA_CONSUMPTION <- eia1_series("STEO.PATC_CH.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
-EUROPE_CONSUMPTION <- eia1_series("STEO.PATC_R03.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+EUROPE_CONSUMPTION <- eia1_series("STEO.PATC_R03.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
-MIDEAST_CONSUMPTION <- eia1_series("STEO.PATC_R05.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+MIDEAST_CONSUMPTION <- eia1_series("STEO.PATC_R05.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
-INDIA_CONSUMPTION <- eia1_series("STEO.PATC_IN.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+INDIA_CONSUMPTION <- eia1_series("STEO.PATC_IN.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
-AFRICA_CONSUMPTION <- eia1_series("STEO.PATC_R06.M") %>%
-  transmute(date = as.Date(paste0(period,"-01")), value = as.numeric(value)) %>%
+AFRICA_CONSUMPTION <- eia1_series("STEO.PATC_R06.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), value = as.numeric(value)) %>%
   arrange(date)
 
 GLOBAL_CONSUMPTION_GRAPH <- ggplot() + #plotting US Crude Production
-  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_CONSUMPTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -1250), "month"), y = 2, color = "#EE6055", size = 5, alpha = 0.6) +
+  annotate("rect", xmin = floor_date(as.Date(today() -300), "year"), xmax = max(US_CONSUMPTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -1550), "month"), y = 2, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data=US_CONSUMPTION, aes(x=date,y= value, color= "United States"), size = 1.25) +
   geom_line(data=CHINA_CONSUMPTION, aes(x=date,y= value, color= "China"), size = 1.25) +
   geom_line(data=EUROPE_CONSUMPTION, aes(x=date,y= value, color= "Europe"), size = 1.25) +

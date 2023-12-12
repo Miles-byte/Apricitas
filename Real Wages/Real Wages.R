@@ -94,14 +94,16 @@ AHE_ALL_PRIVATE_REAL_GROWTH <- AHE_ALL_PRIVATE_REAL %>%
 AHE_ALL_PRIVATE_REAL <- AHE_ALL_PRIVATE_REAL %>%
   mutate(trend = if_else(row_number() > 60, 
                          value[60] * (1 + AHE_ALL_PRIVATE_REAL_GROWTH$growth_rate[60]/100)^(row_number()-60), 
-                         value))
+                         value)) %>%
+  mutate(value = value/value[60]*100)
 
 AHE_PROD_NONSUPER_REAL <- merge(AHE_PROD_NONSUPER,CPI_2015, by = "date") %>%
-  transmute(date, value = value.x/value.y)
+  transmute(date, value = value.x/value.y) %>%
+  mutate(value = value/value[60]*100)
 
 REAL_AHE_GRAPH <- ggplot() + #indexed fixed investment
-  geom_line(data = AHE_PROD_NONSUPER_REAL, aes(x=date, y = value/value[60]*100, color = "Real Average Hourly Earnings of Production & Nonsupervisory Employees: Total Private"), size = 1.25) + 
-  geom_line(data = AHE_ALL_PRIVATE_REAL, aes(x=date, y = value/value[60]*100, color = "Real Average Hourly Earnings of All Employees: Total Private"), size = 1.25) + 
+  geom_line(data = AHE_PROD_NONSUPER_REAL, aes(x=date, y = value, color = "Real Average Hourly Earnings of Production & Nonsupervisory Employees: Total Private"), size = 1.25) + 
+  geom_line(data = AHE_ALL_PRIVATE_REAL, aes(x=date, y = value, color = "Real Average Hourly Earnings of All Employees: Total Private"), size = 1.25) + 
   geom_line(data = filter(AHE_ALL_PRIVATE_REAL, date >= as.Date("2019-12-01")), aes(x=date, y = trend/trend[1]*100, color = "Jan 2015-Dec 2019 Trend Growth Rate"), size = 1.25, linetype = "dashed") + 
   annotate("text", label ="Average Real Wages Spike in 2020\nWhen Low-Wage Workers are Laid Off\nand Fall When They're Rehired", x = as.Date("2018-05-01"), y = 102.5, color = "white", size = 4)+
   xlab("Date") +

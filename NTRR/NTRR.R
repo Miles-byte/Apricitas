@@ -426,10 +426,10 @@ CPI_CONTRIBUTION_SHELTER_BREAKDOWN_ANNUAL_GRAPH <- ggplot() + #plotting componen
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),limits = c(-.025,.1), breaks = c(0,.025,.05,.075,.1), expand = c(0,0)) +
   ylab("Annual Inflation, Percent") +
-  ggtitle("Inflation is Now Mostly Driven by Rent") +
+  ggtitle("Contributions to Annual CPI Inflation") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Inflation Now Mostly Comes From Increases in Core Services Prices, Particularly Rent") +
   theme_apricitas + theme(legend.position = c(.25,.80)) +
-  scale_fill_manual(name= "Contributions to Annual CPI Inflation",values = c("#FFE98F","#A7ACD9","#9A348E","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Core Services: Rent of Shelter","Core Services Less Rent of Shelter","Core Goods","Food","Energy")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#A7ACD9","#9A348E","#00A99D","#EE6055","#A7ACD9","#3083DC"), breaks = c("Core Services: Rent of Shelter","Core Services Less Rent of Shelter","Core Goods","Food","Energy")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.025-(.3*.135), ymax = -0.025) +
   coord_cartesian(clip = "off")
 

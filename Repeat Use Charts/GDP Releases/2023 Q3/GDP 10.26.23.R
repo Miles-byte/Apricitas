@@ -1739,7 +1739,7 @@ BEA_GDP_METRO <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE
   ungroup() %>%
   arrange(DataValue) %>%
   slice(-nrow(.)) %>%
-  top_n(100, DataValue) %>%
+  top_n(50, DataValue) %>%
   transmute(GEOID = GeoFips, CAGR)
 
 MSA_map <- core_based_statistical_areas(cb = TRUE)

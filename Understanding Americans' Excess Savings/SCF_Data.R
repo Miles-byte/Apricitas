@@ -370,6 +370,8 @@ Networth_distribution_2019_df <- as.data.frame(Networth_distribution_2019$coeffi
 REAL_NET_WORTH_DISTRIBUTION_GRAPH <- ggplot() + #plotting ownership share over time
   #annotate("hline", y = .50, yintercept = .50, color = "white", size = 0.5) +
   annotate("text",label = "NOTE: Graph Only Goes Up To\nTop 1% Wealth Percentile Threshold", x = .78, y = 9, color = "white", size = 4) +
+  #annotate("hline", y = 1, yintercept = 1, linetype = "dashed", color = "white", size = 1.25) +
+  #annotate("text",label = "$1M Net Worth", x = .6, y = 1.5, color = "white", size = 4) +
   geom_line(data = Networth_distribution_2019_df, aes(x = percentile, y = networth/1000000, color = "2019"), size = 1.25) +
   geom_line(data = Networth_distribution_2022_df, aes(x = percentile, y = networth/1000000, color = "2022"), size = 1.25) +
   xlab("Percentile of Net Worth Distribution") +
