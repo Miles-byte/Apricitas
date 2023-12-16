@@ -258,8 +258,8 @@ SPREADS_Graph <- ggplot() + #plotting Gas Prices
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(), limits = c(0,225), expand = c(0,0)) +
   ylab("Dollars Per Barrel") +
-  ggtitle("Dawn of the Spread") +
-  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Refinery Spreads are Easing But Still High-Especially for Diesel and Jet Fuel") +
+  ggtitle("Cooling Energy Prices") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Prices for Oil, Gas, and Other Petroleum Products Have Eased Significantly") +
   theme_apricitas + theme(legend.position = c(.3,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Crude Oil (WTI)","Gas (Regular)","Diesel","Kerosene Type Jet Fuel")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*225), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

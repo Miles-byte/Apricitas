@@ -219,7 +219,8 @@ US_PROPANE_EXPORTS <- getCensus(
 ) %>%
   mutate(time = as.Date(as.yearmon(time))) %>%
   mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
-  select(time,ALL_VAL_MO)
+  select(time,ALL_VAL_MO) %>%
+  mutate(rollsum = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(ALL_VAL_MO,12)))
 
 US_BUTENE_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
