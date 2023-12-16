@@ -654,7 +654,7 @@ EMP_EXP_graph <- ggplot() + #plotting regular vs non-regular employment
   ylab("Balance, Increase minus Decrease") +
   ggtitle("Germany's Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak—Expecially in Industry") +
-  theme_apricitas + theme(legend.position = c(.80,.20)) +
+  theme_apricitas + theme(legend.position = c(.725,.175)) +
   scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*60), ymax = -35) +
   coord_cartesian(clip = "off")
@@ -792,7 +792,7 @@ GERMAN_GFCF_EQUIPMENT_CATEGORIES_graph <- ggplot() + #plotting Fixed Investment
   ylab("Index, Q1 2018 = 100") +
   ggtitle("Germany's Slow Investment Rebound") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Investment In Fixed Manufacturing Assets Has Not Recovered to Pre-Pandemic Lvels") +
-  theme_apricitas + theme(legend.position = c(.3,.27)) +
+  theme_apricitas + theme(legend.position = c(.275,.27)) +
   scale_color_manual(name= "Germany: Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 58-(.3*62), ymax = 58) +
   coord_cartesian(clip = "off")
@@ -1063,13 +1063,13 @@ MANU_EMP_AGG_EDIT <- MANU_EMP_AGG %>%
 MANUFACTURING_EMPLOYMENT_graph <- ggplot() + #plotting manufacturing output
   geom_line(data=filter(MANU_EMP_AGG_EDIT, date >= as.Date("2016-01-01")), aes(x=date,y= `Total Manufacturing`/1000000,color="German Manufacturing Employment"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = .1, suffix = "M"),limits = c(5.3,(ceiling(max(MANU_EMP_AGG_EDIT$`ERH001_lock`)/50000)/20)), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = .1, suffix = "M"),limits = c(5.3,(ceiling(max(MANU_EMP_AGG_EDIT$`Total Manufacturing`)/50000)/20)), expand = c(0,0)) +
   ylab("Employment, Millions") +
   ggtitle("German Manufacturing Jobs Haven't Recovered") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Manufacturing Employment Still Sits Well Below Pre-Pandemic Levels") +
   theme_apricitas + theme(legend.position = c(.52,.15), plot.title = element_text(size = 24)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 5.3-(.3*((ceiling(max(MANU_EMP_AGG_EDIT$`ERH001_lock`)/50000)/20)-5.3)), ymax = 5.3) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 5.3-(.3*((ceiling(max(MANU_EMP_AGG_EDIT$`Total Manufacturing`)/50000)/20)-5.3)), ymax = 5.3) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MANUFACTURING_EMPLOYMENT_graph, "Manufacturing Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
