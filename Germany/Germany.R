@@ -405,9 +405,37 @@ BATTERY_EURO <- IP_9DIGIT_BULK %>%
 ggsave(dpi = "retina",plot = SOLAR_NUMBER_graph, "Germany Solar Number.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 #IP_9_DIGIT_ANALYSIS
+English_Category_Translations <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Germany/Translated%20German%20Production%20Categories%20-%20Sheet1.csv")
+
 IP_9DIGIT_ANALYSIS <- IP_9DIGIT_BULK %>%
   mutate(date = as.Date(as.yearqtr(paste0(JAHR, '-', gsub("QUART", "", QUARTG)), format = "%Y-%q"))) %>%
   mutate(month = month(date), year = year(date))
+
+IP_9DIGIT_ANALYSIS_VAL <- IP_9DIGIT_ANALYSIS %>%
+  group_by(GP19A9, month) %>%
+  filter(year == 2019) %>%
+  filter(PRODAW_qual == "e") %>%
+  summarize(ref_PRODAW_val = mean(PRODAW_val)) %>%
+  right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
+  mutate(percent_change_val = ((PRODAW_val - ref_PRODAW_val) / ref_PRODAW_val) * 100) %>%
+  filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  select(GP19A9, ref_PRODAW_val, percent_change_val)
+
+IP_9DIGIT_ANALYSIS_05 <- IP_9DIGIT_ANALYSIS %>%
+  group_by(GP19A9, month) %>%
+  filter(year == 2019) %>%
+  summarize(ref_val = mean(PRO005_val)) %>%
+  right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
+  mutate(percent_change = ((PRO005_val - ref_val) / ref_val) * 100) %>%
+  select(-ref_val) %>%
+  filter(date == as.Date("2023-04-01")) %>%
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  filter(is.nan(percent_change) == FALSE) %>%
+  left_join(English_Category_Translations, by = "GP19A9") %>%
+  left_join(IP_9DIGIT_ANALYSIS_VAL, by = "GP19A9") %>%
+  transmute(GP19A9, English, Real_Val_Change = ref_PRODAW_val*percent_change)
+
 
 IP_9DIGIT_ANALYSIS_06 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
@@ -418,7 +446,10 @@ IP_9DIGIT_ANALYSIS_06 <- IP_9DIGIT_ANALYSIS %>%
   select(-ref_val) %>%
   filter(date == as.Date("2023-04-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
-  filter(is.nan(percent_change) == FALSE)
+  filter(is.nan(percent_change) == FALSE) %>%
+  left_join(English_Category_Translations, by = "GP19A9") %>%
+  left_join(IP_9DIGIT_ANALYSIS_VAL, by = "GP19A9") %>%
+  transmute(GP19A9, English, Real_Val_Change = ref_PRODAW_val*percent_change)
 
 IP_9DIGIT_ANALYSIS_07 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
@@ -428,21 +459,29 @@ IP_9DIGIT_ANALYSIS_07 <- IP_9DIGIT_ANALYSIS %>%
   mutate(percent_change = ((PRO007_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
   filter(date == as.Date("2023-04-01")) %>%
-  mutate(GP19A92 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
-  select(GP19A92, PRODAW_val,PRO007_val,percent_change) %>%
-  filter(is.nan(percent_change) == FALSE)
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  select(GP19A9, PRODAW_val,PRO007_val,percent_change) %>%
+  filter(is.nan(percent_change) == FALSE) %>%
+  left_join(English_Category_Translations, by = "GP19A9") %>%
+  left_join(IP_9DIGIT_ANALYSIS_VAL, by = "GP19A9") %>%
+  transmute(GP19A9, English, Real_Val_Change = ref_PRODAW_val*percent_change)
 
-IP_9DIGIT_ANALYSIS_VAL <- IP_9DIGIT_ANALYSIS %>%
+IP_9DIGIT_ANALYSIS_08 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
   filter(year == 2019) %>%
-  summarize(ref_val = mean(PRODAW_val)) %>%
+  summarize(ref_val = mean(PRO008_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
-  mutate(percent_change = ((PRODAW_val - ref_val) / ref_val) * 100) %>%
+  mutate(percent_change = ((PRO008_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
   filter(date == as.Date("2023-04-01")) %>%
-  mutate(GP19A92 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
-  select(GP19A92, PRODAW_val,percent_change) %>%
-  filter(is.nan(percent_change) == FALSE)
+  mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
+  select(GP19A9, PRODAW_val,PRO008_val,percent_change) %>%
+  filter(is.nan(percent_change) == FALSE) %>%
+  left_join(English_Category_Translations, by = "GP19A9") %>%
+  left_join(IP_9DIGIT_ANALYSIS_VAL, by = "GP19A9") %>%
+  transmute(GP19A9, English, Real_Val_Change = ref_PRODAW_val*percent_change)
+
+IP_9DIGIT_ANALYSIS_Rbind <- rbind(IP_9DIGIT_ANALYSIS_05,IP_9DIGIT_ANALYSIS_06,IP_9DIGIT_ANALYSIS_07,IP_9DIGIT_ANALYSIS_08)
 
 
 HICP <- get_eurostat("prc_hicp_manr")
@@ -652,10 +691,11 @@ EMP_EXP_graph <- ggplot() + #plotting regular vs non-regular employment
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = .2),limits = c(-35,25), expand = c(0,0), breaks = c(-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25)) +
   ylab("Balance, Increase minus Decrease") +
-  ggtitle("Germany's Slowdown") +
+  ggtitle("Germany's Labor Market Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak—Expecially in Industry") +
   theme_apricitas + theme(legend.position = c(.725,.175)) +
   scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  guides(color = guide_legend(ncol = 2)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*60), ymax = -35) +
   coord_cartesian(clip = "off")
 
