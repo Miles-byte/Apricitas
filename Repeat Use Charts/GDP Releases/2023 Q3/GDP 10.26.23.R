@@ -1622,7 +1622,7 @@ BEA_GDP_STATE <- beaGet(BEA_GDP_STATE_SPECS, iTableStyle = FALSE) %>%
   rename_with(~ coalesce(stringr::str_extract(., "(?<=\\s)[A-Za-z ]+(?=\\sMillions)"), "Unknown"), .cols = everything()) %>%
   select(-`United States`,-`Rocky Mountain`,-`Unknown`,-`Far West`,-`Rocky Mountain`,-`Southwest`,-`Southeast`,-`Plains`,-`Great Lakes`,-`Mideast`,-`New England`) %>%
   mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "3 months"))) %>%
-  subset(date >= as.Date("2019-10-01")) %>%
+  subset(date >= as.Date("2019-07-01")) %>%
   pivot_longer(-date, names_to = "state_name", values_to = "GDP") %>%
   arrange(state_name, date) %>%
   group_by(state_name) %>%
@@ -1653,7 +1653,7 @@ BEA_GDP_STATE_GRADIENT <- ggplot() +
                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
                       limits = c(-0.05,0.05)) +
-  ggtitle("       Annualized GDP Growth Since Q4 2019") +
+  ggtitle("       Annualized GDP Growth Since Q3 2019") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -1668,14 +1668,14 @@ BEA_GDP_STATE_BINS <- states %>%
                     na.value = "grey50", 
                     guide = "legend", 
                     labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
-  ggtitle("     Annualized Real GDP Growth Since Q4 2019") +
+  ggtitle("     Annualized Real GDP Growth Since Q3 2019") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
 
 states <- states %>%
-  mutate(GROWTH_bucket = cut(GROWTH, breaks = c(-Inf, 0, 0.03, 0.06, 0.09,0.12, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+")))
+  mutate(GROWTH_bucket = cut(GROWTH, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+")))
 
 BEA_GDP_STATE_BINS_LABELS <- get_urbn_labels(map = "states") %>%
   left_join(states, by = "state_abbv") %>%
@@ -1697,14 +1697,14 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"),
                     na.value = "grey50", 
                     guide = "legend", 
-                    labels = c("<0%", "0-3%", "3-6%", "6-9%", "9-12%","12%+")) +
-  ggtitle("             Real GDP Growth Since Q4 2019") +
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+")) +
+  ggtitle("             Real GDP Growth Since Q3 2019") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
   geom_label_repel(
     data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("NH","VT","MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     segment.color = NA,
@@ -1725,7 +1725,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1737,7 +1737,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1749,7 +1749,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1761,7 +1761,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1773,7 +1773,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1785,7 +1785,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n ",round(GROWTH*100,1),"%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1797,7 +1797,7 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("HI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH*100,1),"%")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1807,8 +1807,10 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
     lineheight = 0.75,
     show.legend = FALSE
   ) +
-  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH*100,1),"%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("FL","LA","KY","WV")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH*100,1),"%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("FL","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
   #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
   #geom_text(data = BEA_GDP_STATE_BINS_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH,1),"%")), size = 3, color = "white", check_overlap = TRUE)
@@ -1834,33 +1836,190 @@ BEA_GDP_COUNTIES_SPECS <- list(
 )
 
 BEA_GDP_COUNTIES <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(TimePeriod) %>% mutate(DataValue = if_else(GeoFips == "02261" & DataValue == 0, DataValue[GeoFips == "02063"] + DataValue[GeoFips == "02066"], DataValue)) %>% ungroup %>% #fixing the Valdez-Cordova Census Area, Which Got Split Up in 2019
   group_by(GeoFips) %>%
   arrange(GeoFips,TimePeriod) %>%
   mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  #mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
   filter(TimePeriod == max(TimePeriod)) %>%
   ungroup() %>%
   transmute(county_fips = GeoFips, CAGR)
 
 counties_map <- get_urbn_map(map = "counties", sf = TRUE)
 
-counties_map <- left_join(counties_map, BEA_GDP_COUNTIES, by = "county_fips")
-#NOTE: HAVE TO MANUALLY FIX VA INDEPENDENT CITIES AND ONE PART OF ALASKA AND HAWAII
+#NOTE: BEA Data Combines Several Small Counties, Particularly in VA, into Neighboring Counties. This code Manually copies over the CAGR values for those large counties into the Geometry for the smaller, constituent counties 
+
+counties_map <- full_join(counties_map, BEA_GDP_COUNTIES, by = "county_fips") %>%
+  mutate(CAGR = if_else(county_fips == 51003, .$CAGR[which(.$county_fips == 51901)], CAGR)) %>% #Albemarle
+  mutate(CAGR = if_else(county_fips == 51540, .$CAGR[which(.$county_fips == 51901)], CAGR)) %>% #Charlottesville
+  mutate(CAGR = if_else(county_fips == 51005, .$CAGR[which(.$county_fips == 51903)], CAGR)) %>% #Alleghany
+  mutate(CAGR = if_else(county_fips == 51580, .$CAGR[which(.$county_fips == 51903)], CAGR)) %>% #Covington
+  mutate(CAGR = if_else(county_fips == 51015, .$CAGR[which(.$county_fips == 51907)], CAGR)) %>% #Augusta
+  mutate(CAGR = if_else(county_fips == 51790, .$CAGR[which(.$county_fips == 51907)], CAGR)) %>% #Staunton
+  mutate(CAGR = if_else(county_fips == 51820, .$CAGR[which(.$county_fips == 51907)], CAGR)) %>% #Waynesboro
+  mutate(CAGR = if_else(county_fips == 51031, .$CAGR[which(.$county_fips == 51911)], CAGR)) %>% #Campbell
+  mutate(CAGR = if_else(county_fips == 51680, .$CAGR[which(.$county_fips == 51911)], CAGR)) %>% #Lynchburg
+  mutate(CAGR = if_else(county_fips == 51035, .$CAGR[which(.$county_fips == 51913)], CAGR)) %>% #Carroll
+  mutate(CAGR = if_else(county_fips == 51640, .$CAGR[which(.$county_fips == 51913)], CAGR)) %>% #Galax
+  mutate(CAGR = if_else(county_fips == 51053, .$CAGR[which(.$county_fips == 51918)], CAGR)) %>% #Dinwiddie
+  mutate(CAGR = if_else(county_fips == 51570, .$CAGR[which(.$county_fips == 51918)], CAGR)) %>% #Colonial Heights
+  mutate(CAGR = if_else(county_fips == 51730, .$CAGR[which(.$county_fips == 51918)], CAGR)) %>% #Petersburg
+  mutate(CAGR = if_else(county_fips == 51059, .$CAGR[which(.$county_fips == 51919)], CAGR)) %>% #Fairfax
+  mutate(CAGR = if_else(county_fips == 51600, .$CAGR[which(.$county_fips == 51919)], CAGR)) %>% #Fairfax city
+  mutate(CAGR = if_else(county_fips == 51610, .$CAGR[which(.$county_fips == 51919)], CAGR)) %>% #Falls Church
+  mutate(CAGR = if_else(county_fips == 51069, .$CAGR[which(.$county_fips == 51921)], CAGR)) %>% #Frederick
+  mutate(CAGR = if_else(county_fips == 51840, .$CAGR[which(.$county_fips == 51921)], CAGR)) %>% #Winchester
+  mutate(CAGR = if_else(county_fips == 51081, .$CAGR[which(.$county_fips == 51923)], CAGR)) %>% #Greensville
+  mutate(CAGR = if_else(county_fips == 51595, .$CAGR[which(.$county_fips == 51923)], CAGR)) %>% #Emporia
+  mutate(CAGR = if_else(county_fips == 51089, .$CAGR[which(.$county_fips == 51929)], CAGR)) %>% #Henry
+  mutate(CAGR = if_else(county_fips == 51690, .$CAGR[which(.$county_fips == 51929)], CAGR)) %>% #Martinsville
+  mutate(CAGR = if_else(county_fips == 51095, .$CAGR[which(.$county_fips == 51931)], CAGR)) %>% #James City
+  mutate(CAGR = if_else(county_fips == 51830, .$CAGR[which(.$county_fips == 51931)], CAGR)) %>% #Williamsburg
+  mutate(CAGR = if_else(county_fips == 51121, .$CAGR[which(.$county_fips == 51933)], CAGR)) %>% #Montgomery
+  mutate(CAGR = if_else(county_fips == 51750, .$CAGR[which(.$county_fips == 51933)], CAGR)) %>% #Radford
+  mutate(CAGR = if_else(county_fips == 51143, .$CAGR[which(.$county_fips == 51939)], CAGR)) %>% #Pittsylvania
+  mutate(CAGR = if_else(county_fips == 51590, .$CAGR[which(.$county_fips == 51939)], CAGR)) %>% #Danville
+  mutate(CAGR = if_else(county_fips == 51149, .$CAGR[which(.$county_fips == 51941)], CAGR)) %>% #Prince George
+  mutate(CAGR = if_else(county_fips == 51670, .$CAGR[which(.$county_fips == 51941)], CAGR)) %>% #Hopewell
+  mutate(CAGR = if_else(county_fips == 51683, .$CAGR[which(.$county_fips == 51942)], CAGR)) %>% #Manassas City
+  mutate(CAGR = if_else(county_fips == 51685, .$CAGR[which(.$county_fips == 51942)], CAGR)) %>% #Manassas Park City
+  mutate(CAGR = if_else(county_fips == 51153, .$CAGR[which(.$county_fips == 51942)], CAGR)) %>% #Prince Williams
+  mutate(CAGR = if_else(county_fips == 51161, .$CAGR[which(.$county_fips == 51944)], CAGR)) %>% #Roanoke
+  mutate(CAGR = if_else(county_fips == 51775, .$CAGR[which(.$county_fips == 51944)], CAGR)) %>% #Salem
+  mutate(CAGR = if_else(county_fips == 51163, .$CAGR[which(.$county_fips == 51945)], CAGR)) %>% #Rockbridge
+  mutate(CAGR = if_else(county_fips == 51530, .$CAGR[which(.$county_fips == 51945)], CAGR)) %>% #Buena Vista
+  mutate(CAGR = if_else(county_fips == 51678, .$CAGR[which(.$county_fips == 51945)], CAGR)) %>% #Lexington
+  mutate(CAGR = if_else(county_fips == 51165, .$CAGR[which(.$county_fips == 51947)], CAGR)) %>% #Rockingham
+  mutate(CAGR = if_else(county_fips == 51660, .$CAGR[which(.$county_fips == 51947)], CAGR)) %>% #Harrisonburg
+  mutate(CAGR = if_else(county_fips == 51175, .$CAGR[which(.$county_fips == 51949)], CAGR)) %>% #Southampton
+  mutate(CAGR = if_else(county_fips == 51620, .$CAGR[which(.$county_fips == 51949)], CAGR)) %>% #Franklin
+  mutate(CAGR = if_else(county_fips == 51177, .$CAGR[which(.$county_fips == 51951)], CAGR)) %>% #Spotsylvania
+  mutate(CAGR = if_else(county_fips == 51630, .$CAGR[which(.$county_fips == 51951)], CAGR)) %>% #Fredericksburg
+  mutate(CAGR = if_else(county_fips == 51191, .$CAGR[which(.$county_fips == 51953)], CAGR)) %>% #Washington
+  mutate(CAGR = if_else(county_fips == 51520, .$CAGR[which(.$county_fips == 51953)], CAGR)) %>% #Bristol
+  mutate(CAGR = if_else(county_fips == 51195, .$CAGR[which(.$county_fips == 51955)], CAGR)) %>% #Wise
+  mutate(CAGR = if_else(county_fips == 51720, .$CAGR[which(.$county_fips == 51955)], CAGR)) %>% #Norton
+  mutate(CAGR = if_else(county_fips == 51199, .$CAGR[which(.$county_fips == 51958)], CAGR)) %>% #York
+  mutate(CAGR = if_else(county_fips == 51735, .$CAGR[which(.$county_fips == 51958)], CAGR)) %>% #Poquoson
+  mutate(CAGR = if_else(county_fips == 15009, .$CAGR[which(.$county_fips == 15901)], CAGR)) %>% #Kalawao
+  mutate(CAGR = if_else(county_fips == 15005, .$CAGR[which(.$county_fips == 15901)], CAGR)) %>% #Maui
+  drop_na()
+  
 BEA_GDP_COUNTY_BINS <- counties_map %>%
   mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.01, 0.02, 0.03, Inf), labels = c("<0", "0-0.01", "0.01-0.02", "0.02-0.03", "0.03+"))) %>%
-  ggplot(aes(fill = CAGR_bucket)) +
-  geom_sf(color = NA) +
+  ggplot(aes(fill = CAGR_bucket, color = CAGR_bucket), lwd = 0) +
+  geom_sf() +
   geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
                     na.value = "grey50", 
-                    guide = "legend", 
+                    #guide = FALSE, 
+                    labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  scale_color_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"),
+                    na.value = "grey50", 
+                    guide = FALSE, 
                     labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
-  ggtitle("     Annualized Real GDP Growth, 2019-2022") +
-  theme(plot.title = element_text(size = 24)) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Annualized Real GDP Growth by County, 2019-2022") +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank())
-
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26))
+  
 ggsave(dpi = "retina",plot = BEA_GDP_COUNTY_BINS, "BEA GDP COUNTY BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_GDP_COUNTIES_Growth <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(TimePeriod) %>% mutate(DataValue = if_else(GeoFips == "02261" & DataValue == 0, DataValue[GeoFips == "02063"] + DataValue[GeoFips == "02066"], DataValue)) %>% ungroup %>% #fixing the Valdez-Cordova Census Area, Which Got Split Up in 2019
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  transmute(county_fips = GeoFips, Growth)
+
+counties_map_Growth <- get_urbn_map(map = "counties", sf = TRUE)
+
+counties_map_Growth <- full_join(counties_map_Growth, BEA_GDP_COUNTIES_Growth, by = "county_fips") %>%
+  mutate(Growth = if_else(county_fips == 51003, .$Growth[which(.$county_fips == 51901)], Growth)) %>% #Albemarle
+  mutate(Growth = if_else(county_fips == 51540, .$Growth[which(.$county_fips == 51901)], Growth)) %>% #Charlottesville
+  mutate(Growth = if_else(county_fips == 51005, .$Growth[which(.$county_fips == 51903)], Growth)) %>% #Alleghany
+  mutate(Growth = if_else(county_fips == 51580, .$Growth[which(.$county_fips == 51903)], Growth)) %>% #Covington
+  mutate(Growth = if_else(county_fips == 51015, .$Growth[which(.$county_fips == 51907)], Growth)) %>% #Augusta
+  mutate(Growth = if_else(county_fips == 51790, .$Growth[which(.$county_fips == 51907)], Growth)) %>% #Staunton
+  mutate(Growth = if_else(county_fips == 51820, .$Growth[which(.$county_fips == 51907)], Growth)) %>% #Waynesboro
+  mutate(Growth = if_else(county_fips == 51031, .$Growth[which(.$county_fips == 51911)], Growth)) %>% #Campbell
+  mutate(Growth = if_else(county_fips == 51680, .$Growth[which(.$county_fips == 51911)], Growth)) %>% #Lynchburg
+  mutate(Growth = if_else(county_fips == 51035, .$Growth[which(.$county_fips == 51913)], Growth)) %>% #Carroll
+  mutate(Growth = if_else(county_fips == 51640, .$Growth[which(.$county_fips == 51913)], Growth)) %>% #Galax
+  mutate(Growth = if_else(county_fips == 51053, .$Growth[which(.$county_fips == 51918)], Growth)) %>% #Dinwiddie
+  mutate(Growth = if_else(county_fips == 51570, .$Growth[which(.$county_fips == 51918)], Growth)) %>% #Colonial Heights
+  mutate(Growth = if_else(county_fips == 51730, .$Growth[which(.$county_fips == 51918)], Growth)) %>% #Petersburg
+  mutate(Growth = if_else(county_fips == 51059, .$Growth[which(.$county_fips == 51919)], Growth)) %>% #Fairfax
+  mutate(Growth = if_else(county_fips == 51600, .$Growth[which(.$county_fips == 51919)], Growth)) %>% #Fairfax city
+  mutate(Growth = if_else(county_fips == 51610, .$Growth[which(.$county_fips == 51919)], Growth)) %>% #Falls Church
+  mutate(Growth = if_else(county_fips == 51069, .$Growth[which(.$county_fips == 51921)], Growth)) %>% #Frederick
+  mutate(Growth = if_else(county_fips == 51840, .$Growth[which(.$county_fips == 51921)], Growth)) %>% #Winchester
+  mutate(Growth = if_else(county_fips == 51081, .$Growth[which(.$county_fips == 51923)], Growth)) %>% #Greensville
+  mutate(Growth = if_else(county_fips == 51595, .$Growth[which(.$county_fips == 51923)], Growth)) %>% #Emporia
+  mutate(Growth = if_else(county_fips == 51089, .$Growth[which(.$county_fips == 51929)], Growth)) %>% #Henry
+  mutate(Growth = if_else(county_fips == 51690, .$Growth[which(.$county_fips == 51929)], Growth)) %>% #Martinsville
+  mutate(Growth = if_else(county_fips == 51095, .$Growth[which(.$county_fips == 51931)], Growth)) %>% #James City
+  mutate(Growth = if_else(county_fips == 51830, .$Growth[which(.$county_fips == 51931)], Growth)) %>% #Williamsburg
+  mutate(Growth = if_else(county_fips == 51121, .$Growth[which(.$county_fips == 51933)], Growth)) %>% #Montgomery
+  mutate(Growth = if_else(county_fips == 51750, .$Growth[which(.$county_fips == 51933)], Growth)) %>% #Radford
+  mutate(Growth = if_else(county_fips == 51143, .$Growth[which(.$county_fips == 51939)], Growth)) %>% #Pittsylvania
+  mutate(Growth = if_else(county_fips == 51590, .$Growth[which(.$county_fips == 51939)], Growth)) %>% #Danville
+  mutate(Growth = if_else(county_fips == 51149, .$Growth[which(.$county_fips == 51941)], Growth)) %>% #Prince George
+  mutate(Growth = if_else(county_fips == 51670, .$Growth[which(.$county_fips == 51941)], Growth)) %>% #Hopewell
+  mutate(Growth = if_else(county_fips == 51683, .$Growth[which(.$county_fips == 51942)], Growth)) %>% #Manassas City
+  mutate(Growth = if_else(county_fips == 51685, .$Growth[which(.$county_fips == 51942)], Growth)) %>% #Manassas Park City
+  mutate(Growth = if_else(county_fips == 51153, .$Growth[which(.$county_fips == 51942)], Growth)) %>% #Prince Williams
+  mutate(Growth = if_else(county_fips == 51161, .$Growth[which(.$county_fips == 51944)], Growth)) %>% #Roanoke
+  mutate(Growth = if_else(county_fips == 51775, .$Growth[which(.$county_fips == 51944)], Growth)) %>% #Salem
+  mutate(Growth = if_else(county_fips == 51163, .$Growth[which(.$county_fips == 51945)], Growth)) %>% #Rockbridge
+  mutate(Growth = if_else(county_fips == 51530, .$Growth[which(.$county_fips == 51945)], Growth)) %>% #Buena Vista
+  mutate(Growth = if_else(county_fips == 51678, .$Growth[which(.$county_fips == 51945)], Growth)) %>% #Lexington
+  mutate(Growth = if_else(county_fips == 51165, .$Growth[which(.$county_fips == 51947)], Growth)) %>% #Rockingham
+  mutate(Growth = if_else(county_fips == 51660, .$Growth[which(.$county_fips == 51947)], Growth)) %>% #Harrisonburg
+  mutate(Growth = if_else(county_fips == 51175, .$Growth[which(.$county_fips == 51949)], Growth)) %>% #Southampton
+  mutate(Growth = if_else(county_fips == 51620, .$Growth[which(.$county_fips == 51949)], Growth)) %>% #Franklin
+  mutate(Growth = if_else(county_fips == 51177, .$Growth[which(.$county_fips == 51951)], Growth)) %>% #Spotsylvania
+  mutate(Growth = if_else(county_fips == 51630, .$Growth[which(.$county_fips == 51951)], Growth)) %>% #Fredericksburg
+  mutate(Growth = if_else(county_fips == 51191, .$Growth[which(.$county_fips == 51953)], Growth)) %>% #Washington
+  mutate(Growth = if_else(county_fips == 51520, .$Growth[which(.$county_fips == 51953)], Growth)) %>% #Bristol
+  mutate(Growth = if_else(county_fips == 51195, .$Growth[which(.$county_fips == 51955)], Growth)) %>% #Wise
+  mutate(Growth = if_else(county_fips == 51720, .$Growth[which(.$county_fips == 51955)], Growth)) %>% #Norton
+  mutate(Growth = if_else(county_fips == 51199, .$Growth[which(.$county_fips == 51958)], Growth)) %>% #York
+  mutate(Growth = if_else(county_fips == 51735, .$Growth[which(.$county_fips == 51958)], Growth)) %>% #Poquoson
+  mutate(Growth = if_else(county_fips == 15009, .$Growth[which(.$county_fips == 15901)], Growth)) %>% #Kalawao
+  mutate(Growth = if_else(county_fips == 15005, .$Growth[which(.$county_fips == 15901)], Growth)) %>% #Maui
+  drop_na() %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+")))
+
+
+BEA_GDP_COUNTY_BINS_GROWTH <- counties_map_Growth %>%
+  ggplot(aes(fill = Growth_bucket, color = Growth_bucket), lwd = 0) +
+  geom_sf() +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    #guide = FALSE, 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  scale_color_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                     na.value = "grey50", 
+                     guide = FALSE, 
+                     labels = c("<0%", "0-1%", "1-2%", "2-3%", "3%+")) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("         Real GDP Growth by County, 2019-2022") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26))
+
+ggsave(dpi = "retina",plot = BEA_GDP_COUNTY_BINS_GROWTH, "BEA GDP COUNTY BINS GROWTH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 BEA_GDP_METRO_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
@@ -1877,25 +2036,38 @@ BEA_GDP_METRO <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE
   group_by(GeoFips) %>%
   arrange(GeoFips,TimePeriod) %>%
   #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
-  mutate(CAGR = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
   filter(TimePeriod == max(TimePeriod)) %>%
   ungroup() %>%
   arrange(DataValue) %>%
   slice(-nrow(.)) %>%
   top_n(50, DataValue) %>%
-  transmute(GEOID = GeoFips, CAGR)
+  transmute(GEOID = GeoFips, Growth)
+
+#Just checking the raw increase in GDP by Metro Since 2019
+BEA_GDP_METRO_INCREASES <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(INCREASE = DataValue-first(DataValue)) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  #top_n(50, DataValue) %>%
+  transmute(GEOID = GeoFips, INCREASE)
+
 
 MSA_map <- core_based_statistical_areas(cb = TRUE)
 
-MSA_map <- merge(MSA_map, BEA_GDP_METRO, by = "GEOID") %>%
-  mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+MSA_map_US <- merge(MSA_map, BEA_GDP_METRO, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
   st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
 
-
-BEA_GDP_MSA_BINS <- MSA_map %>%
+BEA_GDP_MSA_BINS <- MSA_map_US %>%
   ggplot() +
   geom_sf(data = filter(states, state_abbv != c("HI","AK")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
-  geom_sf(aes(fill = CAGR_bucket), color = "black", lwd = 0.5) +
+  geom_sf(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
                     na.value = "grey50", 
                     guide = "legend", 
@@ -1907,6 +2079,919 @@ BEA_GDP_MSA_BINS <- MSA_map %>%
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = BEA_GDP_MSA_BINS, "BEA GDP MSA BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_METRO_TX <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl("TX", GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_TX <- merge(MSA_map, BEA_GDP_METRO_TX, by = "GEOID") %>%
+    mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+    mutate(NAME = sub("-.*", "", NAME)) %>%
+    st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+MSA_map_TX_centroids <- MSA_map_TX %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_TX, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_TX_BINS <- MSA_map_TX %>%
+    ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+    geom_sf(data = filter(states, state_abbv == c("TX")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+    geom_sf() +
+    scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                      na.value = "grey50", 
+                      #guide = "legend", 
+                      labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                      guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+    ggtitle("   Real GDP Growth, 2019-2022\n         Texas Metro Areas") +
+    theme(plot.title = element_text(size = 24)) +
+    labs(caption = "Graph created by @JosephPolitano using BEA data") +
+    labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_TX_centroids, GEOID %in% c("12420")), #Austin
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -350000, # adjust these values as needed
+    nudge_x = 450000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_TX_centroids, GEOID %in% c("26420")), #Houston
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -100000, # adjust these values as needed
+    nudge_x = 600000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_TX_centroids, GEOID %in% c("19100")), #Dallas
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 300000, # adjust these values as needed
+    nudge_x = 200000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_TX_centroids, GEOID %in% c("41700")), #San Antonio
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -300000, # adjust these values as needed
+    nudge_x = -550000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+    theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_TX_BINS, "BEA GDP MSA TX BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+  
+
+BEA_GDP_METRO_CA <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl("CA", GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_CA <- merge(MSA_map, BEA_GDP_METRO_CA, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+  
+
+MSA_map_CA_centroids <- MSA_map_CA %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_CA, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_CA_BINS <- MSA_map_CA %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv == c("CA")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  geom_sf(data = filter(counties_map_Growth, Growth_bucket == "0.12-0.16" & state_abbv == "CA"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("           Real GDP Growth, 2019-2022\n                California Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("31080")), #Los Angeles
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = -550000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("41860")), #San Francisco
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +50000, # adjust these values as needed
+    nudge_x = -650000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("41940")), #San Jose
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("41740")), #San Diego
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -100000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("40140")), #Riverside
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +100000, # adjust these values as needed
+    nudge_x = +650000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_CA_centroids, GEOID %in% c("40900")), #Sacramento
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +100000, # adjust these values as needed
+    nudge_x = +400000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_CA_BINS, "BEA GDP MSA CA BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_METRO_FL <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl("FL", GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_FL <- merge(MSA_map, BEA_GDP_METRO_FL, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  mutate(NAME = sub(",.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+MSA_map_FL_centroids <- MSA_map_FL %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_FL, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_FL_BINS <- MSA_map_FL %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv == c("FL")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  geom_sf(data = filter(counties_map_Growth, Growth_bucket %in% c("<0","0.04-0.08") & state_abbv == "FL"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("       Real GDP Growth, 2019-2022\n             Florida Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_FL_centroids, GEOID %in% c("33100")), #Miami
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = -550000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_FL_centroids, GEOID %in% c("45300")), #Tampa
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -150000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_FL_centroids, GEOID %in% c("36740")), #Orlando
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_FL_centroids, GEOID %in% c("27260")), #Jacksonville
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -175000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_FL_BINS, "BEA GDP MSA FL BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+BEA_GDP_METRO_NE <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl(paste(c("MA", "RI", "CT", "NY","NJ","PA","DE","MD","DC","VA","NH","VT","ME"), collapse = "|"), GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_NE <- merge(MSA_map, BEA_GDP_METRO_NE, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  mutate(NAME = sub(",.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+MSA_map_NE_centroids <- MSA_map_NE %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_NE, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_NE_BINS <- MSA_map_NE %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv %in% c("MA", "RI", "CT", "NY","NJ","PA","DE","MD","DC","VA","NH","VT","ME")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  geom_sf(data = filter(counties_map_Growth,Growth_bucket == "0.16+" & state_abbv == "NY"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("          Real GDP Growth, 2019-2022\n   Northeast and Mid-Atlantic Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("35620")), #New York
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +150000, # adjust these values as needed
+    nudge_x = +650000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("47900")), #Washington
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    nudge_x = +550000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("14460")), #Boston
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +100000, # adjust these values as needed
+    nudge_x = +750000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("37980")), #Philadelphia
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +80000, # adjust these values as needed
+    nudge_x = +600000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("12580")), #Baltimore
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = +500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("38300")), #Pittsburgh
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("25540")), #Hartford
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 250000, # adjust these values as needed
+    nudge_x = -700000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) + 
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("47260")), #Virginia Beach
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 40000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("40060")), #Richmond
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 200000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_NE_centroids, GEOID %in% c("14860")), #Bridgeport
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    nudge_x = -850000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_NE_BINS, "BEA GDP MSA NE BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_GDP_METRO_RM <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl(paste(c("WA", "OR", "ID", "UT","CO","AZ","NV","NM"), collapse = "|"), GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_RM <- merge(MSA_map, BEA_GDP_METRO_RM, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  mutate(NAME = sub(",.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+MSA_map_RM_centroids <- MSA_map_RM %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_RM, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_RM_BINS <- MSA_map_RM %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv %in% c("WA", "OR", "ID", "UT","CO","AZ","NV","NM")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  #geom_sf(data = filter(counties_map_Growth,Growth_bucket == "0.16+" & state_abbv == "NY"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("          Real GDP Growth, 2019-2022\n          Rocky Mountain Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("42660")), #Seattle
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +150000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("38060")), #Phoenix
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -100000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("19740")), #Denver
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +400000, # adjust these values as needed
+    nudge_x = +750000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("38900")), #Portland
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +75000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("29820")), #Las Vegas
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = -1000000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_RM_centroids, GEOID %in% c("41620")), #Salt Lake City
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 500000, # adjust these values as needed
+    nudge_x = +950000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_RM_BINS, "BEA GDP MSA RM BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_METRO_MW <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl(paste(c("OH", "MI", "IN", "IL","WI","MN","IA","MO"), collapse = "|"), GeoName)) %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_MW <- merge(MSA_map, BEA_GDP_METRO_MW, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  mutate(NAME = sub(",.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+MSA_map_MW_centroids <- MSA_map_MW %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_MW, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_MW_BINS <- MSA_map_MW %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv %in% c("OH", "MI", "IN", "IL","WI","MN","IA","MO")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  #geom_sf(data = filter(counties_map_Growth,Growth_bucket == "0.16+" & state_abbv == "NY"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("            Real GDP Growth, 2019-2022\n                   Midwest Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("16980")), #Chicago
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +700000, # adjust these values as needed
+    nudge_x = +900000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("33460")), #Minneapolis
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -80000, # adjust these values as needed
+    nudge_x = -850000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("19820")), #Detroit
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +300000, # adjust these values as needed
+    nudge_x = +550000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("41180")), #STL
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    nudge_x = -800000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("17140")), #Cincinnati
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -50000, # adjust these values as needed
+    nudge_x = +600000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("26900")), #Indianapolis
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -350000, # adjust these values as needed
+    nudge_x = +300000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+    ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("28140")), #Kansas City
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +100000, # adjust these values as needed
+    nudge_x = -500000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("18140")), #Columbus
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    nudge_x = +750000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) + 
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("17460")), #Cleveland
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 200000, # adjust these values as needed
+    nudge_x = +400000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_MW_centroids, GEOID %in% c("33340")), #Milwaukee
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 600000, # adjust these values as needed
+    nudge_x = +250000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_MW_BINS, "BEA GDP MSA MW BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_METRO_SO <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Growth = (DataValue/first(DataValue )) - 1) %>%
+  mutate(Increase = (DataValue-first(DataValue))) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  filter(grepl(paste(c("NC", "SC", "GA", "AL","MS","TN","KY","AR","LA"), collapse = "|"), GeoName)) %>%
+  filter(GeoFips != "47260" & GeoFips != "17140") %>%
+  transmute(GEOID = GeoFips, Growth, Increase)
+
+MSA_map_SO <- merge(MSA_map, BEA_GDP_METRO_SO, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  mutate(NAME = sub("-.*", "", NAME)) %>%
+  mutate(NAME = sub(",.*", "", NAME)) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+MSA_map_SO_centroids <- MSA_map_SO %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_SO, .) %>%
+  st_centroid()
+
+BEA_GDP_MSA_SO_BINS <- MSA_map_SO %>%
+  ggplot(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(states, state_abbv %in% c("NC", "SC", "GA", "AL","MS","TN","KY","AR","LA")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf() +
+  #geom_sf(data = filter(counties_map_Growth,Growth_bucket == "0.16+" & state_abbv == "NY"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50",
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("       Real GDP Growth, 2019-2022\n            South Metro Areas") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(MSA_map_SO_centroids, GEOID %in% c("12060")), #Atlanta
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +750000, # adjust these values as needed
+    nudge_x = -100000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_SO_centroids, GEOID %in% c("16740")), #Charlotte
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -700000, # adjust these values as needed
+    nudge_x = +450000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_SO_centroids, GEOID %in% c("34980")), #Nashville
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +300000, # adjust these values as needed
+    nudge_x = -450000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_SO_centroids, GEOID %in% c("39580")), #Raleigh
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +200000, # adjust these values as needed
+    nudge_x = +00000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.85,
+    show.legend = FALSE
+  ) +
+  geom_label_repel(
+    data = filter(MSA_map_SO_centroids, GEOID %in% c("32820")), #Memphis
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(NAME, "\n", ifelse(Growth >= 0, "+", ""), sprintf("%.1f", round(Growth * 100, 1)), "%  ", paste0(ifelse(Increase >= 0, "+", "-"),"$", format(round(abs(Increase) / 1e5 / 10, 1), nsmall = 1),"B"))), 
+    size = 6, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = +250000, # adjust these values as needed
+    nudge_x = -300000, # adjust these values as needed
+    segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = BEA_GDP_MSA_SO_BINS, "BEA GDP MSA SO BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 ggsave(dpi = "retina",plot = GDPQuarterlyContrib_Graph, "Quarterly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
