@@ -1,4 +1,4 @@
-pacman::p_load(ggrepel,tigris,purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggpubr,ggrepel,tigris,purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -1820,9 +1820,513 @@ ggsave(dpi = "retina",plot = BEA_GDP_STATE_BINS_RAW, "BEA GDP STATE BINS RAW.png
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_GRADIENT, "BEA GDP STATE GRADIENT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_BINS, "BEA GDP STATE BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+test <- beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
+test <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","TableName")
 
-beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
-beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","GeoFips")
+BEA_PCE_PC_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SARPI", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 4, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_PCE_PC_STATE <- beaGet(BEA_PCE_PC_SPECS, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPI-4")) %>%
+  rename_with(~str_replace(., " Constant", "")) %>%
+  select(-`United States`, -TimePeriod) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "1 year"))) %>%
+  pivot_longer(-date, names_to = "state_name", values_to = "PCE_PER_CAPITA") %>%
+  arrange(state_name, date) %>%
+  group_by(state_name) %>%
+  mutate(GROWTH = (PCE_PER_CAPITA / first(PCE_PER_CAPITA)) - 1) %>%
+  filter(date == max(date)) %>%
+  ungroup()
+
+states_PCE_PC <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states_PCE_PC <- left_join(states_PCE_PC, BEA_PCE_PC_STATE, by = "state_name")
+
+states_PCE_PC <- states_PCE_PC %>%
+  mutate(states = state_name) %>%
+  mutate(GROWTH_bucket = cut(GROWTH, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+")))
+
+
+BEA_GDP_PCE_PC_LABELS <- get_urbn_labels(map = "states") %>%
+  left_join(states_PCE_PC, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+states_centroids_PCE_PC <- states_PCE_PC %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states_PCE_PC, .) %>%
+  st_centroid()
+
+BEA_PCE_PC_STATE_BINS_RAW <- states_PCE_PC %>%
+  ggplot(aes(fill = GROWTH_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "grey25", aes(fill = GROWTH_bucket), lwd = 0.65, alpha = 0) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC")))) +
+  ggtitle("         Real PCE Per Capita Growth 2019-2022\n                    At State Price Parities") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(BEA_GDP_PCE_PC_LABELS, state_abbv %in% c("NH","VT","MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    segment.color = NA,
+    hjust = 0.5,
+    direction = "y",
+    nudge_y = 4000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    box.padding = 0.75,  # Increase box padding
+    point.padding = 0.5,
+    max.overlaps = 5,
+    force = 4,
+    force_pull = 1,
+    max.iter = 2000000000,
+    max.time = 30,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_PCE_PC, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(BEA_GDP_PCE_PC_LABELS, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_PCE_PC_LABELS, state_abbv %in% c("FL","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_PCE_PC_LABELS, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_PCE_PC_LABELS, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+#geom_text(data = BEA_GDP_STATE_BINS_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH,1),"%")), size = 3, color = "white", check_overlap = TRUE)
+#geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
+
+ggsave(dpi = "retina",plot = BEA_PCE_PC_STATE_BINS_RAW, "BEA PCE PER CAPITA STATE BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_RPP_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SARPP", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_RPP_STATE <- beaGet(BEA_RPP_SPECS, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPP-1")) %>%
+  rename_with(~str_replace(., " Index", "")) %>%
+  select(-`United States`, -TimePeriod) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "1 year"))) %>%
+  pivot_longer(-date, names_to = "state_name", values_to = "RPP") %>%
+  arrange(state_name, date) %>%
+  group_by(state_name) %>%
+  mutate(GROWTH = (RPP - first(RPP))/100) %>%
+  filter(date == max(date)) %>%
+  ungroup()
+
+
+states_RPP <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states_RPP <- left_join(states_RPP, BEA_RPP_STATE, by = "state_name")
+
+states_RPP <- states_RPP %>%
+  mutate(states = state_name) %>%
+  mutate(GROWTH_bucket = cut(GROWTH, breaks = c(-Inf, -0.015, 0,.015, Inf), labels = c("<-1.5%", "-1.5%-0", "0-1.5%", "1.5%+")))
+
+
+BEA_RPP_LABELS <- get_urbn_labels(map = "states") %>%
+  left_join(states_RPP, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+states_centroids_RPP <- states_RPP %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states_RPP, .) %>%
+  st_centroid()
+
+
+
+BEA_RPP_STATE_BINS_RAW <- states_RPP %>%
+  ggplot(aes(fill = GROWTH_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65, alpha = 0) + # Black borders for states
+  scale_fill_manual(values = c("#EE6055","#FF8E72","#F5B041","#FFE98F"),
+                    na.value = "grey50", 
+                    #guide = "legend", 
+                    labels = c("<-1.5%", "-1.5-0%", "0-1.5%", "1.5%+"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#FF8E72","#F5B041","#FFE98F")))) +
+  ggtitle("       Change in State Price Parities 2019-2022\n                  Relative to National Average") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(BEA_RPP_LABELS, state_abbv %in% c("NH","VT","MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    segment.color = NA,
+    hjust = 0.5,
+    direction = "y",
+    nudge_y = 4000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    box.padding = 0.75,  # Increase box padding
+    point.padding = 0.5,
+    max.overlaps = 5,
+    force = 4,
+    force_pull = 1,
+    max.iter = 2000000000,
+    max.time = 30,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_RPP, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(BEA_RPP_LABELS, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_RPP_LABELS, state_abbv %in% c("FL","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_RPP_LABELS, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_RPP_LABELS, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+#geom_text(data = BEA_GDP_STATE_BINS_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH,1),"%")), size = 3, color = "white", check_overlap = TRUE)
+#geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
+
+ggsave(dpi = "retina",plot = BEA_RPP_STATE_BINS_RAW, "BEA RPP STATE BINS 2.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_STATE_INDUSTRIES_SPECS_TOTAL <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP2", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  #"UnitofMeasure" = "Percent of US",
+  "Year" =  paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_STATE_INDUSTRIES_TOTAL <- beaGet(BEA_GDP_STATE_INDUSTRIES_SPECS_TOTAL, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_replace("Millions of current dollars", "") %>% str_trim(), starts_with("SQGDP2")) %>%
+  select(`United States`,`California`,`Texas`,`New York`,`Florida`) %>%
+  mutate(across(-`United States`, ~./`United States`)) %>%
+  select(-`United States`) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months")))
+
+BEA_GDP_STATE_INDUSTRIES_SPECS_INFO <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP2", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = 45, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  #"UnitofMeasure" = "Percent of US",
+  "Year" =  paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_STATE_INDUSTRIES_INFO <- beaGet(BEA_GDP_STATE_INDUSTRIES_SPECS_INFO, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_replace("Millions of current dollars", "") %>% str_trim(), starts_with("SQGDP2")) %>%
+  select(`United States`,`California`,`Texas`,`New York`,`Florida`) %>%
+  mutate(across(-`United States`, ~./`United States`)) %>%
+  select(-`United States`) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months")))
+
+BEA_GDP_STATE_INDUSTRIES_SPECS_PROF <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP2", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = 60, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  #"UnitofMeasure" = "Percent of US",
+  "Year" =  paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_STATE_INDUSTRIES_PROF <- beaGet(BEA_GDP_STATE_INDUSTRIES_SPECS_PROF, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_replace("Millions of current dollars", "") %>% str_trim(), starts_with("SQGDP2")) %>%
+  select(`United States`,`California`,`Texas`,`New York`,`Florida`) %>%
+  mutate(across(-`United States`, ~./`United States`)) %>%
+  select(-`United States`) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months")))
+
+BEA_GDP_STATE_INDUSTRIES_SPECS_CONS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP2", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = 11, # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  #"UnitofMeasure" = "Percent of US",
+  "Year" =  paste(seq(from = 2018, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_STATE_INDUSTRIES_CONS <- beaGet(BEA_GDP_STATE_INDUSTRIES_SPECS_CONS, iTableStyle = FALSE, asWide = TRUE) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_replace("Millions of current dollars", "") %>% str_trim(), starts_with("SQGDP2")) %>%
+  select(`United States`,`California`,`Texas`,`New York`,`Florida`) %>%
+  mutate(across(-`United States`, ~./`United States`)) %>%
+  select(-`United States`) %>%
+  mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months")))
+
+
+BEA_GDP_STATE_INDUSTRIES_TOTAL_GRAPH <- ggplot() +
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_TOTAL, aes(x=date, y = `California`, color = "California"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_TOTAL, aes(x=date, y = `New York`, color = "New York"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_TOTAL, aes(x=date, y = `Texas`, color = "Texas"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_TOTAL, aes(x=date, y = `Florida`, color = "Florida"), size = 1.25) + 
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,.15), breaks = c(0,0.05,0.10,0.15), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Total") +
+  #labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Despite Remote Work, Major Metros' Central Counties Remain the Largest Source of Growth") +
+  theme_apricitas + theme(legend.position = "top",plot.title = element_text(size = 14, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#F5B041","#3083DC","#AED581"), breaks = c("California","New York","Texas","Florida")) +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm"))
+
+BEA_GDP_STATE_INDUSTRIES_INFO_GRAPH <- ggplot() +
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_INFO, aes(x=date, y = `California`, color = "California"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_INFO, aes(x=date, y = `New York`, color = "New York"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_INFO, aes(x=date, y = `Texas`, color = "Texas"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_INFO, aes(x=date, y = `Florida`, color = "Florida"), size = 1.25) + 
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,.30), breaks = c(0,0.05,0.10,0.15,0.20,0.25,0.30), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Information") +
+  #labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Despite Remote Work, Major Metros' Central Counties Remain the Largest Source of Growth") +
+  theme_apricitas + theme(legend.position = "top",plot.title = element_text(size = 14, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#F5B041","#3083DC","#AED581"), breaks = c("California","New York","Texas","Florida")) +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm"))
+
+BEA_GDP_STATE_INDUSTRIES_PROF_GRAPH <- ggplot() +
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_PROF, aes(x=date, y = `California`, color = "California"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_PROF, aes(x=date, y = `New York`, color = "New York"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_PROF, aes(x=date, y = `Texas`, color = "Texas"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_PROF, aes(x=date, y = `Florida`, color = "Florida"), size = 1.25) + 
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,.20), breaks = c(0,0.05,0.10,0.15,0.20,0.25,0.30), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Professional/Scientific/Technical") +
+  #labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Despite Remote Work, Major Metros' Central Counties Remain the Largest Source of Growth") +
+  theme_apricitas + theme(legend.position = "top",plot.title = element_text(size = 14, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#F5B041","#3083DC","#AED581"), breaks = c("California","New York","Texas","Florida")) +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm"))
+
+BEA_GDP_STATE_INDUSTRIES_CONS_GRAPH <- ggplot() +
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_CONS, aes(x=date, y = `California`, color = "California"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_CONS, aes(x=date, y = `New York`, color = "New York"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_CONS, aes(x=date, y = `Texas`, color = "Texas"), size = 1.25) + 
+  geom_line(data = BEA_GDP_STATE_INDUSTRIES_CONS, aes(x=date, y = `Florida`, color = "Florida"), size = 1.25) + 
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,.15), breaks = c(0,0.05,0.10,0.15), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Construction") +
+  #labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Despite Remote Work, Major Metros' Central Counties Remain the Largest Source of Growth") +
+  theme_apricitas + theme(legend.position = "top",plot.title = element_text(size = 14, color = "white")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#F5B041","#3083DC","#AED581"), breaks = c("California","New York","Texas","Florida")) +
+  theme(plot.margin=unit(c(0.15,0.15,0.15,0.15),"cm"))
+
+BEA_GDP_STATE_INDUSTRIES_GRAPH <- ggarrange(BEA_GDP_STATE_INDUSTRIES_TOTAL_GRAPH, BEA_GDP_STATE_INDUSTRIES_PROF_GRAPH, BEA_GDP_STATE_INDUSTRIES_CONS_GRAPH, BEA_GDP_STATE_INDUSTRIES_INFO_GRAPH,  ncol = 2, nrow = 2, heights = 20, widths = 10, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+text <- c("State GDP, Percent of US GDP",fontface = "bold")
+
+# Create a text grob
+tgrob <- text_grob(expression(bold("                    State GDP, Percent of US GDP")),size = 25, color = "white") 
+# Draw the text
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0,0,0,0, "cm")) + theme(legend.position = "top", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin=unit(c(-0.15,-0.15,-0.15,-0.15),"cm"))  
+blank <- ""
+blankgrob <- text_grob(blank,size = 20)
+plot_blank <- as_ggplot(blankgrob) + theme(plot.margin = margin(0,0,0,0, "cm"))
+BEA_GDP_STATE_INDUSTRIES_GRAPH <- ggarrange(plot_0,plot_blank,BEA_GDP_STATE_INDUSTRIES_TOTAL_GRAPH, BEA_GDP_STATE_INDUSTRIES_PROF_GRAPH, BEA_GDP_STATE_INDUSTRIES_CONS_GRAPH, BEA_GDP_STATE_INDUSTRIES_INFO_GRAPH,  ncol = 2, nrow = 3, heights = c(5,20,20), widths = 10, common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+ggsave(dpi = "retina",plot = BEA_GDP_STATE_INDUSTRIES_GRAPH, "BEA GDP STATE INDUSTRIES.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 BEA_GDP_COUNTIES_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
@@ -1834,6 +2338,20 @@ BEA_GDP_COUNTIES_SPECS <- list(
   "GeoFips" = "COUNTY", # Specify the geographical level
   "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
 )
+
+#Just checking the raw increase in GDP by Metro Since 2019
+BEA_GDP_COUNTY_INCREASES <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(INCREASE = DataValue-first(DataValue)) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  #slice(-nrow(.)) %>%
+  top_n(100, DataValue) %>%
+  transmute(GEOID = GeoFips, INCREASE)
+
 
 BEA_GDP_COUNTIES <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
   group_by(TimePeriod) %>% mutate(DataValue = if_else(GeoFips == "02261" & DataValue == 0, DataValue[GeoFips == "02063"] + DataValue[GeoFips == "02066"], DataValue)) %>% ungroup %>% #fixing the Valdez-Cordova Census Area, Which Got Split Up in 2019
@@ -2020,6 +2538,209 @@ BEA_GDP_COUNTY_BINS_GROWTH <- counties_map_Growth %>%
 
 ggsave(dpi = "retina",plot = BEA_GDP_COUNTY_BINS_GROWTH, "BEA GDP COUNTY BINS GROWTH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+BEA_GDP_COUNTIES_INCREASE <- beaGet(BEA_GDP_COUNTIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(TimePeriod) %>% mutate(DataValue = if_else(GeoFips == "02261" & DataValue == 0, DataValue[GeoFips == "02063"] + DataValue[GeoFips == "02066"], DataValue)) %>% ungroup %>% #fixing the Valdez-Cordova Census Area, Which Got Split Up in 2019
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Increase = DataValue-first(DataValue)) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  transmute(county_fips = GeoFips, Increase)
+
+counties_map_increase <- get_urbn_map(map = "counties", sf = TRUE)
+
+#NOTE: BEA Data Combines Several Small Counties, Particularly in VA, into Neighboring Counties. This code Manually copies over the CAGR values for those large counties into the Geometry for the smaller, constituent counties 
+
+counties_map_increase <- full_join(counties_map_increase, BEA_GDP_COUNTIES_INCREASE, by = "county_fips") %>%
+  mutate(Increase = if_else(county_fips == 51003, .$Increase[which(.$county_fips == 51901)], Increase)) %>% #Albemarle
+  mutate(Increase = if_else(county_fips == 51005, .$Increase[which(.$county_fips == 51903)], Increase)) %>% #Alleghany
+  mutate(Increase = if_else(county_fips == 51820, .$Increase[which(.$county_fips == 51907)], Increase)) %>% #Waynesboro
+  mutate(Increase = if_else(county_fips == 51680, .$Increase[which(.$county_fips == 51911)], Increase)) %>% #Lynchburg
+  mutate(Increase = if_else(county_fips == 51640, .$Increase[which(.$county_fips == 51913)], Increase)) %>% #Galax
+  mutate(Increase = if_else(county_fips == 51730, .$Increase[which(.$county_fips == 51918)], Increase)) %>% #Petersburg
+  mutate(Increase = if_else(county_fips == 51610, .$Increase[which(.$county_fips == 51919)], Increase)) %>% #Falls Church
+  mutate(Increase = if_else(county_fips == 51840, .$Increase[which(.$county_fips == 51921)], Increase)) %>% #Winchester
+  mutate(Increase = if_else(county_fips == 51595, .$Increase[which(.$county_fips == 51923)], Increase)) %>% #Emporia
+  mutate(Increase = if_else(county_fips == 51690, .$Increase[which(.$county_fips == 51929)], Increase)) %>% #Martinsville
+  mutate(Increase = if_else(county_fips == 51830, .$Increase[which(.$county_fips == 51931)], Increase)) %>% #Williamsburg
+  mutate(Increase = if_else(county_fips == 51750, .$Increase[which(.$county_fips == 51933)], Increase)) %>% #Radford
+  mutate(Increase = if_else(county_fips == 51590, .$Increase[which(.$county_fips == 51939)], Increase)) %>% #Danville
+  mutate(Increase = if_else(county_fips == 51670, .$Increase[which(.$county_fips == 51941)], Increase)) %>% #Hopewell
+  mutate(Increase = if_else(county_fips == 51153, .$Increase[which(.$county_fips == 51942)], Increase)) %>% #Prince Williams
+  mutate(Increase = if_else(county_fips == 51775, .$Increase[which(.$county_fips == 51944)], Increase)) %>% #Salem
+  mutate(Increase = if_else(county_fips == 51678, .$Increase[which(.$county_fips == 51945)], Increase)) %>% #Lexington
+  mutate(Increase = if_else(county_fips == 51165, .$Increase[which(.$county_fips == 51947)], Increase)) %>% #Rockingham
+  mutate(Increase = if_else(county_fips == 51620, .$Increase[which(.$county_fips == 51949)], Increase)) %>% #Franklin
+  mutate(Increase = if_else(county_fips == 51630, .$Increase[which(.$county_fips == 51951)], Increase)) %>% #Fredericksburg
+  mutate(Increase = if_else(county_fips == 51520, .$Increase[which(.$county_fips == 51953)], Increase)) %>% #Bristol
+  mutate(Increase = if_else(county_fips == 51720, .$Increase[which(.$county_fips == 51955)], Increase)) %>% #Norton
+  mutate(Increase = if_else(county_fips == 51199, .$Increase[which(.$county_fips == 51958)], Increase)) %>% #York
+  mutate(Increase = if_else(county_fips == 15005, .$Increase[which(.$county_fips == 15901)], Increase)) %>% #Maui
+  drop_na()
+
+counties_map_increase_centroids <- counties_map_increase %>%
+  st_centroid()
+
+BEA_GDP_COUNTY_INCREASES_GRAPH <- counties_map %>%
+  ggplot() +
+  geom_sf(fill = "grey75") +
+  geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = Increase > 0, size = Increase/1000000), shape = 21, alpha = 0.5, show.legend = TRUE) +
+  geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], size = Increase/1000000), shape = 21, color = "black", fill = NA, alpha = 0.5, show.legend = FALSE) +#geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], color = Increase > 0, size = Increase/1000000), alpha = 0.5, stroke = 0.25) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(name = NULL,
+                     values = c("#3083DC","#EE6055"),
+                     breaks = c(TRUE, FALSE), 
+                     labels = c("Increase", "Decrease"),
+                     guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of Change\n2017 Dollars",
+                  max_size = 15,
+                  breaks = c(0,20,40,60),
+                  labels = c("$0","$20B","$40B","$60B"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("         Real GDP Growth by County, 2019-2022") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = BEA_GDP_COUNTY_INCREASES_GRAPH, "BEA GDP COUNTY Increases.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_GDP_COUNTIES_NOMINAL_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "CAGDP2", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "COUNTY", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+BEA_GDP_COUNTIES_INCREASE <- beaGet(BEA_GDP_COUNTIES_NOMINAL_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(TimePeriod) %>% mutate(DataValue = if_else(GeoFips == "02261" & DataValue == 0, DataValue[GeoFips == "02063"] + DataValue[GeoFips == "02066"], DataValue)) %>% ungroup %>% #fixing the Valdez-Cordova Census Area, Which Got Split Up in 2019
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  #mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Increase = DataValue-first(DataValue)) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  transmute(county_fips = GeoFips, Increase)
+
+counties_map_increase <- get_urbn_map(map = "counties", sf = TRUE)
+
+#NOTE: BEA Data Combines Several Small Counties, Particularly in VA, into Neighboring Counties. This code Manually copies over the CAGR values for those large counties into the Geometry for the smaller, constituent counties 
+
+counties_map_increase <- full_join(counties_map_increase, BEA_GDP_COUNTIES_INCREASE, by = "county_fips") %>%
+  mutate(Increase = if_else(county_fips == 51003, .$Increase[which(.$county_fips == 51901)], Increase)) %>% #Albemarle
+  mutate(Increase = if_else(county_fips == 51005, .$Increase[which(.$county_fips == 51903)], Increase)) %>% #Alleghany
+  mutate(Increase = if_else(county_fips == 51820, .$Increase[which(.$county_fips == 51907)], Increase)) %>% #Waynesboro
+  mutate(Increase = if_else(county_fips == 51680, .$Increase[which(.$county_fips == 51911)], Increase)) %>% #Lynchburg
+  mutate(Increase = if_else(county_fips == 51640, .$Increase[which(.$county_fips == 51913)], Increase)) %>% #Galax
+  mutate(Increase = if_else(county_fips == 51730, .$Increase[which(.$county_fips == 51918)], Increase)) %>% #Petersburg
+  mutate(Increase = if_else(county_fips == 51610, .$Increase[which(.$county_fips == 51919)], Increase)) %>% #Falls Church
+  mutate(Increase = if_else(county_fips == 51840, .$Increase[which(.$county_fips == 51921)], Increase)) %>% #Winchester
+  mutate(Increase = if_else(county_fips == 51595, .$Increase[which(.$county_fips == 51923)], Increase)) %>% #Emporia
+  mutate(Increase = if_else(county_fips == 51690, .$Increase[which(.$county_fips == 51929)], Increase)) %>% #Martinsville
+  mutate(Increase = if_else(county_fips == 51830, .$Increase[which(.$county_fips == 51931)], Increase)) %>% #Williamsburg
+  mutate(Increase = if_else(county_fips == 51750, .$Increase[which(.$county_fips == 51933)], Increase)) %>% #Radford
+  mutate(Increase = if_else(county_fips == 51590, .$Increase[which(.$county_fips == 51939)], Increase)) %>% #Danville
+  mutate(Increase = if_else(county_fips == 51670, .$Increase[which(.$county_fips == 51941)], Increase)) %>% #Hopewell
+  mutate(Increase = if_else(county_fips == 51153, .$Increase[which(.$county_fips == 51942)], Increase)) %>% #Prince Williams
+  mutate(Increase = if_else(county_fips == 51775, .$Increase[which(.$county_fips == 51944)], Increase)) %>% #Salem
+  mutate(Increase = if_else(county_fips == 51678, .$Increase[which(.$county_fips == 51945)], Increase)) %>% #Lexington
+  mutate(Increase = if_else(county_fips == 51165, .$Increase[which(.$county_fips == 51947)], Increase)) %>% #Rockingham
+  mutate(Increase = if_else(county_fips == 51620, .$Increase[which(.$county_fips == 51949)], Increase)) %>% #Franklin
+  mutate(Increase = if_else(county_fips == 51630, .$Increase[which(.$county_fips == 51951)], Increase)) %>% #Fredericksburg
+  mutate(Increase = if_else(county_fips == 51520, .$Increase[which(.$county_fips == 51953)], Increase)) %>% #Bristol
+  mutate(Increase = if_else(county_fips == 51720, .$Increase[which(.$county_fips == 51955)], Increase)) %>% #Norton
+  mutate(Increase = if_else(county_fips == 51199, .$Increase[which(.$county_fips == 51958)], Increase)) %>% #York
+  mutate(Increase = if_else(county_fips == 15005, .$Increase[which(.$county_fips == 15901)], Increase)) %>% #Maui
+  drop_na()
+
+counties_map_increase_centroids <- counties_map_increase %>%
+  st_centroid()
+
+BEA_NOMINAL_GDP_COUNTY_INCREASES_GRAPH <- counties_map %>%
+  ggplot() +
+  geom_sf(fill = "grey75") +
+  geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = Increase > 0, size = Increase/1000000), shape = 21, alpha = 0.5, show.legend = TRUE) +
+  geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], size = Increase/1000000), shape = 21, color = "black", fill = NA, alpha = 0.5, show.legend = FALSE) +#geom_point(data = counties_map_increase_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], color = Increase > 0, size = Increase/1000000), alpha = 0.5, stroke = 0.25) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of Change",
+                  max_size = 10,
+                  breaks = c(0,30,60,90),
+                  labels = c("$0","$30B","$60B","$90B"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("         Nominal GDP Growth by County, 2019-2022") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = BEA_NOMINAL_GDP_COUNTY_INCREASES_GRAPH, "BEA GDP COUNTY Increases Nominal.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_COUNTIES_CATEGORIES_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "CAGDP9", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "COUNTY", # Specify the geographical level
+  "Year" =  paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+
+BEA_GDP_COUNTIES_CATEGORIES_CODES <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/GDP%20Releases/2023%20Q3/NCHSURCodes2013.csv") %>%
+  mutate(GeoFips = str_pad(FIPS, width = 5, pad = "0")) %>%
+  mutate(Category = X2013_code) %>%
+  select(GeoFips,Category)
+
+BEA_GDP_COUNTIES_CATEGORIES <- beaGet(BEA_GDP_COUNTIES_CATEGORIES_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  inner_join(BEA_GDP_COUNTIES_CATEGORIES_CODES, by = "GeoFips") %>%
+  group_by(Category, TimePeriod) %>%
+  summarise(DataValue = sum(DataValue, na.rm = TRUE)) %>%
+  mutate(CAGR = (DataValue/first(DataValue )) ^ (1 / ((row_number() - 1))) - 1) %>%
+  mutate(Index = (DataValue/nth(DataValue, 3)) * 100) %>%
+  ungroup() %>%
+  mutate(Category = case_when(
+    Category == 1 ~ "Large (Pop >1M) Metro, Central Counties",
+    Category == 2 ~ "Large (Pop >1M) Metro, Suburban Counties",
+    Category == 3 ~ "Medium (Pop 250k-1M) Metro",
+    Category == 4 ~ "Small (Pop <250k) Metro",
+    Category == 5 ~ "Micropolitan Areas",
+    Category == 6 ~ "Non-Core Counties",
+    TRUE ~ as.character(Category)  # handles other cases
+  )) %>%
+  mutate(TimePeriod = as.Date(paste0(TimePeriod,"-01-01")))
+
+BEA_GDP_COUNTIES_CATEGORIES_Graph <- ggplot() +
+  geom_line(data = filter(BEA_GDP_COUNTIES_CATEGORIES, Category != "Large (Pop >1M) Metro, Central Counties"), aes(x=TimePeriod, y = Index, color = Category), size = 1.25) + 
+  geom_line(data = filter(BEA_GDP_COUNTIES_CATEGORIES, Category == "Large (Pop >1M) Metro, Central Counties"), aes(x=TimePeriod, y = Index, color = Category), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(),limits = c(92,108), breaks = c(92,94,96,98,100,102,104,106,108), expand = c(0,0)) +
+  ylab("Index, 2019 = 100") +
+  ggtitle("Centers of Major Metros Lead US Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Despite Remote Work, Major Metros' Central Counties Remain the Largest Source of Growth") +
+  theme_apricitas + theme(legend.position = c(.30,.7)) +
+  scale_color_manual(name= "Real GDP, Index, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#F5B041","#3083DC","#AED581"), breaks = c("Large (Pop >1M) Metro, Central Counties","Large (Pop >1M) Metro, Suburban Counties","Medium (Pop 250k-1M) Metro","Small (Pop <250k) Metro","Micropolitan Areas","Non-Core Counties")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-730-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-730-as.Date("2017-01-01"))), ymin = 92-(.3*16), ymax = 92) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BEA_GDP_COUNTIES_CATEGORIES_Graph, "BEA GDP COUNTIES CATEGORIES Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 BEA_GDP_METRO_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
@@ -2041,7 +2762,7 @@ BEA_GDP_METRO <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE
   ungroup() %>%
   arrange(DataValue) %>%
   slice(-nrow(.)) %>%
-  top_n(50, DataValue) %>%
+  top_n(145, DataValue) %>%
   transmute(GEOID = GeoFips, Growth)
 
 #Just checking the raw increase in GDP by Metro Since 2019
@@ -2070,8 +2791,9 @@ BEA_GDP_MSA_BINS <- MSA_map_US %>%
   geom_sf(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
                     na.value = "grey50", 
-                    guide = "legend", 
-                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%")) +
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
   ggtitle("              Real GDP Growth, 2019-2022\n            50 Largest Metro Areas by GDP") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -2079,6 +2801,122 @@ BEA_GDP_MSA_BINS <- MSA_map_US %>%
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = BEA_GDP_MSA_BINS, "BEA GDP MSA BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_RPP_MSA_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "MARPP", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 1, # Specify the line code
+  "GeoFips" = "MSA", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+
+TOP_50_METROS_GDP <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  filter(DataValue == max(DataValue)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  top_n(50, DataValue) %>%
+  transmute(GEOID = GeoFips, DataValue)
+
+BEA_RPP_MSA <- beaGet(BEA_RPP_MSA_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  mutate(Growth = (DataValue - first(DataValue))/100) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  #top_n(50, DataValue) %>%
+  transmute(GEOID = GeoFips, Growth, GeoName) %>%
+  merge(.,TOP_50_METROS_GDP, by = "GEOID")
+
+MSA_map <- core_based_statistical_areas(cb = TRUE)
+
+RPP_MSA_map_US <- merge(MSA_map, BEA_RPP_MSA, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, -0.015, 0,.015, Inf), labels = c("<-1.5%", "-1.5%-0", "0-1.5%", "1.5%+"))) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+BEA_RPP_MSA_BINS <- RPP_MSA_map_US %>%
+  ggplot() +
+  geom_sf(data = filter(states, state_abbv != c("HI","AK")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  scale_fill_manual(values = c("#EE6055","#FF8E72","#F5B041","#FFE98F"),
+                    na.value = "grey50", 
+                    #guide = "legend", 
+                    labels = c("<-1.5%", "-1.5-0%", "0-1.5%", "1.5%+"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#FF8E72","#F5B041","#FFE98F")))) +
+  ggtitle("Change in Metro Area Price Parities, 2019-2022\n               Relative to National Average\n           50 Largest Metro Areas by GDP") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 24))
+
+
+ggsave(dpi = "retina",plot = BEA_RPP_MSA_BINS, "BEA RPP MSA BINS 2.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BEA_RPI_MSA_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "MARPI", # Specify table within the dataset
+  "Frequency" = "A", # Specify the line code
+  "LineCode" = 2, # Specify the line code
+  "GeoFips" = "MSA", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+TOP_50_METROS_GDP <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  filter(DataValue == max(DataValue)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  slice(-nrow(.)) %>%
+  top_n(50, DataValue) %>%
+  transmute(GEOID = GeoFips, DataValue)
+
+BEA_RPI_MSA <- beaGet(BEA_RPI_MSA_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
+  group_by(GeoFips) %>%
+  arrange(GeoFips,TimePeriod) %>%
+  mutate(Growth = (DataValue - first(DataValue))/first(DataValue)) %>%
+  filter(TimePeriod == max(TimePeriod)) %>%
+  ungroup() %>%
+  arrange(DataValue) %>%
+  #top_n(50, DataValue) %>%
+  transmute(GEOID = GeoFips, Growth, GeoName) %>%
+  merge(.,TOP_50_METROS_GDP, by = "GEOID")
+
+MSA_map <- core_based_statistical_areas(cb = TRUE)
+
+RPI_MSA_map_US <- merge(MSA_map, BEA_RPI_MSA, by = "GEOID") %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
+
+
+BEA_RPI_MSA_BINS <- RPI_MSA_map_US %>%
+  ggplot() +
+  geom_sf(data = filter(states, state_abbv != c("HI","AK")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
+  geom_sf(aes(fill = Growth_bucket), color = "black", lwd = 0.5) +
+  geom_sf(data = filter(counties_map_Growth,Growth_bucket == "0.16+" & state_abbv == "NY"), aes(fill = Growth_bucket), alpha = 0, color = NA, size = 0) + # Invisible layer to make legend work
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    #guide = "legend", 
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+  ggtitle("Real Per-Capita Personal Income Growth, 2019-2022\n              At Metro Area Price Parities \n           50 Largest Metro Areas by GDP") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
+  theme(plot.title = element_text(size = 23))
+
+ggsave(dpi = "retina",plot = BEA_RPI_MSA_BINS, "BEA RPI MSA BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 BEA_GDP_METRO_TX <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
@@ -2093,6 +2931,7 @@ BEA_GDP_METRO_TX <- beaGet(BEA_GDP_METRO_SPECS, iTableStyle = FALSE, asWide = FA
   slice(-nrow(.)) %>%
   filter(grepl("TX", GeoName)) %>%
   transmute(GEOID = GeoFips, Growth, Increase)
+
 
 MSA_map_TX <- merge(MSA_map, BEA_GDP_METRO_TX, by = "GEOID") %>%
     mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.04, 0.08, 0.12,0.16, Inf), labels = c("<0", "0-0.04", "0.04-0.08", "0.08-0.12", "0.12-0.16","0.16+"))) %>%
