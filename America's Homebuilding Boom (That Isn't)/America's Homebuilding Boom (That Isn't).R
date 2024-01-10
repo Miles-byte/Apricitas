@@ -1138,13 +1138,13 @@ REAL_PCE_HOUSING_POPULATION <- merge(REAL_PCE_HOUSING_BEA,POPULATION, by = "date
   mutate(Real_Housing_PCE_Per_Capita = Real_Housing_PCE_Per_Capita*100/Real_Housing_PCE_Per_Capita[1])
 
 REAL_PCE_HOUSING_POPULATION_Graph <- ggplot() + #indexed employment rate
-  geom_line(data = REAL_PCE_HOUSING_POPULATION, aes(x=date, y = Real_Housing_PCE_Per_Capita, color = "Real Housing Personal Consumption Expenditures Per Capita"), size = 1.25) + 
+  geom_line(data = REAL_PCE_HOUSING_POPULATION, aes(x=date, y = Real_Housing_PCE_Per_Capita, color = "Real Housing Consumption Per Capita"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(limits = c(95,max(round(REAL_PCE_HOUSING_POPULATION$Real_Housing_PCE_Per_Capita/10)*10)), expand = c(0,0)) +
   ylab("Index, Q1 1959 = 100") +
-  ggtitle("The Long Shadow of the Great Recession") +
+  ggtitle("Real Per-Capita Housing Consumption Has Stagnated") +
   labs(caption = "Graph created by @JosephPolitano using BEA data via @Kaerdmann",subtitle = "Real Consumption of Housing Per-Capita Has Barely Increased Since 2008") +
-  theme_apricitas + theme(legend.position = c(.60,.20)) +
+  theme_apricitas + theme(legend.position = c(.60,.20), plot.title = element_text(size = 22)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1959-01-01")-(.1861*(today()-as.Date("1959-01-01"))), xmax = as.Date("1959-01-01")-(0.049*(today()-as.Date("1959-01-01"))), ymin = 95-(.3*(max(round(REAL_PCE_HOUSING_POPULATION$Real_Housing_PCE_Per_Capita/10)*10)-95)), ymax = 95) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

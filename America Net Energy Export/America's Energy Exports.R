@@ -331,13 +331,13 @@ US_NAT_GAS_LNG_PIPELINE_EXPORTS_Graph <- ggplot() + #plotting nat gas exports
   geom_line(data = filter(NAT_GAS_NET_PIPELINE_EXPORTS, date >= as.Date("2000-01-01")), aes(x = date, y = rollmean, color = "US Net Natural Gas Exports via Pipeline"), size = 1.25) +
   geom_line(data = filter(NAT_GAS_NET_LNG_EXPORTS, date >= as.Date("2000-01-01")), aes(x = date, y = rollmean, color = "US Net Natural Gas Exports via LNG"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "Bcf/d", accuracy = 1),limits = c(-12.5,15), breaks = c(-10,-5,0,5,10,15), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "Bcf/d", accuracy = 1),limits = c(-12.5,17.5), breaks = c(-10,-5,0,5,10,15), expand = c(0,0)) +
   ylab("Billions of Cubic Feet per Day") +
   ggtitle("America's Natural Gas Export Boom") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "America Has Become a Major Net Exporter of Natural Gas Especially via LNG") +
   theme_apricitas + theme(legend.position = c(.40,.85)) +
   scale_color_manual(name= "Dashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#EE6055","#3083DC","RED")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -12.5-(.3*27.5), ymax = -12.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -12.5-(.3*30), ymax = -12.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NAT_GAS_LNG_PIPELINE_EXPORTS_Graph, "US Nat Gas LNG Pipeline Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

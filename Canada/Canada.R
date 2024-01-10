@@ -275,14 +275,14 @@ CAN_JOB_GROWTH_GRAPH <- ggplot(data = CAN_JOB_GROWTH, aes(x = REF_DATE, y = valu
   geom_line(data = CAN_JOB_GROWTH_LINE, aes(x=REF_DATE, y = value/1000, color = "null"), size = 1, show.legend = FALSE) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Millions of Jobs") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-3,-2,-1,0,1), limits = c(-3.5,1.1), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-3,-2,-1,0,1), limits = c(-3.5,1.5), expand = c(0,0)) +
   ggtitle("The Shape of Canadian Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
-  theme_apricitas + theme(legend.position = c(.625,.315)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.7,.3)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Accomodation and Food Services","Trade, Transportation, and Utilities","Goods Producing Industries and Construction","Education and Health Services","Professional & Business Services, Finance, and Real Estate","Public Administration","Other Services Including Information & Recreation")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
   scale_color_manual(name= NULL,values = c("#970C10")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -3.5-(.3*4.6), ymax = -3.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -3.5-(.3*5), ymax = -3.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CAN_JOB_GROWTH_GRAPH, "Canada Job Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

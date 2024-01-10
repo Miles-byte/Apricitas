@@ -1016,7 +1016,7 @@ US_RBIND <- rbind(US_NUC,US_REN,US_TOTAL) %>%
   mutate(Clean_Share = (Nuclear + Renewables)/Total)
 
 #Chart has to be reformatted 
-US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
+US_ELECTRICITY_REGION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data= ERCOT_RBIND, aes(x=date,y=Clean_Share,color= "Texas (ERCOT)"), size = 1.25) +
   geom_line(data= CAISO_RBIND, aes(x=date,y=Clean_Share,color= "California"), size = 1.25) +
@@ -1035,7 +1035,88 @@ US_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ylab("TWh, Monthly") +
   ggtitle("America's Changing Grid") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
-  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "US Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_NATGAS$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) #+
+  # scale_color_manual(name= "US Net Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  # annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_NATGAS$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  # coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_REGION_STEO_GRAPH, "US Electricity Region STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+  
+US_GAS_STEO <- eia1_series("STEO.NGEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nat Gas", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_COL_STEO <- eia1_series("STEO.CLEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Coal", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_NUC_STEO <- eia1_series("STEO.NUEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_HYD_STEO <- eia1_series("STEO.HVEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_WND_STEO <- eia1_series("STEO.WNEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Wind", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_SOL_STEO <- eia1_series("STEO.SOEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 205, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data= filter(US_COL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Coal"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_GAS_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Natural Gas"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NUC_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Nuclear"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_HYD_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Hydro"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_WND_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Wind"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_SOL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_COL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Coal"), size = 1.25) +
+  geom_line(data= filter(US_GAS_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Natural Gas"), size = 1.25) +
+  geom_line(data= filter(US_NUC_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Nuclear"), size = 1.25) +
+  geom_line(data= filter(US_HYD_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Hydro"), size = 1.25) +
+  geom_line(data= filter(US_WND_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Wind"), size = 1.25) +
+  geom_line(data= filter(US_SOL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_GAS$value)/10)*10+10), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("America's Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
+  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Net Utility-Scale Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_GAS$value)/10)*10+10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_STEO_GRAPH, "US Electricity Production STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_BATTERY_STEO <- eia1_series("STEO.BAEPCGW_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_BATTERY_STORAGE_STEO_GRAPH <- ggplot() + 
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 30, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data= filter(US_BATTERY_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "US Battery Storage Power Capacity, GW"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "GW"),limits = c(0, ceiling(max(US_BATTERY_STEO$value)/10)*10), expand = c(0,0)) +
+  ylab("GW") +
+  ggtitle("America's Battery Boom") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Battery Storage Capacity is Booming and Projected to Nearly-Triple by 2025") +
+  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_BATTERY_STEO$value)/10)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_BATTERY_STORAGE_STEO_GRAPH, "US Battery Storage STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
