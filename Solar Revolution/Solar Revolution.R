@@ -1042,7 +1042,7 @@ US_ELECTRICITY_REGION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_REGION_STEO_GRAPH, "US Electricity Region STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-  
+
 US_GAS_STEO <- eia1_series("STEO.NGEPGEN_US.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Nat Gas", value) %>%
   arrange(date) %>%
@@ -1072,6 +1072,19 @@ US_SOL_STEO <- eia1_series("STEO.SOEPGEN_US.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
   arrange(date) %>%
   mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_TOTAL <- eia1_series("STEO.TOEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+#Just used for calculating percentages
+# US_RBIND <- rbind(US_TOTAL,US_GAS_STEO,US_COL_STEO,US_NUC_STEO,US_HYD_STEO,US_WND_STEO,US_SOL_STEO) %>%
+#   select(-value) %>%
+#   pivot_wider(names_from = category, values_from = rollmean) %>%
+#   filter(Solar > 0) %>%
+#   mutate(across(where(is.numeric), ~ .x / Total)) %>%
+#   mutate(Other = Total - `Nat Gas`-Coal-Nuclear-Hydro-Wind-Solar)
 
 US_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
   annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
@@ -1120,3 +1133,22 @@ US_BATTERY_STORAGE_STEO_GRAPH <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_BATTERY_STORAGE_STEO_GRAPH, "US Battery Storage STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+TX_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(ERCOT_RBIND$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -575), "month"), y = 0.6, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data= ERCOT_RBIND, aes(x=date,y=Clean_Share,color= "Texas (ERCOT) Clean Electricity (Renewables, Nuclear, Hydro)\nas a Share of Total Utility-Scale Generation\nRolling 12M Average"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0, 1), expand = c(0,0)) +
+  ylab("Percent, Rolling 12M Average") +
+  ggtitle("Texas' Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Clean Energy Now Makes Up A Larger Share of Texas' Grid") +
+  theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-01-01")-(.1861*(today()-as.Date("2011-01-01"))), xmax = as.Date("2011-01-01")-(0.049*((today()-as.Date("2011-01-01")))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+  

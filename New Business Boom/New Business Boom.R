@@ -269,6 +269,24 @@ ESTABLISHMENT_OPENINGS_TECH_Graph <- ggplot() + #Employment Gains Establishment 
 
 ggsave(dpi = "retina",plot = ESTABLISHMENT_OPENINGS_TECH_Graph, "Establishment Openings Tech Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+TELEWORK_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Business%20Boom/Remote_Work_Data_CSV.csv") %>%
+  mutate(worker = factor(worker, levels = rev(c("Unincorporated Self-Employed", "Incorporated Self-Employed", "Private Sector", "Government")))) %>%
+  mutate(category = factor(category, levels = rev(c("Fully Remote","Hybrid"))))
+
+TELEWORK_DATA_graph <- ggplot(data = TELEWORK_DATA, aes(x = worker, y = value, fill = category)) + #plotting Deposits, Insured and Uninsured
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Class of Worker") +
+  ylab("Percent of Workers") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.35), expand = c(0,0)) +
+  scale_x_discrete(breaks = c("Unincorporated Self-Employed","Incorporated Self-Employed","Private Sector","Government"), labels = c("Self-Employed\nUnincorporated","Self-Employed\nIncorporated","Private Sector","Government"), expand = c(0,0)) +
+  ggtitle("Telework Rate by Worker Type") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Self-Employed Workers Had the Highest Rates of Telework in 2023") +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Share of Workers, 2023",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Fully Remote","Hybrid")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = TELEWORK_DATA_graph, "Telework Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 https://www.federalreserve.gov/publications/files/scf23.pdf
 
