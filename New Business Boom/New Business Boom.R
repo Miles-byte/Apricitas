@@ -287,6 +287,84 @@ TELEWORK_DATA_graph <- ggplot(data = TELEWORK_DATA, aes(x = worker, y = value, f
 
 ggsave(dpi = "retina",plot = TELEWORK_DATA_graph, "Telework Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+QWI_AGGREGATE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Business%20Boom/QWI_EMP_SHARE_AGE.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  setNames(c("date","zero-one","two-three","four-five","6-10","11+")) %>%
+  transmute(date = year(date), `<5 Years Old` = `zero-one`+`two-three`+`four-five`, `6-10 Years Old` = `6-10`, `11+ Years Old` = `11+`) %>%
+  group_by(date) %>%
+  filter(n() == 4) %>%
+  summarise(`<5 Years Old` = mean(`<5 Years Old`, na.rm = TRUE),
+            `6-10 Years Old` = mean(`6-10 Years Old`, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(date = as.Date(paste0(date, "-01-01")))
+
+QWI_AGGREGATE_graph <- ggplot() +#plotting loan performance data
+  geom_line(data=QWI_AGGREGATE, aes(x=date, y= `<5 Years Old`,color= "<5 Years Old"), size = 1.25) +
+  geom_line(data=QWI_AGGREGATE, aes(x=date, y= `6-10 Years Old`,color= "6-10 Years Old"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Percent of Private Sector Employment") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.05,0.1,0.15), limits = c(0,0.16), expand = c(0,0)) +
+  ggtitle("Employment Share of Young Firms") +
+  labs(caption = "Graph created by @JosephPolitano using Census LEHD QWI data", subtitle = "The Employment Share of Younger Firms Has Risen During COVID, Bucking a Long-Term Trend") +
+  theme_apricitas + theme(legend.position = c(.75,.85)) +
+  scale_color_manual(name= "Employment Share by Firm Age",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC","#9A348E"), breaks = c("<5 Years Old", "6-10 Years Old")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0-(.3*0.16), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QWI_AGGREGATE_graph, "QWI Aggregate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+QWI_DETAIL <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Business%20Boom/QWI_DETAIL_EMP_SHARE_AGE.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  group_by(date) %>%
+  mutate(date = year(date)) %>%
+  filter(n() == 4) %>%
+  summarise(Manufacturing = mean(Manufacturing, na.rm = TRUE),
+            TransportationWarehousing = mean(TransportationWarehousing, na.rm = TRUE),
+            Information = mean(Information, na.rm = TRUE),
+            Prof.Science.Tech = mean(Prof.Science.Tech, na.rm = TRUE),
+            Management = mean(Management, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(date = as.Date(paste0(date, "-01-01")))
+
+QWI_DETAIL_graph <- ggplot() +#plotting loan performance data
+  geom_line(data=QWI_DETAIL, aes(x=date, y= Manufacturing ,color= "Manufacturing"), size = 1.25) +
+  geom_line(data=QWI_DETAIL, aes(x=date, y= TransportationWarehousing,color= "Transportation and Warehousing"), size = 1.25) +
+  geom_line(data=QWI_DETAIL, aes(x=date, y= Information,color= "Information"), size = 1.25) +
+  geom_line(data=QWI_DETAIL, aes(x=date, y= Prof.Science.Tech,color= "Professional, Scientific, and Technical Services"), size = 1.25) +
+  geom_line(data=QWI_DETAIL, aes(x=date, y= Management,color= "Management of Companies and Enterprises"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Percent of Private Sector Employment") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.05,0.1,0.15,.20), limits = c(0,0.22), expand = c(0,0)) +
+  ggtitle("Employment Share of <5 Year Old Firms") +
+  labs(caption = "Graph created by @JosephPolitano using Census LEHD QWI data", subtitle = "The Employment Share of Younger Firms Has Risen During COVID, Bucking a Long-Term Trend") +
+  theme_apricitas + theme(legend.position = c(.75,.85), legend.spacing.y = unit(0, "cm"), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#3083DC","#9A348E"), breaks = c("Professional, Scientific, and Technical Services", "Transportation and Warehousing","Information","Manufacturing","Management of Companies and Enterprises")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0-(.3*0.22), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = QWI_DETAIL_graph, "QWI Detail Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BIZ_FORM_WITHIN_4Q <- fredr("BFBF4QTOTALSAUS", observation_start = as.Date("2016-01-01"))
+
+PROJ_BIZ_FORM_WITHIN_4Q <- fredr("BFPBF4QTOTALSAUS", observation_start = BIZ_FORM_WITHIN_4Q$date[nrow(BIZ_FORM_WITHIN_4Q)])
+
+BIZ_FORM_WITHIN_4Q_GRAPH <- ggplot() + #Graphing Business Applications Data
+  geom_line(data=BIZ_FORM_WITHIN_4Q, aes(x=date,y= value/1000, color= "New Employer Firm Births Within 4Q of Application"), size = 1.25) +
+  geom_line(data=PROJ_BIZ_FORM_WITHIN_4Q, aes(x=date,y= value/1000, color= "Projected Based on Application Data"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,37.5), expand = c(0,0)) +
+  ylab("Number Employer Firm Births, Monthly") +
+  ggtitle("America's New Business Boom") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Firm Births are Expected to Boom Post-Pandemic, But We Have Limited Official Data Confirming This Now") +
+  theme_apricitas + theme(legend.position = c(.35,.9)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL ,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*37.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BIZ_FORM_WITHIN_4Q_GRAPH, "Biz Form Within 4Q.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 https://www.federalreserve.gov/publications/files/scf23.pdf
 
