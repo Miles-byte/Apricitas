@@ -44,7 +44,29 @@ BFS_Data <- getCensus(
 BFS_Data <- BFS_Data %>%
   transmute(category_code,value = cell_value, time = as.Date(paste0(time, "-01"))) %>%
   pivot_wider(names_from = category_code) %>%
-  setNames(c("date","Transportation & Warehousing","Total","NoNAICS","Retail Trade","Agriculture","Mining","Construction","Wholesale Trade","Information","Utilities","Arts & Entertainment","Food Services & Accomodation","Other Services","Manufacturing","Health Care & Social Assistance","Finance & Insurance","Administrative & Support","Education Services","Professional Services","Real Estate","Management of Companies")) %>%
+  transmute(date = time,
+            `Education Services` = NAICS61,
+            `Arts & Entertainment` = NAICS71,
+            `Management of Companies` = NAICS55,
+            `Food Services & Accomodation` = NAICS72,
+            `Administrative & Support` = NAICS56,
+            `Health Care & Social Assistance` = NAICS62,
+            Total = TOTAL,
+            `Mining` = NAICS21,
+            `Transportation & Warehousing` = NAICSTW,
+            `NoNAICS` = NONAICS,
+            `Retail Trade` = NAICSRET,
+            `Other Services` = NAICS81,
+            `Manufacturing` = NAICSMNF,
+            `Professional Services` = NAICS54,
+            `Information` = NAICS51,
+            `Construction` = NAICS23,
+            `Agriculture` = NAICS11,
+            `Wholesale Trade` = NAICS42,
+            `Finance & Insurance` = NAICS52,
+            `Real Estate` = NAICS53,
+            Utilities = NAICS22
+            ) %>%
   mutate(across(where(is.character), as.numeric))
 
 BIZ_APPS_DETAIL_GRAPH <- ggplot() + #Graphing Business Applications Data
@@ -365,23 +387,70 @@ BIZ_FORM_WITHIN_4Q_GRAPH <- ggplot() + #Graphing Business Applications Data
 
 ggsave(dpi = "retina",plot = BIZ_FORM_WITHIN_4Q_GRAPH, "Biz Form Within 4Q.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+ESTAB_BIRTH_RATE <- bls_api("BDS0000000000000000120007RQ5", startyear = 2016, endyear = 2024, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearqtr(paste(period, year), "Q%q %Y")))
 
-https://www.federalreserve.gov/publications/files/scf23.pdf
+ESTAB_DEATH_RATE <- bls_api("BDS0000000000000000120008RQ5", startyear = 2016, endyear = 2024, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearqtr(paste(period, year), "Q%q %Y")))
 
-#https://www.uscourts.gov/news/2023/10/26/bankruptcy-filings-rise-13-percent
+ESTAB_BIRTH_DEATH_RATE_GRAPH <- ggplot() + #Graphing Business Applications Data
+  geom_line(data=ESTAB_BIRTH_RATE, aes(x=date,y= value/100, color= "Establishment Birth Rate"), size = 1.25) +
+  geom_line(data=ESTAB_DEATH_RATE, aes(x=date,y= value/100, color= "Establishment Death Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.045), expand = c(0,0)) +
+  ylab("Rate, Quarterly") +
+  ggtitle("America's New Business Boom") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Establishment Births Boomed During the Pandemic, Though Deaths Have Risen in Early 2022") +
+  theme_apricitas + theme(legend.position = c(.35,.9)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL ,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-400-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-400-as.Date("2016-01-01"))), ymin = 0-(.3*0.045), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
-https://qwiexplorer.ces.census.gov/#x=0&g=0
+ggsave(dpi = "retina",plot = ESTAB_BIRTH_DEATH_RATE_GRAPH, "ESTAB BIRTH DEATH RATE GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-#CEX DATA IS AN AVERAGE
+FIRM_BIRTH_RATE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Business%20Boom/firm_entry_rate.csv") %>%
+  mutate(date = as.Date(paste0(date, "-01-01")))
+
+FIRM_BIRTH_RATE_GRAPH <- ggplot() + #Graphing Business Applications Data
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= fin/100, color= "Finance & Insurance"), size = 1.25) +
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= retail/100, color= "Retail Trade"), size = 1.25) +
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= prof/100, color= "Professional, Scientific, & Technical Services"), size = 1.25) +
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= real/100, color= "Real Estate, Rental, & Leasing"), size = 1.25) +
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= trans/100, color= "Transportation & Warehousing"), size = 1.25) +
+  geom_line(data=filter(FIRM_BIRTH_RATE, date >= as.Date("1994-01-01")), aes(x=date,y= all/100, color= "All Industry Total"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0.04,0.155), expand = c(0,0)) +
+  ylab("Rate, Annual") +
+  ggtitle("Firm Birth Rate, 1994-2021") +
+  labs(caption = "Graph created by @JosephPolitano using Census BDS data",subtitle = "The Firm Birth Rate Hit a Post-2008 Record High in 2021, With Several Key Industries Booming") +
+  theme_apricitas + theme(legend.position = c(.3,.2), legend.spacing.y = unit(0, 'cm'), legend.key.height = unit(0.45, "cm"),legend.text = (element_text(size = 15)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL ,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("All Industry Total","Transportation & Warehousing","Real Estate, Rental, & Leasing","Professional, Scientific, & Technical Services","Retail Trade","Finance & Insurance"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0.04-(.3*0.115), ymax = 0.04) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIRM_BIRTH_RATE_GRAPH, "FIRM BIRTH RATE GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+EMP_GAINS_FIRM_BIRTH_SIZE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Business%20Boom/EMP_GAINS_FIRM_BIRTHS_SIZE.csv") %>%
+  mutate(date = as.Date(paste0(year, "-01-01"))) %>%
+  select(job_creation_births, empszfii, date) %>%
+  pivot_wider(names_from = empszfii, values_from = job_creation_births)
   
-#LOOK AT TRUCKING FORMATIONS
+EMP_GAINS_FIRM_BIRTH_SIZE_GRAPH <- ggplot() + #Graphing Business Applications Data
+  geom_line(data=filter(EMP_GAINS_FIRM_BIRTH_SIZE, date >= as.Date("1994-01-01")), aes(x=date,y= (`20-99 Employees`)/1000, color= "20-99 Employees"), size = 1.25) +
+  geom_line(data=filter(EMP_GAINS_FIRM_BIRTH_SIZE, date >= as.Date("1994-01-01")), aes(x=date,y= (`100-499 Employees`+`500+ Employees`)/1000, color= "100+ Employees"), size = 1.25) +
+  geom_line(data=filter(EMP_GAINS_FIRM_BIRTH_SIZE, date >= as.Date("1994-01-01")), aes(x=date,y= (`5-9 Employees`+`10-19 Employees`)/1000, color= "5-19 Employees"), size = 1.25) +
+  geom_line(data=filter(EMP_GAINS_FIRM_BIRTH_SIZE, date >= as.Date("1994-01-01")), aes(x=date,y= `1-4 Employees`/1000, color= "1-4 Employees"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(250,950), expand = c(0,0)) +
+  ylab("Job Creation, Annual") +
+  ggtitle("Hiring at New Firms by Initial Size 1994-2021") +
+  labs(caption = "Graph created by @JosephPolitano using Census BDS data",subtitle = "Extremely Small Businesses Led the Initial Post-COVID New Firm Hiring Boom") +
+  theme_apricitas + theme(legend.position = c(.75,.85), legend.spacing.y = unit(0, 'cm'), legend.key.height = unit(0.45, "cm"),legend.text = (element_text(size = 15)), legend.title=element_text(size=14), plot.title = element_text(size = 27.5)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= "March-to-March Employment Gains\nFirm Births by Initial Firm Size" ,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("1-4 Employees","5-19 Employees","20-99 Employees","100+ Employees")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 250-(.3*700), ymax = 250) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
 
-#BEA SELF EMPLOYMENT PROPRIETORS INCOME
-#SELF EMPLOYMENT TELEWORK DATA
-
-#LOOK AT STEM BUSINESS FORMATION DATA
-
-#MARCH-TO-MARCH DATA BUSINESS FORMATION
+ggsave(dpi = "retina",plot = EMP_GAINS_FIRM_BIRTH_SIZE_GRAPH, "EMP GAINS FIRM BIRTH SIZE GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 p_unload(all)  # Remove all packages using the package manager
 

@@ -1,4 +1,4 @@
-pacman::p_load(bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(rsdmx,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -158,8 +158,8 @@ US_CIRCUITS_CHINA_EXPORTS <- getCensus(
   DF = 1, #excluding reexport
   time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "8542", #integrated circuits commodity code
-  E_COMMODITY = "854231", #integrated circuits commodity code
-  E_COMMODITY = "854232", #integrated circuits commodity code
+  E_COMMODITY = "854231", #logic chips
+  E_COMMODITY = "854232", #memory chips
   #E_COMMODITY = "8541", #Diodes, transistors and similar semiconductor devices
   E_COMMODITY = "8486", #Machines Principally Used to Manufacture Semiconductor
   #E_COMMODITY = "848071", #Molds For the Manufacture of Semiconductor Devices
@@ -188,14 +188,14 @@ US_CIRCUITS_CHINA_EXPORTS <- getCensus(
   mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
   pivot_wider(values_from = "ALL_VAL_MO",names_from = "E_COMMODITY") %>%
   group_by(time) %>%
-  summarise(`8542` = sum(`8542`, na.rm = TRUE),`854232` = sum(`854232`, na.rm = TRUE),`854231` = sum(`854231`, na.rm = TRUE),`8486` = sum(`8486`, na.rm = TRUE)) %>%
+  summarise(`8542` = sum(`8542`, na.rm = TRUE),`8486` = sum(`8486`, na.rm = TRUE)) %>%
   ungroup() %>%
   select(-time) %>%
   ts(., start = c(2013,1), frequency = 12) %>%
   seas() %>%
   final() %>%
   as.data.frame(value = melt(.)) %>%
-  transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8542`=`8542`, `8486`=`8486`, `854231` = `854231`, `854232` = `854232`)
+  transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8542`=`8542`, `8486`=`8486`)
 
 US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `8542`/1000000000,color= "Semiconductors and Related Items"), size = 1.25) + 
@@ -339,6 +339,15 @@ DUTCH_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exp
   scale_color_manual(name= "Dutch Exports to China and HK",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Machines For Manufacturing Semiconductors & Related Items")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*500), ymax = 0) +
   coord_cartesian(clip = "off")
+
+DUTCH_CHIP_EXPORTS <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/ds-045409/1.0/M.*.*.*.2.VALUE_IN_EUROS?c[reporter]=EA19,NL&c[partner]=CN,HK,MO&c[product]=8486&compress=false")) 
+
+DUTCH_CHIP_EXPORTS <- DUTCH_CHIP_EXPORTS %>%
+  transmute(date = as.Date(paste0(TIME_PERIOD,"-01")),reporter,OBS_VALUE = as.numeric(OBS_VALUE)) %>%
+  group_by(date,reporter) %>%
+  summarize(OBS_VALUE = sum(OBS_VALUE, na.rm = TRUE)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = reporter, values_from = OBS_VALUE)
 
 ggsave(dpi = "retina",plot = DUTCH_EXPORTS_CHINA_Dollar_Graph, "Dutch Chip Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Dollar_Graph, "EU IC Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -625,7 +634,7 @@ EXP_PRICE_SEMICONDUCTOR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "
 EXP_PRICE_COMPUTER <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "309AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
-EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting US Crude Production
+EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting Korean Electronics Prices
   geom_line(data=EXP_PRICE_SEMICONDUCTOR, aes(x=time,y= data_value/data_value[49]*100, color= "Semiconductors"), size = 1.25) +
   geom_line(data=EXP_PRICE_COMPUTER, aes(x=time,y= data_value/data_value[49]*100, color= "Computers, Electronic & Optical Equipment"), size = 1.25) +
   xlab("Date") +
