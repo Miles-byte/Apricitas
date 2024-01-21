@@ -110,40 +110,40 @@ JAPAN_CHIP_DOLLAR <- left_join(JAPAN_CHIP,YEN_EXCHANGE_RATE, by = "date")
 JAPAN_CHIP_MACHINES_DOLLAR <- left_join(JAPAN_CHIP_MACHINES,YEN_EXCHANGE_RATE, by = "date")
 
 JAPAN_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=JAPAN_CHIP, aes(x=date,y= exports/1000000,color= "Semiconductors & Related Items"), size = 1.25) + 
-  geom_line(data=JAPAN_CHIP_MACHINES, aes(x=date,y= exports/1000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP, aes(x=date,y= exports/1000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_MACHINES, aes(x=date,y= exports/1000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "¥", accuracy = 1),limits = c(0,225), breaks = c(1,50,100,150,200), expand = c(0,0)) +
   ylab("Billions of Yen, Monthly") +
   ggtitle("Japanese Chip Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japan is a Major Supplier of Chinese Chip Equipment, and Just Announced Chip Sanctions") +
   theme_apricitas + theme(legend.position = c(.39,.89)) +
-  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors & Related Items","Machines For Manufacturing Semiconductors & Related Items")) +
+  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*225), ymax = 0) +
   coord_cartesian(clip = "off")
 
 JAPAN_IC_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=JAPAN_CHIP_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Semiconductors & Related Items"), size = 1.25) + 
-  geom_line(data=JAPAN_CHIP_MACHINES_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_MACHINES_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 0.5),limits = c(0,2), breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
   ylab("Billions of Dollars, Monthly") +
   ggtitle("Japanese Chip Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japan is a Major Supplier of Chinese Chip Equipment, and Just Announced Chip Sanctions") +
   theme_apricitas + theme(legend.position = c(.39,.89)) +
-  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors & Related Items","Machines For Manufacturing Semiconductors & Related Items")) +
+  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*2), ymax = 0) +
   coord_cartesian(clip = "off")
 
 JAPAN_CHIP_MACHINES_QTY_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=JAPAN_CHIP_MACHINES_QTY, aes(x=date,y= exports/1000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_MACHINES_QTY, aes(x=date,y= exports/1000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "kt", accuracy = 1),limits = c(0,10), breaks = c(0,2,4,6,8,10), expand = c(0,0)) +
   ylab("Billions of Dollars, Monthly") +
   ggtitle("Japanese Chip Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japan is a Major Supplier of Chinese Chip Equipment, and Just Announced Chip Sanctions") +
   theme_apricitas + theme(legend.position = c(.39,.89)) +
-  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors & Related Items","Machines For Manufacturing Semiconductors & Related Items")) +
+  scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*4), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -158,8 +158,53 @@ US_CIRCUITS_CHINA_EXPORTS <- getCensus(
   DF = 1, #excluding reexport
   time = paste("from 2013 to", format(Sys.Date(), "%Y")),
   E_COMMODITY = "8542", #integrated circuits commodity code
-  E_COMMODITY = "854231", #logic chips
-  E_COMMODITY = "854232", #memory chips
+  #E_COMMODITY = "854231", #logic chips
+  #E_COMMODITY = "854232", #memory chips
+  #E_COMMODITY = "8541", #Diodes, transistors and similar semiconductor devices
+  #E_COMMODITY = "8486", #Machines Principally Used to Manufacture Semiconductor
+  #E_COMMODITY = "848071", #Molds For the Manufacture of Semiconductor Devices
+  #E_COMMODITY = "903141", #Optical Instruments for Inspecting Semiconductor Wafers
+  #E_COMMODITY = "903082", #Oscilloscopes, spectrum analyzers and other instruments and apparatus for For measuring or checking semiconductor wafers or devices (including integrated circuits)
+  #E_COMMODITY = "90314970", #For Inspecting Masks (Other than Photomasks) Used in Manufacturing Semiconductor Devices;
+  #E_COMMODITY = "90318040", #Electron Beam Microscopes Specifically for Handling and Transport of Semiconductor Wafers
+  #E_COMMODITY = "90309084", #Parts and accessories for instruments and apparatus for measuring or checking semiconductor wafers or devices
+  #E_COMMODITY = "70171030", #Fuzed Quartz for Semiconductor Wafer Production
+  #E_COMMODITY = "8534", #Printed Circuits
+  #E_COMMODITY = "84561170", #Semiconductor laser machine tools
+  #E_COMMODITY = "84561270", #Semiconductor photon machine tools
+  #E_COMMODITY = "84248910", #Projecting, dispersing, or spraying appliances for printed circuits
+  #E_COMMODITY = "84669396", #Parts and accessories of machine tool of subheadings of a kind used solely or principally for the manufacture of printed circuits, printed circuit assemblies,
+  #E_COMMODITY = "85143110", #Electron Beam Furnaces for manufacture of printed circuits or printed circuit assemblies
+  #E_COMMODITY = "85143210", #Plasma and vacuum arc furnaces for manufacture of printed circuits or printed circuit assemblies
+  #E_COMMODITY = "85143910", #Other furnaces for manufacture of printed circuits or printed circuit assemblies
+  #E_COMMODITY = "85433020", #Signal Generators of a kind used solely or principally for the manufacture of printed circuits
+  #E_COMMODITY = "85439015", #Parts of printed circuit assemblies
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820"  #Hong Kong
+) %>%
+  select(time,ALL_VAL_MO,E_COMMODITY,CTY_CODE) %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
+  pivot_wider(values_from = "ALL_VAL_MO",names_from = "E_COMMODITY") %>%
+  group_by(time) %>%
+  summarise(`8542` = sum(`8542`, na.rm = TRUE)) %>%
+  ungroup() %>%
+  select(-time) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas() %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8542`=x)
+
+US_CHIPMAKING_CHINA_EXPORTS <- getCensus(
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE", "DF"), 
+  DF = 1, #excluding reexport
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  #E_COMMODITY = "8542", #integrated circuits commodity code
+  #E_COMMODITY = "854231", #logic chips
+  #E_COMMODITY = "854232", #memory chips
   #E_COMMODITY = "8541", #Diodes, transistors and similar semiconductor devices
   E_COMMODITY = "8486", #Machines Principally Used to Manufacture Semiconductor
   #E_COMMODITY = "848071", #Molds For the Manufacture of Semiconductor Devices
@@ -188,29 +233,30 @@ US_CIRCUITS_CHINA_EXPORTS <- getCensus(
   mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
   pivot_wider(values_from = "ALL_VAL_MO",names_from = "E_COMMODITY") %>%
   group_by(time) %>%
-  summarise(`8542` = sum(`8542`, na.rm = TRUE),`8486` = sum(`8486`, na.rm = TRUE)) %>%
+  summarise(`8486` = sum(`8486`, na.rm = TRUE)) %>%
   ungroup() %>%
   select(-time) %>%
   ts(., start = c(2013,1), frequency = 12) %>%
   seas() %>%
   final() %>%
   as.data.frame(value = melt(.)) %>%
-  transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8542`=`8542`, `8486`=`8486`)
+  transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8486`=x)
+
 
 US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `8542`/1000000000,color= "Semiconductors and Related Items"), size = 1.25) + 
-  geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `8486`/1000000000,color= "Machines For Manufacturing Semiconductors & Related Items"), size = 1.25) + 
+  geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `8542`/1000000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=US_CHIPMAKING_CHINA_EXPORTS, aes(x=date,y= `8486`/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854231`/1000000000,color= "Logic Chips (test)"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854232`/1000000000,color= "Memory Chips (test)"), size = 1.25) + 
   annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed") +
-  annotate("text", label = "Chip Sanctions", x = as.Date("2021-09-01"), y = 0.215, color = "white", size = 5) +
+  annotate("text", label = "Chip Sanctions", x = as.Date("2021-08-01"), y = 0.215, color = "white", size = 5) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = .25),limits = c(0,1.25), breaks = c(0,0.25,0.5,0.75,1,1.25,1.5), expand = c(0,0)) +
   ylab("Billions of Dollars, Monthly") +
   ggtitle("US Semiconductor Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA",subtitle = "Sanctions Have Led to a Major Fall in US Exports of Chips & Manufacturing Equipment to China") +
-  theme_apricitas + theme(legend.position = c(.385,.87)) +
-  scale_color_manual(name= "US-Manufactured Exports to China, HK, and Macao",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors and Related Items","Machines For Manufacturing Semiconductors & Related Items")) +
+  theme_apricitas + theme(legend.position = c(.325,.87)) +
+  scale_color_manual(name= "US-Manufactured Exports to China, HK, and Macao",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -340,14 +386,33 @@ DUTCH_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exp
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*500), ymax = 0) +
   coord_cartesian(clip = "off")
 
-DUTCH_CHIP_EXPORTS <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/ds-045409/1.0/M.*.*.*.2.VALUE_IN_EUROS?c[reporter]=EA19,NL&c[partner]=CN,HK,MO&c[product]=8486&compress=false")) 
+DUTCH_CHIPMAKING_EXPORTS <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/ds-045409/1.0/M.*.*.*.2.VALUE_IN_EUROS?c[reporter]=EA19,NL&c[partner]=CN,HK,MO&c[product]=8486&compress=false")) 
 
-DUTCH_CHIP_EXPORTS <- DUTCH_CHIP_EXPORTS %>%
+DUTCH_CHIPMAKING_EXPORTS <- DUTCH_CHIPMAKING_EXPORTS %>%
   transmute(date = as.Date(paste0(TIME_PERIOD,"-01")),reporter,OBS_VALUE = as.numeric(OBS_VALUE)) %>%
   group_by(date,reporter) %>%
   summarize(OBS_VALUE = sum(OBS_VALUE, na.rm = TRUE)) %>%
   ungroup() %>%
-  pivot_wider(names_from = reporter, values_from = OBS_VALUE)
+  pivot_wider(names_from = reporter, values_from = OBS_VALUE) %>%
+  mutate(RollNL = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(NL,12))) %>%
+  left_join(.,EURO_EXCHANGE_RATE) %>%
+  drop_na()
+
+DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=DUTCH_CHIPMAKING_EXPORTS, aes(x=date,y= ((RollNL)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 1.25) + 
+  geom_line(data=DUTCH_CHIPMAKING_EXPORTS, aes(x=date,y= ((NL*12)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,12), breaks = c(0,3,6,9,12), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Dutch Chipmaking Exports to China") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Dutch Chipmaking Equipment Exports to China are Booming") +
+  theme_apricitas + theme(legend.position = c(.425,.8)) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*12), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph, "Dutch Chipmaking Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 ggsave(dpi = "retina",plot = DUTCH_EXPORTS_CHINA_Dollar_Graph, "Dutch Chip Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Dollar_Graph, "EU IC Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -428,6 +493,7 @@ CHINA_IMPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricita
   mutate(US.dollar = as.numeric(gsub(",","",US.dollar))) %>%
   subset(Trading.partner != "China" & Trading.partner != "Hong Kong,China" & Trading.partner != "Macau,China" ) 
 
+#https://tradeidds.censtatd.gov.hk/Index/358b806b82e94870b017c5c42d897d2e
 HK_IMPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/HONG_KONG_IMPORTS.csv") %>%
   mutate(Date = as.Date(as.yearmon(as.character(paste0(Month,Year)), "%b%Y"))) %>%
   select(Date, Value, HKHS.4.digit, Origin) %>%
@@ -587,7 +653,7 @@ JAPAN_IP_ITEM <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xl
   mutate(date = seq.Date(from = as.Date("2013-01-01"), by = "month", length.out = nrow(.))) %>%
   #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
   mutate_if(is.character,as.numeric)
-
+?read.xlsx
 JAPAN_IP_ITEM_2020 <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2020_hsm1e.xlsx") %>%
   select(-`Seasonally.adjusted.Index.by.Commodity.:.Industrial.Production.(2020=100.0)`,-X3) %>%
   drop_na() %>%
@@ -660,25 +726,25 @@ NETHERLANDS_PRODUCTION <- cbs_get_data('83838ENG') %>%
   mutate(date = as.Date(as.yearmon(Periods, "%YMM%m")))
   
 NETHERLANDS_PRODUCTION_CHIP_MACHINES <- ggplot() + #plotting Dutch Semiconductor Manufacturing Equipment Production
-  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2015-01-01")), aes(x=date,y= SeasonallyAdjustedProduction_3/SeasonallyAdjustedProduction_3[1]*100,color= "Machinery and Equipment, n.e.c. (Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2015-01-01")), aes(x=date,y= SeasonallyAdjustedProduction_3/SeasonallyAdjustedProduction_3[1]*100,color= "Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,250), breaks = c(100,150,200,250), expand = c(0,0)) +
   ylab("Index, Jan 2015 = 100") +
   ggtitle("Dutch Chipmaking Equipment Production") +
   labs(caption = "Graph created by @JosephPolitano using CBS Data",subtitle = "Dutch Production of Chipmaking Equipment Has Also Fallen From 2022 Highs") +
-  theme_apricitas + theme(legend.position = c(.415,.92)) +
+  theme_apricitas + theme(legend.position = c(.5,.7)) +
   scale_color_manual(name= "Industrial Production, Netherlands",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*170), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 NETHERLANDS_FOREIGN_TURNOVER_CHIP_MACHINES <- ggplot() + #plotting Dutch Semiconductor Manufacturing Equipment Production
-  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2015-01-01")), aes(x=date,y= SeasonallyAdjDailyTurnoverForeign_12/SeasonallyAdjDailyTurnoverForeign_12[1]*100,color= "Machinery and Equipment, n.e.c. (Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2015-01-01")), aes(x=date,y= SeasonallyAdjDailyTurnoverForeign_12/SeasonallyAdjDailyTurnoverForeign_12[1]*100,color= "Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,275), breaks = c(100,150,200,250), expand = c(0,0)) +
   ylab("Index, Jan 2015 = 100") +
   ggtitle("Dutch Chipmaking Equipment Sales") +
   labs(caption = "Graph created by @JosephPolitano using CBS Data",subtitle = "Dutch Production of Chipmaking Equipment Has Also Fallen From 2022 Highs") +
-  theme_apricitas + theme(legend.position = c(.415,.92)) +
+  theme_apricitas + theme(legend.position = c(.5,.7)) +
   scale_color_manual(name= "Foreign Sales, Netherlands",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 70-(.3*205), ymax = 70) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -846,7 +912,7 @@ EU_IND_PRO <- get_eurostat("sts_inpr_m")
 
 EU_IND_PRO <- EU_IND_PRO %>%
   subset(s_adj == "SCA") %>%
-  subset(time >= as.Date("2016-01-01")) %>%
+  subset(TIME_PERIOD >= as.Date("2016-01-01")) %>%
   subset(unit == "I15") %>%
   subset(geo == "EU27_2020") %>%
   subset(nace_r2 == "C2611") %>%
