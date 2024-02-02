@@ -1195,22 +1195,22 @@ QUITS_RATE_Graph <- ggplot() + #plotting Wage Growth
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-12-01")-(.1861*(today()-as.Date("2000-12-01"))), xmax = as.Date("2000-12-01")-(0.049*(today()-as.Date("2000-12-01"))), ymin = 0.01-(.3*0.022), ymax = 0.01) +
   coord_cartesian(clip = "off")
 
-SF_CONSTRUCTION <- bls_api("CES2023611501", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+SF_CONSTRUCTION <- bls_api("CES2023611501", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = value-value[nrow(.)]) %>%
   mutate(name = "Single-Family Construction") %>%
   select(date,value,name)
-MF_CONSTRUCTION <- bls_api("CES2023611601", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+MF_CONSTRUCTION <- bls_api("CES2023611601", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = value-value[nrow(.)]) %>%
   mutate(name = "Multi-Family Construction") %>%
   select(date,value,name)
-HFS_CONSTRUCTION <- bls_api("CES2023611701", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+HFS_CONSTRUCTION <- bls_api("CES2023611701", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = value-value[nrow(.)]) %>%
   mutate(name = "For-Sale Builders") %>%
   select(date,value,name)
-REMODEL_CONSTRUCTION <- bls_api("CES2023611801", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+REMODEL_CONSTRUCTION <- bls_api("CES2023611801", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = value-value[nrow(.)]) %>%
   mutate(name = "Residential Remodelers") %>%
@@ -1218,7 +1218,7 @@ REMODEL_CONSTRUCTION <- bls_api("CES2023611801", startyear = 2020, endyear = 202
 
 CONSTRUCTION_RBIND <- rbind(SF_CONSTRUCTION,MF_CONSTRUCTION,HFS_CONSTRUCTION,REMODEL_CONSTRUCTION)
 
-CONSTRUCTION_TOTAL <- bls_api("CES2023610001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CONSTRUCTION_TOTAL <- bls_api("CES2023610001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = value-value[nrow(.)]) %>%
   mutate(name = "Residential Construction Total") %>%
@@ -1232,7 +1232,7 @@ CONSTRUCTION_GROWTH_IND_graph <- ggplot(data = CONSTRUCTION_RBIND, aes(x = date,
   ylab("Change Since Jan 2020, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-125,-100,-75,-50,-25,0,25,50,75,100,125), limits = c(-125,125), expand = c(0,0)) +
   ggtitle("The Shape of Construction Job Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "New Jobs Come From SF Construction and Remodelers Vulnerable to Higher Rates") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Residential Construction Employment Has Recovered Back to Post-2008 Highs") +
   theme_apricitas + theme(legend.position = c(.625,.25)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-11,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Single-Family Construction","Residential Remodelers","Multi-Family Construction","For-Sale Builders")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
@@ -1242,27 +1242,27 @@ CONSTRUCTION_GROWTH_IND_graph <- ggplot(data = CONSTRUCTION_RBIND, aes(x = date,
 ggsave(dpi = "retina",plot = CONSTRUCTION_GROWTH_IND_graph, "Construction Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-RES_CONSTRUCTION <- bls_api("CES2023610001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_CONSTRUCTION <- bls_api("CES2023610001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(name = "Residential Construction") %>%
   select(date,value,name) %>%
   mutate(value = value-value[nrow(.)])
 
-RES_TRADE_CONTRACTORS <- bls_api("CES2023800101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_TRADE_CONTRACTORS <- bls_api("CES2023800101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(name = "Residential Specialty Trade Contractors") %>%
   select(date,value,name) %>%
   mutate(value = value-value[nrow(.)])
 
-RES_LESSOR <- bls_api("CES5553111001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_LESSOR <- bls_api("CES5553111001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-RES_PROPERTY_MANAGER <- bls_api("CES5553131101", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_PROPERTY_MANAGER <- bls_api("CES5553131101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-RES_AGENTS <- bls_api("CES5553120001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_AGENTS <- bls_api("CES5553120001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-RES_APPRAISERS <- bls_api("CES5553132001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_APPRAISERS <- bls_api("CES5553132001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-RES_OTHER <- bls_api("CES5553139001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+RES_OTHER <- bls_api("CES5553139001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 REAL_ESTATE_RBIND <- rbind(RES_LESSOR,RES_PROPERTY_MANAGER,RES_AGENTS,RES_APPRAISERS,RES_OTHER) %>%
@@ -1273,15 +1273,15 @@ REAL_ESTATE_RBIND <- rbind(RES_LESSOR,RES_PROPERTY_MANAGER,RES_AGENTS,RES_APPRAI
   mutate(name = "Property Managers, Real Estate Agents, Appraisers, Lessors, & Related") %>%
   mutate(value = value-value[nrow(.)])
 
-CONSTRUCTION_MATERIALS_WHOLE <- bls_api("CES4142330001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CONSTRUCTION_MATERIALS_WHOLE <- bls_api("CES4142330001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-HOUSEHOLD_APPLIANCES_WHOLE <- bls_api("CES4142360001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+HOUSEHOLD_APPLIANCES_WHOLE <- bls_api("CES4142360001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-FURNITURE_WHOLE <- bls_api("CES4142320001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+FURNITURE_WHOLE <- bls_api("CES4142320001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-HARDWARE_MATERIALS_WHOLE <- bls_api("CES4142370001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+HARDWARE_MATERIALS_WHOLE <- bls_api("CES4142370001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-CONSTRUCTION_MACHINERY_WHOLE <- bls_api("CES4142381001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+CONSTRUCTION_MACHINERY_WHOLE <- bls_api("CES4142381001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 WHOLESALE_RBIND <- rbind(CONSTRUCTION_MATERIALS_WHOLE,HOUSEHOLD_APPLIANCES_WHOLE,FURNITURE_WHOLE,HARDWARE_MATERIALS_WHOLE,CONSTRUCTION_MACHINERY_WHOLE) %>%
@@ -1292,9 +1292,9 @@ WHOLESALE_RBIND <- rbind(CONSTRUCTION_MATERIALS_WHOLE,HOUSEHOLD_APPLIANCES_WHOLE
   mutate(name = "Housing Related Merchant Wholesalers") %>%
   mutate(value = value-value[nrow(.)])
 
-BUILDING_GARDEN_SUPPLIES_RETAIL <- bls_api("CES4244400001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+BUILDING_GARDEN_SUPPLIES_RETAIL <- bls_api("CES4244400001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-FURNITURE_HOME_ELECTRONICS_APPLIANCE_RETAIL <- bls_api("CES4244900001", startyear = 2020, endyear = 2023, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+FURNITURE_HOME_ELECTRONICS_APPLIANCE_RETAIL <- bls_api("CES4244900001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 RETAIL_RBIND <- rbind(BUILDING_GARDEN_SUPPLIES_RETAIL,FURNITURE_HOME_ELECTRONICS_APPLIANCE_RETAIL) %>%
@@ -1935,6 +1935,59 @@ SERVICES_DIFF_Graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SERVICES_DIFF_Graph, "SERVICES DIFF Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FED_EMP_IND <- bls_api("CES9091000001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Federal Government") %>%
+  select(date,value,name)
+STATE_EDU_EMP_IND <- bls_api("CES9092161101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "State Government Education") %>%
+  select(date,value,name)
+STATE_XEDU_EMP_IND <- bls_api("CES9092200001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "State Government Excluding Education") %>%
+  select(date,value,name)
+LOCAL_EDU_EMP_IND <- bls_api("CES9093161101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Local Government Education") %>%
+  select(date,value,name)
+LOCAL_XEDU_EMP_IND <- bls_api("CES9093200001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Local Government Excluding Education") %>%
+  select(date,value,name)
+
+
+GOVT_RBIND <- rbind(FED_EMP_IND,STATE_EDU_EMP_IND,STATE_XEDU_EMP_IND,LOCAL_EDU_EMP_IND,LOCAL_XEDU_EMP_IND) %>%
+  mutate(name = factor(name, levels = rev(c("Federal Government","State Government Education","State Government Excluding Education","Local Government Education","Local Government Excluding Education"))))
+
+GOVT_TOTAL <- bls_api("CES9000000001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = value-value[nrow(.)]) %>%
+  mutate(name = "Government Total") %>%
+  select(date,value,name)
+
+GOVT_GROWTH_IND_graph <- ggplot(data = GOVT_RBIND, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = GOVT_TOTAL, aes(x=date, y = value/1000, color = "Total Government Employment"), size = 2) +
+  xlab("Date") +
+  ylab("Jobs, Change Since Jan 2020") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), breaks = c(-1.5,-1,-0.5,0,0.5), limits = c(-1.75,0.5), expand = c(0,0)) +
+  ggtitle("The Shape of Government Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Government Employment Has Now Recovered From the Pandemic, With Rapid Growth in 2023") +
+  theme_apricitas + theme(legend.position = c(.7,.3)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-110,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_fill_manual(name= "Government Employment, Change Since Jan 2020",values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Federal Government","State Government Education","State Government Excluding Education","Local Government Education","Local Government Excluding Education")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1.75-(.3*2.25), ymax = -1.75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GOVT_GROWTH_IND_graph, "Govt Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

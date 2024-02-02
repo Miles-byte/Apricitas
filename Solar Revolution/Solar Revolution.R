@@ -30,18 +30,18 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 IND_PRO_PV <- statscnQueryData('A02092E',dbcode='hgyd',lang = "en", rowcode = "sj", colcode = "zb") 
 
-IND_PRO_PV <- statscnQueryLastN(700, lang = "en") %>%
-  mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
-  subset(.,`Output of Photovoltaic Cells, Current Period` != 0) %>%
-  .[order(nrow(.):1),] %>%
-  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,11))) %>%
-  subset(date >= as.Date("2016-01-01"))
+IND_PRO_PV <- statscnQueryLastN(700, lang = "en") #%>%
+#   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
+#   subset(.,`Output of Photovoltaic Cells, Current Period` != 0) %>%
+#   .[order(nrow(.):1),] %>%
+#   mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,11))) %>%
+#   subset(date >= as.Date("2016-01-01"))
 
 IND_PRO_PV1 <- IND_PRO_PV %>%
   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
   subset(.,`Output of Photovoltaic Cells, Current Period` != 0) %>%
   .[order(nrow(.):1),] %>%
-  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,11))) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,rollmean(`Output of Photovoltaic Cells, Current Period`,10))) %>%
   subset(date >= as.Date("2016-01-01"))
 
 IND_PRO_PV_GRAPH <- ggplot() + #plotting Chinese PV Production
@@ -50,7 +50,7 @@ IND_PRO_PV_GRAPH <- ggplot() + #plotting Chinese PV Production
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "GW"),limits = c(0, ceiling(max(IND_PRO_PV1$`Output of Photovoltaic Cells, Current Period`/1000))*10), expand = c(0,0)) +
   ylab("GW of Capacity, Monthly") +
-  ggtitle("Chinese Solar Panel Production") +
+  ggtitle("Chinese Solar Production") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese Solar Production is Growing Exponentially and Has Surged Post-Pandemic") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
@@ -204,24 +204,24 @@ US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   annotate(geom = "vline",x = as.Date("2022-12-29"), xintercept = as.Date("2022-12-29"), size = 0.75,color = "white", linetype = "dashed") +
   annotate(geom = "text", label = "EV Leasing\nCredit\nAnnounced",x = as.Date("2023-05-15"), y = 11, size = 4,color = "white", lineheight = 0.8) +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`China.y`*12/1000000000,color= "China, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union.y`*12/1000000000,color= "EU, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico.y`*12/1000000000,color= "Mexico, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Korea, South.y`*12/1000000000,color= "South Korea, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Japan.y`*12/1000000000,color= "Japan, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollCN/1000000000,color= "China, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollJP/1000000000,color= "Japan, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollSK/1000000000,color= "South Korea, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU, Rolling 12M Total"), size = 1.25) +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`China.y`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union.y`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico.y`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Korea, South.y`*12/1000000000,color= "South Korea"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Japan.y`*12/1000000000,color= "Japan"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollCN/1000000000,color= "China"), size = 1.25) +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollJP/1000000000,color= "Japan"), size = 1.25) +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollSK/1000000000,color= "South Korea"), size = 1.25) +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico"), size = 1.25) +
+  geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,12),breaks = c(0,3,6,9,12), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's EV Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data Via Chad Bown",subtitle = "US Imports of Finished Electric Vehicles Have Increased Significantly Even After the IRA") +
-  theme_apricitas + theme(legend.position = c(.35,.675)) +
-  theme(legend.key.width =  unit(.82, "cm")) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#EE6055","#A7ACD9","#A7ACD9","#9A348E","#9A348E"), breaks = c("EU, Rolling 12M Total","EU, Monthly Annualized","South Korea, Rolling 12M Total","South Korea, Monthly Annualized","Mexico, Rolling 12M Total","Mexico, Monthly Annualized","Japan, Rolling 12M Total","Japan, Monthly Annualized","China, Rolling 12M Total","China, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
+  theme_apricitas + theme(legend.position = c(.35,.75)) +
+  #theme(legend.key.width =  unit(.82, "cm")) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China"))+ #), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(12)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

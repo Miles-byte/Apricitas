@@ -6,8 +6,9 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-#test_login(genesis=c(db='de', user="DEM56460DY", password="XSYhTyP4JV4!Q4b"))
-#save_credentials(db= 'de',user="DEM56460DY", password="XSYhTyP4JV4!Q4b")
+test_login(genesis=c(db='de', user=Sys.getenv("DE647235M8"), password=Sys.getenv("PleaseWork23")))
+save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
+test_login(genesis=c(db='de'))
 
 FRANCE_GDP_INSEE_list_selected =
   get_idbank_list("CNT-2014-PIB-EQB-RF") %>% # Gross domestic product balance
@@ -47,13 +48,18 @@ GER <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.DE.
   mutate(value = value/value[7]*100)
 
 
-ITA <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD")) %>%
+ITA_BULK <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD"))
+
+ITA <- ITA_BULK %>%
   subset(VALUATION == "L_2015") %>%
   mutate(PRELIMINARY = grepl("_1$", EDITION),
          EDITION_CLEAN = gsub("_1$", "", EDITION),
+         EDITION_DATE = ymd(paste0(sub("M", "-", EDITION_CLEAN), "-01")),
          EDITION_NUM = as.integer(gsub("M", "", gsub("M", "0", EDITION_CLEAN)))) %>%
-  arrange(desc(EDITION_NUM), PRELIMINARY) %>%
-  filter(EDITION_NUM == max(EDITION_NUM)) %>%
+  #arrange(desc(EDITION_NUM), PRELIMINARY) %>%
+  #filter(EDITION_NUM == max(EDITION_NUM)) %>%
+  arrange(desc(EDITION_DATE), PRELIMINARY) %>%
+  filter(EDITION_DATE == max(EDITION_DATE)) %>%
   group_by(EDITION_NUM) %>%
   mutate(n = n()) %>%
   filter(EDITION_NUM == max(EDITION_NUM)) %>%
@@ -63,7 +69,7 @@ ITA <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1
   transmute(value = obsValue/obsValue[7]*100, date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")))
 
 # ITA <- fredr(series_id = "CLVMNACSCAB1GQIT",observation_start = as.Date("2018-01-01")) %>%
-#   mutate(value = value/value[7]*100)
+#    mutate(value = value/value[7]*100)
 FRA <- FRANCE_GDP_INSEE_list_selected %>%
   pull(idbank) %>%
   get_insee_idbank(.) %>% 
@@ -123,7 +129,8 @@ ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", 
 US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
+#change to pn2 for first estimates
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -143,12 +150,21 @@ GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), la
 EU_POP_BULK <- get_eurostat("namq_10_pe")
 
 ITA_POP <- EU_POP_BULK %>%
-  filter(s_adj == "SCA", geo == "IT", time >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
-  transmute(date = time, value = values)
+  filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = TIME_PERIOD, value = values)
 
 FRA_POP <- EU_POP_BULK %>%
-  filter(s_adj == "SA", geo == "FR", time >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
-  transmute(date = time, value = values)
+  filter(s_adj == "SA", geo == "FR", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = TIME_PERIOD, value = values)
+
+GER_POP <- EU_POP_BULK %>%
+  filter(s_adj == "SCA", geo == "DE", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = TIME_PERIOD, value = values)
+
+# GER_PER_CAPITA <- merge(GER_POP,GER, by = "date") %>%
+#   transmute(date, value = value.y/value.x) %>%
+#   mutate(value = value/value[7]*100)
+
 
 ITA_PER_CAPITA <- merge(ITA_POP,ITA, by = "date") %>%
   transmute(date, value = value.y/value.x) %>%

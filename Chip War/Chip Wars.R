@@ -14,7 +14,7 @@ library("ecos")
 
 # Trade_search <- estat_getStatsList(
 #   appId = "6660597ae9d52f54c4d20dcbb12244c873615203",
-#   searchWord = "Ministry of Economy Trade and Industry",
+#   searchWord = "Production",
 #   lang = "E"
 # )
 
@@ -123,16 +123,16 @@ JAPAN_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   coord_cartesian(clip = "off")
 
 JAPAN_IC_EXPORTS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=JAPAN_CHIP_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Semiconductors"), size = 1.25) + 
-  geom_line(data=JAPAN_CHIP_MACHINES_DOLLAR, aes(x=date,y= (exports/value)/1000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_DOLLAR, aes(x=date,y= ((exports*12)/value)/1000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIP_MACHINES_DOLLAR, aes(x=date,y= ((exports*12)/value)/1000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 0.5),limits = c(0,2), breaks = c(0,0.5,1,1.5,2), expand = c(0,0)) +
-  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,22.5), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
   ggtitle("Japanese Chip Exports to China") +
-  labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japan is a Major Supplier of Chinese Chip Equipment, and Just Announced Chip Sanctions") +
-  theme_apricitas + theme(legend.position = c(.39,.89)) +
+  labs(caption = "Graph created by @JosephPolitano using E-Stat Japan data seasonally adjusted usint X-13ARIMA",subtitle = "Japanese Exports of Chip Equipment to China Have Risen as Exports of Chips Themselves Fell") +
+  theme_apricitas + theme(legend.position = c(.30,.89)) +
   scale_color_manual(name= "Japanese Exports to China, HK, and Macau",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*22.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 JAPAN_CHIP_MACHINES_QTY_Graph <- ggplot() + #plotting integrated circuits exports
@@ -244,20 +244,20 @@ US_CHIPMAKING_CHINA_EXPORTS <- getCensus(
 
 
 US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `8542`/1000000000,color= "Semiconductors"), size = 1.25) + 
-  geom_line(data=US_CHIPMAKING_CHINA_EXPORTS, aes(x=date,y= `8486`/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
+  geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= (`8542`*12)/1000000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=US_CHIPMAKING_CHINA_EXPORTS, aes(x=date,y= (`8486`*12)/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854231`/1000000000,color= "Logic Chips (test)"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854232`/1000000000,color= "Memory Chips (test)"), size = 1.25) + 
   annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed") +
-  annotate("text", label = "Chip Sanctions", x = as.Date("2021-08-01"), y = 0.215, color = "white", size = 5) +
+  annotate("text", label = "Chip Sanctions", x = as.Date("2021-08-01"), y = 2.5, color = "white", size = 5) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = .25),limits = c(0,1.25), breaks = c(0,0.25,0.5,0.75,1,1.25,1.5), expand = c(0,0)) +
-  ylab("Billions of Dollars, Monthly") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,15), breaks = c(0,5,10,15), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Semiconductor Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA",subtitle = "Sanctions Have Led to a Major Fall in US Exports of Chips & Manufacturing Equipment to China") +
   theme_apricitas + theme(legend.position = c(.325,.87)) +
   scale_color_manual(name= "US-Manufactured Exports to China, HK, and Macao",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*15), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_IC_EXPORTS_CHINA_Graph, "US IC Exports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -298,16 +298,16 @@ US_CHIP_MACHINES_IMPORTS <- getCensus(
   pivot_longer(cols = `Other`:`Singapore`) %>%
   mutate(name = factor(name, levels = c("Other","China (incl. HK and Macau)","South Korea","Malaysia","Taiwan","Singapore","EU","Japan")))
 
-US_CHIP_MACHINES_IMPORTS_DOLLAR_BAR_Graph <- ggplot(data = US_CHIP_MACHINES_IMPORTS, aes(x = date, y = value/1000000000, fill = name)) + #plotting permanent and temporary job losers
+US_CHIP_MACHINES_IMPORTS_DOLLAR_BAR_Graph <- ggplot(data = US_CHIP_MACHINES_IMPORTS, aes(x = date, y = (value*12)/1000000000, fill = name)) + #plotting permanent and temporary job losers
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Billions of Dollars, Monthly") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 0.25, suffix = "B", prefix = "$"), breaks = c(0,.25,.5,.75,1,1.25), limits = c(0,1.25), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,5,10,15), limits = c(0,15), expand = c(0,0)) +
   ggtitle("US Chipmaking Machine Imports") +
   labs(caption = "Graph created by @JosephPolitano using GACC data Seasonally Adjusted using X-13ARIMA", subtitle = "American Imports of Chipmaking Equipment have Risen Significantly in the Wake of the CHIPS Act") +
   theme_apricitas + theme(legend.position = c(.38,.7), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*1.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_CHIP_MACHINES_IMPORTS_DOLLAR_BAR_Graph, "US Chipmaking Machine Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -341,7 +341,7 @@ EU_CHIP_MACHINES <- EU_EXPORTS %>%
 DUTCH_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/DUTCH_EXPORTS.csv") %>%
   transmute(date = as.Date(Date),Exports_China,Exports_HK)
 
-EURO_EXCHANGE_RATE <- fredr("EXUSEU", observation_start = as.Date("2016-01-01"))
+EURO_EXCHANGE_RATE <- fredr("EXUSEU", observation_start = as.Date("2015-01-01"))
 
 EU_CHIP_DOLLAR <- left_join(EU_CHIP_EXPORTS,EURO_EXCHANGE_RATE)
 EU_CHIP_MACHINES_DOLLAR <- left_join(EU_CHIP_MACHINES,EURO_EXCHANGE_RATE)
@@ -394,8 +394,9 @@ DUTCH_CHIPMAKING_EXPORTS <- DUTCH_CHIPMAKING_EXPORTS %>%
   summarize(OBS_VALUE = sum(OBS_VALUE, na.rm = TRUE)) %>%
   ungroup() %>%
   pivot_wider(names_from = reporter, values_from = OBS_VALUE) %>%
-  mutate(RollNL = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(NL,12))) %>%
   left_join(.,EURO_EXCHANGE_RATE) %>%
+  mutate(NL = NL/value) %>%
+  mutate(RollNL = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(NL,12))) %>%
   drop_na()
 
 DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph <- ggplot() + #plotting integrated circuits exports
@@ -403,7 +404,7 @@ DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph <- ggplot() + #plotting integrated c
   geom_line(data=DUTCH_CHIPMAKING_EXPORTS, aes(x=date,y= ((NL*12)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,12), breaks = c(0,3,6,9,12), expand = c(0,0)) +
-  ylab("Billions of Dollars") +
+  ylab("Billions of Dollars, Annual Rate") +
   ggtitle("Dutch Chipmaking Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Dutch Chipmaking Equipment Exports to China are Booming") +
   theme_apricitas + theme(legend.position = c(.425,.8)) +
@@ -600,17 +601,17 @@ CHINA_HK_CHIP_IMPORTS <- CHINA_HK_CHIP_IMPORTS %>%
   pivot_longer(cols = Japan:Vietnam) %>%
   mutate(name = factor(name, levels = c("Other","United States","Vietnam","Japan","Malaysia","South Korea","Taiwan")))
 
-CHINA_HK_IC_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_IMPORTS, aes(x = Date, y = value/1000000000, fill = name)) + #plotting permanent and temporary job losers
+CHINA_HK_IC_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_IMPORTS, aes(x = Date, y = (value*12)/1000000000, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Billions of Dollars, Monthly") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,10,20,30,40,50), limits = c(0,53), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,100,200,300,400,500,600), limits = c(0,650), expand = c(0,0)) +
   ggtitle("Chinese Semiconductor Imports") +
-  labs(caption = "Graph created by @JosephPolitano using GACC data Seasonally Adjusted using X-13ARIMA", subtitle = "Chinese Semiconductor Imports Have Fallen Significantly, Particularly From Taiwan and Korea") +
+  labs(caption = "Graph created by @JosephPolitano using PRC GACC and HK C&SD data Seasonally Adjusted using X-13ARIMA", subtitle = "Chinese Semiconductor Imports Fell Significantly in 2022, But Have Since Stabilized") +
   theme_apricitas + theme(legend.position = c(.3,.8), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Chip Imports to China and Hong Kong by Country",values = c("#6A4C93","#3083DC","#A7ACD9","#9A348E","#00A99D","#EE6055","#FFE98F")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*53), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CHINA_HK_IC_Imports_Dollar_Bar_Graph, "China HK Chips.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -627,17 +628,17 @@ CHINA_HK_CHIP_MACHINES_IMPORTS <- CHINA_HK_CHIP_MACHINES_IMPORTS %>%
   pivot_longer(cols = Japan:Netherlands) %>%
   mutate(name = factor(name, levels = c("Other","Taiwan","Netherlands","Singapore","South Korea","United States","Japan")))
 
-CHINA_HK_CHIP_MACHINES_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_MACHINES_IMPORTS, aes(x = Date, y = value/1000000000, fill = name)) + #plotting permanent and temporary job losers
+CHINA_HK_CHIP_MACHINES_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_MACHINES_IMPORTS, aes(x = Date, y = (value*12)/1000000000, fill = name)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Billions of Dollars, Monthly") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,1,2,3,4), limits = c(0,4), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,10,20,30,40,50,60), limits = c(0,65), expand = c(0,0)) +
   ggtitle("Chinese Chipmaking Machine Imports") +
-  labs(caption = "Graph created by @JosephPolitano using GACC data Seasonally Adjusted Using X-13ARIMA", subtitle = "Chinese Imports of Machines for Semiconductor Production Have Fallen Significantly") +
+  labs(caption = "Graph created by @JosephPolitano using PRC GACC and HK C&SD data Seasonally Adjusted Using X-13ARIMA", subtitle = "Chinese Imports of Machines for Semiconductor Production Have Risen Dramatically") +
   theme_apricitas + theme(legend.position = c(.38,.82), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Chipmaking Machine Imports to China and Hong Kong by Country",values = c("#6A4C93","#3083DC","#A7ACD9","#9A348E","#00A99D","#EE6055","#FFE98F")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*4), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CHINA_HK_CHIP_MACHINES_Imports_Dollar_Bar_Graph, "China HK Chip Machines.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -653,7 +654,7 @@ JAPAN_IP_ITEM <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xl
   mutate(date = seq.Date(from = as.Date("2013-01-01"), by = "month", length.out = nrow(.))) %>%
   #mutate(date = as.Date(as.yearmon(item_name,"%Y%m"))) %>%
   mutate_if(is.character,as.numeric)
-?read.xlsx
+
 JAPAN_IP_ITEM_2020 <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2020_hsm1e.xlsx") %>%
   select(-`Seasonally.adjusted.Index.by.Commodity.:.Industrial.Production.(2020=100.0)`,-X3) %>%
   drop_na() %>%
@@ -732,7 +733,7 @@ NETHERLANDS_PRODUCTION_CHIP_MACHINES <- ggplot() + #plotting Dutch Semiconductor
   ylab("Index, Jan 2015 = 100") +
   ggtitle("Dutch Chipmaking Equipment Production") +
   labs(caption = "Graph created by @JosephPolitano using CBS Data",subtitle = "Dutch Production of Chipmaking Equipment Has Also Fallen From 2022 Highs") +
-  theme_apricitas + theme(legend.position = c(.5,.7)) +
+  theme_apricitas + theme(legend.position = c(.45,.75)) +
   scale_color_manual(name= "Industrial Production, Netherlands",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*170), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -772,13 +773,13 @@ IND_PRO <- statscnQueryLastN(700, lang = "en") %>%
 CHINA_IND_PRO_CHIP <- ggplot() + #plotting Chinese Semiconductor Production
   geom_line(data= IND_PRO, aes(x=date,y=`Output of Integrated Circuits, Current Period` ,color= "China, Industrial Production of Integrated Circuits"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,350), breaks = c(0,100,200,300,400), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,400), breaks = c(0,100,200,300,400), expand = c(0,0)) +
   ylab("Index, Dec 2014 = 100") +
   ggtitle("Chinese Chip Production") +
   labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "Chinese Chip Production Fell Significantly in 2022 But Has Since Rebounded a Bit") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO$date)-(.1861*(max(IND_PRO$date)-min(IND_PRO$date))), xmax = min(IND_PRO$date)-(0.049*(max(IND_PRO$date)-min(IND_PRO$date))), ymin = 0-(.3*350), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO$date)-(.1861*(max(IND_PRO$date)-min(IND_PRO$date))), xmax = min(IND_PRO$date)-(0.049*(max(IND_PRO$date)-min(IND_PRO$date))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CHINA_IND_PRO_CHIP, "China Ind Pro Chip Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -826,6 +827,24 @@ CHINA_FIXED_INVESTMENT_ELECTRONICS <- ggplot() + #plotting Chinese Semiconductor
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CHINA_FIXED_INVESTMENT_ELECTRONICS, "China Fixed Investment Electronics Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+CHINA_FIXED_INVESTMENT_ELECTRONICS_ONLY_Graph <- ggplot() + #plotting Chinese Semiconductor Production
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  #geom_line(data=subset(FIXED_INVESTMENT,`Investment in Fixed Assets, Information Transmission, _Computer Services and Software, Accumulated Growth _Rate` != 0), aes(x=date-335,y= `Investment in Fixed Assets, Information Transmission, _Computer Services and Software, Accumulated Growth _Rate`/100, color= "Information Transmission, Computer Services, and Software"), size = 1.25) +
+  geom_line(data=subset(FIXED_INVESTMENT,`Investment in Fixed Assets, Manufacture of _Communication Equipment, Computers and Other _Electronic Equipment, Accumulated Growth Rate` != 0), aes(x=date-335,y= `Investment in Fixed Assets, Manufacture of _Communication Equipment, Computers and Other _Electronic Equipment, Accumulated Growth Rate`/100, color= "China, Investment in Fixed Assets, Annual Growth\nManufacture of Communication Equipment, Computers, and Other Electronic Equipment"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.30), breaks = c(0,0.1,0.2,0.3), expand = c(0,0)) +
+  ylab("Growth in Fixed Investment, Year-on-Year") +
+  ggtitle("Chinese Electronic Investment") +
+  labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "2023 Saw a Slowdown in Chinese Electronic Manufacturing Investment Growth") +
+  theme_apricitas + theme(legend.position = c(.525,.9)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(FIXED_INVESTMENT$date)-335-(.1861*(max(FIXED_INVESTMENT$date)-335-min(FIXED_INVESTMENT$date))), xmax = min(FIXED_INVESTMENT$date)-335-(0.049*(max(FIXED_INVESTMENT$date)-335-min(FIXED_INVESTMENT$date))), ymin = 0-(.3*.30), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINA_FIXED_INVESTMENT_ELECTRONICS_ONLY_Graph, "China Fixed Investment Electronics Only Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 FIXED_EQUIP_INVEST_SPECS_REAL <- list(

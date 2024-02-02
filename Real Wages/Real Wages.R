@@ -48,7 +48,7 @@ REAL_MEDIAN_USUAL_EARNINGS <- REAL_MEDIAN_USUAL_EARNINGS %>%
 
 NOMINAL_MEDIAN_USUAL_EARNINGS <- fredr("LES1252881500Q", observation_start = as.Date("2015-01-01"))
 
-PCEPI_QUARTERLY <- fredr("PCEPI", observation_start = as.Date("2015-01-01"), frequency = "q", aggregation_method = "avg")
+PCEPI_QUARTERLY <- fredr("PCECTPI", observation_start = as.Date("2015-01-01"), frequency = "q", aggregation_method = "avg")
 
 REAL_PCEPI_MEDIAN_USUAL_EARNINGS <- merge(NOMINAL_MEDIAN_USUAL_EARNINGS,PCEPI_QUARTERLY, by = "date") %>%
   transmute(date, value = value.x/value.y)
