@@ -457,7 +457,108 @@ US_EU_NET_BATTERY_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
 
 ggsave(dpi = "retina",plot = US_EU_NET_BATTERY_IMPORTS_GRAPH, "US EU Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+EU_IMPORTS_EXPORTS_CARS_CHINA <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.*.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[partner]=CN,HK,MO&c[product]=8703&c[flow]=1,2&compress=false"))
 
+EU_IMPORTS_EXPORTS_ICE_CHINA <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.*.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[partner]=CN,HK,MO&c[product]=870321,870322,870323,870324,870331,870332,870333&c[flow]=1,2&compress=false"))
+
+EU_IMPORTS_EXPORTS_HYBRID_CHINA <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.*.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[partner]=CN,HK,MO&c[product]=870340,870350,870360,870370&c[flow]=1,2&compress=false"))
+
+EU_IMPORTS_EXPORTS_EVS_CHINA <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.*.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[partner]=CN,HK,MO&c[product]=870380&c[flow]=1,2&compress=false"))
+
+EU_IMPORTS_EXPORTS_EVS_CHINA_MOD <- EU_IMPORTS_EXPORTS_EVS_CHINA %>%
+  group_by(TIME_PERIOD, flow) %>%
+  summarise(value = sum(as.numeric(OBS_VALUE))) %>%
+  ungroup() %>%
+  transmute(name = flow, value, date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  unique() %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsumimports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`1`,12))) %>%
+  mutate(rollsumexports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`2`,12))) %>%
+  mutate(rollsumNET_EXPORTS = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+EU_IMPORTS_EXPORTS_ICE_CHINA_MOD <- EU_IMPORTS_EXPORTS_ICE_CHINA %>%
+  group_by(TIME_PERIOD, flow) %>%
+  summarise(value = sum(as.numeric(OBS_VALUE))) %>%
+  ungroup() %>%
+  transmute(name = flow, value, date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  unique() %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsumimports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`1`,12))) %>%
+  mutate(rollsumexports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`2`,12))) %>%
+  mutate(rollsumNET_EXPORTS = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+EU_IMPORTS_EXPORTS_HYBRID_CHINA_MOD <- EU_IMPORTS_EXPORTS_HYBRID_CHINA %>%
+  group_by(TIME_PERIOD, flow) %>%
+  summarise(value = sum(as.numeric(OBS_VALUE))) %>%
+  ungroup() %>%
+  transmute(name = flow, value, date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  unique() %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsumimports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`1`,12))) %>%
+  mutate(rollsumexports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`2`,12))) %>%
+  mutate(rollsumNET_EXPORTS = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+EU_IMPORTS_EXPORTS_CARS_CHINA_MOD <- EU_IMPORTS_EXPORTS_CARS_CHINA %>%
+  group_by(TIME_PERIOD, flow) %>%
+  summarise(value = sum(as.numeric(OBS_VALUE))) %>%
+  ungroup() %>%
+  transmute(name = flow, value, date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  unique() %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsumimports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`1`,12))) %>%
+  mutate(rollsumexports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`2`,12))) %>%
+  mutate(rollsumNET_EXPORTS = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+
+EU_EV_EXPORTS_IMPORTS_CHINA_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(`1`*12)/1000000000,color= "Monthly Imports, Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(`2`*12)/1000000000,color= "Monthly Exports, Annualized "), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollsumimports`)/1000000000,color= "EU Imports of Electric Vehicles From China, Rolling 12M Total"), size = 1.25) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollsumexports`)/1000000000,color= "EU Exports of Electric Vehicles to China, Rolling 12M Total"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "€",accuracy = 1, suffix = "B"),limits = c(0, 16), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Europe's Growing EV Trade") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data  Note: China Includes HK and MO",subtitle = "EU EV Exports are Booming, Especially in Germany") +
+  theme_apricitas + theme(legend.position = c(.4,.89)) +
+  theme(legend.key.width =  unit(.82, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU Imports of Electric Vehicles From China, Rolling 12M Total","Monthly Imports, Annualized","EU Exports of Electric Vehicles to China, Rolling 12M Total","Monthly Exports, Annualized "), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2), lwd = c(1.25,0.75, 1.25,0.75), alpha = c(1,0.5,1,0.5)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(16)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_EV_EXPORTS_IMPORTS_CHINA_GRAPH, "EU EV Imports Exports China Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+EU_NET_EXPORTS_CHINA_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(NET_EXPORTS*12)/1000000000,color= "EVs"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_HYBRID_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(NET_EXPORTS*12)/1000000000,color= "Hybrids"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_ICE_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(NET_EXPORTS*12)/1000000000,color= "ICE Vehicles"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_CARS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(NET_EXPORTS*12)/1000000000,color= "Motor Vehicles"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_EVS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(rollsumNET_EXPORTS)/1000000000,color= "EVs"), size = 1.25) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_HYBRID_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(rollsumNET_EXPORTS)/1000000000,color= "Hybrids"), size = 1.25) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_ICE_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(rollsumNET_EXPORTS)/1000000000,color= "ICE Vehicles"), size = 1.25) +
+  geom_line(data= filter(EU_IMPORTS_EXPORTS_CARS_CHINA_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(rollsumNET_EXPORTS)/1000000000,color= "Motor Vehicles"), size = 2) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "€",accuracy = 1, suffix = "B"),limits = c(-15, 35), expand = c(0,0)) +
+  ylab("Billions of Euros") +
+  ggtitle("EU Net Vehicle Exports to China") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data  Note: China Includes HK and MO, Hybrids includes Plug-in Hybrids",subtitle = "The EU's Strong Vehicles Trade Surplus With China is Shrinking—Thanks to EVs") +
+  theme_apricitas + theme(legend.position = c(.35,.89)) +
+  #theme(legend.key.width =  unit(.82, "cm"), legend.key.height = unit(0,"cm")) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#A7ACD9","#9A348E"), breaks = c("Motor Vehicles","ICE Vehicles","Hybrids","EVs"), guide = guide_legend(ncol = 2, override.aes = list(lwd = c(2, 1.25,1.25,1.25)))) +#, override.aes = list(linetype = c(1,2,1,2,1,2,1,2),  alpha = c(1,0.5,1,0.5,1,0.5,1,0.5)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -15-(.3*(50)), ymax = -15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_NET_EXPORTS_CHINA_GRAPH, "EU NET Exports China Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 NOMINAL_BATTERY_MANU <- fredr(series_id = "A35DVS", observation_start = as.Date("2018-01-01"))
 PPI_BATTERY_MANU <- fredr(series_id = "PCU335911335911", observation_start = as.Date("2018-01-01"))
