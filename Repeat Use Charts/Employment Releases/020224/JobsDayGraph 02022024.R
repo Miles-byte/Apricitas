@@ -1010,7 +1010,7 @@ EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = va
   ylab("Change Since Jan 2020, Millions of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,6), expand = c(0,0)) +
   ggtitle("The Shape of Job Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and All Sectors Have Fully Recovered") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "There are Now 5.6M More Jobs Than Pre-Pandemic—and All Sectors Have Fully Recovered") +
   theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Information")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
@@ -1216,9 +1216,9 @@ WAGE_GROWTH_Graph <- ggplot() + #plotting Wage Growth
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.0815), breaks = c(0,0.01,.02,.03,0.04,0.05,0.06,0.07,0.08), expand = c(0,0)) +
   ylab("Percent Growth, Year-on-Year") +
   ggtitle("Wage Growth is Decelerating") +
-  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Wage Growth Looks to Be Decelerating Now") +
-  theme_apricitas + theme(legend.position = c(.42,.72)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Wages, Employment Cost Index, Private (Composition Adjusted)","Average Hourly Earnings, Private (Not Composition Adjusted)")) +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Nominal Wage Growth Has Slowed Down as the US Labor Market Cools") +
+  theme_apricitas + theme(legend.position = c(.4,.72)) +
+  scale_color_manual(name= "Percent Growth, Year-on-Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Wages, Employment Cost Index, Private (Composition Adjusted)","Average Hourly Earnings, Private (Not Composition Adjusted)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*0.08), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -2032,6 +2032,51 @@ GOVT_GROWTH_IND_graph <- ggplot(data = GOVT_RBIND, aes(x = date, y = value/1000,
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GOVT_GROWTH_IND_graph, "Govt Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+QUITS_Q <- fredr(series_id = "JTSQUL",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q", aggregation_method = "sum")
+LAYOFFS_Q <- fredr(series_id = "JTSLDL",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q", aggregation_method = "sum")
+HIRES_Q <- fredr(series_id = "JTSHIL",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q", aggregation_method = "sum")
+
+LABOR_TURNOVER_QUARTERLY_Graph <- ggplot() + #plotting job flows
+  geom_line(data = QUITS_Q, aes(x=date, y = value/1000, color = "Quits"), size = 1.25) +
+  geom_line(data = LAYOFFS_Q, aes(x=date, y = value/1000, color = "Layoffs and Discharges"), size = 1.25) +
+  geom_line(data = HIRES_Q, aes(x=date, y = value/1000, color = "Hires"), size = 1.25) +
+  xlab("Date") +
+  ylab("Nonfarm Labor Turnover, Quarterly") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(0,5,10,15,20), limits = c(0,21), expand = c(0,0)) +
+  ggtitle("US Labor Turnover, Quarterly") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Pace of Job Transitions Via Hires and Quits Have Decelerated As Layoffs Rise Slightly") +
+  theme_apricitas + theme(legend.position = c(.175,.95)) + theme(legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Hires","Quits","Layoffs and Discharges")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*21), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LABOR_TURNOVER_QUARTERLY_Graph, "Labor Turnover Quarterly.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ATL_WAG_QUART_1 <- fredr("FRBATLWGT12MMUMHWGWD1WP", observation_start = as.Date("2015-01-01"))
+ATL_WAG_QUART_2 <- fredr("FRBATLWGT12MMUMHWGWD26WP", observation_start = as.Date("2015-01-01")) 
+ATL_WAG_QUART_3 <- fredr("FRBATLWGT12MMUMHWGWD51WP", observation_start = as.Date("2015-01-01"))
+ATL_WAG_QUART_4 <- fredr("FRBATLWGT12MMUMHWGWD76WP", observation_start = as.Date("2015-01-01"))
+
+ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=ATL_WAG_QUART_1, aes(x=date,y= value/100,color= "First (Lowest) Wage Quartile"), size = 1.25)+ 
+  geom_line(data=ATL_WAG_QUART_2, aes(x=date,y= value/100,color= "Second Wage Quartile"), size = 1.25)+ 
+  geom_line(data=ATL_WAG_QUART_3, aes(x=date,y= value/100,color= "Third Wage Quartile"), size = 1.25)+ 
+  geom_line(data=ATL_WAG_QUART_4, aes(x=date,y= value/100,color= "Fourth (Highest) Wage Quartile"), size = 1.25)+ 
+  annotate("text",label = "NOTE: Data Lags Significantly Due to Being a 12M Moving Average of Annual Growth", x = as.Date("2019-09-01"), y =0.02, color = "white", size = 5) +
+  xlab("Date") +
+  ylab("12MMA of Median Annual Wage Growth. %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.08),breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
+  ggtitle("Wage Compression is Cooling") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Low-Paid Workers are No Longer Seeing Significantly Faster Wage Growth Than High-Paid Workers") +
+  theme_apricitas + theme(legend.position = c(.25,.8)) +
+  scale_color_manual(name= "Median Wage Growth by Wage Quartile\n12MMA of Median 12M Wage Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("First (Lowest) Wage Quartile","Second Wage Quartile","Third Wage Quartile","Fourth (Highest) Wage Quartile")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.08), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph, "Atlanta Fed Wage Tracker Distrib Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
