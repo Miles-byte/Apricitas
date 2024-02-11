@@ -1,4 +1,4 @@
-pacman::p_load(ggpubr,ggrepel,tigris,purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(prismatic,ggpubr,ggrepel,tigris,purrr,forecast,imputeTS,tsibble,sf,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -223,6 +223,157 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_BINS_RAW, "BEA GDP STATE BINS RAW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_GRADIENT, "BEA GDP STATE GRADIENT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = BEA_GDP_STATE_BINS, "BEA GDP STATE BINS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BEA_GDP_STATE_YOY <- beaGet(BEA_GDP_STATE_SPECS, iTableStyle = FALSE) %>%
+  rename_with(~ coalesce(stringr::str_extract(., "(?<=\\s)[A-Za-z ]+(?=\\sMillions)"), "Unknown"), .cols = everything()) %>%
+  select(-`United States`,-`Rocky Mountain`,-`Unknown`,-`Far West`,-`Rocky Mountain`,-`Southwest`,-`Southeast`,-`Plains`,-`Great Lakes`,-`Mideast`,-`New England`) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  subset(date >= as.Date("2019-07-01")) %>%
+  pivot_longer(-date, names_to = "state_name", values_to = "GDP") %>%
+  arrange(state_name, date) %>%
+  group_by(state_name) %>%
+  mutate(GROWTH_YOY = (GDP / lag(GDP,4)) - 1) %>%
+  filter(date == max(date))
+
+states <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states <- states %>%
+  mutate(states = state_name)
+
+states <- left_join(states, BEA_GDP_STATE_YOY, by = "state_name")
+
+BEA_GDP_STATE_LABELS_YOY <- get_urbn_labels(map = "states") %>%
+  left_join(states, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+states_centroids_YOY <- states %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states, .) %>%
+  st_centroid()
+
+BEA_GDP_STATE_YOY <- states %>%
+  ggplot(aes(fill = GROWTH_YOY)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1), breaks = c(-0.03,-0.02,-.01,.0,.01,.02,.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1), expand = c(0,0)) +
+  ggtitle(paste0("     Real GDP Growth, Year-on-Year—", "Q", quarter(states$date[1]), " ", year(states$date[1]))) +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("NH","VT","MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3,
+    segment.color = NA,
+    hjust = 0.5,
+    direction = "y",
+    nudge_y = 4000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    box.padding = 0.75,  # Increase box padding
+    point.padding = 0.5,
+    max.overlaps = 5,
+    force = 4,
+    force_pull = 1,
+    max.iter = 2000000000,
+    max.time = 30,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids_YOY, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(BEA_GDP_STATE_LABELS_YOY, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("FL","TN","IN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25,check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+#geom_text(data = BEA_GDP_STATE_BINS_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(GROWTH,1),"%")), size = 3, color = "white", check_overlap = TRUE)
+#geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(GROWTH*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
+
+ggsave(dpi = "retina",plot = BEA_GDP_STATE_YOY, "BEA GDP STATE YOY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 test <- beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
 test <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","TableName")
