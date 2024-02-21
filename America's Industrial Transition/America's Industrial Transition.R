@@ -1,4 +1,4 @@
-pacman::p_load(maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -164,25 +164,136 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
   geom_sf(data = states, 
           aes(fill = YRSPENDING/1000), 
-          color = 'white') +
+          color = 'grey25') +
   geom_sf(data = div, 
           color = 'black', 
           fill = NA,
           lwd = 1.25) +
-  scale_fill_gradient(low = "#00A99D",
-                       high = "#FFE98F",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = "colourbar",
-                       aesthetics = "fill",
-                      breaks = c(0,10,20,30,40,50), 
-                      labels = c("$0B","$10B","$20B","$30B","$40B","$50B"),
-                      limits = c(0,50)) +
+  scale_fill_viridis_c(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70), expand = c(0,0)) +
+  # scale_fill_gradient(low = "#00A99D",
+  #                      high = "#FFE98F",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = "colourbar",
+  #                      aesthetics = "fill",
+  #                     breaks = c(0,10,20,30,40,50), 
+  #                     labels = c("$0B","$10B","$20B","$30B","$40B","$50B"),
+  #                     limits = c(0,50)) +
   coord_sf(crs = 5070) +
-  ggtitle("     New Manufacturing Construction Over The Last 12M") +
+  geom_text(
+    data = filter(states, DIVISION == 1), 
+    aes(x = 1950000, y = 2600000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    color = "white",
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 2), 
+    aes(x = 1600000, y = 2250000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "white",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 3), 
+    aes(x = 800000, y = 1950000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "black",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 4), 
+    aes(x = 00000, y = 2000000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "white",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 5), 
+    aes(x = 1300000, y = 1300000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "white",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 6), 
+    aes(x = 725000, y = 1200000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "white",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 7), 
+    aes(x = -250000, y = 950000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "black",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 8), 
+    aes(x = -1350000, y = 1800000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "black",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(states, DIVISION == 9), 
+    aes(x = -2000000, y = 2600000, label = paste0("$", sprintf("%.1f", round(YRSPENDING/1000, 1)), "B")), 
+    size = 5, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    color = "white",
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  ggtitle("Manufacturing Construction in the Last 12M by Region") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using US Census data") +
-  labs(fill = NULL)
+  labs(fill = NULL) +
+  theme_apricitas + theme(plot.title = element_text(size = 27), legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
 
 ggsave(dpi = "retina",plot = REGIONAL_MFG_SPENDING_GRAPH, "Regional Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 

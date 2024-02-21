@@ -181,18 +181,18 @@ US_NET_EV_EXPORTS <- merge(US_EV_EXPORTS %>% select(`Total For All Countries`,`E
 US_NET_EV_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassed",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`Net Exports`*12)/1000000000,color= "US Net Exports of Electric Vehicles, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollnetexports`)/1000000000,color= "US Net Exports of Electric Vehicles, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-20, 12.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-25, 12.5), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's EV Trade") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "The US has Become a Major Net Importer of Finished Electric Vehicles") +
   theme_apricitas + theme(legend.position = c(.375,.15)) +
   theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("US Net Exports of Electric Vehicles, Rolling 12M Total","US Net Exports of Electric Vehicles, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2), lwd = c(1.25,0.75), alpha = c(1,0.5)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -20-(.3*(32.5)), ymax = -20) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -25-(.3*(32.5)), ymax = -25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
   
 ggsave(dpi = "retina",plot = US_NET_EV_IMPORTS_GRAPH, "US EV Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -201,7 +201,7 @@ ggsave(dpi = "retina",plot = US_NET_EV_IMPORTS_GRAPH, "US EV Imports Graph.png",
 US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassed",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   annotate(geom = "vline",x = as.Date("2022-12-29"), xintercept = as.Date("2022-12-29"), size = 0.75,color = "white", linetype = "dashed") +
   annotate(geom = "text", label = "EV Leasing\nCredit\nAnnounced",x = as.Date("2023-05-15"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`China.y`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -215,7 +215,7 @@ US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico"), size = 1.25) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,12),breaks = c(0,3,6,9,12), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,12.5),breaks = c(0,3,6,9,12), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's EV Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data Via Chad Bown",subtitle = "US Imports of Finished Electric Vehicles Have Increased Significantly Even After the IRA") +
@@ -334,14 +334,14 @@ US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU, Rolling 12M Total"), size = 1.25) +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,20),breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,22.5),breaks = c(0,5,10,15,20), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's Net Battery Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "US Imports of Rechargeable Batteries Have Surged, Especially From China") +
   theme_apricitas + theme(legend.position = c(.25,.60)) +
   theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= "US Net Imports of Rechargeable Batteries",values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#EE6055","#A7ACD9","#A7ACD9","#9A348E","#9A348E"), breaks = c("EU, Rolling 12M Total","EU, Monthly Annualized","South Korea, Rolling 12M Total","South Korea, Monthly Annualized","Mexico, Rolling 12M Total","Mexico, Monthly Annualized","Japan, Rolling 12M Total","Japan, Monthly Annualized","China, Rolling 12M Total","China, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(20)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(22.5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH, "US Net Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -425,7 +425,7 @@ EU_NET_BATTERY_IMPORTS_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ylab("Billions of Euros") +
   ggtitle("Europe's Net Battery Imports") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "The EU has a Yawning Deficit in the Battery Trade Despite the EV Surplus") +
-  theme_apricitas + theme(legend.position = c(.415,.82)) +
+  theme_apricitas + theme(legend.position = c(.4,.9)) +
   theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU Net Imports of Rechargeable Batteries, Rolling 12M Total","EU Net Imports of Rechargeable Batteries, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2), lwd = c(1.25,0.75), alpha = c(1,0.5)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(30)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -1194,7 +1194,7 @@ US_TOTAL <- eia1_series("STEO.TOEPGEN_US.M") %>%
 #   mutate(Other = Total - `Nat Gas`-Coal-Nuclear-Hydro-Wind-Solar)
 
 US_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
-  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(NAT_GAS_PRODUCTION$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_GAS_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 205, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data= filter(US_COL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Coal"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_GAS_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Natural Gas"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -1209,13 +1209,13 @@ US_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
   geom_line(data= filter(US_WND_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Wind"), size = 1.25) +
   geom_line(data= filter(US_SOL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_GAS$value)/10)*10+10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_GAS_STEO$value)/10)*10+10), expand = c(0,0)) +
   ylab("TWh, Monthly") +
   ggtitle("America's Changing Grid") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Natural Gas, Wind, and Solar Now Make Up A Larger Share of America's Grid") +
   theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= "US Net Utility-Scale Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = c("Coal","Natural Gas","Nuclear","Hydro","Wind","Solar"), guide = guide_legend(ncol = 2)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_GAS$value)/10)*10+10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_GAS_STEO$value)/10)*10+10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_STEO_GRAPH, "US Electricity Production STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

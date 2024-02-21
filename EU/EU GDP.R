@@ -37,7 +37,7 @@ DE_GDP <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.
   mutate(CAGR = (values / first(values)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
   filter(time == max(time))
 
-EU_GDP <- get_eurostat("namq_10_gdp")
+EU_GDP <- get_eurostat("namq_10_gdp",legacy_bulk_download = FALSE)
 
 IT_GDP <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2019-07-01&dimensionAtObservation=TIME_PERIOD")) %>%
   subset(NOTE_VALUATION == "VAL__L_2015_N2") %>%
@@ -48,18 +48,27 @@ IT_GDP <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/
   mutate(CAGR = (values / first(values)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
   filter(time == max(time))
 
-AL_GDP <- read.csv("http://databaza.instat.gov.al/sq/feca8039-955f-45fd-afc7-9fd78a2a1690") %>%
-  .[-2,] %>%
-  transpose() %>%
-  transmute(time = seq.Date(from = as.Date("2007-04-01"), by = "3 months", length = nrow(.)), values = as.numeric(V1), geo = "AL") %>%
-  drop_na() %>%
+# AL_GDP <- read.csv("http://databaza.instat.gov.al/sq/feca8039-955f-45fd-afc7-9fd78a2a1690") %>%
+#   .[-2,] %>%
+#   transpose() %>%
+#   transmute(time = seq.Date(from = as.Date("2007-04-01"), by = "3 months", length = nrow(.)), values = as.numeric(V1), geo = "AL") %>%
+#   drop_na() %>%
+#   group_by(geo) %>%
+#   mutate(CAGR = (values / first(values)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
+#   filter(time == max(time))
+
+AL_GDP <- EU_GDP %>%
+  subset(unit == "CLV10_MEUR" & s_adj == "SA" & na_item == "B1GQ" & geo %in% c("AL")) %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
+  subset(time >= as.Date("2019-07-01")) %>%
+  arrange(geo, time) %>%
   group_by(geo) %>%
   mutate(CAGR = (values / first(values)) ^ (1 / ((row_number() - 1) / 4)) - 1) %>%
   filter(time == max(time))
 
 IS_GDP <- EU_GDP %>%
   subset(unit == "CLV10_MEUR" & s_adj == "SA" & na_item == "B1GQ" & geo %in% c("IS")) %>%
-  select(geo, time, values) %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
   subset(time >= as.Date("2019-07-01")) %>%
   arrange(geo, time) %>%
   group_by(geo) %>%
@@ -68,7 +77,7 @@ IS_GDP <- EU_GDP %>%
 
 ME_GDP <- EU_GDP %>%
   subset(unit == "CLV10_MEUR" & na_item == "B1GQ" & geo %in% c("ME")) %>%
-  select(geo, time, values) %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
   pivot_wider(names_from = geo, values_from = values) %>%
   arrange(time) %>%
   select(-time) %>%
@@ -85,7 +94,7 @@ ME_GDP <- EU_GDP %>%
 
 BA_GDP <- EU_GDP %>%
   subset(unit == "CLV10_MEUR" & na_item == "B1GQ" & geo %in% c("BA")) %>%
-  select(geo, time, values) %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
   pivot_wider(names_from = geo, values_from = values) %>%
   arrange(time) %>%
   select(-time) %>%
@@ -117,7 +126,7 @@ XK_GDP <- read.csv("https://askdata.rks-gov.net/sq/8980eb97-7d70-456d-be5c-30a9a
 
 EU_GDP_CAGR <- EU_GDP %>%
   subset(unit == "CLV10_MEUR" & s_adj == "SCA" & na_item == "B1GQ") %>%
-  select(geo, time, values) %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
   subset(time >= as.Date("2019-07-01")) %>%
   arrange(geo, time) %>%
   group_by(geo) %>%
@@ -126,6 +135,7 @@ EU_GDP_CAGR <- EU_GDP %>%
   subset(!(geo %in% c("UK","DE","IT"))) %>%
   mutate(geo = gsub("EL","GR",geo)) %>%
   rbind(.,IS_GDP,UK_GDP,AL_GDP,ME_GDP,BA_GDP,XK_GDP,DE_GDP,IT_GDP)
+  
 
 EU_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
   subset(., continent == "Europe" | sovereignt %in% c("Turkey","Cyprus","Malta")) %>%
@@ -199,8 +209,8 @@ ITALY_GDP_ISTAT <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/r
   mutate(value = value/value[7]*100)
   
 EU_GDP_EUROSTAT <- EU_GDP %>%
-  filter(unit == "CLV10_MEUR" & s_adj == "SCA" & na_item == "B1GQ" & geo == "EU27_2020" & time >= as.Date("2018-01-01")) %>%
-  transmute(value = values, date = as.Date(as.yearqtr(time, "%Y-Q%q"))) %>%
+  filter(unit == "CLV10_MEUR" & s_adj == "SCA" & na_item == "B1GQ" & geo == "EU27_2020" & TIME_PERIOD >= as.Date("2018-01-01")) %>%
+  transmute(value = values, date = as.Date(as.yearqtr(TIME_PERIOD, "%Y-Q%q"))) %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
   

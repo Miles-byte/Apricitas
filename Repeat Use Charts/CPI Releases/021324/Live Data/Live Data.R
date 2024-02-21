@@ -345,11 +345,11 @@ CPI_Rent_Zillow <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price G
 
 ggsave(dpi = "retina",plot = CPI_Rent_Zillow, "CPI RENT ZILLOW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-CPIPCT <- bls_api("CUUR0000SA0", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIPCT <- bls_api("CUUR0000SA0", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = (value-lead(value,12))/lead(value,12))  %>%
   subset(date >= as.Date("2019-01-01")) #cpi rent data
-CPILFEPCT <- bls_api("CUUR0000SA0L1E", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPILFEPCT <- bls_api("CUUR0000SA0L1E", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = (value-lead(value,12))/lead(value,12)) %>%
   subset(date >= as.Date("2019-01-01"))
@@ -417,12 +417,12 @@ CPI_Manheim_Used_Car_Vehicles_Growth_Graph <- ggplot() + #plotting Rent and Owne
 
 ggsave(dpi = "retina",plot = CPI_Manheim_Used_Car_Vehicles_Growth_Graph, "CPI Manheim Used Vehicles Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-CPIRENTmonth <- bls_api("CUSR0000SEHA", startyear = 2018, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENTmonth <- bls_api("CUSR0000SEHA", startyear = 2018, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = (value-lead(value,1))/lead(value,1)) %>%
   subset(date >= as.Date("2019-01-01"))
 
-CPIOERmonth <- bls_api("CUSR0000SEHC", startyear = 2018, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIOERmonth <- bls_api("CUSR0000SEHC", startyear = 2018, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = (value-lead(value,1))/lead(value,1)) %>%
   subset(date >= as.Date("2019-01-01"))

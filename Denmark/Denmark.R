@@ -30,7 +30,7 @@ IND_PRO_PHARMA_graph <- ggplot() + #plotting pharmaceutical manufacturing
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(IND_PRO_PHARMA$`CF Pharmaceuticals`) / 25) * 25)), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
-  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "A Boom in Weight Loss & Diabetes Drugs Has Increased Danish Pharma Production 150%") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "A Boom in Weight Loss & Diabetes Drugs Has Dramatically Increased Danish Pharma Production") +
   theme_apricitas + theme(legend.position = c(.42,.64)) +
   scale_color_manual(name= "Denmark, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Manufacturing of Pharmaceuticals","Total Manufacturing","Manufacturing ex-Pharmaceuticals")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(IND_PRO_PHARMA$`CF Pharmaceuticals`) / 25) * 25)), ymax =0) +
@@ -380,6 +380,7 @@ EXPORTS_SERVICES_IP_QUARTERLY_graph <- ggplot(data = EXPORTS_SERVICES_IP_QUARTER
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EXPORTS_SERVICES_IP_QUARTERLY_graph, "Exports Services Quarterly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 p_unload(all)  # Remove all packages using the package manager

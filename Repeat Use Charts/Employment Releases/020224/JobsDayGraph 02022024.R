@@ -1656,6 +1656,7 @@ JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, 
   group_by(name) %>%
   mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
   mutate(Growth = ((value - first(value)) / first(value))) %>%
+  mutate(Yoy_Growth = (value-lag(value,12))/lag(value,12)) %>%
   filter(date == max(date))
 
 devtools::install_github("UrbanInstitute/urbnmapr")
@@ -1850,6 +1851,300 @@ JOB_GROWTH_STATE <- states_job_growth  %>%
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
 
 ggsave(dpi = "retina",plot = JOB_GROWTH_STATE, "Job Growth By State Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+AL_NSA <- fredr(series_id = "ALNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Alabama")
+AK_NSA <- fredr(series_id = "AKNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Alaska")
+AZ_NSA <- fredr(series_id = "AZNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Arizona")
+AR_NSA <- fredr(series_id = "ARNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Arkansas")
+CA_NSA <- fredr(series_id = "CANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "California")
+CO_NSA <- fredr(series_id = "CONAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Colorado")
+CT_NSA <- fredr(series_id = "CTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Connecticut")
+DE_NSA <- fredr(series_id = "DENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Delaware")
+DC_NSA <- fredr(series_id = "DCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "District of Columbia")
+FL_NSA <- fredr(series_id = "FLNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Florida")
+GA_NSA <- fredr(series_id = "GANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Georgia")
+HI_NSA <- fredr(series_id = "HINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Hawaii")
+ID_NSA <- fredr(series_id = "IDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Idaho")
+IL_NSA <- fredr(series_id = "ILNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Illinois")
+IN_NSA <- fredr(series_id = "INNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Indiana")
+IA_NSA <- fredr(series_id = "IANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Iowa")
+KS_NSA <- fredr(series_id = "KSNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Kansas")
+KY_NSA <- fredr(series_id = "KYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Kentucky")
+LA_NSA <- fredr(series_id = "LANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Louisiana")
+ME_NSA <- fredr(series_id = "MENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Maine")
+MD_NSA <- fredr(series_id = "MDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Maryland")
+MA_NSA <- fredr(series_id = "MANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Massachusetts")
+MI_NSA <- fredr(series_id = "MINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Michigan")
+MN_NSA <- fredr(series_id = "MNNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Minnesota")
+MS_NSA <- fredr(series_id = "MSNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Mississippi")
+MO_NSA <- fredr(series_id = "MONAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Missouri")
+MT_NSA <- fredr(series_id = "MTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Montana")
+NE_NSA <- fredr(series_id = "NENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Nebraska")
+NV_NSA <- fredr(series_id = "NVNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Nevada")
+NH_NSA <- fredr(series_id = "NHNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Hampshire")
+NJ_NSA <- fredr(series_id = "NJNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Jersey")
+NM_NSA <- fredr(series_id = "NMNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New Mexico")
+NY_NSA <- fredr(series_id = "NYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "New York")
+NC_NSA <- fredr(series_id = "NCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "North Carolina")
+ND_NSA <- fredr(series_id = "NDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "North Dakota")
+OH_NSA <- fredr(series_id = "OHNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Ohio")
+OK_NSA <- fredr(series_id = "OKNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Oklahoma")
+OR_NSA <- fredr(series_id = "ORNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Oregon")
+PA_NSA <- fredr(series_id = "PANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Pennsylvania")
+RI_NSA <- fredr(series_id = "RINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Rhode Island")
+SC_NSA <- fredr(series_id = "SCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "South Carolina")
+SD_NSA <- fredr(series_id = "SDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "South Dakota")
+TN_NSA <- fredr(series_id = "TNNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Tennessee")
+TX_NSA <- fredr(series_id = "TXNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Texas")
+UT_NSA <- fredr(series_id = "UTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Utah")
+VT_NSA <- fredr(series_id = "VTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Vermont")
+VA_NSA <- fredr(series_id = "VANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Virginia")
+WA_NSA <- fredr(series_id = "WANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Washington")
+WV_NSA <- fredr(series_id = "WVNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "West Virginia")
+WI_NSA <- fredr(series_id = "WINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Wisconsin")
+WY_NSA <- fredr(series_id = "WYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
+  mutate(name = "Wyoming")
+PR_NSA <- fredr(series_id = "SMU72000000000000001",observation_start = as.Date("2020-01-01")) %>%
+  mutate(series_id = "PR") %>%
+  mutate(name = "Puerto Rico")
+VI_NSA <- fredr(series_id = "SMU78000000000000001",observation_start = as.Date("2020-01-01")) %>%
+  mutate(series_id = "VI") %>%
+  mutate(name = "Virgin Islands")
+
+JOB_GROWTH_NSA <- rbind(AL_NSA, AK_NSA, AZ_NSA, AR_NSA, CA_NSA, CO_NSA, CT_NSA, DE_NSA, DC_NSA, FL_NSA, GA_NSA, HI_NSA, ID_NSA, IL_NSA, IN_NSA, IA_NSA, KS_NSA, KY_NSA, LA_NSA, ME_NSA, MD_NSA, MA_NSA, MI_NSA, MN_NSA, MS_NSA, MO_NSA, MT_NSA, NE_NSA, NV_NSA, NH_NSA, NJ_NSA, NM_NSA, NY_NSA, NC_NSA, ND_NSA, OH_NSA, OK_NSA, OR_NSA, PA_NSA, RI_NSA, SC_NSA, SD_NSA, TN_NSA, TX_NSA, UT_NSA, VT_NSA, VA_NSA, WA_NSA, WV_NSA, WI_NSA, WY_NSA, PR_NSA, VI_NSA) %>%
+  select(date, value, name, series_id) %>%
+  arrange(name, date) %>%
+  group_by(name) %>%
+  mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
+  mutate(Growth = ((value - first(value)) / first(value))) %>%
+  mutate(Yoy_Growth = (value-lag(value,12))/lag(value,12)) %>%
+  filter(date == max(date))
+
+states_job_growth_NSA <- get_urbn_map("territories_states", sf = TRUE) %>%
+  st_as_sf()
+
+states_job_growth_NSA <- states_job_growth_NSA %>%
+  mutate(name = state_name)
+
+states_job_growth_NSA <- left_join(states_job_growth_NSA, JOB_GROWTH_NSA, by = "name") %>%
+  drop_na() %>%
+  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.015, 0.03, 0.045, 0.06, Inf), labels = c("<0", "0-0.015", "0.015-0.03", "0.03-0.045", "0.045-0.06","0.06+")))
+
+states_territories_centroids_NSA <- get_urbn_map("territories_states", sf = TRUE) %>%
+  filter(state_fips != 69 & state_fips != 60 & state_fips != 66) %>% #ex guam, northern mariana islansa, and American Samoa
+  st_as_sf() %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states_job_growth_NSA, .) %>%
+  st_centroid()
+
+states_territories_labls_NSA <- get_urbn_labels(map = "territories") %>%
+  left_join(states_job_growth_NSA, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+JOB_GROWTH_STATE_YOY <- states_job_growth_NSA  %>%
+  ggplot(aes(fill = Yoy_Growth)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states_job_growth_NSA, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
+  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1)) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("PR")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(states_territories_labls_NSA, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  ggtitle(paste("Change in Nonfarm Payrolls,",format(ymd(states_job_growth_NSA$date[1]) %m-% months(12), "%b %Y"), "to", format(ymd(states_job_growth_NSA$date[1]), "%b %Y"))) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 26))
+
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY, "Job Growth By State Yoy Map2.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 PAYEMS_2020 <- fredr(series_id = "PAYEMS",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
   mutate(name = "Rest of America")

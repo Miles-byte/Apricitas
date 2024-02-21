@@ -21,8 +21,9 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
+#MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -130,7 +131,7 @@ US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date
   mutate(value = value/value[7]*100)
 
 #change to pn2 for first estimates
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -147,7 +148,7 @@ GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), la
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-EU_POP_BULK <- get_eurostat("namq_10_pe")
+EU_POP_BULK <- get_eurostat("namq_10_pe",legacy_bulk_download = FALSE)
 
 ITA_POP <- EU_POP_BULK %>%
   filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
@@ -208,7 +209,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
   geom_line(data=US_PER_CAPITA, aes(x=date,y= value,color= "United States"), size = 1.25) +
   annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2018-10-01"), y =101, color = "white", size = 4) +
-  annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-03-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
+  #annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-03-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
