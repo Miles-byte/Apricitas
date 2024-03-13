@@ -11,7 +11,7 @@ ecos.setKey('2DNSQWJY32YGLL8EM95R')
 
 CANADA_INDPRO <- statcan_data("36-10-0434-04", "eng") %>%
   subset(`North American Industry Classification System (NAICS)`=="Motor vehicle manufacturing [3361]") %>%
-  subset(`Prices`=="Chained (2012) dollars") %>%
+  subset(`Prices`=="Chained (2017) dollars") %>%
   subset(`Seasonal adjustment`=="Seasonally adjusted at annual rates") %>%
   subset(REF_DATE >= as.Date("2018-01-01"))
 

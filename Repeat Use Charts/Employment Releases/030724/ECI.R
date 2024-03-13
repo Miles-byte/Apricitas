@@ -1,0 +1,283 @@
+pacman::p_load(cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+install.packages("cli")
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
+theme_apricitas <- theme_ft_rc() +
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
+
+ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-10-01"), by = "quarter")))
+
+ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-10-01"), by = "quarter")))
+
+ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  geom_line(data=ECI_WAG, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized"), size = 1.25) +
+  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annual Percent Growth"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("Core Wage Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "ECI, Private Industry Wages and Salaries Growth Continues to Cool") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= "ECI Private Sector Wages and Salaries",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  #geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized (NSA)"), size = 1.25) +
+  geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= annualpct ,color= "Annual Percent Growth"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("Core Wage Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "ECI, Private Industry Wages and Salaries Growth Was in Line With Expectations") +
+  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  scale_color_manual(name= "ECI Private Sector Wages and Salaries Excluding Incentive Paid",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
+  mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2023-07-01"), by = "quarter")))
+
+
+ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI Core Wage Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI Wage Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
+  select(-latest) %>%
+  drop_na()
+
+#GLI_BLS_YOY <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"), units = "pc1")
+GLI_BEA_YOY <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-01"), units = "pc1")
+#GLI_EPOP_YOY <- fredr(series_id = "LNS12300060",observation_start = as.Date("2017-01-01"), aggregation_method = "avg", frequency = "q") %>%
+  #merge(.,ECI_WAG,by = "date") %>%
+  #mutate(value = value.x*value.y) %>%
+  #select(date, value) %>%
+  #mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  #drop_na()
+
+GLI_EPOP_YOY <- bls_api("LNS12000060", startyear = 2017, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  .[nrow(.):1,] %>%
+  mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
+  select(-latest) %>%
+  mutate(quarters = as.yearqtr(date)) %>%
+  group_by(quarters) %>%
+  mutate(value = AVERAGE(value)) %>%
+  merge(.,ECI_WAG,by = "date") %>%
+  mutate(value = value.x*value.y) %>%
+  select(date, value) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+
+GLI_GROWTH_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_BLS_YOY, aes(x=date,y= annualpct,color= "Non-Farm Payrolls Data"), size = 1.25) +
+  geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100,color= "BEA Data"), size = 1.25) +
+  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value,color= "ECI * Prime Age Employment"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  annotate("hline", y = 0.05, yintercept = 0.05, color = "white", size = 1, linetype = "dashed") +
+  annotate("text",label = "5% Pre-COVID Normal Growth Rate", x = as.Date("2022-05-01"), y =0.042, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.10,0.18), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
+  ylab("Percent Growth, Year-on-Year") +
+  ggtitle("US Gross Labor Income Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, with BEA Numbers Returning to Normal") +
+  theme_apricitas + theme(legend.position = c(.3,.75)) +
+  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.10-(.3*0.28), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLI_GROWTH_graph, "GLI Growth graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+GLI_BEA_YOY_NORM <- fredr(series_id = "A132RC1",observation_start = as.Date("2017-01-01")) %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/3)-1)
+  
+GLI_BLS_YOY_NORM <- fredr(series_id = "CES0500000017",observation_start = as.Date("2017-01-01")) %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/3)-1)
+
+GLI_EPOP_YOY_NORM <- fredr(series_id = "LNS12000060",observation_start = as.Date("2017-01-01"), frequency = "q", aggregation_method = "avg") %>%
+  subset(date <= as.Date("2020-01-01")) %>%
+  merge(.,fredr(series_id = "ECIWAG",observation_start = as.Date("2010-01-01")),by = "date") %>%
+  transmute(date = date, value = value.x*value.y) %>%
+  mutate(norm = (value[nrow(.)]/value[1])^(1/((nrow(.)-1)/4))-1)
+
+GLI_GROWTH_NORM_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=GLI_BLS_YOY, aes(x=date,y= annualpct-GLI_BLS_YOY_NORM$norm,color= "Non-Farm Payrolls Data"), size = 1.25) +
+  geom_line(data=GLI_BEA_YOY, aes(x=date,y= value/100-GLI_BEA_YOY_NORM$norm,color= "BEA Data"), size = 1.25) +
+  geom_line(data=GLI_EPOP_YOY, aes(x=date,y= value-GLI_EPOP_YOY_NORM$norm,color= "ECI * Prime Age Employment"), size = 1.25) +
+  annotate("hline", y = 0.00, yintercept = 0.00, color = "white", size = 0.5) +
+  annotate("text",label = "Deviation from 2017-2020", x = as.Date("2022-01-01"), y =-0.011, color = "white", size = 4) +
+  annotate("text",label = "Avg Annual Growth Rate", x = as.Date("2022-01-01"), y =-0.023, color = "white", size = 4) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.14,0.125), breaks = c(-.1,-0.05,0,0.05,.1,.15), expand = c(0,0)) +
+  ylab("Percent Deviation from Normal Year-on-Year Growth") +
+  ggtitle("US Gross Labor Income Growth Deviation") +
+  labs(caption = "Graph created by @JosephPolitano using BLS and BEA Data",subtitle = "Gross Labor Income Growth is Cooling, with Non-Farm Payrolls Numbers Returning to Normal") +
+  theme_apricitas + theme(legend.position = c(.27,.75)) +
+  scale_color_manual(name= "Private-Sector Gross Labor Income Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-Farm Payrolls Data","BEA Data","ECI * Prime Age Employment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.14-(.3*0.265), ymax = -.14) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GLI_GROWTH_NORM_graph, "GLI Growth Norm graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+EPOP_1990 <- bls_api("LNS12300060", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EPOP_2010 <- bls_api("LNS12300060", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% 
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest)
+
+EPop <- rbind(EPOP_1990,EPOP_2010) %>%
+  arrange(date)
+
+EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
+  geom_line(data=EPop, aes(x=date,y= value/100,color= "Prime Age (25-54) Employment-Population Ratio"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("Prime Age (25-54) Employment-Population Ratio, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Still Below Full Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  theme_apricitas + theme(legend.position = c(.68,.88)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
+  annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("2000-06-01"), y = 0.825, color ="#FFE98F", size = 5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*11535), xmax = as.Date("1990-01-01")-(0.049*11535), ymin = 0.69-(.3*0.14), ymax = 0.69) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+ECI_YOY_GROWTH_NAICS_1 <- bls_api("CIU2020000000000I", startyear = 2001, endyear = 2020, calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY"))
+ECI_YOY_GROWTH_NAICS_2 <- bls_api("CIU2020000000000I", startyear = 2021, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  select(-latest)
+
+ECI_YOY_GROWTH_NAICS_RBIND <- rbind(ECI_YOY_GROWTH_NAICS_1,ECI_YOY_GROWTH_NAICS_2) %>%
+  mutate(period = gsub("Q0", "", period)) %>%
+  mutate(date = as.Date(as.yearqtr(paste(year, period), "%Y%q"))) %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+  
+
+ECI_YOY_GROWTH_SIC_1 <- bls_api("ECU20002I", startyear = 1976, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) 
+ECI_YOY_GROWTH_SIC_2 <- bls_api("ECU20002I", startyear = 1996, endyear = format(Sys.Date(), "%Y"), calculations = TRUE, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  select(-latest)
+
+ECI_YOY_GROWTH_SIC_RBIND <- rbind(ECI_YOY_GROWTH_SIC_1,ECI_YOY_GROWTH_SIC_2) %>%
+  mutate(period = gsub("Q0", "", period)) %>%
+  mutate(date = as.Date(as.yearqtr(paste(year, period), "%Y%q"))) %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,4))/lag(value,4)) %>%
+  drop_na()
+  
+ECI_YOY_AGGREGATE_RBIND <- rbind(ECI_YOY_GROWTH_SIC_RBIND,ECI_YOY_GROWTH_NAICS_RBIND) %>%
+  arrange(date)
+
+ECI_YOY_AGGREGATE_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  geom_line(data=ECI_YOY_GROWTH_SIC_RBIND, aes(x=date,y= value ,color= "SIC-OCS Industry/Occupation Classification Methods (1977-2005)"), size = 1.25) +
+  geom_line(data=ECI_YOY_GROWTH_NAICS_RBIND, aes(x=date,y= value ,color= "NAICS-SOC Industry/Occupation Classification Methods (2001-Present)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.10), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10), expand = c(0,0)) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("Wage Growth in the Long Run") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Nominal Wage Growth is Cooling and Nearing the Upper End of Sustainable Historical Levels") +
+  theme_apricitas + theme(legend.position = c(.59,.89)) +
+  scale_color_manual(name= "ECI Private Sector Wages and Salaries",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1977-01-01")-(.1861*(today()-as.Date("1977-01-01"))), xmax = as.Date("1977-01-01")-(0.049*(today()-as.Date("1977-01-01"))), ymin = 0-(.3*0.10), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ECI_YOY_AGGREGATE_Graph, "ECI_YOY_AGGREGATE_GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+EMPLOY_TRADE_TRANSP_UTIL_IND <- bls_api("CES4000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Trade, Transportation, and Utilities")
+
+EMPLOY_PROF_BUSINESS_SERVICES_IND <- bls_api("CES6000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Professional and Business Services")
+
+EMPLOY_EDU_HEALTH_SERVICES_IND <- bls_api("CES6500000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Private Education and Health Services")
+
+EMPLOY_LEISURE_HOSPITALITY_IND <- bls_api("CES7000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Leisure and Hospitality")
+
+EMPLOY_GOODS_IND <- bls_api("CES0600000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Goods-Producing")
+
+EMPLOY_GOVT_IND <- bls_api("CES9000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% #headline CES NSA INDEXED TO JAN 22
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Government")
+
+EMPLOY_OTHER_SERVICES_IND <- rbind(bls_api("CES5000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")),
+                                   bls_api("CES5500000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")),
+                                   bls_api("CES8000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date,seriesID,value) %>%
+  pivot_wider(names_from = seriesID) %>%
+  transmute(date, value = CES5000000001 + CES5500000001 + CES8000000001, series_id = "Other Services Incl. Finance & Information") %>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[1]))
+
+EMPLOY_GROWTH_IND <- rbind(EMPLOY_TRADE_TRANSP_UTIL_IND,EMPLOY_PROF_BUSINESS_SERVICES_IND,EMPLOY_EDU_HEALTH_SERVICES_IND,EMPLOY_LEISURE_HOSPITALITY_IND,EMPLOY_GOODS_IND,EMPLOY_GOVT_IND,EMPLOY_OTHER_SERVICES_IND) %>%
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Information")))
+
+EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Millions of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,6), expand = c(0,0)) +
+  ggtitle("The Shape of Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "There are Now More Jobs Than Pre-Pandemic—and Most Sectors Have Fully Recovered") +
+  theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Information")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27.5), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_IND_graph, "Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+

@@ -207,7 +207,7 @@ GDP_INDUSTRY_GVA_LIVE_GRAPH <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,105), expand = c(0,0)) +
   ylab("Index, Q3 2019 = 100") +
   ggtitle("Germany's Economic Slowdown") +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German GDP is Barely Above 2019 Levels While Industry GVA is at its Lowest Level Since 2016") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German GDP is Barely Above 2019 Levels While Industry GVA Remains Below 2017 Highs") +
   theme_apricitas + theme(legend.position = c(.28,.38)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*24), ymax = 80) +
@@ -439,23 +439,23 @@ IP_9DIGIT_ANALYSIS <- IP_9DIGIT_BULK %>%
 
 IP_9DIGIT_ANALYSIS_VAL <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
-  filter(year == 2019) %>%
+  filter(year == 2019 & month < 10) %>%
   filter(PRODAW_qual == "e") %>%
   summarize(ref_PRODAW_val = mean(PRODAW_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change_val = ((PRODAW_val - ref_PRODAW_val) / ref_PRODAW_val) * 100) %>%
-  filter(date == as.Date("2023-04-01")) %>%
+  filter(date == as.Date("2023-07-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
   select(GP19A9, ref_PRODAW_val, percent_change_val)
 
 IP_9DIGIT_ANALYSIS_05 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
-  filter(year == 2019) %>%
+  filter(year == 2019 & month < 10) %>%
   summarize(ref_val = mean(PRO005_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change = ((PRO005_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
-  filter(date == as.Date("2023-04-01")) %>%
+  filter(date == as.Date("2023-07-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
   filter(is.nan(percent_change) == FALSE) %>%
   left_join(English_Category_Translations, by = "GP19A9") %>%
@@ -465,12 +465,12 @@ IP_9DIGIT_ANALYSIS_05 <- IP_9DIGIT_ANALYSIS %>%
 
 IP_9DIGIT_ANALYSIS_06 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
-  filter(year == 2019) %>%
+  filter(year == 2019 & month < 10) %>%
   summarize(ref_val = mean(PRO006_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change = ((PRO006_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
-  filter(date == as.Date("2023-04-01")) %>%
+  filter(date == as.Date("2023-07-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
   filter(is.nan(percent_change) == FALSE) %>%
   left_join(English_Category_Translations, by = "GP19A9") %>%
@@ -479,12 +479,12 @@ IP_9DIGIT_ANALYSIS_06 <- IP_9DIGIT_ANALYSIS %>%
 
 IP_9DIGIT_ANALYSIS_07 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
-  filter(year == 2019) %>%
+  filter(year == 2019 & month < 10) %>%
   summarize(ref_val = mean(PRO007_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change = ((PRO007_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
-  filter(date == as.Date("2023-04-01")) %>%
+  filter(date == as.Date("2023-07-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
   select(GP19A9, PRODAW_val,PRO007_val,percent_change) %>%
   filter(is.nan(percent_change) == FALSE) %>%
@@ -494,12 +494,12 @@ IP_9DIGIT_ANALYSIS_07 <- IP_9DIGIT_ANALYSIS %>%
 
 IP_9DIGIT_ANALYSIS_08 <- IP_9DIGIT_ANALYSIS %>%
   group_by(GP19A9, month) %>%
-  filter(year == 2019) %>%
+  filter(year == 2019 & month < 10) %>%
   summarize(ref_val = mean(PRO008_val)) %>%
   right_join(IP_9DIGIT_ANALYSIS, by = c("GP19A9", "month")) %>%
   mutate(percent_change = ((PRO008_val - ref_val) / ref_val) * 100) %>%
   select(-ref_val) %>%
-  filter(date == as.Date("2023-04-01")) %>%
+  filter(date == as.Date("2023-07-01")) %>%
   mutate(GP19A9 = gsub("GP19-([0-9]{4})([0-9]{2})([0-9]{3})", "\\1 \\2 \\3", GP19A9)) %>%
   select(GP19A9, PRODAW_val,PRO008_val,percent_change) %>%
   filter(is.nan(percent_change) == FALSE) %>%
@@ -507,7 +507,9 @@ IP_9DIGIT_ANALYSIS_08 <- IP_9DIGIT_ANALYSIS %>%
   left_join(IP_9DIGIT_ANALYSIS_VAL, by = "GP19A9") %>%
   transmute(GP19A9, English, Real_Val_Change = ref_PRODAW_val*percent_change)
 
-IP_9DIGIT_ANALYSIS_Rbind <- rbind(IP_9DIGIT_ANALYSIS_05,IP_9DIGIT_ANALYSIS_06,IP_9DIGIT_ANALYSIS_07,IP_9DIGIT_ANALYSIS_08)
+IP_9DIGIT_ANALYSIS_Rbind <- rbind(IP_9DIGIT_ANALYSIS_05,IP_9DIGIT_ANALYSIS_06,IP_9DIGIT_ANALYSIS_07,IP_9DIGIT_ANALYSIS_08) %>%
+  filter(grepl("^24", GP19A9))
+
 
 
 HICP <- get_eurostat("prc_hicp_manr", legacy_bulk_download = FALSE)
@@ -749,7 +751,7 @@ GER_STACKED_HOUSING_STARTS_graph <- ggplot(data = HOUSING_STARTS, aes(x = date, 
   ylab("Units, Thousands, Monthly") +
   ggtitle("German Housing Starts are Falling") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,5,10,15,20,25,30,35), limits = c(0,37.5), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Housing Starts are Down Significantly, With Single Family Starts Near Record Lows") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data Seasonally-Adjusted Using X-13ARIMA", subtitle = "German Housing Starts are Down Significantly, With Single Family Starts Near Record Lows") +
   theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*37.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -858,7 +860,7 @@ GERMAN_GFCF_EQUIPMENT_CATEGORIES_graph <- ggplot() + #plotting Fixed Investment
   ylab("Index, Q1 2018 = 100") +
   ggtitle("Germany's Slow Investment Rebound") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Investment In Fixed Manufacturing Assets Has Not Recovered to Pre-Pandemic Lvels") +
-  theme_apricitas + theme(legend.position = c(.275,.27)) +
+  theme_apricitas + theme(legend.position = c(.265,.27)) +
   scale_color_manual(name= "Germany: Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 58-(.3*62), ymax = 58) +
   coord_cartesian(clip = "off")
@@ -976,6 +978,73 @@ IPMAN_COAL_graph <- ggplot() + #plotting energy intensive manufacturing
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = IPMAN_COAL_graph, "IPMAN Coal graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+IP_MACHINERY <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C280000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+  transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
+  subset(date >= as.Date("2018-01-01")) %>%
+  arrange(date)
+
+IPMAN_GENERAL_MACHINERY <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 == "WZ08-281") %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
+  pivot_wider(names_from = seasonal) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2017-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[13]*100))
+
+IPMAN_AGRICULTURAL_MACHINERY <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 == "WZ08-283") %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
+  pivot_wider(names_from = seasonal) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2017-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[13]*100))
+
+IPMAN_METAL_MACHINERY <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 == "WZ08-284") %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
+  pivot_wider(names_from = seasonal) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2017-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[13]*100))
+
+IPMAN_SPECIAL_MACHINERY <- IPMAN_3_DIGIT %>%
+  filter(WZ08V3 == "WZ08-289") %>% #taking manufacturing and energy intensive manufacturing data 
+  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  mutate(MONAT = gsub("MONAT","",MONAT)) %>%
+  mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
+  transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
+  pivot_wider(names_from = seasonal) %>%
+  arrange(date) %>%
+  filter(date >= as.Date("2017-01-01")) %>%
+  mutate(across(where(is.numeric), ~ ./.[13]*100))
+
+MACHINERY_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=subset(IPMAN_GENERAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="General Purpose Machinery"), size = 1.25) +
+  geom_line(data=subset(IPMAN_METAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Metal Forming Machinery & Machine Tools"), size = 1.25) +
+  geom_line(data=subset(IPMAN_SPECIAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Special Purpose Machinery, Excluding Metal Forming & Agricultural Machinery"), size = 1.25) +
+  geom_line(data=subset(IP_MACHINERY), aes(x=date,y= value/value[13]*100,color="Total Machinery and Equipment"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(50,110), expand = c(0,0)) +
+  ylab("Index, Jan 2018 = 100") +
+  ggtitle("German Machinery & Equipment Manufacturing") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "Machinery Manufacturing is Down Notably From Pre-COVID, Especially in Metals & Machine Tools") +
+  theme_apricitas + theme(legend.position = c(.5,.17), plot.title = element_text(size = 25.5)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25))), breaks = c("Total Machinery and Equipment","General Purpose Machinery","Metal Forming Machinery & Machine Tools","Special Purpose Machinery, Excluding Metal Forming & Agricultural Machinery")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 50-(.3*(60)), ymax = 50) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MACHINERY_MANUFACTURING_graph, "Machinery Manufacturing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 TRUCK_TOLL_MILEAGE_INDEX <- retrieve_data(tablename = "42191BM001", genesis=c(db='de')) %>%
@@ -1113,10 +1182,10 @@ MANU_EMP_2DIGIT_EDIT <- MANU_EMP_2DIGIT %>%
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   filter(BTRFT1 == "BETRIEBE") %>%
-  filter(WZ08X2 %in% c("WZ08-20","WZ08-23","WZ08-24","WZ08-17","WZ08-19","WZ08-29")) %>%
+  filter(WZ08X2 %in% c("WZ08-20","WZ08-23","WZ08-24","WZ08-17","WZ08-19","WZ08-28","WZ08-29")) %>%
   transmute(name = WZ08X2, date, value = ERH001_lock) %>%
   pivot_wider() %>%
-  transmute(date, `Energy Intensive Manufacturing` = `WZ08-17`+`WZ08-19`+`WZ08-20`+`WZ08-23`+`WZ08-24`, `Motor Vehicle and Parts Manufacturing` = `WZ08-29`)
+  transmute(date, `Energy Intensive Manufacturing` = `WZ08-17`+`WZ08-19`+`WZ08-20`+`WZ08-23`+`WZ08-24`, `Motor Vehicle and Parts Manufacturing` = `WZ08-29`, `Machinery and Equipment Manufacturing` = `WZ08-28`)
   
 MANU_EMP_AGG_EDIT <- MANU_EMP_AGG %>%
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
@@ -1141,7 +1210,7 @@ MANUFACTURING_EMPLOYMENT_graph <- ggplot() + #plotting manufacturing output
 ggsave(dpi = "retina",plot = MANUFACTURING_EMPLOYMENT_graph, "Manufacturing Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 MANU_CHANGE_BREAKDOWN <- merge(MANU_EMP_2DIGIT_EDIT,MANU_EMP_AGG_EDIT) %>%
-  transmute(date, `Energy Intensive Manufacturing`, `Motor Vehicle and Parts Manufacturing`, `All Other Manufacturing` = `Total Manufacturing`-`Energy Intensive Manufacturing`-`Motor Vehicle and Parts Manufacturing`) %>%
+  transmute(date, `Energy Intensive Manufacturing`, `Motor Vehicle and Parts Manufacturing`,`Machinery and Equipment Manufacturing`, `All Other Manufacturing` = `Total Manufacturing`-`Energy Intensive Manufacturing`-`Motor Vehicle and Parts Manufacturing`-`Machinery and Equipment Manufacturing`) %>%
   filter(date >= as.Date("2019-09-01")) %>%
   mutate(across(where(is.numeric), ~ . - .[1])) %>%
   pivot_longer(-date)
@@ -1151,11 +1220,11 @@ MANU_CHANGE_BREAKDOWN_GRAPH <- ggplot(data = MANU_CHANGE_BREAKDOWN, aes(x = date
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Employment Chance Since Sep 2019, Thousands") +
   ggtitle("German Manufacturing Job Losses") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,-100,-200,-300), limits = c(-325,0), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,-100,-200,-300), limits = c(-375,17.5), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Manufacturing Job Losses Have Been Broad, But Hit Hardest in Select Sectors") +
-  theme_apricitas + theme(legend.position = c(.73,.128)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Motor Vehicle and Parts Manufacturing","Energy Intensive Manufacturing","All Other Manufacturing")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-09-01")-(.1861*(today()-as.Date("2019-09-01"))), xmax = as.Date("2019-09-01")-(0.049*(today()-as.Date("2019-09-01"))), ymin = -325-(.3*325), ymax = -325) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  theme_apricitas + theme(legend.position = c(.73,.16)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Motor Vehicle and Parts Manufacturing","Machinery and Equipment Manufacturing","Energy Intensive Manufacturing","All Other Manufacturing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-09-01")-(.1861*(today()-as.Date("2019-09-01"))), xmax = as.Date("2019-09-01")-(0.049*(today()-as.Date("2019-09-01"))), ymin = -350-(.3*392.5), ymax = -350) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MANU_CHANGE_BREAKDOWN_GRAPH, "Manu Change Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
