@@ -375,7 +375,7 @@ Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 
-CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIUSEDCARS <- bls_api("CUSR0000SETA02", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   subset(date >= as.Date("2019-01-01"))
 
