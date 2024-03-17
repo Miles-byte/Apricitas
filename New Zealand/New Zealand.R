@@ -369,6 +369,30 @@ RIP_Graph <- ggplot() + #RPI NZ
 ggsave(dpi = "retina",plot = CONSTRUCTION_EMPLOYMENT_Graph, "Construction Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+PUBLIC_HOUSING_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/PUBLIC_PERMITS_DATA.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  setNames("date", "Central Government","Local Government") %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Central Government","Local Government")))
+  
+PUBLIC_HOUSING_GRAPH <- ggplot(PUBLIC_HOUSING_DATA, aes(x = date, y = value/1000, fill = name)) + #plotting power generation
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  annotate(geom = "text", label = "CA ADU Reforms\n(SB 229 & AB 494)", x = as.Date("2015-09-01"), y = 19, color ="white",size = 4, lineheight = unit(0.75, "cm")) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 21, color = "white", lwd = 0.75, linetype = "dashed") +
+  ylab("Units Permitted by Year") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), breaks = c(0,5,10,15,20,25), limits = c(0,27.5), expand = c(0,0)) +
+  ggtitle("Los Angeles' ADU Building Boom") +
+  labs(caption = "Graph created by @JosephPolitano using LA City Planning data", subtitle = "LA Home Permitting Rose to 23k in 2022, Driven by a Long Boom in ADU Construction") +
+  theme_apricitas + theme(legend.position = c(.42,.89)) +
+  scale_fill_manual(name= "Units Permitted by Year, City of LA",values = c("#00A99D","#FFE98F","#9A348E","#EE6055","#A7ACD9","#3083DC"), breaks = c("Accessory Dwelling Units (ADUs)","Single-Family Homes","2-4 Unit Multifamily Buildings","5+ Unit Multifamily Buildings")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*27.5), ymax = 0) +
+  guides(fill = guide_legend(ncol = 2)) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LA_PERMIT_GRAPH, "LA Permits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 PERMITS_NYC_MSA <- fredr("NEWY636BPPRIV", frequency = "a", aggregation_method = "avg")
 PERMITS_LA_MSA <- fredr("LOSA106BPPRIV", frequency = "a", aggregation_method = "avg")
 PERMITS_CHI_MSA <- fredr("CHIC917BPPRIV", frequency = "a", aggregation_method = "avg")
@@ -390,8 +414,13 @@ PERMITS_HOU_MSA <- fredr("HOUS448BP1FH", frequency = "a", aggregation_method = "
 shapefile_path <- "path_to_your_shapefile"
 NZ_REGIONS_SF <- st_read("C:/Users/Joseph/Downloads/regional-council-2023-clipped-generalised.shp")
 
+graph_dates <- seq(as.Date("2000-01-01"), as.Date("2023-01-01"), by="year")
+
+for (i in 1:length(graph_dates)) {
+  single_date <- graph_dates[i]
+
 PERMITS_PER_NZ_REGIONS_EDIT <- PERMITS_PER_NZ_REGIONS %>%
-  select(-New_Zealand) %>%
+  #select(-New_Zealand) %>%
   #filter(date == max(date)) %>%
   pivot_longer(-date) %>%
   drop_na() %>%
@@ -400,55 +429,49 @@ PERMITS_PER_NZ_REGIONS_EDIT <- PERMITS_PER_NZ_REGIONS %>%
   mutate(name = gsub("e s","e's",name)) %>% #editing hawks bay
   mutate(name = gsub("tu Wh","tu-Wh",name)) %>% #editing Manawatu_Whanganui_Region
   left_join(NZ_REGIONS_SF, by = c("name" = "REGC2023_2")) %>%
-  filter(date >= as.Date("2000-01-01")) %>%
+  filter(date == single_date) %>%
   mutate(date = year(date))
 
 PERMITS_PER_NZ_REGIONS_MAP <- ggplot() +
   geom_sf(data = PERMITS_PER_NZ_REGIONS_EDIT, aes(fill = value, geometry = geometry)) +
   geom_sf(data = PERMITS_PER_NZ_REGIONS_EDIT, color = "black", fill = NA, lwd = 0.35, aes(geometry = geometry)) + # Black borders for states
-  # geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "New Zealand"), 
-  #           aes(label = paste0("Total: ", value)), 
-  #           x = 1200000, y = 6100000, color ="white",size = 10, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "New Zealand"),
+            aes(label = paste0("Total: ", value)),
+            x = 930000, y = 6000000, color ="white",size = 9, fontface = "bold", lineheight = unit(0.85,"cm"), hjust = 0) +
   annotate(geom = "segment", x = 1770000, xend = 1990000, y = 5420000, yend = 5200000, color = "white", lwd = 1.25) +
-  annotate(geom = "text", label = "Wellington", x = 1990000, y = 5180000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
-  # geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Wellington Region"), 
-  #           aes(label = paste0("Wellington: ", value)), 
-  #           x = 1990000, y = 5180000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  #annotate(geom = "text", label = "Wellington", x = 1990000, y = 5180000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Wellington Region"),
+            aes(label = paste0("Wellington: ", value)),
+            x = 1820000, y = 5180000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm"), hjust = 0) +
   annotate(geom = "segment", x = 1570000, xend = 1810000, y = 5180000, yend = 5010000, color = "white", lwd = 1.25) +
-  annotate(geom = "text", label = "Christchurch\n(Canterbury Region)", x = 1810000, y = 4960000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
-  # geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Canterbury Region"), 
-  #           aes(label = paste0("Christchurch: ", value,"\n(Canterbury Region)")), 
-  #           x = 1810000, y = 4960000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  #annotate(geom = "text", label = "Christchurch\n(Canterbury Region)", x = 1810000, y = 4960000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Canterbury Region"),
+            aes(label = paste0("Christchurch: ", value,"\n(Canterbury Region)")),
+            x = 1620000, y = 4960000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm"), hjust = 0) +
   annotate(geom = "segment", x = 1500000, xend = 1760000, y = 5800000, yend = 5920000, color = "white", lwd = 1.25) +
-  annotate(geom = "text", label = "Auckland", x = 1500000, y = 5770000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
-  # geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Auckland Region"), 
-  #           aes(label = paste0("Auckland: ", value)), 
-  #           x = 1500000, y = 5770000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
-  scale_fill_viridis_c(limits = c(1.4,13.6), breaks = c(2,4,6,8,10,12)) +
-  #coord_sf(xlim = c(700000, 2400000), expand = FALSE) +
-  ggtitle("NZ Housing Permits Per 1000 Residents: {frame_time}") +
+  #annotate(geom = "text", label = "Auckland", x = 1500000, y = 5770000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm")) +
+  geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Auckland Region"),
+            aes(label = paste0("Auckland: ", value)),
+            x = 1310000, y = 5770000, color ="white",size = 5, fontface = "bold", lineheight = unit(0.85,"cm"), hjust = 0) +
+  scale_fill_viridis_c(limits = c(1.2,13.6), breaks = c(2,4,6,8,10,12)) +
+  coord_sf(xlim = c(500000, 2300000), expand = FALSE) +
+  ggtitle(paste0("NZ Housing Permits Per 1000 Residents: ",PERMITS_PER_NZ_REGIONS_EDIT$date[1])) +
   theme(plot.title = element_text(size = 18)) +
   labs(caption = "Graph created by @JosephPolitano using Stats NZ data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right",axis.title.y = element_blank() ,axis.title.x = element_blank(), panel.grid.major=element_blank(),panel.grid.minor = element_blank(),  axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank()) +
-  #theme(plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.margin= grid::unit(c(0.2, -0.4, 0, -2), "in"), legend.key = element_blank()) 
   #theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, -2.5), "in")) +
-  transition_time(date) + # Animate by date
-  ease_aes('linear')
 
-#for whatever reason gganimate doesn't work on more recent versions of transformr
-devtools::install_version("transformr", version = "0.1.3")
-library("transformr")
+ggsave(dpi = "retina",plot = PERMITS_PER_NZ_REGIONS_MAP, paste0("Permits Per NZ Region Map ",PERMITS_PER_NZ_REGIONS_EDIT$date[1],".png"), type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-anim <- animate(PERMITS_PER_NZ_REGIONS_MAP, duration = 20, fps = 24, res = 500, end_pause = 48)
-
-# Save the animation to a file
-anim_save("animated_map.gif", animation = anim)
-
-ggsave(dpi = "retina",plot = PERMITS_PER_NZ_REGIONS_MAP, "Permits Per NZ Region Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+}
 
 
-PERMITS_PER_NZ_REGIONS_EDIT <- PERMITS_PER_NZ_REGIONS %>%
+AUCKLAND_BOARD_SF <- st_read("C:/Users/Joseph/Downloads/territorial-authority-local-board-2023-clipped-generalised.shp") %>%
+  slice(-1:-3)
+
+PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES_EDIT <- PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES %>%
   select(-New_Zealand) %>%
   filter(date == max(date)) %>%
   pivot_longer(-date) %>%
@@ -456,7 +479,7 @@ PERMITS_PER_NZ_REGIONS_EDIT <- PERMITS_PER_NZ_REGIONS %>%
   mutate(name = gsub("\\_"," ",name)) %>%
   mutate(name = gsub("e s","e's",name)) %>%
   mutate(name = gsub("tu Wh","tu-Wh",name)) %>%
-  left_join(NZ_REGIONS_SF, by = c("name" = "REGC2023_2"))
+  left_join(AUCKLAND_BOARD_SF, by = c("name" = "REGC2023_2"))
 
 PERMITS_PER_NZ_REGIONS_MAP <- ggplot() +
   geom_sf(data = PERMITS_PER_NZ_REGIONS_EDIT, aes(fill = value, geometry = geometry)) +
@@ -468,13 +491,6 @@ PERMITS_PER_NZ_REGIONS_MAP <- ggplot() +
   labs(caption = "Graph created by @JosephPolitano using Stats NZ data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, -2.5), "in"))
-
-ggsave(dpi = "retina",plot = PERMITS_PER_NZ_REGIONS_MAP, "Permits Per NZ Region Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-
-
-
-AUCKLAND_BOARD_SF <- st_read("C:/Users/Joseph/Downloads/territorial-authority-local-board-2023-clipped-generalised.shp")
 
 
 p_unload(all)  # Remove all add-ons
