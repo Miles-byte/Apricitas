@@ -371,26 +371,27 @@ ggsave(dpi = "retina",plot = CONSTRUCTION_EMPLOYMENT_Graph, "Construction Employ
 
 PUBLIC_HOUSING_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/PUBLIC_PERMITS_DATA.csv") %>%
   mutate(date = as.Date(date)) %>%
-  setNames("date", "Central Government","Local Government") %>%
+  setNames(c("date", "Central Government","Local Government")) %>%
   pivot_longer(-date) %>%
-  mutate(name = factor(name, levels = c("Central Government","Local Government")))
+  mutate(name = factor(name, levels = rev(c("Central Government","Local Government"))))
   
 PUBLIC_HOUSING_GRAPH <- ggplot(PUBLIC_HOUSING_DATA, aes(x = date, y = value/1000, fill = name)) + #plotting power generation
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  annotate(geom = "text", label = "CA ADU Reforms\n(SB 229 & AB 494)", x = as.Date("2015-09-01"), y = 19, color ="white",size = 4, lineheight = unit(0.75, "cm")) + 
-  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 21, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2012-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2012-07-01"), xend = as.Date("2012-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2015-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2015-07-01"), xend = as.Date("2015-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
   ylab("Units Permitted by Year") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), breaks = c(0,5,10,15,20,25), limits = c(0,27.5), expand = c(0,0)) +
-  ggtitle("Los Angeles' ADU Building Boom") +
-  labs(caption = "Graph created by @JosephPolitano using LA City Planning data", subtitle = "LA Home Permitting Rose to 23k in 2022, Driven by a Long Boom in ADU Construction") +
-  theme_apricitas + theme(legend.position = c(.42,.89)) +
-  scale_fill_manual(name= "Units Permitted by Year, City of LA",values = c("#00A99D","#FFE98F","#9A348E","#EE6055","#A7ACD9","#3083DC"), breaks = c("Accessory Dwelling Units (ADUs)","Single-Family Homes","2-4 Unit Multifamily Buildings","5+ Unit Multifamily Buildings")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*27.5), ymax = 0) +
-  guides(fill = guide_legend(ncol = 2)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), breaks = c(0,1,2,3,4), limits = c(0,4), expand = c(0,0)) +
+  ggtitle("New Zealand's Public Housing Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Stats NZ data", subtitle = "NZ Public Housing Construction Intensified After the Auckland Upzonings") +
+  theme_apricitas + theme(legend.position = c(.42,.88)) +
+  scale_fill_manual(name= "Units Permitted by Year, New Zealand",values = c("#00A99D","#FFE98F","#9A348E","#EE6055","#A7ACD9","#3083DC"), breaks = c("Central Government","Local Government")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0-(.3*4), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = LA_PERMIT_GRAPH, "LA Permits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = PUBLIC_HOUSING_GRAPH, "Public Housing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 PERMITS_NYC_MSA <- fredr("NEWY636BPPRIV", frequency = "a", aggregation_method = "avg")
@@ -467,31 +468,84 @@ ggsave(dpi = "retina",plot = PERMITS_PER_NZ_REGIONS_MAP, paste0("Permits Per NZ 
 
 }
 
-
 AUCKLAND_BOARD_SF <- st_read("C:/Users/Joseph/Downloads/territorial-authority-local-board-2023-clipped-generalised.shp") %>%
   slice(-1:-3)
 
-PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES_EDIT <- PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES %>%
-  select(-New_Zealand) %>%
-  filter(date == max(date)) %>%
+AUCKLAND_BOARD_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/AUCKLAND_LOCAL_BOARD_CONSENTS.csv")
+
+
+for (i in 1:length(graph_dates)) {
+  single_date <- graph_dates[i]
+
+PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT <- AUCKLAND_BOARD_DATA %>%
+  rename_with(~ gsub("\\.", " ", .x)) %>%
+  #select(-New_Zealand) %>%
+  #filter(date == 2022) %>%
   pivot_longer(-date) %>%
-  select(-date) %>%
+  mutate(date = as.Date(paste0(date, "-01-01"))) %>%
+  #select(-date) %>%
   mutate(name = gsub("\\_"," ",name)) %>%
-  mutate(name = gsub("e s","e's",name)) %>%
-  mutate(name = gsub("tu Wh","tu-Wh",name)) %>%
-  left_join(AUCKLAND_BOARD_SF, by = c("name" = "REGC2023_2"))
+  mutate(name = gsub("son Mas","son-Mas",name)) %>% #editing hawks bay
+  mutate(name = gsub("port Taka","port-Taka",name)) %>% #
+  mutate(name = gsub("Albert Eden","Albert-Eden",name)) %>% #
+  mutate(name = gsub("Mangere Otahuhu","Mangere-Otahuhu",name)) %>% #
+  mutate(name = gsub("Otara Papatoetoe","Otara-Papatoetoe",name)) %>% #
+  mutate(name = gsub("Maungakiekie Tamak","Maungakiekie-Tamak",name)) %>% #
+  left_join(AUCKLAND_BOARD_SF, by = c("name" = "TALB2023_2")) %>%
+  drop_na() %>%
+  mutate(across(is.numeric, ~ifelse(. > 25, 25, .))) %>%
+  filter(date == single_date) %>%
+  mutate(date = year(date))
+  
+PERMITS_PER_NZ_REGIONS_EDIT <- PERMITS_PER_NZ_REGIONS %>%
+  #select(-New_Zealand) %>%
+  #filter(date == max(date)) %>%
+  pivot_longer(-date) %>%
+  drop_na() %>%
+  #select(-date) %>%
+  mutate(name = gsub("\\_"," ",name)) %>%
+  mutate(name = gsub("e s","e's",name)) %>% #editing hawks bay
+  mutate(name = gsub("tu Wh","tu-Wh",name)) %>% #editing Manawatu_Whanganui_Region
+  left_join(NZ_REGIONS_SF, by = c("name" = "REGC2023_2")) %>%
+  filter(date == single_date) %>%
+  mutate(date = year(date))
 
-PERMITS_PER_NZ_REGIONS_MAP <- ggplot() +
-  geom_sf(data = PERMITS_PER_NZ_REGIONS_EDIT, aes(fill = value, geometry = geometry)) +
-  geom_sf(data = PERMITS_PER_NZ_REGIONS_EDIT, color = "black", fill = NA, lwd = 0.35, aes(geometry = geometry)) + # Black borders for states
-  scale_fill_viridis_c() +
-  coord_sf(xlim = c(500000, 2200000), expand = FALSE) +
-  ggtitle("NZ Housing Permits Per 1000 Residents: 2022") +
-  theme(plot.title = element_text(size = 24)) +
+PERMITS_PER_AUCKLAND_BOARD_MAP <- ggplot() +
+  geom_sf(data = PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT, aes(fill = value, geometry = geometry)) +
+  geom_sf(data = PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT, color = "black", fill = NA, lwd = 0.35, aes(geometry = geometry)) +
+  scale_fill_viridis_c(limits = c(0,25), breaks = c(0,5,10,15,20,25), labels = c("0","5","10","15","20","25+")) +
+  coord_sf(xlim = c(1600000, 1810000), expand = FALSE) +
+  ggtitle(paste0("                   Auckland Housing Permits Per 1000 Residents: ",PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT$date[1])) +
+  geom_text(data = subset(PERMITS_PER_NZ_REGIONS_EDIT, name == "Auckland Region"),
+            aes(label = paste0("Total: ", value)),
+            x = 1665000, y = 5980000, color ="white",size = 9, fontface = "bold", lineheight = unit(0.85,"cm"), hjust = 0) +
+  geom_point(aes(x = 1758000, y = 5920000), color = "#EE6055", size = 3) +
+  annotate(geom = "segment", x = 1758000, xend = 1780000, y = 5920000, yend = 5940000, color = "#EE6055", lwd = 1.25) +
+  annotate(geom = "text", label = "Central\nBusiness\nDistrict", x = 1780000, y = 5946000, color ="#EE6055",size = 3.5, fontface = "bold", lineheight = unit(0.85,"cm")) +
   labs(caption = "Graph created by @JosephPolitano using Stats NZ data") +
+  geom_text(data = if(PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT$date[1] == 2005) 
+    data.frame(x = 1690000, y = 5990000, label = "2005 Downzoning") 
+    else 
+      data.frame(x = numeric(0), y = numeric(0), label = character(0)), 
+    aes(x = x, y = y, label = label), color = "#FFE98F", size = 7) +
+  geom_text(data = if(PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT$date[1] == 2013) 
+    data.frame(x = 1690000, y = 5990000, label = "2013 Partial Upzoning") 
+    else 
+      data.frame(x = numeric(0), y = numeric(0), label = character(0)), 
+    aes(x = x, y = y, label = label), color = "#FFE98F", size = 7) +
+  geom_text(data = if(PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT$date[1] == 2016) 
+    data.frame(x = 1690000, y = 5990000, label = "2016 Full Upzoning") 
+    else 
+      data.frame(x = numeric(0), y = numeric(0), label = character(0)), 
+    aes(x = x, y = y, label = label), color = "#FFE98F", size = 7) +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, -2.5), "in"))
+  theme_apricitas + theme(legend.position = "right",axis.title.y = element_blank() ,axis.title.x = element_blank(), panel.grid.major=element_blank(),panel.grid.minor = element_blank(),  axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank()) +
+  theme(plot.title = element_text(size = 24)) +
+  theme(plot.margin= grid::unit(c(0.2, -0.4, 0, -3.5), "in"), legend.key = element_blank()) 
 
+ggsave(dpi = "retina",plot = PERMITS_PER_AUCKLAND_BOARD_MAP, paste0("Permits Per Auckland Board Map ",PERMITS_PER_AUCKLAND_BOARD_DATA_EDIT$date[1],".png"), type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+}
 
 p_unload(all)  # Remove all add-ons
 
