@@ -139,10 +139,10 @@ AUCKLAND_REGION_CONSENTS <- read.csv("https://raw.githubusercontent.com/Miles-by
 AUCKLAND_REGION_CONSENTS_GRAPH <- ggplot(AUCKLAND_REGION_CONSENTS, aes(x = date, y = value/1000, fill = name)) + #plotting auckland dwelling consents
   annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = 14.8, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
   annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
-  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2012-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2012-07-01"), xend = as.Date("2012-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
-  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2015-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2015-07-01"), xend = as.Date("2015-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Dwelling Consents") +
@@ -216,10 +216,10 @@ PERMITS_PER_CAPITA_AUCK_WELL_Graph <- ggplot() + #plotting power generation
   geom_line(data=filter(PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES, date >= as.Date("1996-01-01")), aes(x=date,y= Wellington_City,color= "Wellington"), size = 1.25) + 
   annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = 10.4, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
   annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
-  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2012-04-01"), y = 10, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2012-07-01"), xend = as.Date("2012-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
-  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2015-04-01"), y = 10, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2015-07-01"), xend = as.Date("2015-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 10, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 10, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
   xlab("Date") +
   ylab("Permits Per 1000 Residents") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,4,8,12), limits = c(0,14), expand = c(0,0)) +
@@ -378,10 +378,10 @@ PUBLIC_HOUSING_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Ap
 PUBLIC_HOUSING_GRAPH <- ggplot(PUBLIC_HOUSING_DATA, aes(x = date, y = value/1000, fill = name)) + #plotting power generation
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2012-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2012-07-01"), xend = as.Date("2012-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
-  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2015-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2015-07-01"), xend = as.Date("2015-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 2.75, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 3, color = "white", lwd = 0.75, linetype = "dashed") +
   ylab("Units Permitted by Year") +
   scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), breaks = c(0,1,2,3,4), limits = c(0,4), expand = c(0,0)) +
   ggtitle("New Zealand's Public Housing Boom") +
