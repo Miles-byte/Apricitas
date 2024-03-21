@@ -171,7 +171,7 @@ POPULATION_AU <- read_abs(series_id = "A2133251W") %>%
   mutate(date = update(date, month = 1)) %>%
   select(date, value)
 
-PERMITS_AU <- read_abs(series_id = "A418427K") %>%
+PERMITS_AU <- read_abs(series_id = "A422064L") %>%
   mutate(year = year(date)) %>%
   group_by(year) %>%
   filter(n() == 12) %>%
@@ -197,12 +197,12 @@ PERMITS_PER_CAPITA_NZ_US_AU <- ggplot() + #plotting power generation
   geom_line(data=filter(PERMITS_PER_NZ_REGIONS, date>= as.Date("1984-01-01")), aes(x=date,y= New_Zealand,color= "New Zealand"), size = 1.25) + 
   xlab("Date") +
   ylab("Permits Per 1000 Residents") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,2,4,6,8,10), limits = c(0,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,2,4,6,8,10,12), limits = c(0,13), expand = c(0,0)) +
   ggtitle("New Zealand's Building Boom") +
   labs(caption = "Graph created by @JosephPolitano using Stats NZ, ABS, and US Census data", subtitle = "New Zealand's Housing Permits Per-Capita Hit a 45-Year High in 2022—in Stark Contrast to the US") +
   theme_apricitas + theme(legend.position = c(.5,.85)) +
   scale_color_manual(name= "Housing Permits Per 1000 Residents",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("New Zealand","United States","Australia")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1984-09-01")-(.1861*(today()-as.Date("1984-01-01"))), xmax = as.Date("1984-01-01")-(0.049*(today()-as.Date("1984-01-01"))), ymin = 0-(.3*10), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1984-09-01")-(.1861*(today()-as.Date("1984-01-01"))), xmax = as.Date("1984-01-01")-(0.049*(today()-as.Date("1984-01-01"))), ymin = 0-(.3*13), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = PERMITS_PER_CAPITA_NZ_US_AU, "Permits Per Capita NZ US AU.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -394,20 +394,121 @@ PUBLIC_HOUSING_GRAPH <- ggplot(PUBLIC_HOUSING_DATA, aes(x = date, y = value/1000
 ggsave(dpi = "retina",plot = PUBLIC_HOUSING_GRAPH, "Public Housing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-PERMITS_NYC_MSA <- fredr("NEWY636BPPRIV", frequency = "a", aggregation_method = "avg")
-PERMITS_LA_MSA <- fredr("LOSA106BPPRIV", frequency = "a", aggregation_method = "avg")
-PERMITS_CHI_MSA <- fredr("CHIC917BPPRIV", frequency = "a", aggregation_method = "avg")
-PERMITS_DAL_MSA <- fredr("DALL148BPPRIV", frequency = "a", aggregation_method = "avg")
-PERMITS_HOU_MSA <- fredr("HOUS448BP1FH", frequency = "a", aggregation_method = "avg")
+CANTERBURY_REGION_CONSENTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/CANTERBURY_REGION_PERMIT_DATA.csv") %>%
+  drop_na() %>%
+  mutate(date = as.Date(paste0(date,"-01-01"))) %>%
+  setNames(c("date", "Detached Single-Family Homes", "Multi-Story Apartments", "Retirement Villages", "Townhouses, Terraced Housing, Duplexes, and Other Units")) %>%
+  mutate(`Detached Single-Family Homes`=as.numeric(gsub("\\,","",`Detached Single-Family Homes`))) %>%
+  mutate(`Townhouses, Terraced Housing, Duplexes, and Other Units`=as.numeric(gsub("\\,","",`Townhouses, Terraced Housing, Duplexes, and Other Units`))) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Detached Single-Family Homes","Retirement Villages","Multi-Story Apartments","Townhouses, Terraced Housing, Duplexes, and Other Units")))
+
+CANTERBURY_REGION_CONSENTS_GRAPH <- ggplot(CANTERBURY_REGION_CONSENTS, aes(x = date, y = value/1000, fill = name)) + #plotting auckland dwelling consents
+  annotate(geom = "text", label = "2011\nEarthquake", x = as.Date("2010-04-01"), y = 5.25, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2010-07-01"), xend = as.Date("2010-07-01"), y = 0, yend = 5.25, color = "white", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nLand Use\nRecovery Plan", x = as.Date("2013-04-01"), y = 7, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0, yend = 7, color = "white", lwd = 0.75, linetype = "dashed") +
+  # annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  # annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
+  # annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 14, color ="white",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  # annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0, yend = 15, color = "white", lwd = 0.75, linetype = "dashed") +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Dwelling Consents") +
+  scale_y_continuous(labels = scales::number_format(suffix = "k", accuracy = 1), breaks = c(0,5,10,15,20,25), limits = c(0,12), expand = c(0,0)) +
+  ggtitle("Rebuilding Christchurch") +
+  labs(caption = "Graph created by @JosephPolitano using Stats NZ data", subtitle = "Auckland's Dwelling Consents Hit a Record High In 2022, Driven by Rising Townhouse Construction") +
+  theme_apricitas + theme(legend.position = c(.38,.839), legend.spacing.y = unit(0,"cm")) +
+  scale_fill_manual(name= "Dwelling Consents by Year, Canterbury Region",values = c("#FFE98F","#9A348E","#EE6055","#00A99D","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1991-01-01")-(.1861*(today()-as.Date("1991-03-01"))), xmax = as.Date("1991-01-01")-(0.049*(today()-as.Date("1991-01-01"))), ymin = 0-(.3*12), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CANTERBURY_REGION_CONSENTS_GRAPH, "Canterbury Region Consents.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-#LOOK UP COST DATA
+RENT_INCOME_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/RENT_INCOME_AUCK_VS_EX_AUCK.csv") %>%
+  transmute(date = as.Date(paste0((Year+1),"-01-01")),Auckland, NZ_X_Auckland = `New.Zealand.excluding.Auckland`)
+
+RENT_INCOME_DATA_Graph <- ggplot() + #plotting rent to income data
+  geom_line(data=RENT_INCOME_DATA, aes(x=date,y= Auckland/100,color= "Auckland, New Zealand"), size = 1.25) + 
+  geom_line(data=RENT_INCOME_DATA, aes(x=date,y= NZ_X_Auckland/100,color= "New Zealand Excluding Auckland"), size = 1.25) + 
+  annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = .2075, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0.17, yend = .22, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = .205, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = .20, yend = .235, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = .205, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = .20, yend = .235, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(.17,.18,.19,.20,.21,.22,.23), limits = c(.17,.235), expand = c(0,0)) +
+  ggtitle("Average Rent to Income Ratio, NZ") +
+  labs(caption = "Graph created by @JosephPolitano using Infometrics data via Matthew Maltman", subtitle = "Relative to Incomes, Rent in Auckland Have Gotten Significantly More Affordable Since Upzoning") +
+  theme_apricitas + theme(legend.position = c(.35,.94)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland, New Zealand","New Zealand Excluding Auckland")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0.17-(.3*0.06), ymax = 0.17) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RENT_INCOME_DATA_Graph, "Rent Income Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+REAL_RENT_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/GEOMETRIC_MEAN_RENTS_AUCK_WELL.csv") %>%
+  mutate(Date = as.Date(Date, "%m/%d/%Y")) %>%
+  transmute(date = Date, Welly = c(NA,NA,NA, rollmean(Welly,k = 4)), Aucky = c(NA,NA,NA,rollmean(Aucky,k = 4))) %>%
+  drop_na()
+
+REAL_RENT_DATA_GRAPH <- ggplot() + #plotting rent to income data
+  geom_line(data=REAL_RENT_DATA, aes(x=date,y= Welly,color= "Wellington Region, New Zealand"), size = 1.25) + 
+  geom_line(data=REAL_RENT_DATA, aes(x=date,y= Aucky,color= "Auckland, New Zealand"), size = 1.25) + 
+  annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = 550, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 350, yend = 560, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 670, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 525, yend = 700, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 670, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 525, yend = 700, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2017\nPlan Change 43\nPartial Lower Hutt Upzone", x = as.Date("2017-04-01"), y = 450, color ="#00A99D",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2017-07-01"), xend = as.Date("2017-07-01"), y = 350, yend = 650, color = "#00A99D", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2020\nPlan Change 43\nFull Upzone\n& NPS-UD\nParking Reforms", x = as.Date("2020-12-01"), y = 450, color ="#00A99D",size = 4, lineheight = unit(0.75, "cm"), hjust = 0) + 
+  annotate(geom = "segment", x = as.Date("2020-07-01"), xend = as.Date("2020-07-01"), y = 350, yend = 650, color = "#00A99D", lwd = 0.75, linetype = "dashed") +
+  xlab("Date") +
+  ylab("Real Weekly Rent, 2023 New Zealand Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1), breaks = c(350,400,450,500,550,600,650,700), limits = c(350,700), expand = c(0,0)) +
+  ggtitle("Real Rents, New Zealand") +
+  labs(caption = "Graph created by @JosephPolitano using NZ HUD data via Matthew Maltman", subtitle = "Real Rents Have Been Flat in Auckland Since the 2016 Upzonings") +
+  theme_apricitas + theme(legend.position = c(.30,.80)) +
+  scale_color_manual(name= "Real Rents, 12M Moving Average",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland, New Zealand","Wellington Region, New Zealand")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 350-(.3*350), ymax = 350) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_RENT_DATA_GRAPH, "Real Rent Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-#FLOOR AREA CONSENTED DATA
+REAL_HOME_PRICE_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/REAL_HOME_SALES_AUCK_WELL.csv") %>%
+  mutate(date = as.Date(date, "%m/%d/%Y"))
+  
+REAL_HOME_PRICE_DATA_GRAPH <- ggplot() + #plotting rent to income data
+  geom_line(data=REAL_HOME_PRICE_DATA, aes(x=date,y= Welly/1000000,color= "Wellington Region, New Zealand"), size = 1.25) + 
+  geom_line(data=REAL_HOME_PRICE_DATA, aes(x=date,y= Aucky/1000000,color= "Auckland, New Zealand"), size = 1.25) + 
+  annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = .650, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0, yend = .650, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 1.250, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = 0.7, yend = 1.5, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = 1.250, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2016-07-01"), xend = as.Date("2016-07-01"), y = 0.7, yend = 1.5, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2017\nPlan Change 43\nPartial Lower Hutt Upzone", x = as.Date("2017-04-01"), y = 0.4, color ="#00A99D",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
+  annotate(geom = "segment", x = as.Date("2017-07-01"), xend = as.Date("2017-07-01"), y = 0, yend = 0.9, color = "#00A99D", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "text", label = "2020\nPlan Change 43\nFull Upzone\n& NPS-UD\nParking Reforms", x = as.Date("2020-12-01"), y = 0.4, color ="#00A99D",size = 4, lineheight = unit(0.75, "cm"), hjust = 0) + 
+  annotate(geom = "segment", x = as.Date("2020-07-01"), xend = as.Date("2020-07-01"), y = 0, yend = 0.9, color = "#00A99D", lwd = 0.75, linetype = "dashed") +
+  xlab("Date") +
+  ylab("Real Median Home Price, 2023 New Zealand Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.25, suffix = "M"), limits = c(0,1.500), breaks = c(0,.250,.500,.750,1.000,1.250,1.500), expand = c(0,0)) +
+  ggtitle("Real Median Home Prices, New Zealand") +
+  labs(caption = "Graph created by @JosephPolitano using Infometrics data via Matthew Maltman", subtitle = "Real Homes Prices Have Been Flat in Auckland Since the 2016 Upzonings") +
+  theme_apricitas + theme(legend.position = c(.30,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland, New Zealand","Wellington Region, New Zealand")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0-(.3*1.500), ymax = 0) +
+  coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = REAL_HOME_PRICE_DATA_GRAPH, "Real Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-#GDP REGIONALLY AND GDP PER CAPITA DATA
 
 #RENTAL PRICE INDEX
 
