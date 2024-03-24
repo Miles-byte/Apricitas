@@ -213,7 +213,7 @@ PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES <- read.csv("https://raw.githubuserconten
 
 PERMITS_PER_CAPITA_AUCK_WELL_Graph <- ggplot() + #plotting power generation
   geom_line(data=filter(PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES, date >= as.Date("1996-01-01")), aes(x=date,y= Auckland,color= "Auckland"), size = 1.25) + 
-  geom_line(data=filter(PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES, date >= as.Date("1996-01-01")), aes(x=date,y= Wellington_City,color= "Wellington"), size = 1.25) + 
+  geom_line(data=filter(PERMITS_PER_NZ_TERRITORIAL_AUTHORITIES, date >= as.Date("1996-01-01")), aes(x=date,y= Wellington_City,color= "Wellington City"), size = 1.25) + 
   annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = 10.4, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
   annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0, yend = 11, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
   annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = 10, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
@@ -224,9 +224,9 @@ PERMITS_PER_CAPITA_AUCK_WELL_Graph <- ggplot() + #plotting power generation
   ylab("Permits Per 1000 Residents") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,4,8,12), limits = c(0,14), expand = c(0,0)) +
   ggtitle("Auckland's Building Boom") +
-  labs(caption = "Graph created by @JosephPolitano using Stats NZ data", subtitle = "Auckland's Permitting Rate Has Surged Well Above Wellington's in the Wake of Upzonings") +
+  labs(caption = "Graph created by @JosephPolitano using Stats NZ data via Matthew Maltman", subtitle = "Auckland's Permitting Rate Has Surged Well Above Wellington's in the Wake of Upzonings") +
   theme_apricitas + theme(legend.position = c(.35,.9)) +
-  scale_color_manual(name= "Housing Permits Per 1000 Residents (Territorial Authority)",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland","Wellington")) +
+  scale_color_manual(name= "Housing Permits Per 1000 Residents (Territorial Authority)",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland","Wellington City")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1996-06-01")-(.1861*(today()-as.Date("1996-01-01"))), xmax = as.Date("1996-01-01")-(0.049*(today()-as.Date("1996-01-01"))), ymin = 0-(.3*14), ymax = 0) +
   coord_cartesian(clip = "off")
 
@@ -291,7 +291,7 @@ PERMITS_PER_CAPITA_NZ_REGIONS <- ggplot() + #plotting power generation
   ylab("Permits Per 1000 Residents") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,4,8,12), limits = c(0,14), expand = c(0,0)) +
   ggtitle("New Zealand Region Building Boom") +
-  labs(caption = "Graph created by @JosephPolitano using Stats NZ and US Census data", subtitle = "New Zealand's Housing Permits Per-Capita Hit a 45-Year High in 2022—in Stark Contrast to the US") +
+  labs(caption = "Graph created by @JosephPolitano using Stats NZ data via Matthew Maltman", subtitle = "New Zealand's Housing Permits Per-Capita Hit a 45-Year High in 2022—in Stark Contrast to the US") +
   theme_apricitas + theme(legend.position = c(.42,.81)) +
   scale_color_manual(name= "Housing Permits Per 1000 Residents",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland","Canterbury","Wellington")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1997-01-01")-(.1861*(today()-as.Date("1967-01-01"))), xmax = as.Date("1996-01-01")-(0.049*(today()-as.Date("1996-01-01"))), ymin = 0-(.3*14), ymax = 0) +
@@ -433,7 +433,7 @@ RENT_INCOME_DATA_Graph <- ggplot() + #plotting rent to income data
   geom_line(data=RENT_INCOME_DATA, aes(x=date,y= Auckland/100,color= "Auckland, New Zealand"), size = 1.25) + 
   geom_line(data=RENT_INCOME_DATA, aes(x=date,y= NZ_X_Auckland/100,color= "New Zealand Excluding Auckland"), size = 1.25) + 
   annotate(geom = "text", label = "2005\nDownzone", x = as.Date("2004-04-01"), y = .2075, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
-  annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0.17, yend = .22, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
+  annotate(geom = "segment", x = as.Date("2004-07-01"), xend = as.Date("2004-07-01"), y = 0.17, yend = .225, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
   annotate(geom = "text", label = "2013\nSpHA\nPartial\nUpzone", x = as.Date("2013-04-01"), y = .205, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
   annotate(geom = "segment", x = as.Date("2013-07-01"), xend = as.Date("2013-07-01"), y = .20, yend = .235, color = "#FFE98F", lwd = 0.75, linetype = "dashed") +
   annotate(geom = "text", label = "2016\nAUP\nFull\nUpzone", x = as.Date("2016-04-01"), y = .205, color ="#FFE98F",size = 4, lineheight = unit(0.75, "cm"), hjust = 1) + 
@@ -501,7 +501,7 @@ REAL_HOME_PRICE_DATA_GRAPH <- ggplot() + #plotting rent to income data
   ylab("Real Median Home Price, 2023 New Zealand Dollars") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 0.25, suffix = "M"), limits = c(0,1.500), breaks = c(0,.250,.500,.750,1.000,1.250,1.500), expand = c(0,0)) +
   ggtitle("Real Median Home Prices, New Zealand") +
-  labs(caption = "Graph created by @JosephPolitano using Infometrics data via Matthew Maltman", subtitle = "Real Homes Prices Have Been Flat in Auckland Since the 2016 Upzonings") +
+  labs(caption = "Graph created by @JosephPolitano using NZ HUD data via Matthew Maltman", subtitle = "Real Homes Prices Have Been Flat in Auckland Since the 2016 Upzonings") +
   theme_apricitas + theme(legend.position = c(.30,.75)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Auckland, New Zealand","Wellington Region, New Zealand")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0-(.3*1.500), ymax = 0) +
@@ -510,7 +510,47 @@ REAL_HOME_PRICE_DATA_GRAPH <- ggplot() + #plotting rent to income data
 ggsave(dpi = "retina",plot = REAL_HOME_PRICE_DATA_GRAPH, "Real Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-#RENTAL PRICE INDEX
+RESIDENTIAL_INVESTMENT_GDP_NZ <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20Zealand/RESIDENTIAL_INVESTMENT_SHARE_GDP.csv") %>%
+  drop_na() %>%
+  mutate(date = as.Date(as.yearqtr(date))) #%>%
+  #filter(date >= as.Date("2000-01-01"))
+  
+
+RESIDENTIAL_INVESTMENT_US <- fredr("PRFI")
+GDP_US <- fredr("GDP")
+
+RESIDENTIAL_INVESTMENT_GDP_US <- merge(RESIDENTIAL_INVESTMENT_US,GDP_US, by = "date") %>%
+  transmute(date, value = value.x/value.y) %>%
+  filter(date >= as.Date("1987-01-01"))
+
+AUS_RES_INVEST <- read_abs(series_id = "A2304054R")
+
+AUS_OWNER_TRANSFER <- read_abs(series_id = "A2304055T")
+  
+AUS_GDP <- read_abs(series_id = "A2304418T")
+
+RESIDENTIAL_INVESTMENT_GDP_AUS <- merge(AUS_RES_INVEST,AUS_OWNER_TRANSFER, by = "date") %>%
+  transmute(date, value = value.x+value.y) %>%
+  merge(.,AUS_GDP, by = "date") %>%
+  transmute(date, value = value.x/value.y) %>%
+  filter(date >= as.Date("1987-01-01"))
+
+RESIDENTIAL_INVESTMENT_GDP_GRAPH <- ggplot() + #plotting rent to income data
+  geom_line(data=RESIDENTIAL_INVESTMENT_GDP_AUS, aes(x=date,y= value,color= "Australia"), size = 1.25) + 
+  geom_line(data=RESIDENTIAL_INVESTMENT_GDP_US, aes(x=date,y= value,color= "United States"), size = 1.25) +
+  geom_line(data=RESIDENTIAL_INVESTMENT_GDP_NZ, aes(x=date,y= RES_PCT_GDP,color= "New Zealand"), size = 1.25) +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09), limits = c(0,.09), expand = c(0,0)) +
+  ggtitle("Residential Investment, % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using Stats NZ, BEA, and ABS Data\nNOTE: Australian Data Includes Ownership Transfer Costs to Be Comparable to US/NZ Data", subtitle = "Post-Upzonings, NZ Residential Investment as a Share of GDP Reached a Modern High") +
+  theme_apricitas + theme(legend.position = c(.4,.3)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("New Zealand","United States","Australia")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1987-01-01")-(.1861*(today()-as.Date("1987-01-01"))), xmax = as.Date("1987-01-01")-(0.049*(today()-as.Date("1987-01-01"))), ymin = 0-(.3*0.09), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RESIDENTIAL_INVESTMENT_GDP_GRAPH, "Residential Investment GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 #Download
 shapefile_path <- "path_to_your_shapefile"
