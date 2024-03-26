@@ -794,9 +794,9 @@ FIXED_RESI_INVEST_2018 <- beaGet(FIXED_RESI_INVEST_SPECS_2018, iTableStyle = FAL
   drop_na()
 
 FIXED_INVESTMENT_RESIDENTIAL_COMPONENT_Graph <- ggplot() + #indexed employment rate
-  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a944rx_37_single_family_structures_chained_dollars_level_6/u50406_a944rx_37_single_family_structures_chained_dollars_level_6[1]*100, color = "Single-Family Structures"), size = 1.25) + 
-  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_c292rx_38_multifamily_structures_chained_dollars_level_6/u50406_c292rx_38_multifamily_structures_chained_dollars_level_6[1]*100, color = "Multi-Family Structures"), size = 1.25) + 
-  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a946rx_42_improvements_chained_dollars_level_6/u50406_a946rx_42_improvements_chained_dollars_level_6[1]*100, color = "Residential Improvements"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a944rx_39_single_family_structures_chained_dollars_level_6/u50406_a944rx_39_single_family_structures_chained_dollars_level_6[1]*100, color = "Single-Family Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_c292rx_40_multifamily_structures_chained_dollars_level_6/u50406_c292rx_40_multifamily_structures_chained_dollars_level_6[1]*100, color = "Multi-Family Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_2018, aes(x=date, y = u50406_a946rx_44_improvements_chained_dollars_level_6/u50406_a946rx_44_improvements_chained_dollars_level_6[1]*100, color = "Residential Improvements"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(limits = c(85,135), expand = c(0,0)) +
   ylab("Index, Q1 2018 = 100") +
