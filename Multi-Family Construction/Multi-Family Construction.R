@@ -157,7 +157,7 @@ MSA_MF_PERMIT_DATA_BUB_GRAPH <- MSA_map_US %>%
                   labels = c("0","5k","10k","15k","20k","25k"),
                   guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
   #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
-  ggtitle("        Multifamily (5+ Unit) Apartment Permitting\n            50 Largest Metro Areas by Population") +
+  ggtitle("     Multifamily (5+ Unit) Apartment Permits Issued\n            50 Largest Metro Areas by Population") +
   labs(caption = "Graph created by @JosephPolitano using Census data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
@@ -167,6 +167,24 @@ ggsave(dpi = "retina",plot = MSA_MF_PERMIT_DATA_BUB_GRAPH, "MSA MF Permit Data B
 
 
 #SLOOS TIGHTENING TO MF PROJECTS
+SLOOS_TIGHT <- fredr("SUBLPDRCSM", observation_start = as.Date("2017-01-01"))
+SLOOS_DEMAND <- fredr("SUBLPDRCDM", observation_start = as.Date("2017-01-01"))
+
+SLOOS_TIGTEN_DEMAND <- ggplot() + #plotting tightening
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=SLOOS_TIGHT, aes(x=date,y= value/100, color= "Net % of Banks Tightening Standards"), size = 1.25) +
+  geom_line(data=SLOOS_DEMAND, aes(x=date,y= -value/100, color= "Net % Reporting Weaker Demand"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.5,.85), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Multifamily Credit Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Banks Have Rapidly Tightened Credit to Multifamily Projects as Demand Cools") +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= "Commercial Real Estate Loans Secured by Multifamily Residential Properties" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -0.5-(.3*1.35), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SLOOS_TIGTEN_DEMAND, "SLOOS Tighten Demand Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

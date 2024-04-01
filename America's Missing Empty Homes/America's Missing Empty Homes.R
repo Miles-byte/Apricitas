@@ -332,30 +332,45 @@ RENTAL_VACANCY_RATES_2005_2022_MSA <- merge(final_df_IN_DEPTH_VACANCY_MSA,final_
 ggsave(dpi = "retina",plot = NON_SEASONAL_VACANCY_2005_2022_NY_SF, "Non Seasonal Vacancy Rate 2005-2022 NY SF.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-states_list <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA",
-                 "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-                 "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-                 "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-                 "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+# states_list <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA",
+#                  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+#                  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+#                  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+#                  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+# 
+# states_data_list <- map(states_list, function(st) {
+#   df <- fredr(series_id = paste0(st, "RVAC"), observation_start = as.Date("1986-01-01")) %>%
+#     mutate(name = st)
+#   
+#   change_since_2019 <- df %>% 
+#     filter(date >= as.Date("2019-01-01")) %>%
+#     arrange(desc(date)) %>%
+#     slice_head(n = 1) %>%
+#     pull(value) - 
+#     df %>% 
+#     filter(date == as.Date("2019-01-01")) %>%
+#     pull(value)
+#   
+#   df %>%
+#     mutate(change_since_2019 = ifelse(date == max(date), change_since_2019, NA)) %>%
+#     mutate(yoy_chg = value - lag(value, 1))
+# })
 
-states_data_list <- map(states_list, function(st) {
-  df <- fredr(series_id = paste0(st, "RVAC"), observation_start = as.Date("1986-01-01")) %>%
-    mutate(name = st)
-  
-  change_since_2019 <- df %>% 
-    filter(date >= as.Date("2019-01-01")) %>%
-    arrange(desc(date)) %>%
-    slice_head(n = 1) %>%
-    pull(value) - 
-    df %>% 
-    filter(date == as.Date("2019-01-01")) %>%
-    pull(value)
-  
-  df %>%
-    mutate(change_since_2019 = ifelse(date == max(date), change_since_2019, NA))
-})
+#states_data <- bind_rows(states_data_list)
 
-states_data <- bind_rows(states_data_list)
+states_list <- c(state.abb, "DC")
+
+process_state_data <- function(st) {
+  fredr(series_id = paste0(st, "RVAC"), observation_start = as.Date("1986-01-01")) %>%
+    mutate(name = st,
+           change_since_2019 = if_else(date == max(date), 
+                                       value - value[which(date == as.Date("2019-01-01"))], 
+                                       NA_real_),
+           yoy_chg = value - lag(value))
+}
+
+states_data <- map_df(states_list, process_state_data)
+
 
 states <- get_urbn_map("territories_states", sf = TRUE) %>%
   st_as_sf() %>%
@@ -425,11 +440,6 @@ VACANCY_RATE_2023_STATE_LABLS <- get_urbn_labels(map = "states") %>%
   left_join(VACANCY_RATE_2023_STATE, by = "state_abbv") %>%
   select(-geometry) %>%
   st_as_sf(., coords = c("long", "lat"), crs = 4326)
-
-tates_job_growth  %>%
-  ggplot(aes(fill = Growth_bucket)) +
-  geom_sf(color = NA) +
-  geom_sf(data = states_job_growth, color = "black", fill = NA, lwd = 0.65)
 
 VACANCY_RATE_2023_STATE_graph <- VACANCY_RATE_2023_STATE %>%
   ggplot(aes(fill = vacancy_bucket)) +
@@ -715,6 +725,168 @@ VACANCY_RATE_METRO_LINE_graph <- ggplot() + #plotting permanent and temporary jo
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = VACANCY_RATE_METRO_LINE_graph, "Vacancy Rate Metro Line.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+VACANCY_RATE_2023_STATE_CHG <- states_data %>%
+  drop_na() %>%
+  mutate(yoy_chg_bucket = cut(yoy_chg, breaks = c(-Inf,-1.1,-0.6,0,.5,1,+Inf))) %>%#, labels = c("<4%", "4-4.9%", "5-5.9%", "6-6.9%", "7-7.9%+","8%+"))) %>%
+  st_as_sf()
+
+VACANCY_RATE_2023_STATE_CHG_CENTROIDS <- get_urbn_map("states", sf = TRUE) %>%
+  filter(state_fips != 69 & state_fips != 60 & state_fips != 66 & state_fips != 72 & state_fips != 78) %>% #ex guam, northern mariana islansa, and American Samoa
+  st_as_sf() %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(VACANCY_RATE_2023_STATE_CHG, .) %>%
+  st_as_sf() %>% 
+  st_centroid()
+
+VACANCY_RATE_2023_STATE_CHG_LABLS <- get_urbn_labels(map = "states") %>%
+  left_join(VACANCY_RATE_2023_STATE_CHG, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+VACANCY_RATE_2023_STATE_CHG_graph <- VACANCY_RATE_2023_STATE_CHG %>%
+  ggplot(aes(fill = yoy_chg_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(data = VACANCY_RATE_2023_STATE_CHG, color = "black", fill = NA, lwd = 0.65) +
+  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"),
+                    na.value = "grey50", 
+                    guide = "legend", 
+                    labels = c("<-1%", "-0.6 to -1%", "0 to -0.5%", "0.1 to 0.5%", "0.6 to 1%",">1%")) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", ""), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(VACANCY_RATE_2023_STATE_CHG_CENTROIDS, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", " "), sprintf("%.1f", round(yoy_chg, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(VACANCY_RATE_2023_STATE_CHG_LABLS, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN","SC")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", ""), sprintf("%.1f", round(yoy_chg, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(VACANCY_RATE_2023_STATE_CHG_LABLS, state_abbv %in% c("FL","TN","SC")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", ""), sprintf("%.1f", round(yoy_chg, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(VACANCY_RATE_2023_STATE_CHG_LABLS, state_abbv %in% c("LA","IN","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", ""), sprintf("%.1f", round(yoy_chg, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(VACANCY_RATE_2023_STATE_CHG_LABLS, state_abbv %in% c("WV","MS")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(yoy_chg >= 0, "+", ""), sprintf("%.1f", round(yoy_chg, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  ggtitle("   Change in Rental Vacancy Rates, 2022-2023") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using US Census data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = VACANCY_RATE_2023_STATE_CHG_graph, "Vacancy Rate Change.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 B25136
