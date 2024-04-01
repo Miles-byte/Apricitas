@@ -170,7 +170,7 @@ ggsave(dpi = "retina",plot = MSA_MF_PERMIT_DATA_BUB_GRAPH, "MSA MF Permit Data B
 SLOOS_TIGHT <- fredr("SUBLPDRCSM", observation_start = as.Date("2017-01-01"))
 SLOOS_DEMAND <- fredr("SUBLPDRCDM", observation_start = as.Date("2017-01-01"))
 
-SLOOS_TIGTEN_DEMAND <- ggplot() + #plotting tightening
+SLOOS_TIGTEN_DEMAND_GRAPH <- ggplot() + #plotting tightening
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=SLOOS_TIGHT, aes(x=date,y= value/100, color= "Net % of Banks Tightening Standards"), size = 1.25) +
   geom_line(data=SLOOS_DEMAND, aes(x=date,y= -value/100, color= "Net % Reporting Weaker Demand"), size = 1.25) +
@@ -184,7 +184,35 @@ SLOOS_TIGTEN_DEMAND <- ggplot() + #plotting tightening
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -0.5-(.3*1.35), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = SLOOS_TIGTEN_DEMAND, "SLOOS Tighten Demand Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SLOOS_TIGTEN_DEMAND_GRAPH, "SLOOS Tighten Demand Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+APARTMENT_PERMITS_SELECTED_METROS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Multi-Family%20Construction/APARTMENT_PERMITS_SELECTED_METROS.csv") %>%
+  drop_na() %>%
+  mutate(date = as.Date(date))
+
+APARTMENT_PERMITS_SELECTED_METROS_Graph <- ggplot() + #plotting tightening
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= NYC/1000, color= "New York City"), size = 1.25) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= DAL/1000, color= "Dallas-Fort Worth"), size = 1.25) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= HOU/1000, color= "Houston"), size = 1.25) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= AUS/1000, color= "Austin"), size = 1.25) +
+  #geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= ATL/1000, color= "Atlanta"), size = 1.25) +
+  #geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= DC/1000, color= "Washington, DC"), size = 1.25) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= LAX/1000, color= "Los Angeles"), size = 1.25) +
+  geom_line(data=APARTMENT_PERMITS_SELECTED_METROS, aes(x=date,y= PHX/1000, color= "Phoenix"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,50), expand = c(0,0)) +
+  ylab("Thousands of Units") +
+  ggtitle("Apartment Permits by Metro Area") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Permits Have Contracted in NY, DFW, & Houston—While Staying Stable in Phoenix, Austin, & LA") +
+  theme_apricitas + theme(legend.position = c(.75,.15)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("New York City","Los Angeles","Houston","Dallas-Fort Worth", "Austin","Phoenix")) +
+  guides(color=guide_legend(ncol=2)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-365-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-365-as.Date("2017-01-01"))), ymin = 0-(.3*50), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = APARTMENT_PERMITS_SELECTED_METROS_Graph, "Apartment Permits Selected Metros Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager
