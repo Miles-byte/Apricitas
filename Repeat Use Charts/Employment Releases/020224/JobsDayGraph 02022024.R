@@ -1194,7 +1194,7 @@ TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = TECH_EMPLOY_GROWTH_IND, aes(x = da
   ylab("Change Since Jan 2020, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400,600), limits = c(-75,700), expand = c(0,0)) +
   ggtitle("The Tech Boom and Techcession") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in the Tech Sector May be Starting to Grow Again") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in the Tech Sector Stagnated in 2023, But Has Not Declined") +
   theme_apricitas + theme(legend.position = c(0.35,0.82), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
   scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related")) +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +

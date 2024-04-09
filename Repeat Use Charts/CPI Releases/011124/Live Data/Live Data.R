@@ -300,7 +300,7 @@ CPI_CONTRIBUTION_MONTHLY_SA_GRAPH <- ggplot() + #plotting components of monthly 
 ggsave(dpi = "retina",plot = CPI_CONTRIBUTION_MONTHLY_SA_GRAPH, "CPI RENT Contrib SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_sm_month.csv?t=1665666510") %>%
+ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv?t=1711945633") %>%
   select(-RegionID, -SizeRank, - RegionType, - StateName) %>%
   subset(RegionName == "United States") %>%
   #transpose() %>%
@@ -310,7 +310,7 @@ ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro
   #.[-1, ] %>%
   mutate(value = (value-lag(value,12))/lag(value,12))
 
-CPIRENT <- bls_api("CUSR0000SEHA", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIRENT <- bls_api("CUSR0000SEHA", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(value = (value-lead(value,12))/lead(value,12))  %>%
   subset(date >= as.Date("2019-01-01")) #cpi rent data

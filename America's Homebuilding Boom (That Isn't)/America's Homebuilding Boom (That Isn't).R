@@ -1177,12 +1177,12 @@ CPI_RENT_EX_SHELTER_1960 <- merge(CPI_RENT_1960,CPI_EX_SHELTER_1960, by = "date"
   mutate(RENT_EX_RENT_CPI_INDEXED = RENT_EX_RENT_CPI_INDEXED*100/RENT_EX_RENT_CPI_INDEXED[1])
 
 CPI_RENT_EX_SHELTER_1960_Graph <- ggplot() + #indexed employment rate
-  geom_line(data = CPI_RENT_EX_SHELTER_1960, aes(x=date, y = RENT_EX_RENT_CPI_INDEXED, color = "CPI: Rent of Primary Residence Relative to CPI: All Items Ex-Shelter"), size = 1.25) + 
+  geom_line(data = CPI_RENT_EX_SHELTER_1960, aes(x=date, y = RENT_EX_RENT_CPI_INDEXED, color = "Real Rent Prices\n(CPI: Rent of Primary Residence Relative to CPI: All Items Ex-Shelter)"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(limits = c(75,max(round(CPI_RENT_EX_SHELTER_1960$RENT_EX_RENT_CPI_INDEXED/10)*10)), expand = c(0,0)) +
-  ylab("Index, Q1 1959 = 100") +
-  ggtitle("The Long Shadow of the Great Recession") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Relative to Non-Shelter Items, Rent Prices are Near Post-WWII Record Highs") +
+  ylab("Index, Jan 1960 = 100") +
+  ggtitle("Real US Rent Prices") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Amidst an Acute Housing Shortage, Rents are at Post-WWII Record Highs Relative to Other Prices") +
   theme_apricitas + theme(legend.position = c(.425,.80)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1959-01-01")-(.1861*(today()-as.Date("1959-01-01"))), xmax = as.Date("1959-01-01")-(0.049*(today()-as.Date("1959-01-01"))), ymin = 75-(.3*(max(round(CPI_RENT_EX_SHELTER_1960$RENT_EX_RENT_CPI_INDEXED/10)*10)-75)), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

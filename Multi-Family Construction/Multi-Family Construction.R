@@ -87,7 +87,7 @@ MULTIFAM_CONSTRUCTION_TIME_graph <- ggplot() + #plotting Deposits, Insured and U
   ylab("Months") +
   scale_y_continuous(labels = scales::number_format(), breaks = c(7.5,10,12.5,15,17.5,20), limits = c(7.5,20), expand = c(0,0)) +
   ggtitle("Average Multifamily Project Duration") +
-  labs(caption = "Graph created by @JosephPolitano using Census Bureau data", subtitle = "The Average Multifamily Housing Projects ") +
+  labs(caption = "Graph created by @JosephPolitano using Census Bureau data", subtitle = "The Average Multifamily Housing Project is Taking Longer to Complete Than Ever Before") +
   theme_apricitas + theme(legend.position = c(.43,.76)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Average Length of Time From Start to Completion, Multifamily Buildings",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("All Multifamily Housing Projects","2-4 Unit Projects","5-9 Unit Projects","10-19 Unit Projects","20+ Unit Projects"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1999-01-01")-(.1861*(today()-as.Date("1999-01-01"))), xmax = as.Date("1999-01-01")-(0.049*(today()-as.Date("1999-01-01"))), ymin = 7.5-(.3*13.5), ymax = 7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -213,6 +213,102 @@ APARTMENT_PERMITS_SELECTED_METROS_Graph <- ggplot() + #plotting tightening
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = APARTMENT_PERMITS_SELECTED_METROS_Graph, "Apartment Permits Selected Metros Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+OCCUPIED_INVENTORY <- fredr(series_id = "EOCCUSQ176N", observation_start = as.Date("2000-01-01"))
+TOTAL_INVENTORY <- fredr(series_id = "ETOTALUSQ176N", observation_start = as.Date("2000-01-01"))
+UNOCCUPIED_RATE <- merge(OCCUPIED_INVENTORY,TOTAL_INVENTORY, by = "date") %>%
+  mutate(value = 1-(value.x/value.y)) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4)))
+
+FOR_RENT_INVENTORY <- fredr(series_id = "ERENTUSQ176N", observation_start = as.Date("2000-01-01"))
+TOTAL_INVENTORY <- fredr(series_id = "ERNTOCCUSQ176N", observation_start = as.Date("2000-01-01"))
+RENTAL_VACANCY_RATE <- merge(FOR_RENT_INVENTORY,TOTAL_INVENTORY, by = "date") %>%
+  mutate(value = (value.x/(value.y+value.x))) %>%
+  select(date, value) %>%
+  mutate(value_roll = c(NA,NA,NA,rollmean(value, 4)))
+
+
+UNOCCUPIED_RENTAL_VACANCY_RATE_Graph <- ggplot() + #plotting rental vacancy rate
+  #geom_line(data=UNOCCUPIED_RATE, aes(x=date,y= value, color= "Gross Vacancy Rate"), size = 0.75, linetype = "dashed") +
+  geom_line(data=UNOCCUPIED_RATE, aes(x=date,y= value_roll, color= "Gross Vacancy Rate"), size = 1.25) +
+  #geom_line(data=RENTAL_VACANCY_RATE, aes(x=date,y= value, color= "Rental Vacancy Rate"), size = 0.75, linetype = "dashed") +
+  geom_line(data=RENTAL_VACANCY_RATE, aes(x=date,y= value_roll, color= "Rental Vacancy Rate"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.0,.155),breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
+  ylab("%") +
+  ggtitle("US Housing Vacancy Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Rental Vacancy Rates Have Picked Up Recently, Even as Gross Vacancies Remain Low") +
+  theme_apricitas + theme(legend.position = c(.3,.4)) +
+  scale_color_manual(name= "4M Rolling Average" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*.15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UNOCCUPIED_RENTAL_VACANCY_RATE_Graph, "Unoccupied Rental Vacancy Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CREDIT_EXTENDED <- read.csv("https://www.federalreserve.gov/datadownload/Output.aspx?rel=Z1&series=10bc5d030f7f767ed26e59adb44fb392&lastobs=100&from=&to=&filetype=csv&label=include&layout=seriescolumn") %>%
+  slice(-1:-5) %>%
+  mutate(date = as.Date(as.yearqtr(Series.Description, format = "%YQ%q"))) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(across(where(is.numeric), ~ . - lag(., 4))) %>%
+  filter(date>= as.Date("2017-01-01"))
+
+CREDIT_EXTENDED_Graph <- ggplot() + #plotting credit extended
+  geom_line(data=CREDIT_EXTENDED, aes(x=date,y= U.S..chartered.depository.institutions..multifamily.residential.mortgages..asset/1000, color= "Domestic Banks"), size = 1.25) +
+  geom_line(data=CREDIT_EXTENDED, aes(x=date,y= Life.insurance.companies..multifamily.residential.mortgages..asset/1000, color= "Life Insurance Companies"), size = 1.25) +
+  geom_line(data=CREDIT_EXTENDED, aes(x=date,y= Government.sponsored.enterprises..multifamily.residential.mortgages..asset/1000, color= "GSEs"), size = 1.25) +
+  geom_line(data=CREDIT_EXTENDED, aes(x=date,y= Agency.and.GSE.backed.mortgage.pools..multifamily.residential.mortgages..asset/1000, color= "Agency & GSE Backed Mortgage Pools"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,100),breaks = c(0,25,50,75,100), expand = c(0,0)) +
+  ylab("Billions of Dollars, Year-on-Year Change") +
+  ggtitle("The Multifamily Credit Crunch") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "The Amount of Multifamily Mortgage Credit Extended Has Shrunk Dramatically Over the Last Year") +
+  theme_apricitas + theme(legend.position = c(.3,.79)) +
+  scale_color_manual(name= "Multifamily Residential Mortgages\nNet Credit Extended Year-on-Year" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Domestic Banks","GSEs","Agency & GSE Backed Mortgage Pools","Life Insurance Companies")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*100), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CREDIT_EXTENDED_Graph, "Credit Extended Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ZORI <- read.csv("https://files.zillowstatic.com/research/public_csvs/zori/Metro_zori_uc_sfrcondomfr_sm_month.csv?t=1711945633") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName) %>%
+  subset(RegionName == "United States") %>%
+  #transpose() %>%
+  gather(key = "date", value = "value", -1) %>%
+  #`colnames<-`(.[1, ]) %>%
+  mutate(date = c(seq(as.Date("2015-01-01"), length = nrow(.), by = "months"))) %>%
+  #.[-1, ] %>%
+  mutate(value = (value-lag(value,12))/lag(value,12))
+
+CPIRENT <- bls_api("CUSR0000SEHA", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = (value-lead(value,12))/lead(value,12))  %>%
+  subset(date >= as.Date("2019-01-01")) #cpi rent data
+
+ApartmentList <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Repeat%20Use%20Charts/CPI%20Releases/091322/apartmentlist.csv") %>%
+  mutate(date = as.Date(date, "%m/%d/%Y"))
+
+NTRR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Multi-Family%20Construction/NTRR.csv") %>%
+  mutate(date = as.Date(date))
+
+Rent_Zillow_Aptlist <- ggplot() + #plotting Rent and Owner's Equivalent Rent Price Growth
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  #geom_line(data=CPIRENT, aes(x=date,y= (value) ,color= "CPI Rent"), size = 1.25) +
+  geom_line(data=subset(ZORI, date >= as.Date("2018-01-01")), aes(x=date,y= (value) ,color= "Zillow Observed Rent Index"), size = 1.25) +
+  geom_line(data=subset(ApartmentList, date >= as.Date("2018-01-01")), aes(x=date,y= annualpct ,color= "ApartmentList Median New Lease"), size = 1.25) +
+  #geom_line(data=subset(NTRR,date > as.Date("2018-01-01")), aes(x=date,y= NTR/100,color= "New Tenant Rent Index"), size = 1.25)+ 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.025,.20), breaks = c(0,.05,0.1,0.15,0.2), expand = c(0,0)) +
+  ylab("Percent Change From a Year Ago, %") +
+  ggtitle("The Great Rent Disinflation") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow, and ApartmentList data",subtitle = "Zillow and ApartmentList Data Show Rent Growth Decelerating Significantly Over the Last Year") +
+  theme_apricitas + theme(legend.position = c(.3,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Zillow Observed Rent Index","ApartmentList Median New Lease")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -0.025-(.3*0.225), ymax = -0.025) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Rent_Zillow_Aptlist, "RENT ZILLOW Aptlist.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

@@ -3,6 +3,13 @@ install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
+theme_apricitas <- theme_ft_rc() +
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
+
 NYC <- bls_api("SMS36356200000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   arrange(date) %>%
@@ -399,7 +406,7 @@ JOS <- bls_api("SMS06419400000000001", startyear = 2020, registrationKey = Sys.g
          raw_growth_2020 = (value-value[1]),
          pct_growth_yoy = (value-lag(value,12))/lag(value,12),
          raw_growth_yoy = (value-lag(value,12))) %>%
-  mutate(name = "HOU") %>%
+  mutate(name = "JOS") %>%
   mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10)))
 
 
@@ -596,7 +603,7 @@ BLS_NFP_MSA_GRAD_YOY <- MSA_map_US %>%
   ggplot() +
   geom_sf(data = filter(states, !state_abbv %in% c("HI", "AK", "AS", "GU", "MP", "VI")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
   geom_sf(aes(fill = pct_growth_yoy), color = "black", lwd = 0.5) +
-  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1), breaks = c(.0,.01,.02,.03,0.04), expand = c(0,0)) +
+  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1), breaks = c(-0.3,-0.2,-0.1,.0,.01,.02,.03,0.04), expand = c(0,0)) +
   ggtitle("  Change in Nonfarm Payrolls, Year-on-Year\n      50 Largest Metro Areas by Population") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
