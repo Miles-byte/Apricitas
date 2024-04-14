@@ -148,7 +148,7 @@ QSPC_Demand_Graph <- ggplot() + #plotting BIE
   ylab("% of Plants Citing This Reason") +
   ggtitle("Supply and Demand Chains") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Firms Aren't Complaining About a Shortage of Orders As Much as Before the Pandemic") +
-  theme_apricitas + theme(legend.position = c(.50,.5)) +
+  theme_apricitas + theme(legend.position = c(.40,.5)) +
   scale_color_manual(name= "Reasons for Plant Capacity Under-utilization",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-04-01")))), ymin = 0-(.3*.90), ymax = 0) +
   coord_cartesian(clip = "off")

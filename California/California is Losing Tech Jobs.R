@@ -147,7 +147,7 @@ CA_US_TECH_SHARE_graph <- ggplot() + #plotting permanent and temporary job loser
   ggtitle("Share of US Tech Jobs in California, %") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "California's Share of Tech Employment Has Fallen After Rising Significantly in the 2010s") +
   theme_apricitas + theme(legend.position = "right") +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Software Publishers","Computer Systems Design,\nCustom Programming, & Related","Computing Infrastructure,\nData Processing,\nWeb Hosting, & Related","Web Search Portals, Libraries,\n& Related","Streaming Services, Social Networks,\n& Related")) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#A7ACD9","#FFE98F")), breaks = c("Software Publishers","Computer Systems Design,\nCustom Programming, & Related","Computing Infrastructure,\nData Processing,\nWeb Hosting, & Related","Web Search Portals, Libraries,\n& Related","Streaming Services, Social Networks,\n& Related")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*.45), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   theme(legend.text =  element_text(size = 12, color = "white")) +
   theme(legend.key.height = unit(1.5, "cm"), # Adjusts the height of the legend keys
@@ -361,21 +361,24 @@ US_TECH_EMPLOY_GROWTH_IND <- rbind(US_DATA_PROCESSING_IND,US_MEDIA_SOCIAL_IND,US
   filter(n() > 4) %>%
   mutate(series_id = factor(series_id,levels = rev(c("Software Publishers","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design, Custom Programming, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related"))))
 
-TECH_EMPLOY_GROWTH_INDSUM <- TECH_EMPLOY_GROWTH_IND %>%
+TECH_EMPLOY_GROWTH_INDSUM <- US_TECH_EMPLOY_GROWTH_IND %>%
   group_by(date) %>%
   summarise(sum_value = sum(value, na.rm = TRUE))
 
 TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = US_TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = TECH_EMPLOY_GROWTH_INDSUM, aes(x=date, y = sum_value, color = "Total Tech Sector Employment"), size = 2) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400,600,800), limits = c(-75,800), expand = c(0,0)) +
   ggtitle("US Tech Sector Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in the Tech Sector Stagnated in 2023, But Has Not Declined") +
   theme_apricitas + theme(legend.position = c(0.35,0.83), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
-  scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#3083DC","#6A4C93","#A7ACD9"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming, & Related","Computing Infrastructure, Data Processing, Web Hosting, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related")) +
+  scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming, & Related","Computing Infrastructure, Data Processing, Web Hosting, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +
+  theme_apricitas + theme(legend.position = c(.38,.86)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-110,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -75-(.3*875), ymax = -75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -417,17 +420,24 @@ CA_TECH_EMPLOY_GROWTH_IND <- rbind(CA_DATA_PROCESSING_IND,CA_MEDIA_SOCIAL_IND,CA
   filter(n() > 4) %>%
   mutate(series_id = factor(series_id,levels = rev(c("Software Publishers","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design, Custom Programming, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related"))))
 
+CA_TECH_EMPLOY_GROWTH_INDSUM <- CA_TECH_EMPLOY_GROWTH_IND %>%
+  group_by(date) %>%
+  summarise(sum_value = sum(value, na.rm = TRUE))
+
 CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = CA_TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = CA_TECH_EMPLOY_GROWTH_INDSUM, aes(x=date, y = sum_value, color = "Total Tech Sector Employment"), size = 2) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs, NSA") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-50,-25,0,25,50,75,100), limits = c(-30,100), expand = c(0,0)) +
   ggtitle("California Tech Sector Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "CA Tech Jobs Have Stagnated, With Search, Streaming, and Computer Systems Design Dropping") +
   theme_apricitas + theme(legend.position = c(0.35,0.83), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
-  scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#3083DC","#6A4C93","#A7ACD9"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming, & Related","Computing Infrastructure, Data Processing, Web Hosting, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related")) +
+  scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#3083DC","#6A4C93","#A7ACD9"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming, & Related","Computing Infrastructure, Data Processing, Web Hosting, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +
+  theme_apricitas + theme(legend.position = c(.38,.86)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-110,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -30-(.3*130), ymax = -30) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -483,7 +493,7 @@ QFR_Data <- getCensus(
   filter(category_code %in% c("INF",511,519)) %>%
   transmute(name = category_code, date = as.Date(as.yearqtr(time, "%Y-Q%q")), value = as.numeric(cell_value)) %>%
   pivot_wider() %>%
-  setNames(c("date","Other_Info","Info","Publish_Info")) %>%
+  transmute(date, Info = INF, Publish_Info = as.numeric(`511`), Other_Info = as.numeric(`519`)) %>%
   arrange(date) %>%
   mutate(Publish_Info_Growth = (Publish_Info-lag(Publish_Info,4))/lag(Publish_Info,4), Other_Info_Growth = (Other_Info-lag(Other_Info,4))/lag(Other_Info,4), Info_Growth = (Info-lag(Info,4))/lag(Info,4)) %>%
   mutate(Publish_Info_Increase = Publish_Info-lag(Publish_Info,4), Other_Info_Increase = Other_Info-lag(Other_Info,4), Info_Increase = Info-lag(Info,4))
@@ -530,7 +540,7 @@ QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary jo
   xlab("Date") +
   ylab("Dollar Growth, Year-on-year") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80), limits = c(0,80), expand = c(0,0)) +
-  ggtitle("Information Sector Investment") +
+  ggtitle("Information Tech Sector Investment") +
   labs(caption = "Graph created by @JosephPolitano using Census QFR data", subtitle = "Information Technology Sector Physical Investment Has Boomed Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.40,.85), legend.key.height = unit(1,"cm")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
@@ -642,8 +652,9 @@ ggsave(dpi = "retina",plot = BEA_COMP_CA_US_graph, "CA Tech Comp Share.png", typ
 #Grabbing FIPS Codes for States and Territories
 states_fips <- unique(c(sprintf("%02d", setdiff(1:56, c(3, 7, 14, 43, 52))), "11", "72", "78"))
 
+#Getting Total Information Sector Employment
 get_series_id <- function(fips_code) {
-  sprintf("ENU%02d000105512", as.integer(fips_code))
+  sprintf("ENU%02d00010551", as.integer(fips_code))
 }
 
 INFO_EMPLOYMENT <- data.frame()
@@ -654,227 +665,98 @@ for(fips in states_fips) {
   INFO_EMPLOYMENT <- rbind(INFO_EMPLOYMENT, df)
 }
 
+#Getting Total Movie Sector Employment
 
+get_series_id <- function(fips_code) {
+  sprintf("ENU%02d000105512", as.integer(fips_code))
+}
 
+MOVIE_EMPLOYMENT <- data.frame()
 
-INFO_AL <- bls_api("ENU0100010551", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
+for(fips in states_fips) {
+  series_id <- get_series_id(fips)
+  df <- bls_api(series_id, startyear = 2019, registrationKey = Sys.getenv("BLS_KEY"))
+  MOVIE_EMPLOYMENT <- rbind(MOVIE_EMPLOYMENT, df)
+}
+
+#Telecom Employment
+
+get_series_id <- function(fips_code) {
+  sprintf("ENU%02d000105517", as.integer(fips_code))
+}
+
+TELECOM_EMPLOYMENT <- data.frame()
+
+for(fips in states_fips) {
+  series_id <- get_series_id(fips)
+  df <- bls_api(series_id, startyear = 2019, registrationKey = Sys.getenv("BLS_KEY"))
+  TELECOM_EMPLOYMENT <- rbind(TELECOM_EMPLOYMENT, df)
+}
+
+INFO_EMPLOYMENT <- INFO_EMPLOYMENT %>%
+  mutate(category = "Total Information") %>%
+  mutate(fips = substr(seriesID, 4, 5))
+
+MOVIE_EMPLOYMENT <- MOVIE_EMPLOYMENT %>%
+  mutate(category = "Movies") %>%
+  mutate(fips = substr(seriesID, 4, 5))
+
+TELECOM_EMPLOYMENT <- TELECOM_EMPLOYMENT %>%
+  mutate(category = "Telecom") %>%
+  mutate(fips = substr(seriesID, 4, 5))
+
+INFO_TECH_EMPLOYMENT <- rbind(INFO_EMPLOYMENT,MOVIE_EMPLOYMENT,TELECOM_EMPLOYMENT) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(date, value, seriesID) %>%
-  mutate(series_id = "Computer Systems Design, Custom Programming, & Related") %>%
-  mutate(value = (value-value[nrow(.)]))
+  select(date, value, category, fips) %>%
+  pivot_wider(names_from = category) %>%
+  mutate(Info_Tech = `Total Information`-Movies-Telecom) %>%
+  group_by(fips) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(Info_Tech_Raw_Change = Info_Tech - Info_Tech[date == as.Date("2019-12-01")]) %>%
+  mutate(Info_Tech_Pct_Change = (Info_Tech - Info_Tech[date == as.Date("2019-12-01")])/Info_Tech[date == as.Date("2019-12-01")]) %>%
+  filter(date == max(date))
+  
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
 
 
-AL_INFO_TOTAL <- bls_api("seriesid") %>%
-  mutate(name = "Total Information") %>%
-  mutate(state = "Alabama")
+states <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
 
-AL_MOVIES <- bls_api("seriesid") %>%
-  mutate(name = "Movies") %>%
-  mutate(state = "Alabama")
+states <- states %>%
+  mutate(fips = state_fips)
 
-AL_TELECOM <- bls_api("seriesid") %>%
-  mutate(name = "Telecoms") %>%
-  mutate(state = "Alabama")
+states <- left_join(states, INFO_TECH_EMPLOYMENT, by = "fips")
 
-AL_COMPUTER <- bls_api("seriesid") %>%
-  mutate(name = "Computer Systems") %>%
-  mutate(state = "Alabama")
-
-AL_TECH <- rbind(AL_INFO_TOTAL,AL_MOVIES,AL_TELECOM,AL_COMPUTER)
-
-#AK
-
-AK_INFO_TOTAL <- bls_api("seriesid") %>%
-  mutate(name = "Total Information") %>%
-  mutate(state = "Alaska")
-
-AK_MOVIES <- bls_api("seriesid") %>%
-  mutate(name = "Movies") %>%
-  mutate(state = "Alaska")
-
-AK_TELECOM <- bls_api("seriesid") %>%
-  mutate(name = "Telecoms") %>%
-  mutate(state = "Alaska")
-
-AK_COMPUTER <- bls_api("seriesid") %>%
-  mutate(name = "Computer Systems") %>%
-  mutate(state = "Alaska")
-
-AK_TECH <- rbind(AK_INFO_TOTAL,AK_MOVIES,AK_TELECOM,AK_COMPUTER)
-
-#AZ
-
-AZ_INFO_TOTAL <- bls_api("seriesid") %>%
-  mutate(name = "Total Information") %>%
-  mutate(state = "Arizona")
-
-AZ_MOVIES <- bls_api("seriesid") %>%
-  mutate(name = "Movies") %>%
-  mutate(state = "Arizona")
-
-AZ_TELECOM <- bls_api("seriesid") %>%
-  mutate(name = "Telecoms") %>%
-  mutate(state = "Arizona")
-
-AZ_COMPUTER <- bls_api("seriesid") %>%
-  mutate(name = "Computer Systems") %>%
-  mutate(state = "Arizona")
-
-AZ_TECH <- rbind(AZ_INFO_TOTAL,AZ_MOVIES,AZ_TELECOM,AZ_COMPUTER)
+states_labels <- get_urbn_labels(map = "states") %>%
+  left_join(states, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
 
 
-#AR
+INFO_TECH_EMPLOYMENT_MAP <- ggplot() +
+  geom_sf(data = states, aes(fill = Info_Tech_Raw_Change/1000)) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.35) + # Black borders for states
+  scale_fill_viridis_c(breaks = c(0,5,10,15,20,25,30,35), labels = c("0","5k","10k","15k","20k","25k","30k","35k")) +
+  ggtitle(" Change In Information Tech Jobs Since Dec 2019") +
+  geom_text(data = filter(states_labels, state_abbv %in% c("CA","TX","WA","NY","FL")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Tech_Raw_Change >= 0, "+", ""), sprintf("%.0f", round(Info_Tech_Raw_Change/1000, 0)), "k")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data\nNOTE: Info Tech Calculated as Information Sector (NAICS 51) Excluding Movie/Sound Recording (512) and Telecom (517)") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(plot.title = element_text(size = 27),legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+                            
+ggsave(dpi = "retina",plot = INFO_TECH_EMPLOYMENT_MAP, "Info Tech Employment Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-AR_INFO_TOTAL <- bls_api("seriesid") %>%
-  mutate(name = "Total Information") %>%
-  mutate(state = "Arkansas")
+INFO_TECH_EMPLOYMENT_PCT_MAP <- ggplot() +
+  geom_sf(data = states, aes(fill = Info_Tech_Pct_Change)) +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.35) + # Black borders for states
+  scale_fill_viridis_c(breaks = c(-.4,-.2,.0,.2,.4,.6), labels = c("-40%","-20%","0%","20%","40%","60%")) +
+  ggtitle(" Change In Information Tech Jobs Since Dec 2019") +
+  geom_text(data = filter(states_labels, state_abbv %in% c("CA","TX","WA","NY","FL")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Tech_Pct_Change >= 0, "+", ""), sprintf("%.0f", round(Info_Tech_Pct_Change*100, 0)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data\nNOTE: Info Tech Calculated as Information Sector (NAICS 51) Excluding Movie/Sound Recording (512) and Telecom (517)") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(plot.title = element_text(size = 27),legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
 
-AR_MOVIES <- bls_api("seriesid") %>%
-  mutate(name = "Movies") %>%
-  mutate(state = "Arkansas")
-
-AR_TELECOM <- bls_api("seriesid") %>%
-  mutate(name = "Telecoms") %>%
-  mutate(state = "Arkansas")
-
-AR_COMPUTER <- bls_api("seriesid") %>%
-  mutate(name = "Computer Systems") %>%
-  mutate(state = "Arkansas")
-
-AR_TECH <- rbind(AR_INFO_TOTAL,AR_MOVIES,AR_TELECOM,AR_COMPUTER)
-
-#CA
-
-CA_INFO_TOTAL <- bls_api("seriesid") %>%
-  mutate(name = "Total Information") %>%
-  mutate(state = "California")
-
-CA_MOVIES <- bls_api("seriesid") %>%
-  mutate(name = "Movies") %>%
-  mutate(state = "California")
-
-CA_TELECOM <- bls_api("seriesid") %>%
-  mutate(name = "Telecoms") %>%
-  mutate(state = "California")
-
-CA_COMPUTER <- bls_api("seriesid") %>%
-  mutate(name = "Computer Systems") %>%
-  mutate(state = "California")
-
-CA_TECH <- rbind(AR_INFO_TOTAL,AR_MOVIES,AR_TELECOM,AR_COMPUTER)
-
-
-#CO
-#CT
-#DE
-
-
-AK <- fredr(series_id = "AKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Alaska")
-AZ <- fredr(series_id = "AZNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Arizona")
-AR <- fredr(series_id = "ARNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Arkansas")
-CA <- fredr(series_id = "CANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "California")
-CO <- fredr(series_id = "CONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Colorado")
-CT <- fredr(series_id = "CTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Connecticut")
-DE <- fredr(series_id = "DENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Delaware")
-DC <- fredr(series_id = "DCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "District of Columbia")
-FL <- fredr(series_id = "FLNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Florida")
-GA <- fredr(series_id = "GANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Georgia")
-HI <- fredr(series_id = "HINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Hawaii")
-ID <- fredr(series_id = "IDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Idaho")
-IL <- fredr(series_id = "ILNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Illinois")
-IN <- fredr(series_id = "INNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Indiana")
-IA <- fredr(series_id = "IANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Iowa")
-KS <- fredr(series_id = "KSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Kansas")
-KY <- fredr(series_id = "KYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Kentucky")
-LA <- fredr(series_id = "LANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Louisiana")
-ME <- fredr(series_id = "MENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Maine")
-MD <- fredr(series_id = "MDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Maryland")
-MA <- fredr(series_id = "MANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Massachusetts")
-MI <- fredr(series_id = "MINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Michigan")
-MN <- fredr(series_id = "MNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Minnesota")
-MS <- fredr(series_id = "MSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Mississippi")
-MO <- fredr(series_id = "MONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Missouri")
-MT <- fredr(series_id = "MTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Montana")
-NE <- fredr(series_id = "NENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Nebraska")
-NV <- fredr(series_id = "NVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Nevada")
-NH <- fredr(series_id = "NHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "New Hampshire")
-NJ <- fredr(series_id = "NJNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "New Jersey")
-NM <- fredr(series_id = "NMNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "New Mexico")
-NY <- fredr(series_id = "NYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "New York")
-NC <- fredr(series_id = "NCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "North Carolina")
-ND <- fredr(series_id = "NDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "North Dakota")
-OH <- fredr(series_id = "OHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Ohio")
-OK <- fredr(series_id = "OKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Oklahoma")
-OR <- fredr(series_id = "ORNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Oregon")
-PA <- fredr(series_id = "PANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Pennsylvania")
-RI <- fredr(series_id = "RINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Rhode Island")
-SC <- fredr(series_id = "SCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "South Carolina")
-SD <- fredr(series_id = "SDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "South Dakota")
-TN <- fredr(series_id = "TNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Tennessee")
-TX <- fredr(series_id = "TXNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Texas")
-UT <- fredr(series_id = "UTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Utah")
-VT <- fredr(series_id = "VTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Vermont")
-VA <- fredr(series_id = "VANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Virginia")
-WA <- fredr(series_id = "WANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Washington")
-WV <- fredr(series_id = "WVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "West Virginia")
-WI <- fredr(series_id = "WINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Wisconsin")
-WY <- fredr(series_id = "WYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Wyoming")
-PR <- fredr(series_id = "SMS72000000000000001",observation_start = as.Date("2020-01-01")) %>%
-  mutate(series_id = "PR") %>%
-  mutate(name = "Puerto Rico")
-VI <- fredr(series_id = "SMS78000000000000001",observation_start = as.Date("2020-01-01")) %>%
-  mutate(series_id = "VI") %>%
-  mutate(name = "Virgin Islands")
+ggsave(dpi = "retina",plot = INFO_TECH_EMPLOYMENT_PCT_MAP, "Info Tech Employment Pct Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 

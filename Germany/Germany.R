@@ -875,7 +875,8 @@ ORDERS_3_DIGIT <- retrieve_data(tablename = "42155BM003", genesis=c(db='de'))
 
 IPMAN_WEAPON <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-254") %>% #taking manufacturing and energy intensive manufacturing data 
-  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  #filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  filter(WERT03 %in% c("X13JDKSB")) %>%#calendar and seasonally adjusted
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
@@ -895,8 +896,9 @@ ORDERS_WEAPON <- ORDERS_3_DIGIT %>%
   mutate(across(where(is.numeric), ~ ./.[46]*100))
 
 WEAPON_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturing
-  geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4KSB`/`BV4KSB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Seasonally Adjusted"), size = 1.25) +
-  geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4TB`/`BV4TB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Trend Adjusted"), size = 2.25) +
+  #geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4KSB`/`BV4KSB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Seasonally Adjusted"), size = 1.25) +
+  #geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4TB`/`BV4TB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Trend Adjusted"), size = 2.25) +
+  geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `X13JDKSB`/`X13JDKSB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Seasonally Adjusted"), size = 1.25) +
   #geom_line(data=subset(ORDERS_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `INSGESAMT`/`INSGESAMT`[46]*100,color="Backlog of Orders of Weapons and Ammunition, Germany"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(IPMAN_WEAPON$BV4KSB)/10)*10)), expand = c(0,0)) +
