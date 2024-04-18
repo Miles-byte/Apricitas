@@ -9,9 +9,9 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 install_github("rOpenGov/dkstat")
 library("dkstat")
 
-Meta_test <- dst_meta("IPOP2015", lang = "en")
+Meta_test <- dst_meta("IPOP2021", lang = "en")
 
-IND_PRO_PHARMA <- dst_get_data(table = "IPOP2015", 
+IND_PRO_PHARMA <- dst_get_data(table = "IPOP2021", 
                  SÆSON = "Seasonally adjusted", 
                  BRANCHE07 = c("C31 Manufacturing excl. Pharmaceuticals","CF Pharmaceuticals","C Manufacturing"), 
                  Tid = "*", 
@@ -134,7 +134,7 @@ REAL_GDP_DOMESTIC_DEMAND_graph <- ggplot() + #plotting energy intensive manufact
   geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Household Consumption Expenditure`,color="Real Household Consumption"), size = 1.25) +
   geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Gross Domestic Product`,color="Real Gross Domestic Product"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,120), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,125), expand = c(0,0)) +
   ylab("Index, Jan 2016 = 100") +
   ggtitle("Denmark's Slowing Domestic Economy") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "Danish Pharma Exports are Boosting GDP—But Domestic Demand and Consumption Has Fallen") +
