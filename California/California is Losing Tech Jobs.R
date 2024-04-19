@@ -159,14 +159,18 @@ ggsave(dpi = "retina",plot = CA_US_TECH_SHARE_graph, "CA US Tech Share Graph.png
 
 CA_TECH_TOTAL <- rbind(CA_DATA_PROCESSING, CA_SOFTWARE_PUBLISHERS, CA_SEARCH_PORTALS, CA_MEDIA_SOCIAL, CA_COMPUTER_SYSTEM_DESIGN) %>%
   group_by(date) %>%
+  filter(n()>4) %>%
   summarise(CA = sum(value, na.rm = TRUE))
 
 US_TECH_TOTAL <- rbind(US_DATA_PROCESSING, US_SOFTWARE_PUBLISHERS, US_SEARCH_PORTALS, US_MEDIA_SOCIAL, US_COMPUTER_SYSTEM_DESIGN) %>%
   group_by(date) %>%
+  filter(n()>4) %>%
   summarise(US = sum(value, na.rm = TRUE))
 
 CA_US_TECH <- merge(CA_TECH_TOTAL, US_TECH_TOTAL, by = "date") %>%
-  transmute(date, value = CA/US)
+  transmute(date, value = CA/US) %>%
+  group_by(date)
+ 
 
 CA_TECH_JOB_SHARE_graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= value, color= "Percent of All US Tech Jobs Located in California"), size = 1.25) +
@@ -422,7 +426,8 @@ CA_TECH_EMPLOY_GROWTH_IND <- rbind(CA_DATA_PROCESSING_IND,CA_MEDIA_SOCIAL_IND,CA
 
 CA_TECH_EMPLOY_GROWTH_INDSUM <- CA_TECH_EMPLOY_GROWTH_IND %>%
   group_by(date) %>%
-  summarise(sum_value = sum(value, na.rm = TRUE))
+  summarise(sum_value = sum(value, na.rm = TRUE)) %>%
+  mutate(series_id = "Total Tech Sector Employment")
 
 CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = CA_TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +

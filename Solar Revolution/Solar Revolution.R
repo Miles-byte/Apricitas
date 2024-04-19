@@ -1519,4 +1519,133 @@ TX_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+#GET DATA FROM:
+#https://www.eia.gov/electricity/data/eia860m/
+p_load(tigris)
+
+GENERATOR_CAPACITY_MAP_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_ADDITIONS_MAP_DATA.csv") %>%
+  transmute(capacity = as.numeric(gsub(",","",Nameplate.Capacity..MW.)), name = Energy.Source.Code, year = Planned.Operation.Year, state = Plant.State, Latitude, Longitude) %>%
+  filter(year == 2024) %>%
+  filter(name %in% c("SUN","WND","MWH","NUC")) %>%
+  mutate(name = case_when(
+    name == "SUN" ~ "Solar",
+    name == "WND" ~ "Wind",
+    name == "NUC" ~ "Nuclear",
+    name == "MWH" ~ "Batteries",
+    TRUE ~ as.character(name)  # Keeps other values unchanged
+  )) %>%
+  st_as_sf(., coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  shift_geometry(position = "below")
+
+states <- states(cb = TRUE, year = 2021) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84") %>%
+  mutate(state_abbv = gsub("\\s", "", STUSPS)) %>%
+  shift_geometry(position = "below") %>% #THIS PUTS HAWAII AND ALASKA BELOW THE MAP
+  filter(STATEFP < 60)
+
+GENERATOR_CAPACITY_MAP <- states %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  geom_point(data = GENERATOR_CAPACITY_MAP_DATA, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = name, size = capacity), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_manual(name = "Type",
+                    values = c("#FFE98F","#9A348E","#00A99D","#3083DC"),
+                    breaks = c("Solar", "Wind","Nuclear","Batteries"), 
+                    labels = c("Solar", "Wind","Nuclear","Batteries"),
+                    guide = guide_legend(override.aes = list(color = c("#FFE98F","#9A348E","#00A99D","#3083DC"), size = 5))) +
+  scale_size_area(name = "Capacity",
+                  max_size = 7,
+                  breaks = c(250,500,750,1000),
+                  limits = c(0,1114.0),
+                  labels = c("250MW","500MW","750MW","1GW"),
+                  guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("       New Clean Power Capacity Planned for 2024") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = GENERATOR_CAPACITY_MAP, "New Generator Capacity Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TX <- counties(cb = TRUE, year = 2021) %>%
+  filter(STUSPS == "TX") %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84") %>%
+  mutate(state_abbv = gsub("\\s", "", STUSPS))
+
+TX_GENERATOR_CAPACITY_MAP <- TX %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = filter(states, STUSPS == "TX"), color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  geom_point(data = filter(GENERATOR_CAPACITY_MAP_DATA, state == "TX"), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = name, size = capacity), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  coord_sf(xlim = c(-1500000, 500000)) +
+  scale_fill_manual(name = "Type",
+                    values = c("#FFE98F","#9A348E","#3083DC"),
+                    breaks = c("Solar", "Wind","Batteries"), 
+                    labels = c("Solar", "Wind","Batteries"),
+                    guide = guide_legend(override.aes = list(color = c("#FFE98F","#9A348E","#3083DC"), size = 5))) +
+  scale_size_area(name = "Capacity",
+                  max_size = 10,
+                  breaks = c(250,500,750,1000),
+                  limits = c(0,1114.0),
+                  labels = c("250MW","500MW","750MW","1GW"),
+                  guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Texas New Clean Power Capacity Planned for 2024") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = TX_GENERATOR_CAPACITY_MAP, "TX New Generator Capacity Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CA <- counties(cb = TRUE, year = 2021) %>%
+  filter(STUSPS == "CA") %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84") %>%
+  mutate(state_abbv = gsub("\\s", "", STUSPS))
+
+CA_GENERATOR_CAPACITY_MAP <- CA %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = filter(states, STUSPS == "CA"), color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  geom_point(data = filter(GENERATOR_CAPACITY_MAP_DATA, state == "CA"), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = name, size = capacity), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  coord_sf(xlim = c(-3000000, -1300000)) +
+  scale_fill_manual(name = "Type",
+                    values = c("#FFE98F","#9A348E","#3083DC"),
+                    breaks = c("Solar", "Wind","Batteries"), 
+                    labels = c("Solar", "Wind","Batteries"),
+                    guide = guide_legend(override.aes = list(color = c("#FFE98F","#9A348E","#3083DC"), size = 5))) +
+  scale_size_area(name = "Capacity",
+                  max_size = 10,
+                  breaks = c(250,500,750,1000),
+                  limits = c(0,1114.0),
+                  labels = c("250MW","500MW","750MW","1GW"),
+                  guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("CA New Clean Power Capacity Planned for 2024") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = CA_GENERATOR_CAPACITY_MAP, "CA New Generator Capacity Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAPACITY_BREAKDOWN <- GENERATOR_CAPACITY_MAP_DATA %>%
+  st_drop_geometry() %>%
+  group_by(state, name) %>%
+  summarise(total_capacity = sum(capacity, na.rm = TRUE))
+
+TOTAL_CAPACITY <- GENERATOR_CAPACITY_MAP_DATA %>%
+  st_drop_geometry() %>%
+  group_by(name) %>%  # Group by the type, e.g., solar
+  summarise(total_capacity_by_type = sum(capacity, na.rm = TRUE))
+
+TOTAL_CAPACITY_PCT <- left_join(CAPACITY_BREAKDOWN,TOTAL_CAPACITY, by = "name") %>%
+  mutate(percent_of_type_total = round(total_capacity/total_capacity_by_type*100,2))
   
