@@ -37,13 +37,13 @@ GDP <- statSearch(lang = "en",stat_code = "200Y004", item_code1 = "1400", start_
 GDP_Graph <- ggplot() + #plotting US Crude Production
   geom_line(data=GDP, aes(x=time,y= data_value/1000, color= "South Korean Real GDP"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(prefix = "₩",suffix = "T", accuracy = 1), limits = c(445,500),breaks = c(450,460,470,480,490,500), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "₩",suffix = "T", accuracy = 1), limits = c(445,520),breaks = c(450,460,470,480,490,500,510,520), expand = c(0,0)) +
   ylab("Trillions of 2015 South Korean Won, Quarterly") +
   ggtitle("Korea's Trade Toubles") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Korea data",subtitle = "South Korea's Economy Shrank in Q4—Thanks in Part to Weakening Net Exports") +
   theme_apricitas + theme(legend.position = c(.35,.85)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 445-(.3*55), ymax = 445) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 445-(.3*75), ymax = 445) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GDP_Graph, "GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

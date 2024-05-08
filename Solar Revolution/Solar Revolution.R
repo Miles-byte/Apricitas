@@ -1080,8 +1080,40 @@ TX_CA_SOLAR_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_CA_SOLAR_PRODUCTION_GRAPH, "TX CA Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+TX_CA_TOTAL_SOLAR_SHARE <- merge(TX_SOLAR,CA_SOLAR, by = "date") %>%
+  transmute(date, value = value.x/value.y, rollmean = rollmean.x/rollmean.y)
+
+TX_UTILITY_SOLAR <- eia1_series("ELEC.GEN.SUN.TX.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+CA_UTILITY_SOLAR <- eia1_series("ELEC.GEN.SUN.CA.99.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = generation) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+TX_CA_UTILITY_SOLAR_SHARE <- merge(TX_UTILITY_SOLAR,CA_UTILITY_SOLAR, by = "date") %>%
+  transmute(date, value = value.x/value.y, rollmean = rollmean.x/rollmean.y)
 
 
+TX_CA_SOLAR_SHARE_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(TX_CA_TOTAL_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Total Texas Solar as a Share of Total California Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_CA_TOTAL_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Total Texas Solar as a Share of Total California Solar"), size = 1.25) +
+  geom_line(data= filter(TX_CA_UTILITY_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Utility-Scale Texas Solar as a Share of Utility-Scale California Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_CA_UTILITY_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Utility-Scale Texas Solar as a Share of Utility-Scale California Solar"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), expand = c(0,0)) +
+  ylab("Percent of California's") +
+  ggtitle("Texas Solar as a % of California's") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas is Quickly Catching Up to California, America's Solar Leader") +
+  theme_apricitas + theme(legend.position = c(.45,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Net Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#00A99D"), breaks = c("Utility-Scale Texas Solar as a Share of Utility-Scale California Solar","Total Texas Solar as a Share of Total California Solar")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_CA_SOLAR_SHARE_GRAPH, "TX CA Electricity Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ERCOT_NUC <- eia1_series("STEO.NUEPGEN_TX.M") %>%
