@@ -142,6 +142,45 @@ ELEC_APPLIANCE_PRODUCTIVITY_GRAPH <- ggplot() + #plotting Total Manufacturing Pr
 
 ggsave(dpi = "retina",plot = ELEC_APPLIANCE_PRODUCTIVITY_GRAPH, "Electrical Appliance Productivity Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+CHEM_PRODUCTIVITY <- bls_api("IPUEN325___L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("IPUEN325___L000000000", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+PHARM_MEDIC_PRODUCTIVITY <- bls_api("IPUEN3254__L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("IPUEN3254__L000000000", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+BASIC_CHEM_PRODUCTIVITY <- bls_api("IPUEN3251__L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("IPUEN3251__L000000000", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+AG_CHEM_PRODUCTIVITY <- bls_api("IPUEN3253__L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("IPUEN3253__L000000000", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+
+CHEM_PRODUCTIVITY_GRAPH <- ggplot() + #plotting Total Manufacturing Productivity
+  geom_line(data= BASIC_CHEM_PRODUCTIVITY, aes(x=date,y=value/value[19]*100,color= "Basic Chemical Manufacturing"), size = 1.25) +
+  geom_line(data= PHARM_MEDIC_PRODUCTIVITY, aes(x=date,y=value/value[19]*100,color= "Pharmaceutical & Medicine Manufacturing"), size = 1.25) +
+  geom_line(data= AG_CHEM_PRODUCTIVITY, aes(x=date,y=value/value[19]*100,color= "Agricultural Chemical Manufacturing"), size = 1.25) +
+  geom_line(data= CHEM_PRODUCTIVITY, aes(x=date,y=value/value[19]*100,color= "Total Chemical Manufacturing"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(40,135), expand = c(0,0)) +
+  ylab("Index, 2005 = 100") +
+  ggtitle("US Chemical Manufacturing Productivity") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Productivity in Vehicle Production—Including Assembly, Bodies/Trailers, & Parts—Has Stagnated") +
+  theme_apricitas + theme(legend.position = c(.33,.85), legend.key.height = unit(0.4,"cm")) +
+  scale_color_manual(name= "Labor Productivity (Output Per Hour Worked), 2005 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Chemical Manufacturing","Basic Chemical Manufacturing","Pharmaceutical & Medicine Manufacturing","Agricultural Chemical Manufacturing"),guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1987-01-01")-(.1861*(today()-as.Date("1987-01-01"))), xmax = as.Date("1987-01-01")-(0.049*((today()-as.Date("1987-01-01")))), ymin = 40-(.3*(95)), ymax = 40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHEM_PRODUCTIVITY_GRAPH, "Chem Productivity Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 PRIMARY_METAL <- bls_api("IPUEN331___L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
   rbind(.,bls_api("IPUEN331___L000000000", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
   mutate(date = as.Date(paste0(year,"-01-01"))) %>%
@@ -210,6 +249,49 @@ CAPITAL_INTENSITY_TOTAL_GRAPH <- ggplot() + #plotting Manufacturing Capital Inte
 
 ggsave(dpi = "retina",plot = CAPITAL_INTENSITY_TOTAL_GRAPH, "Capital Intensity Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+LABOR_COMPOSITION_TOTAL <- bls_api("MPU9900182", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("MPU9900182", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+LABOR_COMPOSITION_COMPUTER <- bls_api("MPU5250182", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("MPU5250182", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+LABOR_COMPOSITION_ELECTRICAL <- bls_api("MPU5300182", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("MPU5300182", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+LABOR_COMPOSITION_VEHICLES <- bls_api("MPU5360182", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("MPU5360182", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+LABOR_COMPOSITION_CHEMICALS <- bls_api("MPU5800182", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("MPU5800182", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  arrange(date)
+
+LABOR_COMPOSITION_TOTAL_GRAPH <- ggplot() + #plotting Manufacturing Capital Intensity
+  geom_line(data= LABOR_COMPOSITION_COMPUTER, aes(x=date,y=value/value[19]*100,color= "Computers & Electronics Manufacturing"), size = 1.25) +
+  geom_line(data= LABOR_COMPOSITION_ELECTRICAL, aes(x=date,y=value/value[19]*100,color= "Electrical Equipment & Appliances Manufacturing"), size = 1.25) +
+  geom_line(data= LABOR_COMPOSITION_VEHICLES, aes(x=date,y=value/value[19]*100,color= "Vehicle & Parts Manufacturing"), size = 1.25) +
+  geom_line(data= LABOR_COMPOSITION_CHEMICALS, aes(x=date,y=value/value[19]*100,color= "Chemical Manufacturing"), size = 1.25) +
+  geom_line(data= LABOR_COMPOSITION_TOTAL, aes(x=date,y=value/value[19]*100,color= "All Manufacturing"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(93,103.5), expand = c(0,0)) +
+  ylab("Index, 2005 = 100") +
+  ggtitle("US Manufacturing Labor Composition") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "An Aging Workforce and Slowdown in Education Gains Have Weakened Productivity Growth") +
+  theme_apricitas + theme(legend.position = c(.72,.28), legend.key.height = unit(0.4,"cm")) +
+  scale_color_manual(name= "Contribution of Labor Composition\nto Labor Productivity, 2005 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Manufacturing","Chemical Manufacturing","Computers & Electronics Manufacturing","Electrical Equipment & Appliances Manufacturing","Vehicle & Parts Manufacturing"),guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1987-01-01")-(.1861*(today()-as.Date("1987-01-01"))), xmax = as.Date("1987-01-01")-(0.049*((today()-as.Date("1987-01-01")))), ymin = 93-(.3*(10.5)), ymax = 93) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LABOR_COMPOSITION_TOTAL_GRAPH, "Labor Composition Total Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 LABOR_PRODUCTIVITY_BAR_CHART_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/US%20Manufacturing%20Productivity%20Problem/LABOR_PRODUCTIVITY_BAR_CHART_DATA.csv") %>%
   transmute(Industry,Growth_87_05 = Growth_87_05-1,Growth_05_23 = Growth_05_23-1) %>%
@@ -238,8 +320,70 @@ LABOR_PRODUCTIVITY_BAR_CHART_GRAPH <- ggplot(data = LABOR_PRODUCTIVITY_BAR_CHART
 
 ggsave(dpi = "retina",plot = LABOR_PRODUCTIVITY_BAR_CHART_GRAPH, "Labor Productivity Bar Chart Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+PRODUCT_DISP_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/US%20Manufacturing%20Productivity%20Problem/PRODUCTIVITY_DISPERSION_DATA.csv") %>%
+  mutate(date = as.Date(paste0(year, "-01-01"))) %>%
+  filter(naics4 %in% c(3341,3344)) %>%
+  mutate(across(where(is.character), as.numeric))
 
-?geom_bar()
+PRODUCT_DISP_DATA_GRAPH <- ggplot() + #plotting Dispersion
+  geom_line(data= filter(PRODUCT_DISP_DATA, naics4 == 3341), aes(x=date,y=`d7525.`,color= "Computers & Related Peripherals"), size = 1.25) +
+  geom_line(data= filter(PRODUCT_DISP_DATA, naics4 == 3344), aes(x=date,y=`d7525.`,color= "Semiconductors & Electronics Components"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,3.1), expand = c(0,0)) +
+  ylab("Difference, Natural Log of Labor Productivity") +
+  ggtitle("Dispersion of US Electronics Manufacturing\nLabor Productivity") +
+  labs(caption = "Graph created by @JosephPolitano using US Census-BLS Dispersion Statistics on Productivity (DiSP) Data",subtitle = "The Dispersion in US Electronics Manufacturing Productivity Spiked Post-2000") +
+  theme_apricitas + theme(legend.position = c(.72,.22)) +
+  scale_color_manual(name= "Difference Between 75th and 25th Percentiles\nof the Natural Log of Establishment Labor Productivity",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1988-01-01")-(.1861*(today()-1400-as.Date("1988-01-01"))), xmax = as.Date("1988-01-01")-(0.049*((today()-1400-as.Date("1988-01-01")))), ymin = 0-(.3*(3.1)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PRODUCT_DISP_DATA_GRAPH, "Product Disp Data Graph Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+SHIPMENTS_TOTAL <- fredr("AMTMVS")
+
+SHIPMENTS_COMPUTER <- fredr("A34SVS")
+
+SHIPMENTS_COMPUTER_SHARE <- merge(SHIPMENTS_COMPUTER,SHIPMENTS_TOTAL, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+SHIPMENTS_COMPUTER_SHARE_GRAPH <- ggplot() + #shipments share
+  geom_line(data= SHIPMENTS_COMPUTER_SHARE, aes(x=date,y= value,color= "Computer & Electronics Manufacturing\nShare of All US Manufacturing Shipments"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.13), expand = c(0,0)) +
+  ylab("Share of All Manufacturing Shipments") +
+  ggtitle("The Decline of US Electronics Manufacturing") +
+  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "Electronics Manufacturing Became a Shrinking Share of American Industry Post-01 and Post-08") +
+  theme_apricitas + theme(legend.position = c(.72,.75)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*(today()-as.Date("1992-01-01"))), xmax = as.Date("1992-01-01")-(0.049*((today()-as.Date("1992-01-01")))), ymin = 0-(.3*(.13)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = SHIPMENTS_COMPUTER_SHARE_GRAPH, "Shipments Computer Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+FIRM_ENTRY_RATE <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/US%20Manufacturing%20Productivity%20Problem/FIRM_ENTRY_RATE_DATA.csv") %>%
+  transmute(firm, date = as.Date(paste0(year, "-01-01")), sector) %>%
+  pivot_wider(names_from = sector, values_from = firm)
+
+FIRM_ENTRY_RATE_Graph <- ggplot() + #shipments share
+  geom_line(data= FIRM_ENTRY_RATE, aes(x=date,y= `335`/100,color= "Electrical Equipment & Appliance Manufacturing"), size = 1.25) +
+  geom_line(data= FIRM_ENTRY_RATE, aes(x=date,y= `336`/100,color= "Transportation Equipment Manufacturing"), size = 1.25) +
+  geom_line(data= FIRM_ENTRY_RATE, aes(x=date,y= `325`/100,color= "Chemical Manufacturing"), size = 1.25) +
+  geom_line(data= FIRM_ENTRY_RATE, aes(x=date,y= `334`/100,color= "Computer & Electronics Manufacturing"), size = 1.25) +
+  geom_line(data= FIRM_ENTRY_RATE, aes(x=date,y= `31-33`/100,color= "All Manufacturing"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.13), expand = c(0,0)) +
+  ylab("Share of All Manufacturing Shipments") +
+  ggtitle("Manufacturing Firm Entry Rate") +
+  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "The Rate of New US Manufacturing Firm Creation Has Declined Significant Since the 1980s") +
+  theme_apricitas + theme(legend.position = c(.69,.87), legend.key.height = unit(0.4,"cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Manufacturing","Chemical Manufacturing","Computer & Electronics Manufacturing","Electrical Equipment & Appliance Manufacturing","Transportation Equipment Manufacturing"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1978-01-01")-(.1861*(today()-as.Date("1978-01-01"))), xmax = as.Date("1978-01-01")-(0.049*((today()-as.Date("1978-01-01")))), ymin = 0-(.3*(.13)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIRM_ENTRY_RATE_Graph, "Firm Entry Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 USE THIS FOR CONTRIBUTION CALCULATIONS
 https://www.bls.gov/productivity/highlights/contributions-of-total-factor-productivity-major-industry-to-output.htm

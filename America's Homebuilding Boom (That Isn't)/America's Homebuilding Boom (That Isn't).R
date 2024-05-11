@@ -1753,36 +1753,316 @@ ZHVI_STATES <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhv
   subset(date == max(date)) %>%
   ungroup()
 
-states <- states %>%
+states <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf() %>%
   mutate(states = state_name)
 
 states <- left_join(states, ZHVI_STATES, by = "state_name")
 
-ZHVI_STATES <- ggplot() +
-  geom_sf(data = states %>% mutate(value = case_when(
-    value > 0.10 ~ 0.10,
-    value < -0.10 ~ -0.10,
-    TRUE ~ value
-  )), aes(fill = value)) +
-  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
+states_territories_centroids <- get_urbn_map("territories_states", sf = TRUE) %>%
+  filter(state_fips != 69 & state_fips != 60 & state_fips != 66 & state_fips != 78 & state_fips != 72) %>% #ex guam, northern mariana islansa, and American Samoa
+  st_as_sf() %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states, .) %>%
+  select(-geometry) %>%
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  st_centroid()
+
+states_territories_labls <- get_urbn_labels(map = "territories") %>%
+  left_join(ZHVI_STATES, by = "state_name") %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+ZHVI_STATES_MAP <- states %>%
+  ggplot(aes(fill = value)) +
+  geom_sf(data = states, aes(fill = value), color = "black", lwd = 0.65) + # Black borders for states
+  scale_fill_viridis_c(breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10%","-5%","+0%","+5%","+10%")) +#,
+                       #limits = c(-0.12,0.12)) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "  ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "  ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "  ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "  ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", " "), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(states_territories_labls, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
   ggtitle("   Zillow Home Value Change Over The Last 12M") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using Zillow data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+ggsave(dpi = "retina",plot = ZHVI_STATES_MAP, "ZHVI_States.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-ggsave(dpi = "retina",plot = ZHVI_STATES, "ZHVI_States.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-#SELECTED MAJOR METRO AREAS GRAPH
+ZHVI_AGG <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/State_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1689276452") %>%
+  select(-RegionID, -SizeRank, - RegionType, - StateName, -StateName) %>%
+  #transpose() %>%
+  gather(key = "date", value = "value",-1) %>%
+  transmute(date = as.Date(gsub("X","",date), "%Y.%m.%d"), state_name = RegionName, value) %>%
+  group_by(state_name) %>%
+  subset(date == max(date)) %>%
+  ungroup()
+
+states_AGG <- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf() %>%
+  mutate(states = state_name)
+
+states_AGG <- left_join(states_AGG, ZHVI_AGG, by = "state_name")
+
+states_territories_centroids_AGG <- get_urbn_map("territories_states", sf = TRUE) %>%
+  filter(state_fips != 69 & state_fips != 60 & state_fips != 66 & state_fips != 78 & state_fips != 72) %>% #ex guam, northern mariana islansa, and American Samoa
+  st_as_sf() %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states_AGG, .) %>%
+  select(-geometry) %>%
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  st_centroid()
+
+states_territories_labls_AGG <- get_urbn_labels(map = "territories") %>%
+  left_join(ZHVI_AGG, by = "state_name") %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+ZHVI_STATES_AGG_MAP <- states_AGG %>%
+  ggplot(aes(fill = value)) +
+  geom_sf(data = states_AGG, aes(fill = value), color = "black", lwd = 0.65) + # Black borders for states
+  scale_fill_viridis_c(breaks = c(200000,400000,600000,800000), 
+                       labels = c("$200k","$400k","$600k","$800k")) +#,
+  #limits = c(-0.12,0.12)) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_AGG, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(states_territories_labls_AGG, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN","SC","ME")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_AGG, state_abbv %in% c("FL","IN","TN","SC","ME")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_AGG, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_AGG, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(value >= 0, "$", ""), sprintf("%.0f", round(value/1000, 0)), "k"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  ggtitle(paste("       Zillow Home Value Index:", unique(format(states_AGG$date, "%B %Y")))) +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = ZHVI_STATES_AGG_MAP, "ZHVI_States Agg.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 ZHVI_ZIP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1685429158") %>%
   select(-RegionID, -SizeRank, - RegionType, - StateName) %>%
@@ -1793,12 +2073,12 @@ ZHVI_ZIP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Z
   group_by(ZIP) %>%
   mutate(value = (value-lag(value,12))/lag(value,12)) %>%
   subset(date == max(date)) %>%
-  ungroup() %>%
-  mutate(value = case_when(
-    value > 0.10 ~ 0.10,
-    value < -0.10 ~ -0.10,
-    TRUE ~ value
-  ))
+  ungroup() #%>%
+  #mutate(value = case_when(
+    #value > 0.10 ~ 0.10,
+    #value < -0.10 ~ -0.10,
+    #TRUE ~ value
+  #))
 
 options(tigris_use_sf = TRUE)
 options(tigris_use_cache = TRUE)
@@ -1818,28 +2098,34 @@ NYC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("New York-Newark-Jersey City, NY-NJ-PA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
-  ggtitle("New York") +
+  scale_fill_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"),limits = c(-.21,.21)) +
+  scale_color_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"), limits = c(-.21,.21), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
+  ggtitle("Zillow Home Value Change Over The Last 12M") +
+  #ggtitle("NYC") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) + 
   theme(plot.title = element_text(size = 13,hjust = 0.5))
+
+ggsave(dpi = "retina",plot = NYC, "ZIP_NYC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 ZIP_LA <- ZIP_ZHVI_MERGE %>%
   subset(State == "CA") %>%
@@ -1852,6 +2138,8 @@ LA <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Los Angeles-Long Beach-Anaheim, CA","Riverside-San Bernardino-Ontario, CA") & ZCTA5CE20 != "90704" & ZCTA5CE20 !="93562"), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_LA, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
   scale_fill_gradient(high = "#00A99D",
                       low = "#EE6055",
                       space = "Lab",
@@ -1885,28 +2173,36 @@ DC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Washington-Arlington-Alexandria, DC-VA-MD-WV")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"),limits = c(-.21,.21)) +
+  scale_color_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"), limits = c(-.21,.21), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Washington DC") +
+  ggtitle("Zillow Home Value Change Over the Last 12M") +
+  
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
-  theme(plot.title = element_text(size = 13,hjust = 0.5))
+  #theme(plot.title = element_text(size = 13,hjust = 0.5))
+  theme(plot.title = element_text(size = 24,hjust = 0.5))
+
+ggsave(dpi = "retina",plot = DC, "ZIP_DC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 ZIP_Chicago <- ZIP_ZHVI_MERGE %>%
   subset(State == "IL") %>%
@@ -1919,6 +2215,8 @@ CHI <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Chicago-Naperville-Elgin, IL-IN-WI")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_Chicago, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
   scale_fill_gradient(high = "#00A99D",
                       low = "#EE6055",
                       space = "Lab",
@@ -1953,6 +2251,8 @@ SF <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Francisco-Oakland-Berkeley, CA","San Jose-Sunnyvale-Santa Clara, CA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SF, fill = NA, color = "black", lwd = 0.40) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
   scale_fill_gradient(high = "#00A99D",
                       low = "#EE6055",
                       space = "Lab",

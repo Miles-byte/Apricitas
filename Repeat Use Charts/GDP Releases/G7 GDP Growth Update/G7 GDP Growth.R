@@ -23,7 +23,7 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -131,7 +131,7 @@ US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date
   mutate(value = value/value[7]*100)
 
 #change to pn2 for first estimates
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
