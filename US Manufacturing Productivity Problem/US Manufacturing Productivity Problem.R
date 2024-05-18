@@ -134,7 +134,7 @@ ELEC_APPLIANCE_PRODUCTIVITY_GRAPH <- ggplot() + #plotting Total Manufacturing Pr
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(40,120), expand = c(0,0)) +
   ylab("Index, 2005 = 100") +
   ggtitle("US Electrical Equipment & Appliance\nManufacturing Productivity") +
-  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Productivity in Vehicle Production—Including Assembly, Bodies/Trailers, & Parts—Has Stagnated") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Productivity in Electrical Equipment and Appliance Manufacturing Has Stagnated Since 2005") +
   theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0.4,"cm")) +
   scale_color_manual(name= "Labor Productivity (Output Per Hour Worked), 2005 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Electrical Equipment, Appliance, & Related Manufacturing","Electrical Equipment Manufacturing","Household Appliance Manufacturing"),guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1987-01-01")-(.1861*(today()-as.Date("1987-01-01"))), xmax = as.Date("1987-01-01")-(0.049*((today()-as.Date("1987-01-01")))), ymin = 40-(.3*(80)), ymax = 40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -172,7 +172,7 @@ CHEM_PRODUCTIVITY_GRAPH <- ggplot() + #plotting Total Manufacturing Productivity
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(40,135), expand = c(0,0)) +
   ylab("Index, 2005 = 100") +
   ggtitle("US Chemical Manufacturing Productivity") +
-  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Productivity in Vehicle Production—Including Assembly, Bodies/Trailers, & Parts—Has Stagnated") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Productivity in Chemical Manufacturing Has Stagnated, with Pharma Producitivity Falling") +
   theme_apricitas + theme(legend.position = c(.33,.85), legend.key.height = unit(0.4,"cm")) +
   scale_color_manual(name= "Labor Productivity (Output Per Hour Worked), 2005 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Chemical Manufacturing","Basic Chemical Manufacturing","Pharmaceutical & Medicine Manufacturing","Agricultural Chemical Manufacturing"),guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1987-01-01")-(.1861*(today()-as.Date("1987-01-01"))), xmax = as.Date("1987-01-01")-(0.049*((today()-as.Date("1987-01-01")))), ymin = 40-(.3*(95)), ymax = 40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

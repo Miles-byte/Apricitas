@@ -371,7 +371,7 @@ CPIPCT_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
 
 ggsave(dpi = "retina",plot = CPIPCT_Graph, "CPI PCT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2023/11/Oct-2023-ManheimUsedVehicleValueIndex-web-table-data.xlsx") %>%
+Manheim_Bulk <- read.xlsx("https://site.manheim.com/wp-content/uploads/sites/2/2024/05/Apr-2024-Manheim-Used-Vehicle-Value-Index.xlsx") %>%
   mutate(date = seq.Date(from = as.Date("1997-01-01"), by = "month", length.out = nrow(.))) %>%
   subset(date >= as.Date("2018-11-01"))
 
@@ -395,7 +395,7 @@ CPI_Manheim_Used_Car_Vehicles_Graph <- ggplot() + #plotting "Used Cars and Truck
 ggsave(dpi = "retina",plot = CPI_Manheim_Used_Car_Vehicles_Graph, "CPI Manheim Used Vehicles.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-CPIUSEDCARS_GROWTH <- bls_api("CUUR0000SETA02", startyear = 2017, endyear = 2023, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+CPIUSEDCARS_GROWTH <- bls_api("CUUR0000SETA02", startyear = 2017, endyear = 2024, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   arrange(date) %>%
   mutate(value = (value-lag(value,12))/lag(value,12)) %>%

@@ -1,4 +1,4 @@
-pacman::p_load(readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 #Using an updated version of the Chinese national stats bureau rstatscn package that fixes a json error in the old database
 install_github("pcdi/rstatscn")
@@ -95,7 +95,7 @@ CHINA_PV_EXPORTS_Stacked <- ggplot(CHINA_SOLAR_EXPORTS %>%
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
   ylab("GW of Capacity, Monthly Average") + 
-  scale_y_continuous(labels = scales::number_format(suffix = "GW"), breaks = c(0,5,10,15,25), limits = c(0,25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "GW"), breaks = c(0,5,10,15,20,25), limits = c(0,25), expand = c(0,0)) +
   ggtitle("China's Booming Solar Panel Exports") +
   labs(caption = "Graph created by @JosephPolitano using Ember Climate data", subtitle = "China Solar Exports are Rising Rapidly, Especially to Europe") +
   theme_apricitas + theme(legend.position = c(.4,.68), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
@@ -118,7 +118,7 @@ CHINA_PV_EXPORTS_MONTHLY_Stacked <- ggplot(CHINA_SOLAR_EXPORTS %>%
   ggtitle("China's Booming Solar Panel Exports") +
   labs(caption = "Graph created by @JosephPolitano using Ember Climate data", subtitle = "China Solar Exports are Rising Rapidly, Especially to Europe") +
   theme_apricitas + theme(legend.position = c(.4,.68), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= "GW of Capacity, 12M Moving Average",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#F5B041","#9A348E","#00A99D","#EE6055","#FFE98F")),breaks = c("Europe","Asia","Latin America and Caribbean","Middle East","Africa","Oceania","North America")) +
+  scale_fill_manual(name= "GW of Capacity, Monthly",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#F5B041","#9A348E","#00A99D","#EE6055","#FFE98F")),breaks = c("Europe","Asia","Latin America and Caribbean","Middle East","Africa","Oceania","North America")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -200,7 +200,7 @@ US_NET_EV_EXPORTS <- merge(US_EV_EXPORTS %>% select(`Total For All Countries`,`E
 US_NET_EV_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassed",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`Net Exports`*12)/1000000000,color= "US Net Exports of Electric Vehicles, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollnetexports`)/1000000000,color= "US Net Exports of Electric Vehicles, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
@@ -220,9 +220,9 @@ ggsave(dpi = "retina",plot = US_NET_EV_IMPORTS_GRAPH, "US EV Imports Graph.png",
 US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassed",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   annotate(geom = "vline",x = as.Date("2022-12-29"), xintercept = as.Date("2022-12-29"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "EV Leasing\nCredit\nAnnounced",x = as.Date("2023-05-15"), y = 11, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "EV Leasing\nCredit\nAnnounced",x = as.Date("2023-06-15"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`China.y`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union.y`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico.y`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -234,13 +234,13 @@ US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico"), size = 1.25) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,12.5),breaks = c(0,3,6,9,12), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,13),breaks = c(0,3,6,9,12), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's EV Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data Via Chad Bown",subtitle = "US Imports of Finished Electric Vehicles Have Increased Significantly Even After the IRA") +
-  theme_apricitas + theme(legend.position = c(.35,.75)) +
+  theme_apricitas + theme(legend.position = c(.33,.76)) +
   #theme(legend.key.width =  unit(.82, "cm")) +
-  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China"))+ #), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
+  scale_color_manual(name= "Gross EV Imports\nSolid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China"))+ #), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(12)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -342,24 +342,23 @@ US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
   annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 15, size = 4,color = "white", lineheight = 0.8) +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`European Union`*12/1000000000,color= "EU, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Mexico`*12/1000000000,color= "Mexico, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`South Korea`*12/1000000000,color= "South Korea, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Japan`*12/1000000000,color= "Japan, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`China`*12/1000000000,color= "China, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollJP/1000000000,color= "Japan, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollSK/1000000000,color= "South Korea, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollMX/1000000000,color= "Mexico, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China, Rolling 12M Total"), size = 1.25) +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`European Union`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Mexico`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`South Korea`*12/1000000000,color= "South Korea"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Japan`*12/1000000000,color= "Japan"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`China`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollJP/1000000000,color= "Japan"), size = 1.25) +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollSK/1000000000,color= "South Korea"), size = 1.25) +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollMX/1000000000,color= "Mexico"), size = 1.25) +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU"), size = 1.25) +
+  geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,22.5),breaks = c(0,5,10,15,20), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's Net Battery Imports") +
-  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "US Imports of Rechargeable Batteries Have Surged, Especially From China") +
-  theme_apricitas + theme(legend.position = c(.25,.60)) +
-  theme(legend.key.width =  unit(.82, "cm")) +
-  scale_color_manual(name= "US Net Imports of Rechargeable Batteries",values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#EE6055","#A7ACD9","#A7ACD9","#9A348E","#9A348E"), breaks = c("EU, Rolling 12M Total","EU, Monthly Annualized","South Korea, Rolling 12M Total","South Korea, Monthly Annualized","Mexico, Rolling 12M Total","Mexico, Monthly Annualized","Japan, Rolling 12M Total","Japan, Monthly Annualized","China, Rolling 12M Total","China, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
+  labs(caption = "Graph created by @JosephPolitano using US Census Data. Note: China Includes HK & MO",subtitle = "US Imports of Rechargeable Batteries Have Surged, Especially From China") +
+  theme_apricitas + theme(legend.position = c(.33,.70)) +
+  scale_color_manual(name= "US Net Imports of Rechargeable Batteries\nSolid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(22.5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -402,29 +401,136 @@ US_EV_BATTERY_IMPORTS_BREAKDOWN <- US_EV_BATTERY_IMPORTS %>%
 US_EV_BATTERY_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 2, size = 4,color = "white", lineheight = 0.8) +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union`*12/1000000000,color= "EU, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico`*12/1000000000,color= "Mexico, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Korea, South`*12/1000000000,color= "South Korea, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Japan`*12/1000000000,color= "Japan, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`China`*12/1000000000,color= "China, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollJP/1000000000,color= "Japan, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollSK/1000000000,color= "South Korea, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU, Rolling 12M Total"), size = 1.25) +
-  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollCN/1000000000,color= "China, Rolling 12M Total"), size = 1.25) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 3, size = 4,color = "white", lineheight = 0.8) +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Korea, South`*12/1000000000,color= "South Korea"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Japan`*12/1000000000,color= "Japan"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`China`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollJP/1000000000,color= "Japan"), size = 1.25) +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollSK/1000000000,color= "South Korea"), size = 1.25) +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollMX/1000000000,color= "Mexico"), size = 1.25) +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollEU/1000000000,color= "EU"), size = 1.25) +
+  geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=rollCN/1000000000,color= "China"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 0.5, suffix = "B"),limits = c(0,5),breaks = c(0,1,2,3,4,5), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's EV Battery Imports") +
-  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "Gross Imports of EV Batteries Have Surged Over the Last Few Years") +
-  theme_apricitas + theme(legend.position = c(.25,.65)) +
-  theme(legend.key.width =  unit(.82, "cm")) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#00A99D","#EE6055","#EE6055","#A7ACD9","#A7ACD9","#9A348E","#9A348E"), breaks = c("EU, Rolling 12M Total","EU, Monthly Annualized","South Korea, Rolling 12M Total","South Korea, Monthly Annualized","Mexico, Rolling 12M Total","Mexico, Monthly Annualized","Japan, Rolling 12M Total","Japan, Monthly Annualized","China, Rolling 12M Total","China, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(4)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "Gross Imports of EV Batteries Have Surged Over the Last Few Years, Led by China") +
+  theme_apricitas + theme(legend.position = c(.33,.70)) +
+  scale_color_manual(name= "US Gross Imports of EV Batteries\nSolid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_EV_BATTERY_IMPORTS_BREAKDOWN_GRAPH, "US EV Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#Solar
+
+US_SOLAR_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "854142",
+  I_COMMODITY = "854143"
+)
+
+US_SOLAR_IMPORTS <- US_SOLAR_IMPORTS_BULK %>%
+  mutate(value = as.numeric(GEN_VAL_MO)) %>%
+  mutate(name = str_to_title (CTY_NAME)) %>%
+  mutate(date = as.Date(paste0(time,"-01"))) %>%
+  select(value,name,date) %>%
+  group_by(date, name) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  ungroup() %>%
+  pivot_wider()
+
+US_SOLAR_CELLS_EXPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  #DF = 1, #excluding reexport
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  E_COMMODITY = "854142"
+)
+
+US_SOLAR_MODULES_BULK <- getCensus(
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  #DF = 1, #excluding reexport
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  E_COMMODITY = "854143"
+)
+
+US_SOLAR_EXPORTS_BULK <- rbind(US_SOLAR_CELLS_EXPORTS_BULK,US_SOLAR_MODULES_BULK)
+
+US_SOLAR_EXPORTS <- US_SOLAR_EXPORTS_BULK %>%
+  mutate(value = as.numeric(ALL_VAL_MO)) %>%
+  mutate(name = str_to_title (CTY_NAME)) %>%
+  mutate(date = as.Date(paste0(time,"-01"))) %>%
+  select(value,name,date) %>%
+  group_by(date, name) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  ungroup() %>%
+  pivot_wider()
+
+US_NET_SOLAR_EXPORTS <- merge(US_SOLAR_EXPORTS %>% select(`Total For All Countries`,`Malaysia`,`Vietnam`,`Korea, South`,`Thailand`,`China`,`Hong Kong`,`date`),US_SOLAR_IMPORTS %>% select(`Total For All Countries`,`Malaysia`,`Vietnam`,`Korea, South`,`Cambodia`,`Thailand`,`China`,`Hong Kong`,`date`), by = "date") %>%
+  mutate(across(where(is.numeric), ~ replace_na(., 0))) %>%
+  mutate(date, `Net Exports`=`Total For All Countries.x`-`Total For All Countries.y`, `Malaysia`=`Malaysia.x`-`Malaysia.y`, `South Korea`=`Korea, South.x`-`Korea, South.y`, `Vietnam`=`Vietnam.x`-`Vietnam.y`, `Cambodia`= -`Cambodia`, `Thailand` = `Thailand.x`-`Thailand.y`, `China` = `China.x` + `Hong Kong.x` - `China.y` - `Hong Kong.y`) %>%
+  mutate(rollnetexports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Net Exports`,12))) %>%
+  mutate(rollKH = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Cambodia`,12))) %>%
+  mutate(rollSK = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`South Korea`,12))) %>%
+  mutate(rollVN = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Vietnam`,12))) %>%
+  mutate(rollMY = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Malaysia`,12))) %>%
+  mutate(rollTH = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Thailand`,12))) %>%
+  mutate(rollCN = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`China`,12)))
+
+US_NET_SOLAR_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of Solar
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-07-01"), y = 15, size = 4,color = "white", lineheight = 0.8) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`Net Exports`*12)/1000000000,color= "US Net Imports of Solar Cells and Modules\nMonthly Annualized"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`rollnetexports`)/1000000000,color= "US Net Imports of Solar Cells and Modules, Rolling 12M Total"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0, 25), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("America's Net Solar Imports") +
+  labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "The US is a Major Net Importer of Solar Cells and Panels") +
+  theme_apricitas + theme(legend.position = c(.7,.35)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*((today()-as.Date("2022-01-01")))), ymin = 0-(.3*(25)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_NET_SOLAR_IMPORTS_GRAPH, "US Solar Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-07-01"), y = 6, size = 4,color = "white", lineheight = 0.8) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Thailand`*12/1000000000,color= "Thailand"), size = 1.25) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Cambodia`*12/1000000000,color= "Cambodia"), size = 1.25) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`South Korea`*12/1000000000,color= "South Korea"), size = 1.25) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Malaysia`*12/1000000000,color= "Malaysia"), size = 1.25) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`China`*12/1000000000,color= "China"), size = 1.25) +
+  geom_line(data= filter(US_NET_SOLAR_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Vietnam`*12/1000000000,color= "Vietnam"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollJP/1000000000,color= "Japan"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollSK/1000000000,color= "South Korea"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollMX/1000000000,color= "Mexico"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU"), size = 1.25) +
+  #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-0.1,8),breaks = c(0,2,4,6,8,10), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("US Net Solar Cell and Module Imports") +
+  labs(caption = "Graph created by @JosephPolitano using US Census Data. Note: China Includes HK & MO",subtitle = "US Imports of Solar Cells and Modules Primarily Come From Southeast Asia, Not China") +
+  theme_apricitas + theme(legend.position = c(.14,.69)) +
+  scale_color_manual(name= "Net Imports\nMonthly Annualized",values = c("#FFE98F","#EE6055","#A7ACD9","#3083DC","#00A99D","#9A348E"), breaks = c("Vietnam","Thailand","Malaysia","Cambodia","South Korea","China")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*((today()-as.Date("2022-01-01")))), ymin = 0-(.3*(8)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH, "US Net Solar Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
 
 EU_BATTERY_TRADE_BULK <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.EU27_2020_EXTRA.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[product]=8507&c[flow]=1,2&compress=false"))
 
@@ -1521,15 +1627,15 @@ US_BATTERY_STEO <- eia1_series("STEO.BAEPCGW_US.M") %>%
 US_BATTERY_STORAGE_STEO_GRAPH <- ggplot() + 
   annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 30, color = "#EE6055", size = 5, alpha = 0.6) +
-  geom_line(data= filter(US_BATTERY_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "US Battery Storage Power Capacity, GW"), size = 1.25) +
+  geom_line(data= filter(US_BATTERY_STEO, date >= as.Date("2018-01-01")), aes(x=date,y=value,color= "US Grid-Scale Battery Storage Power Capacity, GW"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "GW"),limits = c(0, ceiling(max(US_BATTERY_STEO$value)/10)*10), expand = c(0,0)) +
   ylab("GW") +
   ggtitle("America's Battery Boom") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Battery Storage Capacity is Booming and Projected to Nearly-Triple by 2025") +
-  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_BATTERY_STEO$value)/10)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()+700-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()+700-as.Date("2018-01-01")))), ymin = 0-(.3*(ceiling(max(US_BATTERY_STEO$value)/10)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_BATTERY_STORAGE_STEO_GRAPH, "US Battery Storage STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

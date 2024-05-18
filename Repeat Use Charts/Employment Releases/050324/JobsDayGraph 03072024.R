@@ -2684,7 +2684,7 @@ JOB_GROWTH_STATE_YOY <- states_job_growth_NSA  %>%
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
   theme(plot.title = element_text(size = 26))
 
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY, "Job Growth By State Yoy Map2.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY, "Job Growth By State Yoy Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 PAYEMS_2020 <- fredr(series_id = "PAYEMS",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%

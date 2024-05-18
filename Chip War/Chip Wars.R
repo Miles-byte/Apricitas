@@ -262,6 +262,52 @@ US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
 
 ggsave(dpi = "retina",plot = US_IC_EXPORTS_CHINA_Graph, "US IC Exports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+US_CHIP_IMPORTS_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "8542",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+US_IC_IMPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=filter(US_CHIP_IMPORTS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "US Gross Imports of Semiconductors from China\nSeasonally Adjusted at Annual Rates"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,5.75), breaks = c(0,1,2,3,4,5), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US Semiconductor Imports From China") +
+  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA. Note: China Includes HK & MO",subtitle = "The US Doesn't Import Many Semiconductors From China, and Imports Have Been Declining") +
+  theme_apricitas + theme(legend.position = c(.65,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*5.5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_IC_IMPORTS_CHINA_Graph, "US IC Imports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 US_CHIP_MACHINES_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
