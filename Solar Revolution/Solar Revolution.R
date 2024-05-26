@@ -1,4 +1,4 @@
-pacman::p_load(tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 #Using an updated version of the Chinese national stats bureau rstatscn package that fixes a json error in the old database
 install_github("pcdi/rstatscn")
@@ -194,7 +194,9 @@ US_NET_EV_EXPORTS <- merge(US_EV_EXPORTS %>% select(`Total For All Countries`,`E
   mutate(rollSK = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Korea, South.y`,12))) %>%
   mutate(rollMX = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Mexico.y`,12))) %>%
   mutate(rollJP = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Japan.y`,12))) %>%
-  mutate(rollCN = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`China.y`,12)))
+  mutate(rollCN = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`China.y`,12))) %>%
+  mutate(rollgrossimports = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(`Total For All Countries.y`,12)))
+  
 
 
 US_NET_EV_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
@@ -529,7 +531,490 @@ US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of E
 
 ggsave(dpi = "retina",plot = US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH, "US Net Solar Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_STEEL_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "72",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
 
+US_STEEL_PRODUCTS_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "73",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+
+US_ALUM_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "76",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+
+US_STEEL_ALUM_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=filter(US_STEEL_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Iron & Steel"), size = 1.25) + 
+  #geom_line(data=filter(US_STEEL_PRODUCTS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Iron & Steel Products"), size = 1.25) + 
+  geom_line(data=filter(US_ALUM_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Aluminum & Related"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,5.75), breaks = c(0,1,2,3,4,5), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US Iron, Steel, & Aluminum Imports From China") +
+  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA. Note: China Includes HK & MO",subtitle = "US Aluminum Imports From China are Significantly More Important Than Iron & Steel Imports") +
+  theme_apricitas + theme(legend.position = c(.57,.75), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "US Gross Imports from China\nSeasonally Adjusted at Annual Rates",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*5.5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_STEEL_ALUM_CHINA_Graph, "US Steel Alum China Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+US_NAT_GRAPH_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "2504",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+US_PERMANENT_MAGNETS_CHINA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "850511",#, #Machines Principally Used to Manufacture Semiconductors
+  I_COMMODITY = "850519",#, #Machines Principally Used to Manufacture Semiconductors
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  #CTY_CODE = "-", #Total
+) %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+US_CRITICAL_MINERALS_CHINA_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "251110",
+  I_COMMODITY = "251910",
+  I_COMMODITY = "251990",
+  I_COMMODITY = "252921",
+  I_COMMODITY = "252922",
+  I_COMMODITY = "253020",
+  I_COMMODITY = "253090",
+  I_COMMODITY = "260200",
+  I_COMMODITY = "260400",
+  I_COMMODITY = "260500",
+  I_COMMODITY = "260600",
+  I_COMMODITY = "260800",
+  I_COMMODITY = "260900",
+  I_COMMODITY = "261000",
+  I_COMMODITY = "261100",
+  I_COMMODITY = "261400",
+  I_COMMODITY = "261510",
+  I_COMMODITY = "261590",
+  I_COMMODITY = "261690",
+  I_COMMODITY = "261710",
+  I_COMMODITY = "261790",
+  I_COMMODITY = "262011",
+  I_COMMODITY = "262019",
+  I_COMMODITY = "262099",
+  I_COMMODITY = "711230",
+  I_COMMODITY = "711292",
+  I_COMMODITY = "750300",
+  I_COMMODITY = "760200",
+  I_COMMODITY = "790200",
+  I_COMMODITY = "800200",
+  I_COMMODITY = "810197",
+  I_COMMODITY = "810330",
+  I_COMMODITY = "810420",
+  I_COMMODITY = "810530",
+  I_COMMODITY = "810610",
+  I_COMMODITY = "810690",
+  I_COMMODITY = "810830",
+  I_COMMODITY = "810931",
+  I_COMMODITY = "810939",
+  I_COMMODITY = "811020",
+  I_COMMODITY = "811100",
+  I_COMMODITY = "811213",
+  I_COMMODITY = "811222",
+  I_COMMODITY = "811241",
+  I_COMMODITY = "811252",
+  I_COMMODITY = "811292",
+  I_COMMODITY = "811300",
+  I_COMMODITY = "262040",
+  I_COMMODITY = "262060",
+  I_COMMODITY = "262091",
+  I_COMMODITY = "280130",
+  I_COMMODITY = "280450",
+  I_COMMODITY = "280480",
+  I_COMMODITY = "280519",
+  I_COMMODITY = "280530",
+  I_COMMODITY = "281111",
+  I_COMMODITY = "281119",
+  I_COMMODITY = "281129",
+  I_COMMODITY = "281390",
+  I_COMMODITY = "281610",
+  I_COMMODITY = "281640",
+  I_COMMODITY = "281700",
+  I_COMMODITY = "281820",
+  I_COMMODITY = "281830",
+  I_COMMODITY = "281910",
+  I_COMMODITY = "281990",
+  I_COMMODITY = "282010",
+  I_COMMODITY = "282090",
+  I_COMMODITY = "282200",
+  I_COMMODITY = "282300",
+  I_COMMODITY = "282520",
+  I_COMMODITY = "282530",
+  I_COMMODITY = "282540",
+  I_COMMODITY = "282560",
+  I_COMMODITY = "282580",
+  I_COMMODITY = "282590",
+  I_COMMODITY = "282612",
+  I_COMMODITY = "282630",
+  I_COMMODITY = "282690",
+  I_COMMODITY = "282731",
+  I_COMMODITY = "282735",
+  I_COMMODITY = "282739",
+  I_COMMODITY = "282749",
+  I_COMMODITY = "282759",
+  I_COMMODITY = "282760",
+  I_COMMODITY = "283090",
+  I_COMMODITY = "283321",
+  I_COMMODITY = "283324",
+  I_COMMODITY = "283327",
+  I_COMMODITY = "283329",
+  I_COMMODITY = "283429",
+  I_COMMODITY = "283660",
+  I_COMMODITY = "283691",
+  I_COMMODITY = "283699",
+  I_COMMODITY = "284130",
+  I_COMMODITY = "284150",
+  I_COMMODITY = "284161",
+  I_COMMODITY = "284169",
+  I_COMMODITY = "284180",
+  I_COMMODITY = "284190",
+  I_COMMODITY = "284610",
+  I_COMMODITY = "284690",
+  I_COMMODITY = "284990",
+  I_COMMODITY = "285000",
+  I_COMMODITY = "291529",
+  I_COMMODITY = "320611",
+  I_COMMODITY = "320619",
+  I_COMMODITY = "320642",
+  I_COMMODITY = "340590",
+  I_COMMODITY = "360690",
+  I_COMMODITY = "381511",
+  I_COMMODITY = "381512",
+  I_COMMODITY = "381519",
+  I_COMMODITY = "381590",
+  I_COMMODITY = "381800",
+  I_COMMODITY = "382499",
+  I_COMMODITY = "711011",
+  I_COMMODITY = "711019",
+  I_COMMODITY = "711021",
+  I_COMMODITY = "711029",
+  I_COMMODITY = "711031",
+  I_COMMODITY = "711039",
+  I_COMMODITY = "711041",
+  I_COMMODITY = "711049",
+  I_COMMODITY = "720211",
+  I_COMMODITY = "720219",
+  I_COMMODITY = "720230",
+  I_COMMODITY = "720241",
+  I_COMMODITY = "720249",
+  I_COMMODITY = "720250",
+  I_COMMODITY = "720260",
+  I_COMMODITY = "720280",
+  I_COMMODITY = "720291",
+  I_COMMODITY = "720292",
+  I_COMMODITY = "720293",
+  I_COMMODITY = "720299",
+  I_COMMODITY = "722720",
+  I_COMMODITY = "722820",
+  I_COMMODITY = "740500",
+  I_COMMODITY = "750110",
+  I_COMMODITY = "750120",
+  I_COMMODITY = "750210",
+  I_COMMODITY = "750220",
+  I_COMMODITY = "750400",
+  I_COMMODITY = "750511",
+  I_COMMODITY = "750512",
+  I_COMMODITY = "750890",
+  I_COMMODITY = "760110",
+  I_COMMODITY = "760120",
+  I_COMMODITY = "760410",
+  I_COMMODITY = "760421",
+  I_COMMODITY = "760429",
+  I_COMMODITY = "780191",
+  I_COMMODITY = "790111",
+  I_COMMODITY = "790112",
+  I_COMMODITY = "790120",
+  I_COMMODITY = "790310",
+  I_COMMODITY = "790390",
+  I_COMMODITY = "790700",
+  I_COMMODITY = "800110",
+  I_COMMODITY = "800120",
+  I_COMMODITY = "800700",
+  I_COMMODITY = "810110",
+  I_COMMODITY = "810194",
+  I_COMMODITY = "810199",
+  I_COMMODITY = "810320",
+  I_COMMODITY = "810391",
+  I_COMMODITY = "810399",
+  I_COMMODITY = "810411",
+  I_COMMODITY = "810419",
+  I_COMMODITY = "810430",
+  I_COMMODITY = "810490",
+  I_COMMODITY = "810520",
+  I_COMMODITY = "810590",
+  I_COMMODITY = "810820",
+  I_COMMODITY = "810890",
+  I_COMMODITY = "810921",
+  I_COMMODITY = "810929",
+  I_COMMODITY = "810991",
+  I_COMMODITY = "810999",
+  I_COMMODITY = "811010",
+  I_COMMODITY = "811090",
+  I_COMMODITY = "811212",
+  I_COMMODITY = "811219",
+  I_COMMODITY = "811221",
+  I_COMMODITY = "811229",
+  I_COMMODITY = "811231",
+  I_COMMODITY = "811239",
+  I_COMMODITY = "811249",
+  I_COMMODITY = "811251",
+  I_COMMODITY = "811299",
+  CTY_CODE = "5700", #China
+  CTY_CODE = "5660", #Macao
+  CTY_CODE = "5820", #Hong Kong
+  #CTY_CODE = "5880", #Japan
+  #CTY_CODE = "0003", #EU
+  #CTY_CODE = "5570", #Malaysia
+  #CTY_CODE = "5800", #South Korea
+  #CTY_CODE = "5830", #Taiwan
+  #CTY_CODE = "5590", #Singapore
+  CTY_CODE = "-", #Total
+) 
+
+US_CRITICAL_MINERALS_BREAKDOWN <- US_CRITICAL_MINERALS_CHINA_BULK %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(YEAR, CTY_CODE, I_COMMODITY) %>%
+  summarise(I_COMMODITY, CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  filter(YEAR == 2023) %>%
+  select(-CTY_CODE) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = GEN_VAL_MO) %>%
+  mutate(share = CHINA/`TOTAL FOR ALL COUNTRIES`)
+
+
+US_CRITICAL_MINERALS_CHINA <- US_CRITICAL_MINERALS_CHINA_BULK %>%
+  filter(CTY_CODE != "-") %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  group_by(time, CTY_CODE) %>%
+  summarise(CTY_NAME, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  unique() %>%
+  ungroup() %>%
+  select(-CTY_CODE) %>%
+  select(GEN_VAL_MO) %>%
+  ts(., start = c(2013,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+#FOR CREATING BREAKDOWNS
+  # mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  # mutate(CTY_CODE = replace(CTY_CODE, CTY_CODE %in% c("5660", "5820"), "5700")) %>%
+  # mutate(CTY_NAME = replace(CTY_NAME, CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA")) %>%
+  # mutate(I_COMMODITY = substr(I_COMMODITY, 1, 4)) %>%
+  # mutate(I_COMMODITY = if_else(I_COMMODITY %in% c("3824", "2825", "2519", "3818"), I_COMMODITY, "1111")) %>%
+  # group_by(time, CTY_CODE, I_COMMODITY) %>%
+  # summarise(I_COMMODITY, `GEN_VAL_MO` = sum(`GEN_VAL_MO`, na.rm = TRUE)) %>%
+  # unique() %>%
+  # ungroup() %>%
+  # select(-CTY_CODE) %>%
+  # pivot_wider(names_from = I_COMMODITY, values_from = GEN_VAL_MO) %>%
+  # select(-time) %>%
+  # ts(., start = c(2013,1), frequency = 12) %>%
+  # seas(x11 = "") %>%
+  # final() %>%
+  # as.data.frame(value = melt(.)) %>%
+  # mutate(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)))
+
+US_NAT_MAGNET_GRAPH_CHINA <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=filter(US_NAT_GRAPH_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Natural Graphite"), size = 1.25) + 
+  #geom_line(data=filter(US_STEEL_PRODUCTS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Iron & Steel Products"), size = 1.25) + 
+  geom_line(data=filter(US_PERMANENT_MAGNETS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Permanent Magnets"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = .25),limits = c(0,.75), breaks = c(0,.25,0.5,.75), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US Graphite & Magnet Imports From China") +
+  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA. Note: China Includes HK & MO",subtitle = "Imports of Natural Graphite and Permanent Magnets From China Have Risen Since COVID") +
+  theme_apricitas + theme(legend.position = c(.42,.75), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "US Gross Imports from China\nSeasonally Adjusted at Annual Rates",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Permanent Magnets","Natural Graphite")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*.75), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_NAT_MAGNET_GRAPH_CHINA, "US Nat Magnet Graph China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+US_CRITICAL_MINERALS_CHINA <- ggplot() + #plotting critical mineral imports
+  geom_line(data=filter(US_CRITICAL_MINERALS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Critical Minerals Excluding Natural Graphite\n(Based on Executive Order 14017 List)"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,4), breaks = c(0,1,2,3,4), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US Critical Mineral Imports From China") +
+  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA. Note: China Includes HK & MO",subtitle = "US Imports of Critical Minerals From China Stand at More than $2B") +
+  theme_apricitas + theme(legend.position = c(.42,.25), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "US Gross Imports from China\nSeasonally Adjusted at Annual Rates",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*4), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_CRITICAL_MINERALS_CHINA, "US Critical Minerals Graph China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+US_SOLAR_PRICES_MONTHLY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/US_SOLAR_COST_MONTHLY_DATA.csv") %>%
+  mutate(date = as.Date(paste0(date))) %>%
+  mutate(quarter = floor_date(date, "quarter")) %>%
+  group_by(quarter) %>%
+  summarize(cost = mean(cost, na.rm = TRUE)) %>%
+  mutate(pct = (cost-lag(cost,4))/lag(cost,4))
+
+US_SOLAR_PRICES_QUARTERLY_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  #geom_line(data= filter(US_SOLAR_PRICES_MONTHLY, date >= as.Date("2019-01-01")), aes(x=date,y=pct3,color= "Monthly Solar Prices, Year-on-Year Change"), size = 0.75,) +
+  geom_line(data= filter(US_SOLAR_PRICES_MONTHLY, quarter >= as.Date("2019-01-01")), aes(x=quarter,y=pct,color= "US Solar Panel Prices, Year-on-Year Change"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(-.25,.32), expand = c(0,0)) +
+  ylab("Percent Change") +
+  ggtitle("US Solar Panel Prices") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Prices for Solar Panels (Imported & Domestic) Dropped Significantly in 2023") +
+  theme_apricitas + theme(legend.position = c(.35,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*((today()-as.Date("2019-01-01")))), ymin = -.25-(.3*.57), ymax = -.25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_SOLAR_PRICES_QUARTERLY_GRAPH, "US Solar Prices Quarterly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 EU_BATTERY_TRADE_BULK <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.EU27_2020_EXTRA.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[product]=8507&c[flow]=1,2&compress=false"))
@@ -1632,7 +2117,7 @@ US_BATTERY_STORAGE_STEO_GRAPH <- ggplot() +
   scale_y_continuous(labels = scales::number_format(suffix = "GW"),limits = c(0, ceiling(max(US_BATTERY_STEO$value)/10)*10), expand = c(0,0)) +
   ylab("GW") +
   ggtitle("America's Battery Boom") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Battery Storage Capacity is Booming and Projected to Nearly-Triple by 2025") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Battery Storage Capacity is Booming and Projected to Nearly-Triple by 2026") +
   theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()+700-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()+700-as.Date("2018-01-01")))), ymin = 0-(.3*(ceiling(max(US_BATTERY_STEO$value)/10)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
