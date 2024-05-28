@@ -223,27 +223,27 @@ HOME_PRICE_UNCERTAINTY_SCE_DATA_graph <- ggplot() +
   labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "Home Price Uncertainty is Declining But Still Elevated Amidst Higher Rates") +
   theme_apricitas + theme(legend.position = c(.5,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*0.05), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-06-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-06-01"))), ymin = 0-(.3*0.05), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = HOME_PRICE_UNCERTAINTY_SCE_DATA_graph, "Home Price Uncertainty.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 HOME_PRICE_EXPECTATIONS_SCE_DATA_graph <- ggplot() + 
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data = HOME_PRICE_EXPECTATIONS_SCE_DATA, aes(x = date, y = median/100, color = "Median One-Year Ahead Home Price Change Expectations\nFRBNY Survey of Consumer Expectations"), size = 1.25) +
+  geom_line(data = HOME_PRICE_EXPECTATIONS_SCE_DATA, aes(x = date, y = median/100, color = "Median 1-Year Ahead Home Price Change Expectations\nFRBNY Survey of Consumer Expectations"), size = 1.25) +
   xlab("Date") +
   ylab("Expected Home Price Growth, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.01,0.02,0.03,.04,.05,.06), limits = c(0,.065), expand = c(0,0)) +
   ggtitle("Home Price Expectations Have Normalized") +
   labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "Home Price Growth Expectations are Recovering Even Amidst Higher Mortgage Rates") +
-  theme_apricitas + theme(legend.position = c(.37,.79)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.36,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*0.06), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-06-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-06-01"))), ymin = 0-(.3*0.065), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = HOME_PRICE_EXPECTATIONS_SCE_DATA_graph, "Home Price Expectations.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ANNUAL_SCE_HOUSING_OWNER_TENURE <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",30) %>%
+ANNUAL_SCE_HOUSING_OWNER_TENURE <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",25) %>%
   setNames(c("date","10+ Years","6-10 Years","2-5 Years","<2 Years")) %>%
   slice(-1,-2) %>%
   mutate(date = as.Date(paste0(date,"01"), "%Y%m%d")) %>%
@@ -261,12 +261,12 @@ ANNUAL_SCE_HOUSING_OWNER_TENURE_graph <- ggplot(data = ANNUAL_SCE_HOUSING_OWNER_
   labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "Compared to Pre-Pandemic, Tenure Expectations for Homeowners Have Declined Significantly") +
   theme_apricitas + theme(legend.position = "right") +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Expected Tenure",values = c("#9A348E","#00A99D","#EE6055","#FFE98F","#FF8E72","#6A4C93","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ANNUAL_SCE_HOUSING_OWNER_TENURE_graph, "Annual Housing SCE Tenure Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ANNUAL_SCE_HOUSING_PROB_MOVE <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",15) %>%
+ANNUAL_SCE_HOUSING_PROB_MOVE <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",12) %>%
   setNames(c("date","1yr_<50","1yr_>50","1yr<BA","1yr>BA","1yr<60k","1yr>60k","1yrWest","1yrMidwest","1yrSouth","1yrNortheast","1yrOwner","1yrRenter",
              "date2","3yr_<50","3yr_>50","3yr<BA","3yr>BA","3yr<60k","3yr>60k","3yrWest","3yrMidwest","3yrSouth","3yrNortheast","3yrOwner","3yrRenter")) %>%
   slice(-1,-2,-3) %>%
@@ -289,6 +289,9 @@ ANNUAL_SCE_HOUSING_PROB_MOVE_graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ANNUAL_SCE_HOUSING_PROB_MOVE_graph, "Homeowner Moving Probabilities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#Go to the "download regional data" section here and select "national"
+#https://www.redfin.com/news/data-center/
 
 REDFIN_NATIONAL_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/REDFIN_NATIONAL_DATA.csv") %>%
   mutate(date = as.Date(period_begin,"%m/%d/%Y")) %>%

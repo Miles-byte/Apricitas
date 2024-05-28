@@ -1726,15 +1726,17 @@ ZHVI_Counties <- ggplot() +
   )), aes(fill = value)) +
   geom_sf(data = counties, color = "black", fill = NA, lwd = 0.1) + # Black borders for counties
   geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-0.1,-0.05,0,0.05,0.1), 
+                       labels = c("-10%+","-5%","+0%","+5%","+10%+")) +#,
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
   ggtitle("   Zillow Home Value Change Over The Last 12M") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using Zillow data") +
@@ -2073,12 +2075,12 @@ ZHVI_ZIP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Z
   group_by(ZIP) %>%
   mutate(value = (value-lag(value,12))/lag(value,12)) %>%
   subset(date == max(date)) %>%
-  ungroup() #%>%
-  #mutate(value = case_when(
-    #value > 0.10 ~ 0.10,
-    #value < -0.10 ~ -0.10,
-    #TRUE ~ value
-  #))
+  ungroup() %>%
+  mutate(value = case_when(
+    value > 0.10 ~ 0.10,
+    value < -0.10 ~ -0.10,
+    TRUE ~ value
+  ))
 
 options(tigris_use_sf = TRUE)
 options(tigris_use_cache = TRUE)
@@ -2098,8 +2100,8 @@ NYC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("New York-Newark-Jersey City, NY-NJ-PA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"),limits = c(-.21,.21)) +
-  scale_color_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"), limits = c(-.21,.21), guide = NULL) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
   # scale_fill_gradient(high = "#00A99D",
   #                     low = "#EE6055",
   #                     space = "Lab",
@@ -2118,13 +2120,13 @@ NYC <- ggplot() +
   #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
   #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
   #                      limits = c(-0.10,0.10)) +
-  ggtitle("Zillow Home Value Change Over The Last 12M") +
-  #ggtitle("NYC") +
+  #ggtitle("Zillow Home Value Change Over The Last 12M") +
+  ggtitle("NYC") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) + 
   theme(plot.title = element_text(size = 13,hjust = 0.5))
 
-ggsave(dpi = "retina",plot = NYC, "ZIP_NYC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+#ggsave(dpi = "retina",plot = NYC, "ZIP_NYC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ZIP_LA <- ZIP_ZHVI_MERGE %>%
@@ -2138,26 +2140,26 @@ LA <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Los Angeles-Long Beach-Anaheim, CA","Riverside-San Bernardino-Ontario, CA") & ZCTA5CE20 != "90704" & ZCTA5CE20 !="93562"), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_LA, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Greater Los Angeles") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2173,8 +2175,8 @@ DC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Washington-Arlington-Alexandria, DC-VA-MD-WV")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"),limits = c(-.21,.21)) +
-  scale_color_viridis_c(breaks = c(-.21,-0.1,0,0.1,0.21), labels = c("-20%", "-10%", "0%", "+10%", "+20%"), limits = c(-.21,.21), guide = NULL) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
   # scale_fill_gradient(high = "#00A99D",
   #                     low = "#EE6055",
   #                     space = "Lab",
@@ -2194,12 +2196,11 @@ DC <- ggplot() +
   #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
   #                      limits = c(-0.10,0.10)) +
   ggtitle("Washington DC") +
-  ggtitle("Zillow Home Value Change Over the Last 12M") +
-  
+  #ggtitle("Zillow Home Value Change Over the Last 12M") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
-  #theme(plot.title = element_text(size = 13,hjust = 0.5))
-  theme(plot.title = element_text(size = 24,hjust = 0.5))
+  theme(plot.title = element_text(size = 13,hjust = 0.5))
+  #theme(plot.title = element_text(size = 24,hjust = 0.5))
 
 ggsave(dpi = "retina",plot = DC, "ZIP_DC.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -2215,26 +2216,26 @@ CHI <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Chicago-Naperville-Elgin, IL-IN-WI")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_Chicago, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Chicago") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2251,26 +2252,26 @@ SF <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Francisco-Oakland-Berkeley, CA","San Jose-Sunnyvale-Santa Clara, CA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SF, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c() +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("San Francisco Bay Area") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2287,24 +2288,26 @@ DFW <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Dallas-Fort Worth-Arlington, TX")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DFW, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Dallas-Fort Worth") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2322,24 +2325,26 @@ BOS <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Boston-Cambridge-Newton, MA-NH")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Boston") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2356,24 +2361,26 @@ HOU <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Houston-The Woodlands-Sugar Land, TX")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_HOU, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Houston") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2390,24 +2397,26 @@ PHI <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Philadelphia-Camden-Wilmington, PA-NJ-DE-MD")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_PHI, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Philadelphia") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2424,24 +2433,26 @@ ATL <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Atlanta-Sandy Springs-Alpharetta, GA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_ATL, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Atlanta") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2458,24 +2469,26 @@ DEN <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Denver-Aurora-Lakewood, CO")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DEN, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Denver") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2492,24 +2505,26 @@ MIA <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Miami-Fort Lauderdale-Pompano Beach, FL")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_MIA, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Miami") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2526,24 +2541,26 @@ PHO <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Phoenix-Mesa-Chandler, AZ")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_PHO, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Phoenix") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2560,24 +2577,26 @@ DET <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Detroit-Warren-Dearborn, MI")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DET, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Detroit") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2594,24 +2613,26 @@ SEA <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Seattle-Tacoma-Bellevue, WA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SEA, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Seattle") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2629,24 +2650,26 @@ MIN <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Minneapolis-St. Paul-Bloomington, MN-WI")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_MIN, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Minneapolis") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2663,24 +2686,26 @@ VEGAS <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Las Vegas-Henderson-Paradise, NV")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_VEGAS, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Las Vegas") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2697,24 +2722,26 @@ TAMPA <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Tampa-St. Petersburg-Clearwater, FL")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_TAMPA, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Tampa") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2731,24 +2758,26 @@ SAN_DIEGO <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Diego-Chula Vista-Carlsbad, CA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SAN_DIEGO, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("San Diego") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2765,24 +2794,26 @@ BAL <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Baltimore-Columbia-Towson, MD")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_BALTIMORE, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Baltimore") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2799,24 +2830,26 @@ STL <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("St. Louis, MO-IL")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_STL, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("St. Louis") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2833,24 +2866,26 @@ ORL <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Orlando-Kissimmee-Sanford, FL")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_ORL, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Orlando") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2867,24 +2902,26 @@ CHAR <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Charlotte-Concord-Gastonia, NC-SC")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_CHAR, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Charlotte") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2901,24 +2938,26 @@ SAN_ANTONIO <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("San Antonio-New Braunfels, TX")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SAN_ANTONIO, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("San Antonio") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2935,24 +2974,26 @@ POR <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Portland-Vancouver-Hillsboro, OR-WA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_POR, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Portland") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -2969,24 +3010,26 @@ AUSTIN <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Austin-Round Rock-Georgetown, TX")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_AUSTIN, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Austin") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3003,24 +3046,26 @@ SAC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Sacramento-Roseville-Folsom, CA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_SAC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Sacramento") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3037,24 +3082,26 @@ PITT <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Pittsburgh, PA")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_PITT, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Pittsburgh") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3072,24 +3119,26 @@ CIN <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Cincinnati, OH-KY-IN")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_CIN, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Cincinnati") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3106,24 +3155,26 @@ KC <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Kansas City, MO-KS")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_KC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Kansas City") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3140,24 +3191,26 @@ COL <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Columbus, OH")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_COL, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Columbus") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3174,24 +3227,26 @@ IND <- ggplot() +
   geom_sf(data = subset(ZIP_ZHVI_MERGE, Metro %in% c("Indianapolis-Carmel-Anderson, IN")), aes(fill = value, color = value))+
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_IND, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Indianapolis") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3204,24 +3259,26 @@ MEGA <- ggplot() +
   geom_sf(data = ZIP_PHI, fill = NA, color = "black", lwd = 0.40) +
   geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
   geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("          Zillow 12M Home Price Growth in the Acela Corridor") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3235,24 +3292,26 @@ DC_PLUS_BAL <- ggplot() +
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
   geom_sf(data = ZIP_BALTIMORE, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("DC & Baltimore") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3326,24 +3385,26 @@ DONUT_DC <- ggplot() +
   #geom_sf(data = DONUT_DC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_DC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Washington DC") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3372,24 +3433,26 @@ DONUT_NYC <- ggplot() +
   #geom_sf(data = DONUT_NYC_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_NYC, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("New York") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3415,24 +3478,26 @@ DONUT_CHI <- ggplot() +
   #geom_sf(data = DONUT_CHI_STATES, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
   geom_sf(data = ZIP_Chicago, fill = NA, color = "black", lwd = 0.40) +
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                       low = "#EE6055",
-                       space = "Lab",
-                       na.value = "grey50",
-                       guide = NULL,
-                       aesthetics = "color",
-                       breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                       labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                       limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                      low = "#EE6055",
+  #                      space = "Lab",
+  #                      na.value = "grey50",
+  #                      guide = NULL,
+  #                      aesthetics = "color",
+  #                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                      limits = c(-0.10,0.10)) +
   ggtitle("Chicago") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
@@ -3451,24 +3516,26 @@ DONUT_BOS <- ggplot() +
           aes(fill = value, color = value)) +
   geom_sf(data = ZIP_Boston, fill = NA, color = "black", lwd = 0.40) +
   coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") + #albers projection
-  scale_fill_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = "colourbar",
-                      aesthetics = "fill",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
-  scale_color_gradient(high = "#00A99D",
-                      low = "#EE6055",
-                      space = "Lab",
-                      na.value = "grey50",
-                      guide = NULL,
-                      aesthetics = "color",
-                      breaks = c(-0.1,-0.05,0,0.05,0.1), 
-                      labels = c("-10+%","-5%","+0%","+5%","+10+%"),
-                      limits = c(-0.10,0.10)) +
+  scale_fill_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"),limits = c(-.1,.1)) +
+  scale_color_viridis_c(breaks = c(-.1,-0.05,0,0.05,0.10), labels = c("-10+%", "-5%", "0%", "+5%", "+10+%"), limits = c(-.1,.1), guide = NULL) +
+  # scale_fill_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = "colourbar",
+  #                     aesthetics = "fill",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
+  # scale_color_gradient(high = "#00A99D",
+  #                     low = "#EE6055",
+  #                     space = "Lab",
+  #                     na.value = "grey50",
+  #                     guide = NULL,
+  #                     aesthetics = "color",
+  #                     breaks = c(-0.1,-0.05,0,0.05,0.1), 
+  #                     labels = c("-10+%","-5%","+0%","+5%","+10+%"),
+  #                     limits = c(-0.10,0.10)) +
   ggtitle("Boston") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +

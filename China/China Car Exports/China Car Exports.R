@@ -116,17 +116,17 @@ IND_PRO_NEV <- statscnQueryData('A02092W',dbcode='hgyd',lang = "en", rowcode = "
 
 IND_PRO_NEV <- statscnQueryLastN(100, lang = "en")
 
-IND_PRO_NEV <- IND_PRO_NEV %>%
+IND_PRO_NEV1 <- IND_PRO_NEV %>%
   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
   subset(date >= as.Date("1992-01-01")) %>%
   subset(.,`Output of New Energy Vehicles, Current Period` != 0)
 
-IND_PRO_NEV_2022 <- subset(IND_PRO_NEV, date < as.Date("2024-01-01")) %>%
+IND_PRO_NEV_2022 <- subset(IND_PRO_NEV1, date < as.Date("2024-01-01")) %>%
   mutate(date = as.Date(date) - years(1),
          `Output of New Energy Vehicles, Current Period` = `Output of New Energy Vehicles, Current Period` / ((`Output of New Energy Vehicles, Growth Rate (The same period last _year=100)`/ 100)+1),
          `Output of New Energy Vehicles, Growth Rate (The same period last _year=100)` = NA)
 
-IND_PRO_NEV_RBIND <- rbind(IND_PRO_NEV,IND_PRO_NEV_2022)
+IND_PRO_NEV_RBIND <- rbind(IND_PRO_NEV1,IND_PRO_NEV_2022)
 
 IND_PRO_MV_NEV_merge <- merge(IND_PRO_MV,IND_PRO_NEV_RBIND, by = "date") %>%
   mutate(pct_NEV = `Output of New Energy Vehicles, Current Period`/`Output of Motor Vehicles, Current Period`)
