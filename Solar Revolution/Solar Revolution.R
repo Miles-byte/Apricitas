@@ -1,4 +1,4 @@
-pacman::p_load(sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(purrr,sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 #Using an updated version of the Chinese national stats bureau rstatscn package that fixes a json error in the old database
 install_github("pcdi/rstatscn")
@@ -1594,6 +1594,27 @@ US_ELECTRICITY_PRODUCTION_LONG_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_LONG_GRAPH, "US Electricity Production Long Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_SOLAR_SPLIT <- US_SOLAR %>%
+  mutate(year = year(date), month = month(date)) %>%
+  filter(year >= max(year)-5) %>%
+  mutate(year = as.character(year))
+
+US_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= US_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 1.25) +
+  geom_point(data= US_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 3) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_SOLAR_SPLIT$value)/10000)*10), expand = c(0,0)) +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ylab("TWh, Monthly") +
+  ggtitle("US Monthly Solar Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Solar Generation is Growing Quickly, and is Up 25% Compared to Last Year") +
+  theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*((today()-as.Date("2002-01-01")))), ymin = 0-(.3*(ceiling(max(US_SOLAR_SPLIT$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_SOLAR_SPLIT_GRAPH, "US Solar Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 TX_COAL <- eia1_series("ELEC.GEN.COW.TX.99.M") %>%
@@ -1646,6 +1667,28 @@ TX_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_GRAPH, "TX Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TX_SOLAR_SPLIT <- TX_SOLAR %>%
+  mutate(year = year(date), month = month(date)) %>%
+  filter(year >= max(year)-5) %>%
+  mutate(year = as.character(year))
+
+TX_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 1.25) +
+  geom_point(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 3) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_SOLAR_SPLIT$value)/2000000)*5), expand = c(0,0)) +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ylab("TWh, Monthly") +
+  ggtitle("Texas Monthly Solar Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas Solar Generation is Growing Quickly, and is Up 50% Compared to Last Year") +
+  theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
+  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/2000000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_SOLAR_SPLIT_GRAPH, "TX Solar Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 CA_SOLAR <- eia1_series("ELEC.GEN.TSN.CA.99.M") %>%
@@ -2271,4 +2314,70 @@ TOTAL_CAPACITY <- GENERATOR_CAPACITY_MAP_DATA %>%
 
 TOTAL_CAPACITY_PCT <- left_join(CAPACITY_BREAKDOWN,TOTAL_CAPACITY, by = "name") %>%
   mutate(percent_of_type_total = round(total_capacity/total_capacity_by_type*100,2))
-  
+
+
+state_codes <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+                 "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                 "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                 "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                 "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+
+get_state_solar <- function(state_code) {
+  series_id <- paste0("ELEC.GEN.TSN.", state_code, ".99.M")
+  data <- eia1_series(series_id) %>%
+    transmute(date = as.Date(paste0(period, "-01")),
+              category = "Solar",
+              value = generation,
+              state = state_code) %>%
+    arrange(date) %>%
+    mutate(rollmean = c(rep(0, 11), rollmean(value, 12)))
+  return(data)
+}
+
+all_states_data <- state_codes %>%
+  map_dfr(get_state_solar)
+
+State_solar_data <- all_states_data %>%
+  group_by(state) %>%
+  arrange(date) %>%
+  mutate(pct_growth = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(change = value - lag(value,12)) %>%
+  filter(date == max(date))
+
+states_solar <- states(cb = TRUE, year = 2021) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84") %>%
+  mutate(state = gsub("\\s", "", STUSPS)) %>%
+  shift_geometry(position = "below") %>% #THIS PUTS HAWAII AND ALASKA BELOW THE MAP
+  filter(STATEFP < 60) %>%
+  merge(.,State_solar_data, by = "state")
+
+states_solar_centroids <- states_solar %>%
+  st_centroid() %>%
+  mutate(pct_growth = ifelse(pct_growth > 0.5, 0.5, 
+                               ifelse(pct_growth < 0, 0, pct_growth)))
+
+states_solar_graph <- states_solar %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = states_solar, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = states_solar_centroids, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = pct_growth, size = value), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_c(name = "Y-o-Y Growth",
+                       limits = c(0,.50),
+                       breaks = c(0,.1,.2,.3,.4,.5),
+                       labels = c("<0%+","+10%","+20%","+30%","+40%","+50%+"),
+                       na.value = "grey50",
+                       guide = "colourbar",
+                       aesthetics = "fill"
+  ) +
+  scale_size_area(name = "Generation",
+                  max_size = 17,
+                  breaks = c(0,1000,2000,3000,4000,5000),
+                  labels = c("0TWh","1TWh","2TWh","3TWh","4TWh","5TWh"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("         Solar Generation by State: March 2024") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = states_solar_graph, "States Solar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

@@ -293,25 +293,46 @@ ggsave(dpi = "retina",plot = ANNUAL_SCE_HOUSING_PROB_MOVE_graph, "Homeowner Movi
 #Go to the "download regional data" section here and select "national"
 #https://www.redfin.com/news/data-center/
 
-REDFIN_NATIONAL_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/REDFIN_NATIONAL_DATA.csv") %>%
+REDFIN_NATIONAL_INVENTORY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/REDFIN_NATIONAL_DATA_5272024.csv") %>%
   mutate(date = as.Date(period_begin,"%m/%d/%Y")) %>%
   filter(is_seasonally_adjusted == "t",property_type_id == "-1") %>%
   select(date, inventory)
 
 REDFIN_NATIONAL_DATA_INVENTORY_graph <- ggplot() + 
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data = REDFIN_NATIONAL_DATA, aes(x = date, y = `inventory`/1000000, color = "All Homes For Sale, Redfin Estimate"), size = 1.25) +
+  geom_line(data = REDFIN_NATIONAL_INVENTORY, aes(x = date, y = `inventory`/1000000, color = "All Homes For Sale, Redfin Estimate"), size = 1.25) +
   xlab("Date") +
   ylab("Housing Inventory, Millions") +
   scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), breaks = c(0,0.5,1,1.5,2), limits = c(0,2.25), expand = c(0,0)) +
-  ggtitle("Housing Inventory is Extremely Low") +
-  labs(caption = "Graph created by @JosephPolitano using Redfin data", subtitle = "Rising Interest Rates Have Brought Housing Inventory to Near 10 Year Lows") +
+  ggtitle("Housing Inventory is Off Historic Lows") +
+  labs(caption = "Graph created by @JosephPolitano using Redfin data", subtitle = "Housing Inventory is up ") +
   theme_apricitas + theme(legend.position = c(.37,.29)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 0-(.3*2.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REDFIN_NATIONAL_DATA_INVENTORY_graph, "Redfin National Inventory Data graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+REDFIN_NEW_SF_INVENTORY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/REDFIN_NATIONAL_DATA_5272024.csv") %>%
+  mutate(date = as.Date(period_begin,"%m/%d/%Y")) %>%
+  filter(is_seasonally_adjusted == "t",property_type_id == "6") %>%
+  select(date, new_listings)
+
+REDFIN_NEW_SF_INVENTORY_graph <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = REDFIN_NEW_SF_INVENTORY, aes(x = date, y = `new_listings`/1000, color = "New Single-Family Home Listings\nSeasonally Adjusted Redfin Estimate"), size = 1.25) +
+  xlab("Date") +
+  ylab("New Listings") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,100,200,300,400,500), limits = c(300,550), expand = c(0,0)) +
+  ggtitle("New Housing Listings are Recovering") +
+  labs(caption = "Graph created by @JosephPolitano using Redfin data", subtitle = "After Dropping Significantly in 2022 and 2023, New Home Listings are Now Recovering") +
+  theme_apricitas + theme(legend.position = c(.37,.95)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 300-(.3*250), ymax = 300) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REDFIN_NEW_SF_INVENTORY_graph, "Redfin New SF Home Listings graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 FHFA_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/FHFA_NMDB_MORTGAGE_STATISTICS.csv") %>%
   filter(MARKET == "All Mortgages" & SERIESID == "AVE_INTRATE" & GEOID == "USA") %>%
