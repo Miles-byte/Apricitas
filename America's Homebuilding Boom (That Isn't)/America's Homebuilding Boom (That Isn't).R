@@ -728,7 +728,8 @@ ggsave(dpi = "retina",plot = HOME_PRICE_graph, "Home Price Graph.png", type = "c
 ZHVI_HOME_PRICE <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv?t=1700273327") %>%
   gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
   mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%
-  filter(RegionName == "United States")
+  filter(RegionName == "United States") %>%
+  mutate(pct_growth = (value-lag(value,12))/lag(value,12))
 
 ZILLOW_HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
   geom_line(data=ZHVI_HOME_PRICE, aes(x=date,y= value/1000, color= "Zillow Home Value Index"), size = 1.25) +
@@ -743,6 +744,21 @@ ZILLOW_HOME_PRICE_graph <- ggplot() + #plotting SF and MF housing
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ZILLOW_HOME_PRICE_graph, "Zillow Home Price Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ZILLOW_HOME_PRICE_GROWTH_graph <- ggplot() + #plotting SF and MF housing
+  geom_line(data=filter(ZHVI_HOME_PRICE, date > as.Date("2014-01-01")), aes(x=date,y= pct_growth, color= "Zillow Home Value Index\nYear-on-Year Growth"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0,0.20), expand = c(0,0)) +
+  ylab("Dollars") +
+  ggtitle("The Thawing Housing Market") +
+  labs(caption = "Graph created by @JosephPolitano using Zillow data",subtitle = paste0("Home Price Growth has Normalized, with the Zillow Home Value Index Up ", round(tail(ZHVI_HOME_PRICE$pct_growth*100, 1), 1), "% Over the Last Year")) +
+  theme_apricitas + theme(legend.position = c(.5,.73)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*.20), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ZILLOW_HOME_PRICE_GROWTH_graph, "Zillow Home Price Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 # for sale/sold

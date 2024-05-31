@@ -290,6 +290,108 @@ ANNUAL_SCE_HOUSING_PROB_MOVE_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = ANNUAL_SCE_HOUSING_PROB_MOVE_graph, "Homeowner Moving Probabilities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+RENTER_PROB_BUYING <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",31) %>%
+  setNames(c("date","prob_avg","prob_med","prob_25","prob_75")) %>%
+  mutate(date = as.Date(paste0(date,"01"), "%Y%m%d")) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  drop_na()
+
+RENTER_PROB_BUYING_graph <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = RENTER_PROB_BUYING, aes(x = date, y = `prob_avg`/100, color = "Renters' Average Reported Probability of Ever Buying a Home"), size = 1.25) +
+  xlab("Date") +
+  ylab("Average Probability of Moving, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.20,0.40,0.60), limits = c(0,.60), expand = c(0,0)) +
+  ggtitle("Renters Feel Locked out of Homeownership") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "Renters Rate Their Chances of Ever Owning a Home at the Lowest Levels in 10 Years") +
+  theme_apricitas + theme(legend.position = c(.45,.57), plot.title = element_text(size = 26)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.60), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RENTER_PROB_BUYING_graph, "Renter Prob Buying.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+RENTER_PERCEPTION_MORTGAGE <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",27) %>%
+  select(-c(7:11)) %>%
+  slice(-1,-2) %>%
+  setNames(c("date","Very Easy","Somewhat Easy","Neither Easy nor Difficult","Somewhat Difficult","Very Difficult")) %>%
+  mutate(date = as.Date(paste0(date,"01"), "%Y%m%d")) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Very Easy","Somewhat Easy","Neither Easy nor Difficult","Somewhat Difficult","Very Difficult")))
+
+
+RENTER_PERCEPTION_MORTGAGE_GRAPH <- ggplot(data = RENTER_PERCEPTION_MORTGAGE, aes(x = date, y = value/100, fill = name)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("% of Homeowners") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.25,.5,.75,1), limits = c(0,1.01), expand = c(0,0)) +
+  ggtitle("Renters' Perceived Ability to Get a Mortgage") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "The Share of Renters Saying it is `Very Difficult` to Obtain a Mortgage is at a 10-Year High") +
+  theme_apricitas + theme(legend.position = "right", plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Ease of Obtaining Mortgage",values = c("#00A99D","#3083DC","#9A348E","#FF8E72","#EE6055","#FFE98F","#6A4C93","#A7ACD9"), breaks = c("Very Easy","Somewhat Easy","Neither Easy nor Difficult","Somewhat Difficult","Very Difficult")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RENTER_PERCEPTION_MORTGAGE_GRAPH, "Renter Perceived Mortgage Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+MORTGAGE_RATE_EXPECTATIONS <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/sce/sce/downloads/data/FRBNY_SCE_Housing_chartdata.xlsx?sc_lang=en",17) %>%
+  select(c(1,2,3,6,7)) %>%
+  slice(-1,-2) %>%
+  setNames(c("date","Avg_1yr","Med_1yr","Avg_3yr","Med_3yr")) %>%
+  mutate(date = as.Date(paste0(date,"01"), "%Y%m%d")) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  pivot_longer(-date) %>%
+  separate(name, into = c("category", "period"), sep = "_") %>%
+  mutate(category = gsub("Avg","Average",category)) %>%
+  mutate(category = gsub("Med","Median",category)) %>%
+  mutate(period = gsub("1yr","Expected Mortgage Rate in 1yr",period)) %>%
+  mutate(period = gsub("3yr","Expected Mortgage Rate in 3yr",period))
+
+MORTGAGE_RATE_EXPECTATIONS_graph <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = MORTGAGE_RATE_EXPECTATIONS, aes(x = date, y = value/100, color = category), size = 1.25) +
+  facet_wrap(~ period) +
+  xlab("Date") +
+  ylab("Mortgage Rates, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.02,.04,.06,.08,.1), limits = c(0,.10), expand = c(0,0)) +
+  ggtitle("National Mortgage Rate Expectations") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY data", subtitle = "The Median Person Expects Mortgage Rates to Fall Slightly, but the Average Expected Rate is High") +
+  theme_apricitas + theme(legend.position = "right", strip.text = element_text(size = 14, face = "bold", color = "white")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.60), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MORTGAGE_RATE_EXPECTATIONS_graph, "Mortgage Rate Expectations.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+MORTGAGE_LOCK_IN_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Have%20Mortgage%20Rates%20Frozen%20the%20Housing%20Market/MORTGAGE_LOCK_IN_DATA.csv") %>%
+  mutate(scenario = gsub("Keeping Current Rate","If You Kept Current\nMortgage Rate",scenario)) %>%
+  mutate(mortgage_rate = gsub("Less than 3\\%","<3\\%",mortgage_rate)) %>%
+  mutate(mortgage_rate = gsub("3\\% to 4\\%","3\\%-4\\%",mortgage_rate)) %>%
+  mutate(mortgage_rate = gsub("Higher than 4%", "4%+", mortgage_rate)) %>%
+  mutate(mortgage_rate = factor(mortgage_rate, levels = c("All Mortgage Borrowers","<3%","3%-4%","4%+"))) %>%
+  mutate(category = if_else(mortgage_rate == "All Mortgage Borrowers", "Total", "By Rate on Existing Mortgage")) %>%
+  mutate(category = factor(category, levels = c("Total","By Rate on Existing Mortgage"))) %>%
+  mutate(coef = as.numeric(coef))
+  
+MORTGAGE_LOCK_IN_GRAPH <- ggplot(data = MORTGAGE_LOCK_IN_DATA, aes(x = mortgage_rate, y = coef/100, fill = scenario)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  facet_wrap(~ category, scales = "free") +
+  xlab(NULL) +
+  ylab("Moving Probability, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.1,0.2,0.3), limits = c(0,.30), expand = c(0,0)) +
+  ggtitle("Average Probability of Moving in the Next 3yrs\nAmong Homeowners With Mortgages") +
+  labs(caption = "Graph created by @JosephPolitano using FRBNY data\nvia Aidala, Haughwout, Hyman, Somerville, & van der Klaauw", subtitle = "Owners Say They'd be 7.5 Percentage Points More Likely to Move If They Could Keep Their Rate") +
+  theme_apricitas + theme(legend.position = "right", plot.title = element_text(size = 25), legend.key.size = unit(0.8, "cm"), legend.text = element_text(size = 12),strip.text = element_text(size = 14, face = "bold", color = "white")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= "Scenario",values = c("#FFE98F","#00A99D","#3083DC","#9A348E","#FF8E72","#EE6055","#6A4C93","#A7ACD9")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MORTGAGE_LOCK_IN_GRAPH, "Mortgage Lock in Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 #Go to the "download regional data" section here and select "national"
 #https://www.redfin.com/news/data-center/
 
