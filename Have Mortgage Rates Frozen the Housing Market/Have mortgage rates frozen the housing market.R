@@ -83,7 +83,7 @@ HOMEOWN_FREE_CLEAR_COUNTY <- get_acs(
   #variables = DP04,
   table = "DP04",
   cache_table = TRUE,
-  year = 2021,
+  year = 2022,
   output = "wide",
   key = Sys.getenv("CENSUS_KEY"),
   moe_level = 90,
@@ -111,17 +111,17 @@ state_lookup <- data.frame(
            'Washington', 'West Virginia', 'Wisconsin', 'Wyoming')
 )
 
-
-
-REDFIN_COUNTY_BULK <- read.csv("C:/Users/josep/Documents/COUNTY_HOUSING_DATA_08_15_23.csv")
+#County Data from here: (Must Convert from Tsv Using Excel)
+#https://www.redfin.com/news/data-center/
+REDFIN_COUNTY_BULK <- read.csv("C:/Users/joseph/Documents/county_market_tracker_6_1_2024.csv")
 
 REDFIN_COUNTY_INVENTORY <- REDFIN_COUNTY_BULK %>%
-  filter(period_begin %in% c("6/1/2021","6/1/2023") & property_type_id == "-1") %>%
+  filter(period_begin %in% c("4/1/2022","4/1/2024") & property_type_id == "-1") %>%
   select(period_begin, table_id, region, inventory, inventory_yoy) %>%
   group_by(region) %>%
   arrange(region) %>%
   mutate(inventory_2yo2y = (inventory[2]-inventory[1])/inventory[1]) %>%
-  filter(period_begin == "6/1/2023") %>%
+  filter(period_begin == "4/1/2024") %>%
   ungroup() %>%
   transmute(name = region, inventory_yoy, inventory_2yo2y) %>%
   separate(name, into = c("County", "State"), sep = ", ") %>%
@@ -448,12 +448,12 @@ FIXED_30YR_FHFA_graph <- ggplot() +
   geom_line(data = FIXED_30YR_MORTGAGE, aes(x = date, y = value/100, color = "Average Interest Rate on New 30-Year Mortgage"), size = 1.25) +
   xlab("Date") +
   ylab("Interest Rate, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.025,0.05,0.075), limits = c(0,.075), expand = c(0,0)) +
-  ggtitle("Low Mortgage Rates as Golden Handcuffs?") +
-  labs(caption = "Graph created by @JosephPolitano using FHFA and Freddie Mac data", subtitle = "Interest Rates on New 30-Year Mortgages Have Surged Above Rates for Average Existing Borrowers") +
-  theme_apricitas + theme(legend.position = c(.37,.29)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.02,0.04,0.06,0.08), limits = c(0,.08), expand = c(0,0)) +
+  ggtitle("Mortgage Rate Lock-In") +
+  labs(caption = "Graph created by @JosephPolitano using FHFA and Freddie Mac data", subtitle = "Rates on New 30-Year Mortgages Now Stand Well Above Rates for Outstanding Loans") +
+  theme_apricitas + theme(legend.position = c(.37,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*0.075), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*0.08), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FIXED_30YR_FHFA_graph, "Fixed 30yr FHFA graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

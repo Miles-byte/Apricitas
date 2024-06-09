@@ -520,13 +520,13 @@ US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of E
   #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU"), size = 1.25) +
   #geom_line(data= filter(US_NET_SOLAR_IMPORTS_GRAPH, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-0.1,8),breaks = c(0,2,4,6,8,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(-0.1,10),breaks = c(0,2,4,6,8,10), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("US Net Solar Cell and Module Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data. Note: China Includes HK & MO",subtitle = "US Imports of Solar Cells and Modules Primarily Come From Southeast Asia, Not China") +
   theme_apricitas + theme(legend.position = c(.14,.69)) +
   scale_color_manual(name= "Net Imports\nMonthly Annualized",values = c("#FFE98F","#EE6055","#A7ACD9","#3083DC","#00A99D","#9A348E"), breaks = c("Vietnam","Thailand","Malaysia","Cambodia","South Korea","China")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*((today()-as.Date("2022-01-01")))), ymin = 0-(.3*(8)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*((today()-as.Date("2022-01-01")))), ymin = 0-(.3*(10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NET_SOLAR_EXPORTS_BREAKDOWN_GRAPH, "US Net Solar Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

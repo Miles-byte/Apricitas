@@ -15,7 +15,7 @@ FRANCE_GDP_INSEE_list_selected =
   filter(OPERATION_label_en == "GDP - Gross domestic product") %>%
   filter(FREQ == "T") %>% #quarter
   add_insee_title() %>% #add titles
-  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO")#GDP
+  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO.TRUE")#GDP
 
 US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)

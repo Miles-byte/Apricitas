@@ -395,7 +395,7 @@ VACANCY_RATE_Graph <- ggplot() + #plotting rental vacancy rate
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.5), limits = c(0,.12),breaks = c(0,0.04,0.08,0.12), expand = c(0,0)) +
   ylab("Vacancy Rate, %") +
   ggtitle("No Vacancies") +
-  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Vacancy Rates are at the Lowest Level in Decades") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Vacancy Rates are Coming Off Some of the Lowest Level in Decades") +
   theme_apricitas + theme(legend.position = c(.75,.80)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Rental Vacancy Rate","Homeowner Vacancy Rate")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8250), xmax = as.Date("2000-01-01")-(0.049*8250), ymin = 0-(.3*.12), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

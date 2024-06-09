@@ -757,7 +757,7 @@ INFO_TECH_EMPLOYMENT_PCT_MAP <- ggplot() +
   scale_fill_viridis_c(breaks = c(-.4,-.2,.0,.2,.4,.6), labels = c("-40%","-20%","0%","20%","40%","60%")) +
   ggtitle(" Change In Information Tech Jobs Since Dec 2019") +
   geom_text(data = filter(states_labels, state_abbv %in% c("CA","TX","WA","NY","FL")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Tech_Pct_Change >= 0, "+", ""), sprintf("%.0f", round(Info_Tech_Pct_Change*100, 0)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  labs(caption = "Graph created by @JosephPolitano using BEA data\nNOTE: Info Tech Calculated as Information Sector (NAICS 51) Excluding Movie/Sound Recording (512) and Telecom (517)") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data\nNOTE: Info Tech Calculated as Information Sector (NAICS 51) Excluding Movie/Sound Recording (512) and Telecom (517)") +
   labs(fill = NULL) +
   theme_apricitas + theme(plot.title = element_text(size = 27),legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
 
