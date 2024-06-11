@@ -92,7 +92,7 @@ TRANSIT_DATA_EXTRACT <- read.csv("https://raw.githubusercontent.com/Miles-byte/A
   st_as_sf() %>%
   erase_water(year = 2020)
 
-MANHATTAN_COMMUTER_DOT_MAP2 <- dots_points(shp = TRANSIT_DATA_EXTRACT, cols = c(Ferry, Taxi, Bicycle, Walking,`Commuter Rail`,`Car/Truck/Motorcycle`, Bus, Subway), divisor = 2000) %>%
+MANHATTAN_COMMUTER_DOT_MAP <- dots_points(shp = TRANSIT_DATA_EXTRACT, cols = c(Ferry, Taxi, Bicycle, Walking,`Commuter Rail`,`Car/Truck/Motorcycle`, Bus, Subway), divisor = 2000) %>%
   ggplot() +
   geom_sf(data = TRANSIT_DATA_EXTRACT, fill = "grey70", color = 'black') +
   #geom_sf(data = test1, fill = NA, color = "#EE6055") +
@@ -105,7 +105,7 @@ MANHATTAN_COMMUTER_DOT_MAP2 <- dots_points(shp = TRANSIT_DATA_EXTRACT, cols = c(
   labs(caption = "Graph created by @JosephPolitano using ACS 2022 1-Yr Estimates by PUMA", subtitle = "In 2022, 72% of People Who Worked in Manhattan Commuted by Transit and Only 15% Drove") +
   theme_apricitas + theme(plot.title = element_text(size = 27),legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0.1, 0.1, 0.1), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
 
-ggsave(dpi = "retina",plot = MANHATTAN_COMMUTER_DOT_MAP2, "Manhattan Commuter Dot Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = MANHATTAN_COMMUTER_DOT_MAP, "Manhattan Commuter Dot Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #copied manually from acs 2022 data
 MSA_COMMUTE <- data.frame(MSA = c("NYC","Chicago","Boston","DC","LA","SF","Philly"), value = c(2284759,334379,210004,206430,199734,182625,177582)) %>%
