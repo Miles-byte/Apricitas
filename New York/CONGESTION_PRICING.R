@@ -1,4 +1,4 @@
-pacman::p_load(dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggrepel,dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -8,18 +8,6 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
-
-??beaGet
-
-list <- beaSets(beaKey = Sys.getenv("BEA_KEY"))
-
-params <- beaParams(beaKey = Sys.getenv("BEA_KEY"), "FixedAssets")
-
-paramvals <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"), setName = "FixedAssets", paramName = "TableName")
-
-list$Dataset
-
-params$Parameter
 
 BEA_GOV_FIXED_INVEST_NOM_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
@@ -182,6 +170,95 @@ EMPLOYMENT_NY_US_graph <- ggplot() + #plotting employment growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EMPLOYMENT_NY_US_graph, "Employment NY US Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+MONTHLY_STATE_LOCAL_CONST <- read.xlsx("https://www.census.gov/construction/c30/xlsx/slsatime.xlsx") %>%
+  { setNames(., make.unique(unlist(.[2, ]))) } %>%
+  slice(3:n()) %>%
+  select(Date, `Transportation`,`Highway and street`,`Land passenger terminal`,`Mass transit`) %>%
+  drop_na() %>%
+  mutate(Date = sub("[^0-9]*$", "", Date),
+         Date = my(Date)) %>%
+  mutate(across(where(is.character), as.numeric))
+  
+MONTHLY_STATE_LOCAL_CONST_graph <- ggplot() + #plotting employment growth
+  geom_line(data= MONTHLY_STATE_LOCAL_CONST, aes(x=Date,y= `Land passenger terminal`/(`Land passenger terminal`+`Highway and street`+`Mass transit`), color= "Passenger Terminals"), size = 1.25) +
+  geom_line(data= MONTHLY_STATE_LOCAL_CONST, aes(x=Date,y= `Mass transit`/(`Land passenger terminal`+`Highway and street`+`Mass transit`), color= "Mass Transit"), size = 1.25) +
+  xlab("date") +
+  ylab("% of S&L Transportation Construction Spending") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.12), expand = c(0,0)) +
+  ggtitle("Public Transportation Construction as a % of\nAll State & Local Land Transportation Construction") +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Mass Transit's Share of Transportation Construction Has Fallen to The Lowest Level in 15 Years") +
+  scale_color_manual(name= "% of Land Transportation Construction", values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Mass Transit","Passenger Terminals")) +
+  theme_apricitas + theme(legend.position = c(.30,.75), plot.title = element_text(size = 23)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1993-01-01")-(.1861*(today()-as.Date("1993-01-01"))), xmax = as.Date("1993-01-01")-(0.049*(today()-as.Date("1993-01-01"))), ymin = 0-(.3*.12), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MONTHLY_STATE_LOCAL_CONST_graph, "Monthly State Local Construction Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TRANSIT_COST_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20York/TRANSIT_COST_PROJECTS.csv") %>%
+  mutate(isNY = (City == "New York")) %>%
+  select(Country, TunnelPer, Phase, Cost.km..2023.dollars., isNY) %>%
+  setNames(c("Country","TunnelPer","Phase","Cost per km","isNY")) %>%
+  mutate(TunnelPer = gsub("%","",TunnelPer)) %>%
+  mutate(TunnelPer = ifelse(TunnelPer == "1", "100", TunnelPer)) %>% #A couple chinese tunnel projects were accidentally coded as 1% tunnel instead of 100% tunnel
+  mutate(`Cost per km` = gsub(",","",`Cost per km`)) %>%
+  mutate(TunnelPer = as.numeric(TunnelPer), `Cost per km` = as.numeric(`Cost per km`)) %>%
+  filter(TunnelPer >= 75) %>%
+  group_by(Country) %>%
+  drop_na() %>%
+  filter(n() > 10) %>%
+  mutate(Country = recode(Country,
+                          "CN" = "China",
+                          "DE" = "Germany",
+                          "ES" = "Spain",
+                          "FR" = "France",
+                          "IT" = "Italy",
+                          "KR" = "South Korea",
+                          "TR" = "Turkey")) %>%
+  mutate(Country = factor(Country, levels = c("South Korea","Spain","Turkey","France","China","Italy","Germany","US")))
+  
+
+TRANSIT_COST_DATA_graph <- ggplot() + #plotting employment growth
+  geom_point(data= TRANSIT_COST_DATA, aes(x=Country,y= `Cost per km`/1000, color= isNY), size = 3) +
+  xlab("Country") +
+  ylab("Transit Costs Per km (2023 PPP USD)") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,5.25), expand = c(0,0)) +
+  ggtitle("New York's Massive Transit Construction Costs") +
+  labs(caption = "Graph created by @JosephPolitano using Marron Institute-NYU Transit Cost Projects Data\n\"Underground\" Defined as 75%+ Tunnel. Countries Listed Are Those with 10+ Underground Transit Projects", subtitle = "New Transit Projects in the NYC Area are Some of the Most Expensive in the World") +
+  scale_color_manual(name= "Construction Cost Per km\nUnderground Transit Projects",
+                     breaks = "TRUE",
+                     values = c("TRUE" = "#FFE98F", "FALSE" = "#00A99D"),
+                     labels = c("TRUE" = "New York")) +
+  geom_text_repel(
+    data = TRANSIT_COST_DATA %>% filter(isNY == TRUE),
+    aes(x = Country, y = `Cost per km` / 1000, label = Phase),
+    nudge_x = -1.2,
+    size = 4, 
+    color = "white"
+  ) +
+  theme_apricitas + theme(legend.position = c(.30,.75), plot.title = element_text(size = 25), axis.text.x = element_text(size = 14))
+
+ggsave(dpi = "retina",plot = TRANSIT_COST_DATA_graph, "Transit Cost Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+NYC_TRANSIT_FUNDING <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20York/NEW_YORK_MTA_FUNDING.csv") %>%
+  mutate(Year = as.Date(paste0(Year, "-01-01")))
+
+NYC_TRANSIT_FUNDING_graph <- ggplot() + #plotting employment growth
+  geom_line(data= NYC_TRANSIT_FUNDING, aes(x=Year,y= Fares/1000000000, color= "Fares"), size = 1.25) +
+  geom_line(data= NYC_TRANSIT_FUNDING, aes(x=Year,y= Federal/1000000000, color= "Federal Funds"), size = 1.25) +
+  geom_line(data= NYC_TRANSIT_FUNDING, aes(x=Year,y= State/1000000000, color= "State Funds"), size = 1.25) +
+  geom_line(data= NYC_TRANSIT_FUNDING, aes(x=Year,y= Local/1000000000, color= "Local Funds"), size = 1.25) +
+  xlab("date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,7.5), expand = c(0,0)) +
+  ggtitle("MTA NYC Transit Funding, 2012-2022") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNote: Only MTA NYCT and Not Other MTA Branches. Includes Capital & Operational Funding", subtitle = "The NYC Subway Needed to be Rescued by Federal Money to Survive The COVID Ridership Drop") +
+  scale_color_manual(name= NULL, values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Fares","Federal Funds","State Funds","Local Funds")) +
+  theme_apricitas + theme(legend.position = c(.6,.68)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-06-01")-(.1861*(today()-as.Date("2012-06-01"))), xmax = as.Date("2012-06-01")-(0.049*(today()-as.Date("2012-06-01"))), ymin = 0-(.3*7.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NYC_TRANSIT_FUNDING_graph, "NYC Transit Funding Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all add-ons
