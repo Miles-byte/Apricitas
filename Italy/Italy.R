@@ -1,4 +1,4 @@
-pacman::p_load(jsonlite,INEbaseR,seasonal,cbsodataR,rsdmx,dplyr,seasonal,wiesbaden,insee,ggspatial,rnaturalearthdata,rnaturalearth,sf,ecb,eurostat,censusapi,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(eurostat,jsonlite,INEbaseR,seasonal,cbsodataR,rsdmx,dplyr,seasonal,wiesbaden,insee,ggspatial,rnaturalearthdata,rnaturalearth,sf,ecb,eurostat,censusapi,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 devtools::install_github("oddworldng/INEbaseR")
 library(INEbaseR)
@@ -36,12 +36,12 @@ EMP_EXP_IT_graph <- ggplot() + #plotting regular vs non-regular employment
 
 ggsave(dpi = "retina",plot = EMP_EXP_IT_graph, "Emp Exp IT.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-EMPLOYMENT_NACE_2_BULK <- get_eurostat("namq_10_a10_e")
+EMPLOYMENT_NACE_2_BULK <- get_eurostat("namq_10_a10_e",legacy_bulk_download = FALSE)
 
 EMPLOYMENT_INDEXED_NACE_2_ITALY <- EMPLOYMENT_NACE_2_BULK %>%
-  filter(s_adj == "SCA" & geo == "IT" & time >= as.Date("2019-10-01") & unit == "THS_PER" & na_item == "EMP_DC") %>%
-  arrange(time) %>%
-  select(time, values, nace_r2) %>%
+  filter(s_adj == "SCA" & geo == "IT" & TIME_PERIOD >= as.Date("2019-10-01") & unit == "THS_PER" & na_item == "EMP_DC") %>%
+  arrange(TIME_PERIOD) %>%
+  select(TIME_PERIOD, values, nace_r2) %>%
   pivot_wider(names_from = nace_r2, values_from = values) %>%
   setNames(c("date","Agriculture, Forestry, and Fishing", "Industry ex Construction","Manufacturing","Construction", "Wholesale & Retail Trade, Transport, Food Service, and Accomodations","Information and Communication","Finance and Insurance","Real Estate","Professional, Scientific, Technical, Administrative, and Support Services","Public Administration, Defense, Education, Health, and Social Work", "Arts, Entertainment, Recreation, and Other Service Activities","Total")) %>%
   mutate(across(where(is.numeric), ~ .x-.x[1])) %>%

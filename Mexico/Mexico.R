@@ -329,11 +329,9 @@ INDPRO_ELEC <- inegi_series(serie = "737095", token = Sys.getenv("TOKEN_INEGI"))
 INDPRO_TOTL <- inegi_series(serie = "736969", token = Sys.getenv("TOKEN_INEGI")) %>%
   filter(date>=as.Date("2017-01-01"))
   
-  INDPRO_SEMI <- inegi_series(serie = "736503", token = Sys.getenv("TOKEN_INEGI")) %>%
-    filter(date>=as.Date("2017-01-01"))
+INDPRO_SEMI <- inegi_series(serie = "736503", token = Sys.getenv("TOKEN_INEGI")) %>%
+  filter(date>=as.Date("2017-01-01"))
   
-  write.csv(INDPRO_SEMI, "SEMI.csv")
-
 MEXICO_IND_PRO_Graph <- ggplot() + 
   geom_line(data = INDPRO_CARS, aes(x = date, y = values, color = "Motor Vehicles and Other Transportation Equipment"), size = 1.25) +
   geom_line(data = INDPRO_COMP, aes(x = date, y = values, color = "Computers and Electronic Products"), size = 1.25) +
@@ -456,8 +454,10 @@ CONSUMER_SENTIMENT_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = CONSUMER_SENTIMENT_Graph, "Consumer Sentiment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+temp_file <- tempfile(fileext = ".xlsx")
+GET("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_10.xlsx", write_disk(temp_file, overwrite = TRUE))
 
-STATE_CONSTRUCTION_ACTIVITY <- read.xlsx("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_9.xlsx")
+STATE_CONSTRUCTION_ACTIVITY <- read.xlsx(temp_file)
 
 STATE_CONSTRUCTION_ACTIVITY_EDIT <- STATE_CONSTRUCTION_ACTIVITY %>%
   slice(-1:-6,-39:-109) %>%
@@ -466,7 +466,7 @@ STATE_CONSTRUCTION_ACTIVITY_EDIT <- STATE_CONSTRUCTION_ACTIVITY %>%
   {colnames(.) <- .[1, ]; .[-1, ]} %>%
   mutate(category = rep(c("Q1", "Q2", "Q3", "Q4", "6M", "9M", "Annual"), length.out = n())) %>%
   #CHANGE THIS TO MAKE DIFFERENT VERSIONS WHEN DATA IS UPDATED
-  subset(category == "9M") %>%
+  subset(category == "Annual") %>%
   slice(n()) %>%
   select(-category) %>%
   t() %>%
@@ -476,6 +476,7 @@ STATE_CONSTRUCTION_ACTIVITY_EDIT <- STATE_CONSTRUCTION_ACTIVITY %>%
   mutate(value = (as.numeric(value)-100)/100) %>%
   mutate(region = sprintf("%02d", 1:32))
 
+
 devtools::install_github("diegovalle/mxmaps")
 library("mxmaps")
 
@@ -484,7 +485,7 @@ MX_CONSTRUCTION_MAP <- mxstate_choropleth(STATE_CONSTRUCTION_ACTIVITY_EDIT,
                    num_colors = 1) +
   theme_apricitas +
   labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Construction is Booming in the Mexican South Thanks to Major Public Works Projects") +
-  scale_fill_viridis_c("Percent Change\nNote: Data Thru Q3 2023", limits = c(-0.5,2), breaks = c(-0.5,0,.5,1,1.5,2), labels = c("-50%","0%","50%","100%","150%","200%")) +
+  scale_fill_viridis_c("Percent Change", limits = c(-0.5,2), breaks = c(-0.5,0,.5,1,1.5,2), labels = c("-50%","0%","50%","100%","150%","200%")) +
   annotate(geom = "text", label = "Tren Maya", x = -88, y = 16, color ="white",size = 5, fontface = "bold") + 
   annotate(geom = "segment", x = -88, xend = -88, y = 16.5, yend = 19, color = "white", lwd = 1.25) +
   annotate(geom = "segment", x = -88, xend = -89, y = 16.5, yend = 20.5, color = "white", lwd = 1.25) +
@@ -502,8 +503,10 @@ MX_CONSTRUCTION_MAP <- mxstate_choropleth(STATE_CONSTRUCTION_ACTIVITY_EDIT,
 
 ggsave(dpi = "retina",plot = MX_CONSTRUCTION_MAP, "MX Construction Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+temp_file <- tempfile(fileext = ".xlsx")
+GET("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_11.xlsx", write_disk(temp_file, overwrite = TRUE))
 
-STATE_MANUFACTURING_ACTIVITY <- read.xlsx("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_10.xlsx")
+STATE_MANUFACTURING_ACTIVITY <- read.xlsx(temp_file)
 
 STATE_MANUFACTURING_ACTIVITY_EDIT <- STATE_MANUFACTURING_ACTIVITY %>%
   slice(-1:-6,-39:-109) %>%
@@ -512,7 +515,7 @@ STATE_MANUFACTURING_ACTIVITY_EDIT <- STATE_MANUFACTURING_ACTIVITY %>%
   {colnames(.) <- .[1, ]; .[-1, ]} %>%
   mutate(category = rep(c("Q1", "Q2", "Q3", "Q4", "6M", "9M", "Annual"), length.out = n())) %>%
   #CHANGE THIS TO MAKE DIFFERENT VERSIONS WHEN DATA IS UPDATED
-  subset(category == "9M") %>%
+  subset(category == "Annual") %>%
   slice(n()) %>%
   select(-category) %>%
   t() %>%

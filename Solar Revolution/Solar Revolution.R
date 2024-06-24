@@ -1610,7 +1610,7 @@ US_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ggtitle("US Monthly Solar Generation") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Solar Generation is Growing Quickly, and is Up 25% Compared to Last Year") +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
+  scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(US_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*((today()-as.Date("2002-01-01")))), ymin = 0-(.3*(ceiling(max(US_SOLAR_SPLIT$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

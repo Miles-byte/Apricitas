@@ -260,7 +260,121 @@ NYC_TRANSIT_FUNDING_graph <- ggplot() + #plotting employment growth
 
 ggsave(dpi = "retina",plot = NYC_TRANSIT_FUNDING_graph, "NYC Transit Funding Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+COSTS_KM_CA_HSR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/New%20York/HSR%20Cost%20Data.csv") %>%
+  select(Country, Line, Cost.km, Year) %>%
+  mutate(isCA = (Country == "US")) %>%
+  mutate(Year = if_else(isCA == TRUE, 2021, Year)) %>%
+  mutate(Line = recode(Line, "CAHSR Bakersfield-Merced" = "Bakersfield-Merced\nInitial Operating Segment",
+         "CAHSR SF-LA" = "Full SF-LA Line")) %>%
+  #filter(Country %in% c("UK","FR","CN","JP","ES","DE","IT","US")) %>%
+  mutate(Country = recode(Country,
+                          "CN" = "China",
+                          "DE" = "Germany",
+                          "ES" = "Spain",
+                          "FR" = "France",
+                          "IT" = "Italy",
+                          "KR" = "South Korea",
+                          "JP" = "Japan")) %>%
+  mutate(Country = factor(Country, levels = c("Spain","Germany","China","France","Italy","Japan","UK","US")))
+  
+COSTS_KM_CA_HSR_CPI <- fredr("CPIAUCSL", frequency = "a") %>%
+  mutate(Year = year(date)) %>%
+  drop_na() %>%
+  mutate(value = value/value[n()]) %>%
+  full_join(COSTS_KM_CA_HSR,., by = "Year") %>%
+  drop_na() %>%
+  mutate(real_cost_km = Cost.km/value)
+  
+CAHSR_COSTS_graph <- ggplot() + #plotting employment growth
+  geom_point(data= COSTS_KM_CA_HSR_CPI, aes(x=Country,y= `real_cost_km`, color= isCA), size = 3) +
+  xlab("Country") +
+  ylab("High Speed Rail Costs Per km (2023 PPP USD)") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "M"), limits = c(0,290), expand = c(0,0)) +
+  ggtitle("The Cost of California High Speed Rail") +
+  labs(caption = "Graph created by @JosephPolitano using Marron Institute-NYU Transit Cost Projects Data", subtitle = "CAHSR, If Built at 2023 Projections, Would be Among the World's Most Expensive HSR Systems") +
+  scale_color_manual(name= "Construction Cost Per km\nHigh Speed Rail Projects",
+                     breaks = "TRUE",
+                     values = c("TRUE" = "#FFE98F", "FALSE" = "#00A99D"),
+                     labels = c("TRUE" = "California High Speed Rail\n2023 Cost Estimates")) +
+  geom_text_repel(
+    data = COSTS_KM_CA_HSR_CPI %>% filter(Line == "Full SF-LA Line"),
+    aes(x = Country, y = `real_cost_km`, label = Line),
+    nudge_x = -1,
+    nudge_y = +35,
+    size = 4, 
+    color = "white"
+  ) +
+  geom_text_repel(
+    data = COSTS_KM_CA_HSR_CPI %>% filter(Line == "Bakersfield-Merced\nInitial Operating Segment"),
+    aes(x = Country, y = `real_cost_km`, label = Line),
+    nudge_x = -1,
+    nudge_y = -40,
+    size = 4, 
+    color = "white"
+  ) +
+  geom_text_repel(
+    data = COSTS_KM_CA_HSR_CPI %>% filter(Line == "HS2"),
+    aes(x = Country, y = `real_cost_km`, label = "UK HS2\n(pre-2023 Plans)"),
+    nudge_x = -1,
+    nudge_y = -10,
+    size = 4, 
+    color = "white"
+  ) +
+  theme_apricitas + theme(legend.position = c(.30,.75), axis.text.x = element_text(size = 16))
 
+ggsave(dpi = "retina",plot = CAHSR_COSTS_graph, "CAHSR Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+STATE_LOCAL_ANNUAL_RAILROAD_SPENDING <- read.xlsx("https://www.census.gov/construction/c30/xlsx/state.xlsx") %>%
+  slice(-1:-2) %>%
+  transpose() %>%
+  row_to_names(row_number = 1) %>%
+  clean_names() %>%# Set the first row as column names
+  slice(-1) %>%
+  mutate_if(is.character, as.numeric) %>%
+  mutate(date = seq.Date(from = as.Date("2012-01-01"), by = "1 year", length.out = n()))
+
+STATE_LOCAL_RAILROAD_graph <- ggplot() +
+  geom_line(data= STATE_LOCAL_ANNUAL_RAILROAD_SPENDING, aes(x=date,y= railroad/1000, color= "All State & Local Intercity Railroad Construction Spending"), size = 1.25) +
+  xlab("date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,3.5), expand = c(0,0)) +
+  ggtitle("State & Local Railroad Spending, 2012-2022") +
+  labs(caption = "Graph created by @JosephPolitano using Census Data\nNOTE: Railroad does not include Subway, Light Rail, or Other Urban Mass Transit", subtitle = "State & Local Railroad Spending—Including California HSR—is at Record Highs") +
+  scale_color_manual(name= NULL, values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  theme_apricitas + theme(legend.position = c(.4,.85), plot.title = element_text(size = 26)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-06-01")-(.1861*(today()-as.Date("2012-06-01"))), xmax = as.Date("2012-06-01")-(0.049*(today()-as.Date("2012-06-01"))), ymin = 0-(.3*3.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = STATE_LOCAL_RAILROAD_graph, "State & Local Railroad Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+MTA_2024_CAPITAL_PLAN <- data.frame(category = c("Congestion Pricing","Federal Funding","Real Estate Transfer Tax &\nEnd of Internet Sales Tax Exemptions","MTA Bonds &\n PAYGO","Other State Funding","Other City Funding"),
+                                    value = c(15000,10680,10000,9792,3000,3000)) %>%
+  mutate(category = factor(category, levels = rev(c("Congestion Pricing","Federal Funding","Real Estate Transfer Tax &\nEnd of Internet Sales Tax Exemptions","MTA Bonds &\n PAYGO","Other State Funding","Other City Funding")))) %>%
+  mutate(pos = cumsum(value) - value/2)
+  
+MTA_2024_CAPITAL_PLAN <- MTA_2024_CAPITAL_PLAN %>%
+  arrange(desc(category)) %>%
+  mutate(pos = cumsum(value) - 0.5 * value)
+
+MTA_2024_CAPITAL_PLAN_PIE <- ggplot(MTA_2024_CAPITAL_PLAN, aes(x = "", y = value, fill = category)) +
+  geom_bar(width = 1, stat = "identity", color = NA) +
+  xlab("") +
+  ylab("") +
+  coord_polar(theta = "y") +
+  scale_fill_manual(name = "",breaks = c("Congestion Pricing","Federal Funding","Real Estate Transfer Tax &\nEnd of Internet Sales Tax Exemptions","MTA Bonds &\n PAYGO","Other State Funding","Other City Funding"), values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#6A4C93","#89023E")) +
+  geom_label_repel(aes(label = paste0(category, "\n$", round(value / 1000, 1), "B"), y = pos), nudge_x = 1) +
+  ggtitle("MTA 2020-2024 Capital Funding") +
+  labs(caption = "Graph created by @JosephPolitano using MTA Data", subtitle = "Congestion Pricing Was Key to Funding the MTA's Recent Capital Plans") +
+  theme_apricitas + theme(plot.title = element_text(size = 27),legend.position = "none", axis.ticks.x = element_blank(), axis.ticks.y = element_blank(), axis.ticks = element_blank(), panel.grid.minor = element_blank(), panel.grid.major=element_blank(), panel.grid = element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0.1, 0.1, -1), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+
+ggsave(dpi = "retina",plot = MTA_2024_CAPITAL_PLAN_PIE, "MTA 2024 Pie Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+  
+
+  
 p_unload(all)  # Remove all add-ons
 
 # Clear console
