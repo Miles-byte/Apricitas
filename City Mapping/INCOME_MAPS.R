@@ -1,3 +1,4 @@
+pacman::p_load(ggrepel,dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 p_load("acs","leaflet","tigris","dplyr","stringr","lwgeom")
 
 api.key.install(key=Sys.getenv("CENSUS_KEY"))
@@ -686,24 +687,24 @@ MN_precise_polygon <- st_convex_hull(st_union(st_combine(MN_combined_areas)))
 MN_refined_bounding_polygon <- st_intersection(MN_precise_polygon, MN_COUNTY_SHAPE) %>% st_make_valid()
 MN_non_tract_areas <- st_difference(MN_refined_bounding_polygon, MN_combined_areas)
 
-MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
 
 MN_SHAPE <- MN_SHAPE %>%
   erase_water()
 
 MINNEAPOLIS_ST_PAUL_SHAPE <- places(state="MN",cb = TRUE) %>%
-  filter(NAME %in% "Minneapolis","St. Paul")
+  filter(NAME %in% c("Minneapolis","St. Paul"))
 
 
 MN_INCOME_MAP <- ggplot() + 
-  geom_sf(data = WI_WATER, fill = "lightblue", color = 'lightblue') +
-  geom_sf(data = WI_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
-  geom_sf(data = WI_SHAPE, aes(fill = median_income/1000), color = NA) +
-  geom_sf(data = MADISON_SHAPE, fill = NA, color = "black", lwd = 0.65) +
+  geom_sf(data = MN_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = MN_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = MN_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = MINNEAPOLIS_ST_PAUL_SHAPE, fill = NA, color = "black", lwd = 0.65) +
   scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
-  scale_x_continuous(limits = c(-89.65,-89.1)) +
-  scale_y_continuous(limits = c(42.95,43.25)) +
-  ggtitle("Income in & Around Madison, Wisconsin") +
+  scale_x_continuous(limits = c(-93.75,-92.86)) +
+  scale_y_continuous(limits = c(44.75,45.25)) +
+  ggtitle("Income in & Around The Twin Cities, MN") +
   labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
@@ -712,9 +713,447 @@ MN_INCOME_MAP <- ggplot() +
         axis.line = element_blank(),
         axis.text.x = element_blank(),
         axis.text.y = element_blank(),
-        plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "in"),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.3), "in"),
         legend.key = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank())
 
-ggsave(dpi = "retina",plot = WI_INCOME_MAP, "WI Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = MN_INCOME_MAP, "MN Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#Denver
+
+CO <- geo.make(state = "CO",county= c("Denver", "Arapahoe","Jefferson", "Adams", "Douglas", "Broomfield", "Elbert", "Park", "Clear Creek", "Gilpin", "Weld", "Boulder"),tract = "*")
+
+CO_INCOME <- acs.fetch(geography = CO,endyear = 2022,table.number="B19013")
+
+CO_INCOME_df <- data.frame(GEOID = paste0(CO_INCOME@geography$state,
+                                          str_pad(CO_INCOME@geography$county,
+                                                  width=3,
+                                                  side="left",
+                                                  pad="0"),
+                                          CO_INCOME@geography$tract
+),
+median_income = as.numeric(CO_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+CO_SHAPE <- tracts(state="CO",county = c("Denver", "Arapahoe","Jefferson", "Adams", "Douglas", "Broomfield", "Elbert", "Park", "Clear Creek", "Gilpin", "Weld", "Boulder"))
+
+CO_SHAPE <- CO_SHAPE %>% 
+  left_join(., CO_INCOME_df, by = "GEOID") %>% 
+  filter(median_income > 0) %>%
+  select(geometry, median_income) %>%
+  st_make_valid()
+
+CO_WATER <- area_water(state="CO",county = c("Denver", "Arapahoe","Jefferson", "Adams", "Douglas", "Broomfield", "Elbert", "Park", "Clear Creek", "Gilpin", "Weld", "Boulder")) %>%
+  st_make_valid()
+
+CO_unioned_shapes <- st_union(CO_SHAPE$geometry) %>% st_make_valid()
+CO_unioned_water <- st_union(CO_WATER$geometry) %>% st_make_valid()
+
+CO_combined_areas <- st_union(CO_unioned_shapes, CO_unioned_water) %>% st_make_valid()
+
+CO_COUNTY_SHAPE <- counties(state="CO",cb = FALSE) %>%
+  filter(NAME %in% c("Denver", "Arapahoe","Jefferson", "Adams", "Douglas", "Broomfield", "Elbert", "Park", "Clear Creek", "Gilpin", "Weld", "Boulder"))
+
+CO_COUNTY_SHAPE <- st_union(CO_COUNTY_SHAPE$geometry) %>%
+  st_make_valid()
+
+CO_precise_polygon <- st_convex_hull(st_union(st_combine(CO_combined_areas)))
+CO_refined_bounding_polygon <- st_intersection(CO_precise_polygon, CO_COUNTY_SHAPE) %>% st_make_valid()
+CO_non_tract_areas <- st_difference(CO_refined_bounding_polygon, CO_combined_areas)
+
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+
+CO_SHAPE <- CO_SHAPE %>%
+  erase_water()
+
+DENVER_SHAPE <- places(state="CO",cb = TRUE) %>%
+  filter(NAME == "Denver")
+
+
+CO_INCOME_MAP <- ggplot() + 
+  geom_sf(data = CO_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = CO_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = CO_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = DENVER_SHAPE, fill = NA, color = "black", lwd = 0.65) +
+  scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
+  scale_x_continuous(limits = c(-105.5,-104.4)) +
+  scale_y_continuous(limits = c(39.4,40.1)) +
+  ggtitle("Income in & Around Denver, Colorado") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  theme_apricitas + 
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.3), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = CO_INCOME_MAP, "CO Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#MI
+
+MI <- geo.make(state = "MI",county= c("Wayne", "Oakland","Macomb", "Livingston", "St. Clair", "Lapeer", "Lenawee", "Washtenaw", "Shiawassee", "Genesee"),tract = "*")
+
+MI_INCOME <- acs.fetch(geography = MI,endyear = 2022,table.number="B19013")
+
+MI_INCOME_df <- data.frame(GEOID = paste0(MI_INCOME@geography$state,
+                                          str_pad(MI_INCOME@geography$county,
+                                                  width=3,
+                                                  side="left",
+                                                  pad="0"),
+                                          MI_INCOME@geography$tract
+),
+median_income = as.numeric(MI_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+MI_SHAPE <- tracts(state="MI",county = c("Wayne", "Oakland","Macomb", "Livingston", "St. Clair", "Lapeer", "Lenawee", "Washtenaw", "Shiawassee", "Genesee"))
+
+MI_SHAPE <- MI_SHAPE %>% 
+  left_join(., MI_INCOME_df, by = "GEOID") %>% 
+  filter(median_income > 0) %>%
+  select(geometry, median_income) %>%
+  st_make_valid()
+
+MI_WATER <- area_water(state="MI",county = c("Wayne", "Oakland","Macomb", "Livingston", "St. Clair", "Lapeer","Lenawee", "Washtenaw", "Shiawassee", "Genesee")) %>%
+  st_make_valid()
+
+MI_unioned_shapes <- st_union(MI_SHAPE$geometry) %>% st_make_valid()
+MI_unioned_water <- st_union(MI_WATER$geometry) %>% st_make_valid()
+
+MI_combined_areas <- st_union(MI_unioned_shapes, MI_unioned_water) %>% st_make_valid()
+
+MI_COUNTY_SHAPE <- counties(state="MI",cb = FALSE) %>%
+  filter(NAME %in% c("Wayne", "Oakland","Macomb", "Livingston", "St. Clair", "Lapeer", "Lenawee", "Washtenaw", "Shiawassee", "Genesee"))
+
+MI_COUNTY_SHAPE <- st_union(MI_COUNTY_SHAPE$geometry) %>%
+  st_make_valid()
+
+MI_precise_polygon <- st_convex_hull(st_union(st_combine(MI_combined_areas)))
+MI_refined_bounding_polygon <- st_intersection(MI_precise_polygon, MI_COUNTY_SHAPE) %>% st_make_valid()
+MI_non_tract_areas <- st_difference(MI_refined_bounding_polygon, MI_combined_areas)
+
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+
+MI_SHAPE <- MI_SHAPE %>%
+  erase_water()
+
+DETROIT_SHAPE <- places(state="MI",cb = TRUE) %>%
+  filter(NAME == "Detroit")
+
+
+MI_INCOME_MAP <- ggplot() + 
+  geom_sf(data = MI_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = MI_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = MI_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = DETROIT_SHAPE, fill = NA, color = "black", lwd = 0.65) +
+  scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
+  scale_x_continuous(limits = c(-84,-82.75)) +
+  scale_y_continuous(limits = c(42.1,42.8)) +
+  ggtitle("Income in & Around Detroit, Michigan") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  theme_apricitas + 
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.3), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = MI_INCOME_MAP, "MI Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#ME
+
+ME <- geo.make(state = "ME",county= c("York", "Cumberland","Oxford", "Kennebec", "Lincoln","Androscoggin","Sagadahoc"),tract = "*")
+
+ME_INCOME <- acs.fetch(geography = ME,endyear = 2022,table.number="B19013")
+
+ME_INCOME_df <- data.frame(GEOID = paste0(ME_INCOME@geography$state,
+                                          str_pad(ME_INCOME@geography$county,
+                                                  width=3,
+                                                  side="left",
+                                                  pad="0"),
+                                          ME_INCOME@geography$tract
+),
+median_income = as.numeric(ME_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+ME_SHAPE <- tracts(state="ME",county = c("York", "Cumberland","Oxford", "Kennebec", "Lincoln","Androscoggin","Sagadahoc"))
+
+ME_SHAPE <- ME_SHAPE %>% 
+  left_join(., ME_INCOME_df, by = "GEOID") %>% 
+  filter(median_income > 0) %>%
+  select(geometry, median_income) %>%
+  st_make_valid()
+
+ME_WATER <- area_water(state="ME",county = c("York", "Cumberland","Oxford", "Kennebec", "Lincoln","Androscoggin","Sagadahoc")) %>%
+  st_make_valid()
+
+ME_unioned_shapes <- st_union(ME_SHAPE$geometry) %>% st_make_valid()
+ME_unioned_water <- st_union(ME_WATER$geometry) %>% st_make_valid()
+
+ME_combined_areas <- st_union(ME_unioned_shapes, ME_unioned_water) %>% st_make_valid()
+
+ME_COUNTY_SHAPE <- counties(state="ME",cb = FALSE) %>%
+  filter(NAME %in% c("York", "Cumberland","Oxford", "Kennebec", "Lincoln","Androscoggin","Sagadahoc"))
+
+ME_COUNTY_SHAPE <- st_union(ME_COUNTY_SHAPE$geometry) %>%
+  st_make_valid()
+
+ME_precise_polygon <- st_convex_hull(st_union(st_combine(ME_combined_areas)))
+ME_refined_bounding_polygon <- st_intersection(ME_precise_polygon, ME_COUNTY_SHAPE) %>% st_make_valid()
+ME_non_tract_areas <- st_difference(ME_refined_bounding_polygon, ME_combined_areas)
+
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+
+ME_SHAPE <- ME_SHAPE %>%
+  erase_water()
+
+PORTLAND_SHAPE <- places(state="ME",cb = TRUE) %>%
+  filter(NAME == "Portland")
+
+
+ME_INCOME_MAP <- ggplot() + 
+  geom_sf(data = ME_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = ME_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = ME_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = PORTLAND_SHAPE, fill = NA, color = "black", lwd = 0.65) +
+  scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
+  scale_x_continuous(limits = c(-70.75,-69.75)) +
+  scale_y_continuous(limits = c(43.5,44)) +
+  ggtitle("Income in & Around Portland, Maine") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  theme_apricitas + 
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.3), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  theme(
+    panel.background = element_rect(fill = "lightblue"),
+    )
+
+ggsave(dpi = "retina",plot = ME_INCOME_MAP, "ME Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#MEMPHIS
+
+MEM_TN <- geo.make(state = "TN",county= c("Shelby", "Tipton","Fayette"),tract = "*")
+MEM_MS <- geo.make(state = "MS",county= c("DeSoto","Marshall","Tate","Coahoma","Tunica","Benton"),tract = "*")
+MEM_AR <- geo.make(state = "AR",county= c("Crittenden", "St. Francis"),tract = "*")
+
+MEM_TN_INCOME <- acs.fetch(geography = MEM_TN,endyear = 2022,table.number="B19013")
+MEM_MS_INCOME <- acs.fetch(geography = MEM_MS,endyear = 2022,table.number="B19013")
+MEM_AR_INCOME <- acs.fetch(geography = MEM_AR,endyear = 2022,table.number="B19013")
+
+MEM_TN_INCOME_df <- data.frame(GEOID = paste0(MEM_TN_INCOME@geography$state,
+                                          str_pad(MEM_TN_INCOME@geography$county,
+                                                  width=3,
+                                                  side="left",
+                                                  pad="0"),
+                                          MEM_TN_INCOME@geography$tract
+),
+median_income = as.numeric(MEM_TN_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+MEM_MS_INCOME_df <- data.frame(GEOID = paste0(MEM_MS_INCOME@geography$state,
+                                              str_pad(MEM_MS_INCOME@geography$county,
+                                                      width=3,
+                                                      side="left",
+                                                      pad="0"),
+                                              MEM_MS_INCOME@geography$tract
+),
+median_income = as.numeric(MEM_MS_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+MEM_AR_INCOME_df <- data.frame(GEOID = paste0(MEM_AR_INCOME@geography$state,
+                                              str_pad(MEM_AR_INCOME@geography$county,
+                                                      width=3,
+                                                      side="left",
+                                                      pad="0"),
+                                              MEM_AR_INCOME@geography$tract
+),
+median_income = as.numeric(MEM_AR_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+MEM_INCOME_df <- rbind(MEM_TN_INCOME_df,MEM_MS_INCOME_df) %>%
+  rbind(.,MEM_AR_INCOME_df)
+
+MEM_SHAPE <- tracts(state="TN",county = c("Shelby", "Tipton","Fayette")) %>%
+  rbind(.,tracts(state="MS",county = c("DeSoto", "Marshall","Tate","Coahoma","Tunica","Benton"))) %>%
+  rbind(.,tracts(state="AR",county = c("Crittenden", "St. Francis")))
+
+MEM_SHAPE <- MEM_SHAPE %>% 
+  left_join(., MEM_INCOME_df, by = "GEOID") %>% 
+  filter(median_income > 0) %>%
+  select(geometry, median_income) %>%
+  st_make_valid()
+
+MEM_WATER <- area_water(state="TN",county = c("Shelby", "Tipton","Fayette")) %>%
+  rbind(.,area_water(state="MS",county = c("DeSoto", "Marshall","Tate","Coahoma","Tunica","Benton"))) %>%
+  rbind(.,area_water(state="AR",county = c("Crittenden", "St. Francis"))) %>%
+  st_make_valid()
+
+MEM_unioned_shapes <- st_union(MEM_SHAPE$geometry) %>% st_make_valid()
+MEM_unioned_water <- st_union(MEM_WATER$geometry) %>% st_make_valid()
+
+MEM_combined_areas <- st_union(MEM_unioned_shapes, MEM_unioned_water) %>% st_make_valid()
+
+MEM_COUNTY_SHAPE <- counties(state="TN",cb = FALSE) %>%
+  rbind(.,counties(state="AR",cb = FALSE)) %>%
+  rbind(.,counties(state="MS",cb = FALSE)) %>%
+  filter(NAME %in% c("Shelby", "Tipton","Fayette","DeSoto", "Marshall","Tate","Coahoma","Tunica","Benton","Crittenden", "St. Francis"))
+
+MEM_COUNTY_SHAPE <- st_union(MEM_COUNTY_SHAPE$geometry) %>%
+  st_make_valid()
+
+MEM_precise_polygon <- st_convex_hull(st_union(st_combine(MEM_combined_areas)))
+MEM_refined_bounding_polygon <- st_intersection(MEM_precise_polygon, MEM_COUNTY_SHAPE) %>% st_make_valid()
+MEM_non_tract_areas <- st_difference(MEM_refined_bounding_polygon, MEM_combined_areas)
+
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+
+MEM_SHAPE <- MEM_SHAPE %>%
+  erase_water()
+
+MEMPHIS_SHAPE <- places(state="TN",cb = TRUE) %>%
+  filter(NAME == "Memphis")
+
+
+MEM_INCOME_MAP <- ggplot() + 
+  geom_sf(data = MEM_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = MEM_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = MEM_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = MEMPHIS_SHAPE, fill = NA, color = "black", lwd = 0.65) +
+  scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
+  scale_x_continuous(limits = c(-90.35,-89.45)) +
+  scale_y_continuous(limits = c(34.8,35.38)) +
+  ggtitle("Income in & Around Memphis, Tennessee") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  theme_apricitas + 
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.5), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = MEM_INCOME_MAP, "MEM Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#STL
+
+STL_IL <- geo.make(state = "IL",county= c("Bond", "Calhoun", "Clinton", "Jersey", "Macoupin", "Madison", "Monroe", "St. Clair"),tract = "*")
+STL_MO <- geo.make(state = "MO",county= c("Crawford", "Franklin", "Jefferson", "Lincoln", "St. Charles","Warren", "St. Louis County", "St. Louis city"),tract = "*")
+
+STL_IL_INCOME <- acs.fetch(geography = STL_IL,endyear = 2022,table.number="B19013")
+STL_MO_INCOME <- acs.fetch(geography = STL_MO,endyear = 2022,table.number="B19013")
+
+STL_IL_INCOME_df <- data.frame(GEOID = paste0(STL_IL_INCOME@geography$state,
+                                              str_pad(STL_IL_INCOME@geography$county,
+                                                      width=3,
+                                                      side="left",
+                                                      pad="0"),
+                                              STL_IL_INCOME@geography$tract
+),
+median_income = as.numeric(STL_IL_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+STL_MO_INCOME_df <- data.frame(GEOID = paste0(STL_MO_INCOME@geography$state,
+                                              str_pad(STL_MO_INCOME@geography$county,
+                                                      width=3,
+                                                      side="left",
+                                                      pad="0"),
+                                              STL_MO_INCOME@geography$tract
+),
+median_income = as.numeric(STL_MO_INCOME@estimate),
+row.names=NULL) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+STL_INCOME_df <- rbind(STL_IL_INCOME_df,STL_MO_INCOME_df)
+
+STL_SHAPE <- tracts(state="IL",county = c("Bond", "Calhoun", "Clinton", "Jersey", "Macoupin", "Madison", "Monroe", "St. Clair")) %>%
+  rbind(.,tracts(state="MO",county = c("Crawford", "Franklin", "Jefferson", "Lincoln", "St. Charles", "St. Louis County","St. Louis city", "Warren")))
+
+STL_SHAPE <- STL_SHAPE %>% 
+  left_join(., STL_INCOME_df, by = "GEOID") %>% 
+  filter(median_income > 0) %>%
+  select(geometry, median_income) %>%
+  st_make_valid()
+
+STL_WATER <- area_water(state="IL",county = c("Bond", "Calhoun", "Clinton", "Jersey", "Macoupin", "Madison", "Monroe", "St. Clair")) %>%
+  rbind(.,area_water(state="MO",county = c("Crawford", "Franklin", "Jefferson", "Lincoln", "St. Charles", "St. Louis County","St. Louis city", "Warren"))) %>%
+  st_make_valid()
+
+STL_unioned_shapes <- st_union(STL_SHAPE$geometry) %>% st_make_valid()
+STL_unioned_water <- st_union(STL_WATER$geometry) %>% st_make_valid()
+
+STL_combined_areas <- st_union(STL_unioned_shapes, STL_unioned_water) %>% st_make_valid()
+
+STL_COUNTY_SHAPE <- counties(state="IL",cb = FALSE) %>%
+  rbind(.,counties(state="MO",cb = FALSE)) %>%
+  filter(NAME %in% c("Bond", "Calhoun", "Clinton", "Jersey", "Macoupin", "Madison", "Monroe", "St. Clair","Crawford", "Franklin", "Jefferson", "Lincoln", "St. Charles", "St. Louis County","St. Louis city", "Warren"))
+
+STL_COUNTY_SHAPE <- st_union(STL_COUNTY_SHAPE$geometry) %>%
+  st_make_valid()
+
+STL_precise_polygon <- st_convex_hull(st_union(st_combine(STL_combined_areas)))
+STL_refined_bounding_polygon <- st_intersection(STL_precise_polygon, STL_COUNTY_SHAPE) %>% st_make_valid()
+STL_non_tract_areas <- st_difference(STL_refined_bounding_polygon, STL_combined_areas)
+
+#MN_WATER <- st_difference(MN_COUNTY_SHAPE, MN_WATER)
+
+STL_SHAPE <- STL_SHAPE %>%
+  erase_water()
+
+STL_OUTLINE <- places(state="MO",cb = TRUE) %>%
+  filter(NAME == "St. Louis")
+
+
+STL_INCOME_MAP <- ggplot() + 
+  geom_sf(data = STL_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = STL_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = STL_SHAPE, aes(fill = median_income/1000), color = NA) +
+  geom_sf(data = STL_OUTLINE, fill = NA, color = "black", lwd = 0.65) +
+  scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
+  scale_x_continuous(limits = c(-90.65,-89.8)) +
+  scale_y_continuous(limits = c(38.4,39)) +
+  ggtitle("Income in & Around St. Louis, Missouri") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  theme_apricitas + 
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.5), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STL_INCOME_MAP, "STL Income Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
