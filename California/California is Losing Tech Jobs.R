@@ -367,7 +367,8 @@ US_TECH_EMPLOY_GROWTH_IND <- rbind(US_DATA_PROCESSING_IND,US_MEDIA_SOCIAL_IND,US
 
 TECH_EMPLOY_GROWTH_INDSUM <- US_TECH_EMPLOY_GROWTH_IND %>%
   group_by(date) %>%
-  summarise(sum_value = sum(value, na.rm = TRUE))
+  summarise(sum_value = sum(value, na.rm = TRUE)) %>%
+  mutate(series_id = "Total Tech Sector Employment")
 
 TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = US_TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
