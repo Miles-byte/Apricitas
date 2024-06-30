@@ -1595,6 +1595,7 @@ US_ELECTRICITY_PRODUCTION_LONG_GRAPH <- ggplot() + #plotting EU NET EV Exports
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_LONG_GRAPH, "US Electricity Production Long Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 US_SOLAR_SPLIT <- US_SOLAR %>%
+  mutate(yoypct = (value-lag(value,12))/lag(value,12)) %>%
   mutate(year = year(date), month = month(date)) %>%
   filter(year >= max(year)-5) %>%
   mutate(year = as.character(year))
@@ -1608,10 +1609,10 @@ US_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
   ylab("TWh, Monthly") +
   ggtitle("US Monthly Solar Generation") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "US Solar Generation is Growing Quickly, and is Up 25% Compared to Last Year") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("US Solar Generation is Growing Quickly, and is Up ", round(US_SOLAR_SPLIT$yoypct[nrow(US_SOLAR_SPLIT)], 2)*100, "% Compared to Last Year")) +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(US_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*((today()-as.Date("2002-01-01")))), ymin = 0-(.3*(ceiling(max(US_SOLAR_SPLIT$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = -1.5-(.1861*(0-12)), xmax = -1.5-(0.049*(0-12)), ymin = 0-(.3*(ceiling(max(US_SOLAR_SPLIT$value)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_SOLAR_SPLIT_GRAPH, "US Solar Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1669,6 +1670,7 @@ TX_ELECTRICITY_PRODUCTION_GRAPH <- ggplot() + #plotting EU NET EV Exports
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_GRAPH, "TX Electricity Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 TX_SOLAR_SPLIT <- TX_SOLAR %>%
+  mutate(yoypct = (value-lag(value,12))/lag(value,12)) %>%
   mutate(year = year(date), month = month(date)) %>%
   filter(year >= max(year)-5) %>%
   mutate(year = as.character(year))
@@ -1682,7 +1684,7 @@ TX_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
   ylab("TWh, Monthly") +
   ggtitle("Texas Monthly Solar Generation") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas Solar Generation is Growing Quickly, and is Up 50% Compared to Last Year") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("Texas Solar Generation is Growing Quickly, and is Up ", round(TX_SOLAR_SPLIT$yoypct[nrow(TX_SOLAR_SPLIT)], 2)*100, "% Compared to Last Year")) +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
   annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/2000000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
