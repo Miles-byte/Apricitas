@@ -554,3 +554,157 @@ BOSTON_CAR_FREE_MAP_NO_LINES <- ggplot() +
   guides(color = "none")
 
 ggsave(dpi = "retina",plot = BOSTON_CAR_FREE_MAP_NO_LINES, "Boston Car Free Map No Lines.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+PA <- geo.make(state = "PA",county= c("Bucks","Chester","Delaware","Montgomery","Philadelphia"),tract = "*")
+
+PA_CAR_FREE <- acs.fetch(geography = PA,endyear = 2022,table.number="B08201")
+
+PA_CAR_FREE_df <- data.frame(cbind(data.frame(PA_CAR_FREE@geography), data.frame(PA_CAR_FREE@estimate))) %>% 
+  summarize(NAME,
+            GEOID = paste0(PA_CAR_FREE@geography$state,
+                           str_pad(PA_CAR_FREE@geography$county,
+                                   width=3,
+                                   side="left",
+                                   pad="0"),
+                           PA_CAR_FREE@geography$tract
+            ),
+            percent_car_free=B08201_002/B08201_001
+  )
+
+NJ <- geo.make(state = "NJ",county= c("Burlington","Camden","Gloucester"),tract = "*")
+NJ_CAR_FREE <- acs.fetch(geography = NJ,endyear = 2022,table.number="B08201")
+
+NJ_CAR_FREE_df <- data.frame(cbind(data.frame(NJ_CAR_FREE@geography), data.frame(NJ_CAR_FREE@estimate))) %>% 
+  summarize(NAME,
+            GEOID = paste0(NJ_CAR_FREE@geography$state,
+                           str_pad(NJ_CAR_FREE@geography$county,
+                                   width=3,
+                                   side="left",
+                                   pad="0"),
+                           NJ_CAR_FREE@geography$tract
+            ),
+            percent_car_free=B08201_002/B08201_001
+  )
+
+PA_NJ_CAR_FREE_df <- rbind(PA_CAR_FREE_df,NJ_CAR_FREE_df)
+
+PA_SHAPE <- tracts(state = "PA",county= c("Bucks","Chester","Delaware","Montgomery","Philadelphia"))
+NJ_SHAPE <- tracts(state = "NJ",county= c("Burlington","Camden","Gloucester"))
+
+PA_NJ_SHAPE <- rbind(PA_SHAPE, NJ_SHAPE) %>%
+  left_join(., PA_NJ_CAR_FREE_df, by = "GEOID") %>% 
+  select(geometry, percent_car_free) %>%
+  st_make_valid()
+
+# Load water area data
+PA_NJ_WATER <- rbind(area_water("PA", c("Bucks","Chester","Delaware","Montgomery","Philadelphia")), area_water("NJ", c("Burlington","Camden","Gloucester"))) %>%
+  st_make_valid()
+
+# Simplify geometries to avoid issues with st_union
+#DC_VA_SHAPE <- st_simplify(DC_VA_SHAPE, dTolerance = 0.001)
+#DC_VA_WATER <- st_simplify(DC_VA_WATER, dTolerance = 0.001)
+
+PA_NJ_unioned_shapes <- st_union(PA_NJ_SHAPE$geometry) %>% st_make_valid()
+PA_NJ_unioned_water <- st_union(PA_NJ_SHAPE$geometry) %>% st_make_valid()
+
+PA_NJ_combined_areas <- st_union(PA_NJ_unioned_shapes, PA_NJ_unioned_water) %>% st_make_valid()
+
+PA_COUNTY_SHAPE <- counties(state="PA",cb = FALSE) %>%
+  filter(NAME %in% c("Bucks","Chester","Delaware","Montgomery","Philadelphia"))
+NJ_COUNTY_SHAPE <- counties(state="NJ",cb = FALSE) %>%
+  filter(NAME %in% c("Burlington","Camden","Gloucester"))
+
+
+PA_NJ_COUNTY_SHAPES <- rbind(PA_COUNTY_SHAPE,NJ_COUNTY_SHAPE)
+
+PA_NJ_COUNTY_SHAPES <- st_union(PA_NJ_COUNTY_SHAPES$geometry) %>%
+  st_make_valid()
+
+PA_NJ_precise_polygon <- st_convex_hull(st_union(st_combine(PA_NJ_combined_areas))) %>% st_make_valid()
+PA_NJ_refined_bounding_polygon <- st_intersection(PA_NJ_precise_polygon, PA_NJ_COUNTY_SHAPES) %>% st_make_valid()
+PA_NJ_non_tract_areas <- st_difference(PA_NJ_refined_bounding_polygon, PA_NJ_combined_areas)
+
+PA_NJ_SHAPE <- PA_NJ_SHAPE %>%
+  st_make_valid() %>%
+  erase_water()
+
+PHILLY_OUTLINE <- places(state="PA",cb = TRUE) %>%
+  filter(NAME == "Philadelphia")
+
+#From here:https://njogis-newjersey.opendata.arcgis.com/search?q=PATCO
+
+temp_zip <- tempfile(fileext = ".zip")
+download.file("https://github.com/Miles-byte/Apricitas/raw/main/City%20Mapping/SEPTA_Passenger_Rail.zip", temp_zip, mode = "wb")
+unzip_dir <- tempfile()
+unzip(temp_zip, exdir = unzip_dir)
+
+SEPTA_LINES <- file.path(unzip_dir) %>%
+  st_read() %>%
+  filter(type %in% c("Subway","Subway - Elevated","PATCO","Surface Trolley","Rapid Transit"))
+
+temp_zip <- tempfile(fileext = ".zip")
+download.file("https://github.com/Miles-byte/Apricitas/raw/main/City%20Mapping/SEPTA_Passenger_Rail_Stations.zip", temp_zip, mode = "wb")
+unzip_dir <- tempfile()
+unzip(temp_zip, exdir = unzip_dir)
+
+SEPTA_STATIONS <- file.path(unzip_dir) %>%
+  st_read() %>%
+  filter(type %in% c("Subway","Subway-Elevated","PATCO","Surface Trolley","Rapid Transit"))
+
+
+PHILLY_CAR_FREE_MAP <- ggplot() + 
+  geom_sf(data = PA_NJ_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = PA_NJ_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = PA_NJ_SHAPE, aes(fill = percent_car_free), color = NA) +
+  geom_sf(data = PHILLY_OUTLINE, fill = NA, color = "white", lwd = 0.65) +
+  geom_sf(data = SEPTA_LINES, aes(color = line_name), lwd = 1.25) +
+  scale_color_manual(values = c("#f47325","#007cc2","#781d7d","#ee3a41","#f47325","#5c9731","#5c9731","#5c9731","#ee3a41")) +
+  geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
+  scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Car-Free Households in Philadelphia") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  theme_apricitas + 
+  scale_x_continuous(limits = c(-74.925,-75.45)) +
+  scale_y_continuous(limits = c(39.825,40.15)) +
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.5), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  guides(color = "none")
+
+ggsave(dpi = "retina",plot = PHILLY_CAR_FREE_MAP, "Philly Car Free Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+PHILLY_CAR_FREE_MAP_NO_LINES <- ggplot() + 
+  geom_sf(data = PA_NJ_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = PA_NJ_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = PA_NJ_SHAPE, aes(fill = percent_car_free), color = NA) +
+  geom_sf(data = PHILLY_OUTLINE, fill = NA, color = "white", lwd = 0.65) +
+  #geom_sf(data = SEPTA_LINES, aes(color = line_name), lwd = 1.25) +
+  #scale_color_manual(values = c("#f47325","#007cc2","#781d7d","#ee3a41","#f47325","#5c9731","#5c9731","#5c9731","#ee3a41")) +
+  #geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
+  scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Car-Free Households in Philadelphia") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  theme_apricitas + 
+  scale_x_continuous(limits = c(-74.925,-75.45)) +
+  scale_y_continuous(limits = c(39.825,40.15)) +
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -0.5), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  guides(color = "none")
+
+ggsave(dpi = "retina",plot = PHILLY_CAR_FREE_MAP_NO_LINES, "Philly Car Free Map No Lines.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
