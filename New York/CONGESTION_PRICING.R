@@ -178,7 +178,8 @@ MONTHLY_STATE_LOCAL_CONST <- read.xlsx("https://www.census.gov/construction/c30/
   drop_na() %>%
   mutate(Date = sub("[^0-9]*$", "", Date),
          Date = my(Date)) %>%
-  mutate(across(where(is.character), as.numeric))
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(Mass_Transit_Share = `Mass transit`/(`Land passenger terminal`+`Highway and street`+`Mass transit`))
   
 MONTHLY_STATE_LOCAL_CONST_graph <- ggplot() + #plotting employment growth
   geom_line(data= MONTHLY_STATE_LOCAL_CONST, aes(x=Date,y= `Land passenger terminal`/(`Land passenger terminal`+`Highway and street`+`Mass transit`), color= "Passenger Terminals"), size = 1.25) +

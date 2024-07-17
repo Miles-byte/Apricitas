@@ -383,13 +383,13 @@ ggsave(dpi = "retina",plot = ISM_SHORT_SUPPLY_GRAPH, "ISM Short Graph.png", type
 MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
   drop_na() %>%
   row_to_names(1) %>%
-  select(67:74) %>%
+  select(68:75) %>%
   `colnames<-`(c("Total","Food/Beverage/Tobacco","Chemical","Plastic/Rubber","Nonmetallic Mineral","Fabricated Metal","Computer/Electronic/Electrical","Transportation Equipment")) %>%
   mutate_if(is.character,as.numeric) %>%
   mutate(Other = Total-`Food/Beverage/Tobacco`-Chemical-`Plastic/Rubber`-`Nonmetallic Mineral`-`Fabricated Metal`-`Computer/Electronic/Electrical`-`Transportation Equipment`) %>%
   select(-Total) %>%
   .[order(nrow(.):1),] %>%
-  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.))) %>%
+  mutate(date = seq.Date(from = as.Date("2014-01-01"), by = "month", length.out = nrow(.))) %>%
   mutate_if(is.character,as.numeric) %>%
   pivot_longer(cols = `Food/Beverage/Tobacco`:`Other`) %>%
   subset(date >= as.Date("2018-01-01")) %>%
@@ -401,7 +401,7 @@ MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturin
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,250), breaks = c(0,50,100,150,200,250), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Manufacturing Construction Spending") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Makes Up More Than 50% of Manufacturing Construction") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Now Makes Up Nearly 60% of Manufacturing Construction") +
   theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
   scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*250), ymax = 0) +

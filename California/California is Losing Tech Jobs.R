@@ -157,6 +157,9 @@ CA_US_TECH_SHARE_graph <- ggplot() + #plotting permanent and temporary job loser
 
 ggsave(dpi = "retina",plot = CA_US_TECH_SHARE_graph, "CA US Tech Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+write.csv(CA_US_SOFTWARE_PUBLISHERS,"CA_SOFTWARE_PUBLISHERS.csv")
+
+
 CA_TECH_TOTAL <- rbind(CA_DATA_PROCESSING, CA_SOFTWARE_PUBLISHERS, CA_SEARCH_PORTALS, CA_MEDIA_SOCIAL, CA_COMPUTER_SYSTEM_DESIGN) %>%
   group_by(date) %>%
   filter(n()>4) %>%
@@ -171,6 +174,7 @@ CA_US_TECH <- merge(CA_TECH_TOTAL, US_TECH_TOTAL, by = "date") %>%
   transmute(date, value = CA/US) %>%
   group_by(date)
  
+write.csv(CA_US_TECH,"CA_TECH_SHARE.csv")
 
 CA_TECH_JOB_SHARE_graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= value, color= "Percent of All US Tech Jobs Located in California"), size = 1.25) +

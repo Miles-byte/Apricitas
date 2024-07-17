@@ -357,7 +357,7 @@ WIND_TURBINE_graph <- ggplot(data = WIND_TURBINE, aes(x = date, y = value, fill 
   ylab("Number of Wind Turbines") +
   ggtitle("Germany's Wind Turbine Struggles") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,150,300,450,600), limits = c(0,ceiling(max(WIND_TURBINE$value)/50)*50), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Wind Turbine Output Has Fallen Over the Last Year") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "German Wind Turbine Output Has Fallen Dramatically Over the Last 2 Years") +
   theme_apricitas + theme(legend.position = c(.425,.975)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*(ceiling(max(WIND_TURBINE$value)/50)*50)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -379,7 +379,7 @@ HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/
   ggtitle("The German Heat Pump Surge") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,50,100,150), limits = c(0,150), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Heat Pumps Produced is Rapidly Growing amidst the Energy Transition") +
-  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.375,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

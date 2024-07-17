@@ -9,9 +9,9 @@ for (metro in METRO_SELECT) {
     geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), 
                aes(x = value_2020, y = annualized_percent_lagged, color = "2020-May 2023")) +
     stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),
-                method = "lm", aes(x = value_2020, y = annualized_percent_lagged, color = "2020-May 2023"), size = 1.25) +
-    geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), aes(x=value_lag_12,y=percent12, color= "May 2023-May 2024"))+
-    stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),method = "lm", aes(x=value_lag_12,y=percent12, color= "May 2023-May 2024"), size = 1.25) +
+                method = "lm", aes(x = value_2020, y = annualized_percent_lagged, color = paste0("2020-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"))), size = 1.25) +
+    geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), aes(x=value_lag_12,y=percent12, color= paste0(format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"),"-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date), "%b %Y"))))+
+    stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),method = "lm", aes(x=value_lag_12,y=percent12, color= paste0(format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"),"-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date), "%b %Y"))), size = 1.25) +
     ggtitle(metro) +
     scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9.5,15.5), expand = c(0,0)) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.05,.25), expand = c(0,0), breaks = c(-.05,0,.05,.10,.15,.20,.25)) +
@@ -48,9 +48,9 @@ for (metro in METRO_SELECT) {
     geom_point(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), 
                aes(x = value_2020, y = annualized_percent_lagged, color = paste0("2020-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"))), size = 0.75) +
     stat_smooth(data = filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),
-                method = "lm", aes(x = value_2020, y = annualized_percent_lagged, paste0("2020-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"))), size = 1.25) +
-    geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), aes(x=value_lag_12,y=percent12, color= paste0(format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"), format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date), "%b %Y"))), size = 0.75)+
-    stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),method = "lm", aes(x=value_lag_12,y=percent12, color= "May 2023-May 2024"), size = 1.25) +
+                method = "lm", aes(x = value_2020, y = annualized_percent_lagged, color = paste0("2020-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"))), size = 1.25) +
+    geom_point(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro), aes(x=value_lag_12,y=percent12, color= paste0(format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"),"-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date), "%b %Y"))), size = 0.75)+
+    stat_smooth(data=filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro),method = "lm", aes(x=value_lag_12,y=percent12, color= paste0(format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date-370), "%b %Y"),"-", format(min(filter(ZHVI_NEIGHBORHOOD_REG, Metro == metro)$date), "%b %Y"))), size = 1.25) +
     ggtitle(metro) +
     scale_x_continuous(labels = scales::number_format(accuracy = 1),limits = c(9.5,15.5), expand = c(0,0)) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.05,.25), expand = c(0,0), breaks = c(-.05,0,.05,.10,.15,.20,.25)) +
@@ -67,6 +67,8 @@ for (metro in METRO_SELECT) {
     theme(plot.title = element_text(size = 14,hjust = 0.5))
 }
 
+METRO_ARRANGE_PLOTS$METRO_ARRANGE_Yoy_Graph_Washington__DC_VA_MD_WV +
+  theme_minimal()
 
 NORTHEAST_NEIGHBORHOOD_Yoy_Graph <- ggarrange(METRO_ARRANGE_PLOTS$METRO_ARRANGE_Yoy_Graph_New_York__NY_NJ_PA,
                                           METRO_ARRANGE_PLOTS$METRO_ARRANGE_Yoy_Graph_Washington__DC_VA_MD_WV,
