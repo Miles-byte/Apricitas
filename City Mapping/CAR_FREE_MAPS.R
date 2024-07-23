@@ -61,7 +61,7 @@ MD_CAR_FREE_df <- data.frame(cbind(data.frame(MD_CAR_FREE@geography), data.frame
                            MD_CAR_FREE@geography$tract
             ),
             percent_car_free=B08201_002/B08201_001
-  )
+  ) 
 
 
 
@@ -708,3 +708,90 @@ PHILLY_CAR_FREE_MAP_NO_LINES <- ggplot() +
   guides(color = "none")
 
 ggsave(dpi = "retina",plot = PHILLY_CAR_FREE_MAP_NO_LINES, "Philly Car Free Map No Lines.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#CALIFORNIA 
+
+CA <- geo.make(state = "CA",county= c("Los Angeles","Ventura","Kern","Orange","Riverside"),tract = "*")
+
+CA_CAR_FREE <- acs.fetch(geography = CA,endyear = 2022,table.number="B08201")
+
+CA_CAR_FREE_df <- data.frame(cbind(data.frame(CA_CAR_FREE@geography), data.frame(CA_CAR_FREE@estimate))) %>% 
+  summarize(NAME,
+            GEOID = paste0(CA_CAR_FREE@geography$state,
+                           str_pad(CA_CAR_FREE@geography$county,
+                                   width=3,
+                                   side="left",
+                                   pad="0"),
+                           CA_CAR_FREE@geography$tract
+            ),
+            percent_car_free=B08201_002/B08201_001
+  ) %>%
+  mutate(GEOID = str_pad(GEOID, width = 11, pad = "0"))
+
+CA_SHAPE <- tracts(state = "CA",county= c("Los Angeles","Ventura","Kern","Orange","Riverside"))
+
+CA_SHAPE <- CA_SHAPE %>%
+  left_join(., CA_CAR_FREE_df, by = "GEOID") %>% 
+  select(geometry, percent_car_free) %>%
+  st_make_valid()
+
+# Load water area data
+CA_WATER <- rbind(area_water("CA", c("Los Angeles","Ventura","Kern","Orange","Riverside"))) %>%
+  st_make_valid()
+
+# Simplify geometries to avoid issues with st_union
+#DC_VA_SHAPE <- st_simplify(DC_VA_SHAPE, dTolerance = 0.001)
+#DC_VA_WATER <- st_simplify(DC_VA_WATER, dTolerance = 0.001)
+
+CA_unioned_shapes <- st_union(CA_SHAPE$geometry) %>% st_make_valid()
+CA_unioned_water <- st_union(CA_SHAPE$geometry) %>% st_make_valid()
+
+CA_combined_areas <- st_union(CA_unioned_shapes, CA_unioned_water) %>% st_make_valid()
+
+CA_COUNTY_SHAPE <- counties(state="CA",cb = FALSE) %>%
+  filter(NAME %in% c("Los Angeles","Ventura","Kern","Orange","Riverside"))
+
+CA_COUNTY_SHAPE <- st_union(CA_COUNTY_SHAPE$geometry)
+
+CA_precise_polygon <- st_convex_hull(st_union(st_combine(CA_combined_areas))) %>% st_make_valid()
+CA_refined_bounding_polygon <- st_intersection(CA_precise_polygon, CA_COUNTY_SHAPE) %>% st_make_valid()
+CA_non_tract_areas <- st_difference(CA_refined_bounding_polygon, CA_combined_areas)
+
+CA_SHAPE <- CA_SHAPE %>%
+  st_make_valid() %>%
+  erase_water()
+
+LA_OUTLINE <- places(state="CA",cb = TRUE) %>%
+  filter(NAME == "Los Angeles")
+
+LA_CAR_FREE_MAP_NO_LINES <- ggplot() + 
+  geom_sf(data = CA_non_tract_areas, fill = "grey", color = NA, alpha = 0.5) +
+  geom_sf(data = CA_WATER, fill = "lightblue", color = 'lightblue') +
+  geom_sf(data = CA_SHAPE, aes(fill = percent_car_free), color = NA) +
+  geom_sf(data = LA_OUTLINE, fill = NA, color = "white", lwd = 0.65) +
+  #geom_sf(data = SEPTA_LINES, aes(color = line_name), lwd = 1.25) +
+  #scale_color_manual(values = c("#f47325","#007cc2","#781d7d","#ee3a41","#f47325","#5c9731","#5c9731","#5c9731","#ee3a41")) +
+  #geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
+  scale_fill_viridis_c(name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
+  ggtitle("Car-Free Households in Los Angeles") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  theme_apricitas + 
+  scale_x_continuous(limits = c(-118.7,-118.1)) +
+  scale_y_continuous(limits = c(33.725,34.325)) +
+  theme(plot.title = element_text(size = 30),
+        legend.position = "right",
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0.1, 0.1, 0.1, -2), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) + 
+  guides(color = "none") +
+  theme(
+    panel.background = element_rect(fill = "lightblue"),
+  )
+
+ggsave(dpi = "retina",plot = LA_CAR_FREE_MAP_NO_LINES, "LA Car Free Map No Lines.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
