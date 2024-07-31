@@ -1711,10 +1711,10 @@ US_CLEAN_STACKED_graph <- ggplot(data = US_CLEAN_STACKED, aes(x = date, y = roll
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
   ylab("Percent of Total US Electricity") +
-  ggtitle("Clean Energy, Share of US Electricity Generation") +
+  ggtitle("Clean Energy, Share of US Electricity") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,.10,.20,.3,.4,.5), limits = c(0,.52), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "Clean Energy is a Rising Share of US Electricity Generation") +
-  theme_apricitas + theme(legend.position = c(.25,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.35,.825)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Share of US Electricity Generation, Rolling 12M Total",values = c("#FFE98F","#9A348E","#3083DC","#00A99D","#EE6055","#A7ACD9","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.52), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -2574,3 +2574,12 @@ states_solar_graph <- states_solar %>%
   theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
 
 ggsave(dpi = "retina",plot = states_solar_graph, "States Solar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+p_unload(all)  # Remove all add-ons
+
+# Clear console
+cat("\014")  # ctrl+L
+
+rm(list = ls())
+
+dev.off()

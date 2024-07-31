@@ -559,8 +559,8 @@ REAL_PRIVATE_FINAL_GRAPH <- ggplot() +
   xlab("Date") +
   ylab("Year on Year Growth, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.10,.175), expand = c(0,0)) +
-  ggtitle("America's 2022 Slowdown") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Growth in Real Final Sales to Private Domestic Purchasers Has Declined Significantly") +
+  ggtitle("US `Core` GDP Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Growth in Real Final Sales to Private Domestic Purchasers Has Rebounded") +
   theme_apricitas + theme(legend.position = c(.45,.7)) + theme(legend.spacing.y = unit(0,"cm")) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = -.10-(.3*.275), ymax = -.10) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -723,7 +723,7 @@ NGDP_Growth_QTR_Graph <- ggplot(subset(NGDP_Growth_QTR, date >= as.Date("2018-01
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate("hline", y = 0.04, yintercept = 0.04, color = "white", size = 1.25, linetype = "dashed") +
-  annotate("text", label = "Pre-COVID Norm",y = 0.044, x = as.Date("2020-01-20"), color = "white", size = 3.5) +
+  annotate("text", label = "Pre-COVID Norm",y = 0.044, x = as.Date("2020-02-20"), color = "white", size = 3.5) +
   annotate("text", label = "*Note: Q1-Q3 2020 Excluded Because of Volatility",y = 0.08, x = as.Date("2019-02-01"), color = "white", size = 3.5) +
   #geom_point(data = RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
   #guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
@@ -732,7 +732,7 @@ NGDP_Growth_QTR_Graph <- ggplot(subset(NGDP_Growth_QTR, date >= as.Date("2018-01
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("US Quarterly NGDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Nominal Spending Growth Has Declined Significantly From 2021/2022 Levels") +
-  theme_apricitas + theme(legend.position = c(.3,.85)) +
+  theme_apricitas + theme(legend.position = c(.3,.92)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.15), ymax = 0) +
@@ -951,17 +951,17 @@ REAL_FINAL_QUARTERLY <- ggplot() + #plotting  GDP data
 
 ggsave(dpi = "retina",plot = REAL_FINAL_QUARTERLY, "Real Final Private.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-REAL_FINAL_QUARTERLY_BAR <- ggplot(PRIVATE_SALES %>% filter(date >= as.Date("2020-10-01")), aes(fill="Real Final Sales to Private Domestic Purchasers, Quarterly Annualized Growth", x=date, y=t10401_pb000003_8_final_sales_to_private_domestic_purchasers_fisher_quantity_index_percent_change_annual_rate_0/100)) + 
+REAL_FINAL_QUARTERLY_BAR <- ggplot(PRIVATE_SALES %>% filter(date >= as.Date("2022-01-01")), aes(fill="Growth in Real Final Sales to Private Domestic Purchasers", x=date, y=t10401_pb000003_8_final_sales_to_private_domestic_purchasers_fisher_quantity_index_percent_change_annual_rate_0/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   xlab("Date") +
-  ylab("Quarterly Growth, Annnualized") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.01,.13), expand = c(0,0)) +
+  ylab("Quarterly Growth, Seasonally Adjusted at Annnualized Rates") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.005,.04), expand = c(0,0)) +
   ggtitle("US 'Core' GDP Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Growth in Real Final Sales to Private Domestic Purchasers Has Bounced Back") +
-  theme_apricitas + theme(legend.position = c(.5,.975)) + theme(legend.spacing.y = unit(0,"cm")) +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Growth in Real Final Sales to Private Domestic Purchasers Has Remained Steady") +
+  theme_apricitas + theme(legend.position = c(.5,.96)) + theme(legend.spacing.y = unit(0,"cm")) +
   scale_fill_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-10-01")-(.1861*(today()-as.Date("2020-10-01"))), xmax = as.Date("2020-10-01")-(0.049*(today()-as.Date("2020-10-01"))), ymin = -.01-(.3*.14), ymax = -.01) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -.005-(.3*.045), ymax = -.005) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REAL_FINAL_QUARTERLY_BAR, "Real Final Private Bar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
