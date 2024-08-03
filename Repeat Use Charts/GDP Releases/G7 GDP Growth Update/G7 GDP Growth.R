@@ -11,11 +11,11 @@ save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
 test_login(genesis=c(db='de'))
 
 FRANCE_GDP_INSEE_list_selected =
-  get_idbank_list("CNT-2014-PIB-EQB-RF") %>% # Gross domestic product balance
+  get_idbank_list("CNT-2020-PIB-EQB-RF") %>% # Gross domestic product balance
   filter(OPERATION_label_en == "GDP - Gross domestic product") %>%
   filter(FREQ == "T") %>% #quarter
   add_insee_title() %>% #add titles
-  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO.TRUE")#GDP
+  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO.FALSE")#GDP
 
 US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
@@ -23,7 +23,7 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -114,13 +114,13 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101, color = "white", size = 4) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,112.5), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Growth in the G7") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries Except Japan are Above pre-COVID GDP") +
   theme_apricitas + theme(legend.position = c(.175,.30)) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.55) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

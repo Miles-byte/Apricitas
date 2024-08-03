@@ -540,7 +540,7 @@ LARGE_AGENCIES <- ggplot() +
               filter(agency %in% (AGENCY_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(1:5) %>%
+                                    slice(2:7) %>%
                                     pull(agency))), aes(x=month,y= year_roll/1000000,color = agency), size = 1.25)
 
 
@@ -644,6 +644,7 @@ REGION_Ridership <- ggplot() +
   geom_line(data=filter(REGION_BULK, uza_name == "San Francisco--Oakland, CA", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="San Francisco MSA"), size = 1.25) +
   geom_line(data=filter(REGION_BULK, uza_name == "Los Angeles--Long Beach--Anaheim, CA", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Los Angeles MSA"), size = 1.25) +
   geom_line(data=filter(REGION_BULK, uza_name == "Chicago, IL--IN", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Chicago MSA"), size = 1.25) +
+  #geom_line(data=filter(REGION_BULK, uza_name == "Seattle--Tacoma, WA", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Seattle MSA"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,700), expand = c(0,0)) +

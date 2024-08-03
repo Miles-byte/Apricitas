@@ -255,7 +255,7 @@ US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Semiconductor Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA",subtitle = "Sanctions Have Led to a Major Fall in US Exports of Chips & Manufacturing Equipment to China") +
-  theme_apricitas + theme(legend.position = c(.325,.87)) +
+  theme_apricitas + theme(legend.position = c(.32,.89)) +
   scale_color_manual(name= "US-Manufactured Exports to China, HK, and Macao",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*15), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -491,13 +491,13 @@ DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph <- ggplot() + #plotting integrated c
   geom_line(data=DUTCH_CHIPMAKING_EXPORTS, aes(x=date,y= ((RollNL)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 1.25) + 
   geom_line(data=DUTCH_CHIPMAKING_EXPORTS, aes(x=date,y= ((NL*12)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,12), breaks = c(0,3,6,9,12), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,14), breaks = c(0,3,6,9,12), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("Dutch Chipmaking Exports to China") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data",subtitle = "Dutch Chipmaking Equipment Exports to China are Booming") +
   theme_apricitas + theme(legend.position = c(.425,.8)) +
   scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*12), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*14), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph, "Dutch Chipmaking Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -506,6 +506,37 @@ ggsave(dpi = "retina",plot = DUTCH_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph, "Dutch
 ggsave(dpi = "retina",plot = DUTCH_EXPORTS_CHINA_Dollar_Graph, "Dutch Chip Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Dollar_Graph, "EU IC Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Graph, "EU IC Exports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Creating NSA Japanese Chipmaking Exports to Roll
+JAPAN_CHIPMAKING_EXPORTS <- rbind(JPN_TRADE_DATA_2016_2020,JPN_TRADE_DATA_2021_Plus) %>%
+  subset(cat01_code == "70131000") %>%
+  filter(str_detect(`Quantity-Value by Principal Commodity`, fixed("Value", ignore_case = TRUE))) %>%
+  subset(`Quantity-Value by Principal Commodity` != "Value-Year") %>%
+  mutate(`Quantity-Value by Principal Commodity` = gsub("Value-","",`Quantity-Value by Principal Commodity`)) %>%
+  mutate(date = as.Date(paste0(`Quantity-Value by Principal Commodity`,"-01-",Year),format = "%B-%d-%Y")) %>%
+  group_by(date) %>%
+  summarise(JP = sum(value, na.rm = TRUE)) %>%
+  left_join(.,YEN_EXCHANGE_RATE) %>%
+  mutate(RollJP = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(JP,12))) %>%
+  drop_na()
+  
+DUTCH_JAPAN_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=filter(DUTCH_CHIPMAKING_EXPORTS, date >= as.Date("2017-01-01")), aes(x=date,y= ((RollNL)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 1.25) + 
+  geom_line(data=filter(DUTCH_CHIPMAKING_EXPORTS, date >= as.Date("2017-01-01")), aes(x=date,y= ((NL*12)/value)/1000000000,color= "Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
+  geom_line(data=JAPAN_CHIPMAKING_EXPORTS, aes(x=date,y= ((RollJP)/value)/1000000,color= "Japanese Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 1.25) + 
+  geom_line(data=JAPAN_CHIPMAKING_EXPORTS, aes(x=date,y= ((JP*12)/value)/1000000,color= "Japanese Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("Key Chipmaking Exports to China") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat & e-Stat data. NOTE: Definitions Differ Slightly b/c Japan Doesn't Use HS Codes",subtitle = "Dutch & Japanese Chipmaking Equipment Exports to China are Booming") +
+  theme_apricitas + theme(legend.position = c(.425,.85)) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Japanese Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau","Dutch Exports of Semiconductor Manufacturing Equipment\nto China, Hong Kong, and Macau")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*20), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DUTCH_JAPAN_CHIPMAKING_EXPORTS_CHINA_DOLLAR_Graph, "Dutch Japanese Monthly Chipmaking Equipment Exports China Dollar.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 KOR_EXPORTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/KOR_EXPORTS.csv") %>%
   mutate(Date = as.Date(Date)) %>%
@@ -717,7 +748,7 @@ CHINA_HK_CHIP_MACHINES_IMPORTS <- CHINA_HK_CHIP_MACHINES_IMPORTS %>%
   mutate(name = factor(name, levels = c("Other","Taiwan","Netherlands","Singapore","South Korea","United States","Japan")))
 
 CHINA_HK_CHIP_MACHINES_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_MACHINES_IMPORTS, aes(x = Date, y = (value*12)/1000000000, fill = name)) + #plotting permanent and temporary job losers
-  geom_line(data=CHINA_CHIP_MACHINES_IMPORTS, aes(x=Date,y= US.dollar/1000000,color= Trading.partner), size = 1.25) + 
+  #geom_line(data=CHINA_CHIP_MACHINES_IMPORTS, aes(x=Date,y= value/1000000,color= name), size = 1.25) + 
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
@@ -725,7 +756,7 @@ CHINA_HK_CHIP_MACHINES_Imports_Dollar_Bar_Graph <- ggplot(data = CHINA_HK_CHIP_M
   scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,10,20,30,40,50,60), limits = c(0,65), expand = c(0,0)) +
   ggtitle("Chinese Chipmaking Machine Imports") +
   labs(caption = "Graph created by @JosephPolitano using PRC GACC and HK C&SD data Seasonally Adjusted Using X-13ARIMA", subtitle = "Chinese Imports of Machines for Semiconductor Production Have Risen Dramatically") +
-  theme_apricitas + theme(legend.position = c(.38,.82), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.4,.82), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Chipmaking Machine Imports to China and Hong Kong by Country",values = c("#6A4C93","#3083DC","#A7ACD9","#9A348E","#00A99D","#EE6055","#FFE98F")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -834,19 +865,20 @@ JAPAN_IP_Semiconductor_Manufacturing_Equipment_2020 <- ggplot() + #plotting Japa
   ylab("Index, Jan 2015 = 100") +
   ggtitle("Japanese Chipmaking Equipment Production") +
   labs(caption = "Graph created by @JosephPolitano using METI Data",subtitle = "Japanese Production of Chipmaking Equipment Has Fallen From 2022 Highs But Remains Strong") +
-  theme_apricitas + theme(legend.position = c(.4,.75), plot.title = element_text(size = 25)) +
+  theme_apricitas + theme(legend.position = c(.3,.80), plot.title = element_text(size = 25)) +
   scale_color_manual(name= "Industrial Production, Japan",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 70-(.3*130), ymax = 70) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 60-(.3*140), ymax = 60) +
   coord_cartesian(clip = "off")
 
 
 ggsave(dpi = "retina",plot = JAPAN_IP_Semiconductor_Manufacturing_Equipment, "Japan Chip Machine Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = JAPAN_IP_Semiconductor_Manufacturing_Equipment_2020, "Japan Chip Machine Manufacturing 2020.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+ecos.setKey("2DNSQWJY32YGLL8EM95R")
 
-EXP_PRICE_SEMICONDUCTOR <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "3091AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
+EXP_PRICE_SEMICONDUCTOR <- statSearch(lang = "en",stat_code = "402Y014", item_code1 = "3091AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
-EXP_PRICE_COMPUTER <- statSearch(api_key = "2DNSQWJY32YGLL8EM95R", lang = "en",stat_code = "402Y014", item_code1 = "309AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
+EXP_PRICE_COMPUTER <- statSearch(lang = "en",stat_code = "402Y014", item_code1 = "309AA", item_code2 = "C",start_time = "201601", cycle = "M") %>%
   mutate(time = as.Date(as.yearmon(time, "%Y%m")))
 
 EXP_IMP_PI_COMPUTERS_CONDUCTORS_Graph <- ggplot() + #plotting Korean Electronics Prices
