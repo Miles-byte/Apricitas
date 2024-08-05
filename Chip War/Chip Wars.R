@@ -806,6 +806,37 @@ CHINA_CHIP_MACHINES_IMPORT_DETAILS_Graph <- ggplot() + #plotting permanent and t
 
 ggsave(dpi = "retina",plot = CHINA_CHIP_MACHINES_IMPORT_DETAILS_Graph, "China Chip Machines Details.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+CHINESE_DETAILED_IMPORTS_MONTHLY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/CHINA_CHIP_IMPORT_MONTHLY_DETAIL.csv")
+
+CHINESE_DETAILED_IMPORTS_SEMIANNUAL <- CHINESE_DETAILED_IMPORTS_MONTHLY %>%
+  mutate(date = ymd(paste0(Date.of.data, "01"))) %>%
+  mutate(half_of_year = ifelse(month(date) <= 6, 
+                        paste0(year(date), "-01-01"), 
+                        (paste0(year(date), "-06-01")))) %>%
+  mutate(half_of_year = as.Date(half_of_year)) %>%
+  group_by(Commodity,half_of_year) %>%
+  summarise(value = sum(US.dollar), .groups = 'drop')
+
+CHINESE_DETAILED_IMPORTS_SEMIANNUAL_Graph <- ggplot() + #plotting permanent and temporary job losers
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Other apparatus used for projected circuit onto semiconductor materials for the manufacture of semiconductor or IC"), aes(x=half_of_year,y= value/1000000000*2,color= "Lithography Machines and Other Apparatus Used to Project Circuits"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Chemical Vapour Deposition(CVD) equipment for the manufacture of semiconductor or IC"), aes(x=half_of_year,y= value/1000000000*2,color= "Chemical Vapor Deposition Equipment"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Dry plasma etching for the manufacture of semiconductor or IC"), aes(x=half_of_year,y= value/1000000000*2,color= "Dry Plasma Etching Machines"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Ion implanters"), aes(x=half_of_year,y= value/1000000000*2,color= "Ion Implanters"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Oxidation,diffusion,annealing and other heat treatment equipment for the manufacture of semiconductor or IC"), aes(x=half_of_year,y= value/1000000000*2,color= "Oxidation, Diffusion, Annealing and Other Heat Treatment Equipment"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Physical Vapour Deposition(PVD) equipment for the manufacture of semiconductor or IC"), aes(x=half_of_year,y= value/1000000000*2,color= "Physical Vapor Deposition Equipment"), size = 1.25) + 
+  geom_line(data=filter(CHINESE_DETAILED_IMPORTS_SEMIANNUAL, Commodity == "Step and repeat alignersw"), aes(x=half_of_year,y= value/1000000000*2,color= "Step and Repeat Aligners"), size = 1.25) + 
+  xlab("Date") +
+  ylab("Billions of Dollars, Annual Rate") +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,2,4,6,8,10,12), limits = c(0,13), expand = c(0,0)) +
+  ggtitle("Chinese Chipmaking Machine Imports") +
+  labs(caption = "Graph created by @JosephPolitano using PRC GACC data", subtitle = "Chinese Imports of Chipmaking Machines Rose Throughout 2023 But Have Fallen Slightly in 2024") +
+  theme_apricitas + theme(legend.position = c(.43,.68)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= "Semi-Annual Chipmaking Machine Imports to China by Category\nExpressed at Annual Rates",values = rev(c("#6A4C93","#3083DC","#A7ACD9","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Lithography Machines and Other Apparatus Used to Project Circuits","Chemical Vapor Deposition Equipment","Dry Plasma Etching Machines","Oxidation, Diffusion, Annealing and Other Heat Treatment Equipment","Step and Repeat Aligners","Physical Vapor Deposition Equipment","Ion Implanters")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-365-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-365-as.Date("2016-01-01"))), ymin = 0-(.3*13), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINESE_DETAILED_IMPORTS_SEMIANNUAL_Graph, "China Chip Machines Detail Semiannual.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 
 JAPAN_IP_ITEM <- read.xlsx("https://www.meti.go.jp/english/statistics/tyo/iip/xls/b2015_hsm1e.xlsx") %>%
@@ -901,7 +932,7 @@ datasets <- cbs_get_datasets() %>%
   select(Identifier, ShortTitle) 
 
 #DOWNLOADING NETHERLANDS PRODUCTION DATA
-NETHERLANDS_PRODUCTION <- cbs_get_data('83838ENG') %>%
+NETHERLANDS_PRODUCTION <- cbs_get_data('85806ENG') %>%
   subset(SectorBranchesSIC2008 == "336500") %>%
   filter(str_detect(`Periods`, fixed("MM", ignore_case = TRUE))) %>%
   mutate(date = as.Date(as.yearmon(Periods, "%YMM%m")))
@@ -909,17 +940,17 @@ NETHERLANDS_PRODUCTION <- cbs_get_data('83838ENG') %>%
 NETHERLANDS_PRODUCTION_CHIP_MACHINES <- ggplot() + #plotting Dutch Semiconductor Manufacturing Equipment Production
   geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjustedProduction_3/SeasonallyAdjustedProduction_3[1]*100,color= "Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,260), breaks = c(100,150,200,250), expand = c(0,0)) +
-  ylab("Index, Jan 2015 = 100") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,350), breaks = c(100,150,200,250,300,350), expand = c(0,0)) +
+  ylab("Index, Jan 2016 = 100") +
   ggtitle("Dutch Chipmaking Equipment Production") +
-  labs(caption = "Graph created by @JosephPolitano using CBS Data",subtitle = "Dutch Production of Chipmaking Equipment Has Also Fallen From 2022 Highs") +
+  labs(caption = "Graph created by @JosephPolitano using CBS Data",subtitle = "Dutch Production of Chipmaking Equipment Has Fallen Slightly From its 2023 Highs") +
   theme_apricitas + theme(legend.position = c(.45,.75)) +
   scale_color_manual(name= "Industrial Production, Netherlands",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 80-(.3*170), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 80-(.3*270), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 NETHERLANDS_FOREIGN_TURNOVER_CHIP_MACHINES <- ggplot() + #plotting Dutch Semiconductor Manufacturing Equipment Production
-  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjDailyTurnoverForeign_12/SeasonallyAdjDailyTurnoverForeign_12[1]*100,color= "Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjTurnoverForeign_12/SeasonallyAdjTurnoverForeign_12[1]*100,color= "Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,300), breaks = c(100,150,200,250,300), expand = c(0,0)) +
   ylab("Index, Jan 2015 = 100") +
@@ -1256,6 +1287,22 @@ SEMI_EQUP_JPN_TWN_NTH_GRAPH <- ggplot() + #plotting Japanese Semiconductor Manuf
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SEMI_EQUP_JPN_TWN_NTH_GRAPH, "Key Semiconductor Equipment Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+SEMI_EQUP_JPN_NTH_GRAPH <- ggplot() + #plotting Japanese Semiconductor Manufacturing Equipment
+  geom_line(data=subset(NETHERLANDS_PRODUCTION, date >= as.Date("2016-01-01")), aes(x=date,y= SeasonallyAdjustedProduction_3/SeasonallyAdjustedProduction_3[25]*100,color= "Netherlands, Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)"), size = 1.25) +
+  geom_line(data=subset(JAPAN_IP_ITEM_2020, date >= as.Date("2016-01-01")), aes(x=date,y= semiconductor_products_machinery/semiconductor_products_machinery[1]*100,color= "Japan, Semiconductor Manufacturing Equipment"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,275), breaks = c(100,200,300,400), expand = c(0,0)) +
+  ylab("Index, Jan 2018 = 100") +
+  ggtitle("Key Global Chipmaking Equipment Production") +
+  labs(caption = "Graph created by @JosephPolitano using METI & CBS Data",subtitle = "Global Production of Chipmaking Equipment Has Declined From Peaks But Remains High") +
+  theme_apricitas + theme(legend.position = c(.35,.85), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "Industrial Production, Jan 2018 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Netherlands, Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)","Japan, Semiconductor Manufacturing Equipment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*240), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SEMI_EQUP_JPN_TWN_NTH_GRAPH, "Netherlands Japan Semiconductor Equipment Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 US_IND_PRO <- fredr("IPG3344S", observation_start = as.Date("2016-01-01"))

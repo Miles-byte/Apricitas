@@ -247,7 +247,7 @@ SKYLINE_graph <- ggplot() +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,2), expand = c(0,0), breaks = c(0,1,2)) +
   ylab("Millions of Unlinked Passenger Trips") +
-  ggtitle("America's Newest Metro") +
+  ggtitle("Honolulu Skyline: America's Newest Metro") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Honolulu's Skyline is America's Newest Heavy Rail Transit Network") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
@@ -373,6 +373,38 @@ SAN_DIEGO_TROLLEY_graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SAN_DIEGO_TROLLEY_graph, "San Diego Trolley Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+VALLEY_METRO_graph <- ggplot() + 
+  geom_line(data=filter(RAIL_BULK, agency == "Valley Metro Rail, Inc.", month >= as.Date("2008-01-01")), aes(x=month,y= year_roll/1000000,color="Ridership,\nRolling 12M"), size = 1.25) +
+  annotate("vline", x = as.Date("2008-12-01"), xintercept = as.Date("2008-12-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Metro\nRail\nOpens", x = as.Date("2008-10-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2015-08-01"), xintercept = as.Date("2015-08-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Central\nMesa\nExtension", x = as.Date("2015-06-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2016-03-01"), xintercept = as.Date("2016-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Northwest\nExtension\nPhase I", x = as.Date("2016-5-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2019-05-01"), xintercept = as.Date("2019-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Gilbert\nRoad\nExtension", x = as.Date("2019-07-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2022-05-01"), xintercept = as.Date("2022-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Tempe\nStreetcar\nOpens", x = as.Date("2022-03-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-01-01"), xintercept = as.Date("2024-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Northwest\nExtension\nPhase II", x = as.Date("2023-12-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Line 2\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,25), expand = c(0,0), breaks = c(0,5,10,15,20,25)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Valley Metro Rail (Phoenix) Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail and Streetcar Lines",subtitle = "Phoenix Light Rail is Currently Undergoing Significant Expansion Projects") +
+  theme_apricitas + theme(legend.position = c(.22,.95), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2008-01-01")-(.1861*(today()-as.Date("2008-01-01"))), xmax = as.Date("2008-01-01")-(0.049*(today()-as.Date("2008-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = VALLEY_METRO_graph, "Valley Metro Rail Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 COMMUTER_RAIL_BULK <- NTD_BULK %>%
