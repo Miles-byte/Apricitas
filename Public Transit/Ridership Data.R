@@ -1,5 +1,5 @@
 pacman::p_load(pacman,ggrepel,dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
-pacman::p_load(ntdr,purr)
+pacman::p_load(ntdr,purrr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -187,7 +187,7 @@ SIXTEENTH_TWENTIETH_graph <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,37.5), expand = c(0,0), breaks = c(0,10,20,30)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Ridership, US 16th-20th Largest Urban Rail Networks") +
-  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 16th-20th Systems Selected Based on 2019 Ridership Rankings",subtitle = "DC Metro's Ridership Recovery has Vastly Exceeded Comparable US Transit Systems") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 16th-20th Systems Selected Based on 2019 Ridership Rankings") +
   theme_apricitas + theme(legend.position = c(.80,.75), plot.title = element_text(size = 23)) +
   scale_color_manual(name= "Ridership, Rolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("NJTransit (NJ, Light Rail Only)","METRO (Minneapolis-St. Paul)","METRORail (Houston)","RTD (Denver)","UTA (Salt Lake City)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*37.5), ymax = 0) +
@@ -366,7 +366,7 @@ SAN_DIEGO_TROLLEY_graph <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,52.5), expand = c(0,0), breaks = c(0,15,30,45)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("San Diego Trolley Ridership") +
-  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail and Heavy Rail Lines",subtitle = "The San Diego Trolley is Now America's Busiest Light-Rail-Only Train Network") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "The San Diego Trolley is Now America's Busiest Light-Rail-Only Train Network") +
   theme_apricitas + theme(legend.position = c(.25,.95), plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*52.5), ymax = 0) +
@@ -405,6 +405,31 @@ VALLEY_METRO_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = VALLEY_METRO_graph, "Valley Metro Rail Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+METRO_TRANSIT_graph <- ggplot() + 
+  geom_line(data=filter(RAIL_BULK, agency == "Metro Transit", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="Ridership,\nRolling 12M"), size = 1.25) +
+  annotate("vline", x = as.Date("2004-06-01"), xintercept = as.Date("2004-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "METRO\nRail\nOpens", x = as.Date("2004-04-01"), y = 27.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2004-12-01"), xintercept = as.Date("2004-12-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Mall of\nAmerica\nExtension", x = as.Date("2005-02-01"), y = 27.5, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2009-11-01"), xintercept = as.Date("2009-11-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Target\nField\nExtension", x = as.Date("2009-09-01"), y = 27.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2014-06-01"), xintercept = as.Date("2014-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Green\nLine\nOpens", x = as.Date("2014-04-01"), y = 27.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2027-05-01"), xintercept = as.Date("2027-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "SouthWest\nGreen Line\nExtension", x = as.Date("2027-03-01"), y = 30, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,35), expand = c(0,0), breaks = c(0,5,10,15,20,25,30,35)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("METRO Rail (Minneapolis-St. Paul) Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Minneapolis Light Rail Ridership Continues to Recover from the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.22,.95), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*35), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = METRO_TRANSIT_graph, "METRO Transit Minneapolis Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 COMMUTER_RAIL_BULK <- NTD_BULK %>%
@@ -745,7 +770,6 @@ RAIL_RECOVERY_TOP_10_graph <- ggplot(data = RAIL_RECOVERY_TOP_10, aes(x = agency
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Urban Rail Networks", sep = "")) +
-  ggtitle("Ridership Recovery, Jan-May 2024 vs 2019\n10 Largest US Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: Includes Heavy & Light Rail But Not Commuter Rail. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
@@ -799,7 +823,6 @@ AGENCY_RECOVERY_TOP_10_graph <- ggplot(data = AGENCY_RECOVERY_TOP_10, aes(x = ag
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Transit Agencies", sep = "")) +
-  ggtitle("Ridership Recovery, Jan-May 2024 vs 2019\n10 Largest US Transit Agencies") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: MTA Does Not Include LIRR or Metro-North. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
@@ -852,8 +875,7 @@ BUS_RECOVERY_TOP_10_graph <- ggplot(data = BUS_RECOVERY_TOP_10, aes(x = agency, 
   xlab(NULL) +
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
-  ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Transit Agencies", sep = "")) +
-  ggtitle("Ridership Recovery, Jan-May 2024 vs 2019\n10 Largest US Bus Networks") +
+  ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Bus Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()

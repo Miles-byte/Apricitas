@@ -240,7 +240,7 @@ US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   ylab("Billions of Dollars") +
   ggtitle("America's EV Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data Via Chad Bown",subtitle = "US Imports of Finished Electric Vehicles Have Increased Significantly Even After the IRA") +
-  theme_apricitas + theme(legend.position = c(.33,.76)) +
+  theme_apricitas + theme(legend.position = c(.33,.78)) +
   #theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= "Gross EV Imports\nSolid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China"))+ #), guide = guide_legend(override.aes = list(linetype = c(1,2,1,2,1,2,1,2,1,2), lwd = c(1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75,1.25,0.75), alpha = c(1,0.5,1,0.5,1,0.5,1,0.5,1,0.5)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(12)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

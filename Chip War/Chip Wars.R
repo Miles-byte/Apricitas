@@ -242,19 +242,18 @@ US_CHIPMAKING_CHINA_EXPORTS <- getCensus(
   as.data.frame(value = melt(.)) %>%
   transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8486`=x)
 
-
 US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   geom_line(data=filter(US_CIRCUITS_CHINA_EXPORTS, date>= as.Date("2016-01-01")), aes(x=date,y= (`8542`*12)/1000000000,color= "Semiconductors"), size = 1.25) + 
   geom_line(data=filter(US_CHIPMAKING_CHINA_EXPORTS, date >= as.Date("2016-01-01")), aes(x=date,y= (`8486`*12)/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854231`/1000000000,color= "Logic Chips (test)"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854232`/1000000000,color= "Memory Chips (test)"), size = 1.25) + 
-  annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed") +
-  annotate("text", label = "Chip Sanctions", x = as.Date("2021-12-01"), y = 2.5, color = "white", size = 5) +
+  annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Chip\nSanctions", x = as.Date("2022-09-01"), hjust = 1, y = 11, color = "white", size = 5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,15), breaks = c(0,5,10,15), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Semiconductor Exports to China") +
-  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA",subtitle = "Sanctions Have Led to a Major Fall in US Exports of Chips & Manufacturing Equipment to China") +
+  labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA",subtitle = "Sanctions Led to a Major Drop in US Exports of Chips & Manufacturing Equipment to China") +
   theme_apricitas + theme(legend.position = c(.32,.89)) +
   scale_color_manual(name= "US-Manufactured Exports to China, HK, and Macao",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Semiconductors","Machines For Manufacturing Semiconductors")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*15), ymax = 0) +
@@ -350,7 +349,7 @@ US_CHIP_MACHINES_IMPORTS_DOLLAR_BAR_Graph <- ggplot(data = filter(US_CHIP_MACHIN
   ylab("Billions of Dollars, Annual Rate") +
   scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,5,10,15), limits = c(0,15), expand = c(0,0)) +
   ggtitle("US Chipmaking Machine Imports") +
-  labs(caption = "Graph created by @JosephPolitano using Census data Seasonally Adjusted using X-13ARIMA", subtitle = "American Imports of Chipmaking Equipment have Risen Significantly in the Wake of the CHIPS Act") +
+  labs(caption = "Graph created by @JosephPolitano using Census data Seasonally Adjusted using X-13ARIMA", subtitle = "American Imports of Chipmaking Equipment have Held Steady for More than Two Years Straight") +
   theme_apricitas + theme(legend.position = c(.2,.8), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -1111,15 +1110,32 @@ US_CHIP_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,90), expand = c(0,0)) +
   ylab("Index, Q1 2018 = 100") +
-  ggtitle("US Chip Equipment Spending Has Surged") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Nominal Business Investment in Special Industry Equipment Has Doubled Since 2018") +
+  ggtitle("US Chip Equipment Spending Hasn't Surged") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Business Investment in Special Industry Equipment Hasn't Increased Despite the CHIPS Act") +
   theme_apricitas + theme(legend.position = c(.51,.23)) +
-  scale_color_manual(name= "Private Fixed Investment, Special Industry Machinery N.E.C. (Mostly Semiconductor Equipment)",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  scale_color_manual(name= "Private Fixed Investment, Special Industry Machinery N.E.C. (Incl Semiconductor Equipment)",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   theme(legend.title = element_text(size = 13)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*90), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_CHIP_FIXED_EQUIP_INVEST_GRAPH, "US Chip Equipment Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_REAL_CHIP_FIXED_EQUIP_REAL_GRAPH <- ggplot() + #indexed employment rate
+  geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = u50506_c272rx_18_special_industry_machinery_n_e_c_chained_dollars_level_6/1000, color = "Real Private Fixed Investment\nSpecial Industry Machinery N.E.C.\n(Incl Chipmaking Equipment)"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_NOMINAL, aes(x=date, y = (u50505_c272rc_18_special_industry_machinery_n_e_c_current_dollars_level_6/1000), color = "Nominal"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,65), expand = c(0,0)) +
+  ylab("Real 2017 Dollars") +
+  ggtitle("US Chip Equipment Investment Hasn't Surged") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Business Investment in Special Industry Equipment Hasn't Increased Despite the CHIPS Act") +
+  theme_apricitas + theme(legend.position = c(.25,.94), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(legend.title = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*65), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_REAL_CHIP_FIXED_EQUIP_REAL_GRAPH, "US Real Chip Equipment Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 #https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1F02011&conn_path=I2&language=en
 KOREA_IND_PRO <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/KOR_PRODUCTION.csv") %>%
@@ -1245,7 +1261,8 @@ TAIWAN_EXPORTS_ORDERS_CHINA_Dollar_Graph <- ggplot() + #plotting integrated circ
 ggsave(dpi = "retina",plot = TAIWAN_EXPORTS_ORDERS_CHINA_Dollar_Graph, "Taiwan Export & Orders China Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 TAIWAN_EXPORT_ORDERS_COUNTRY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/TWN_EXPORT_ORDERS_ELECTRONICS_COUNTRY.csv") %>%
-  select(-date) %>%
+  select(-date,-X) %>%
+  drop_na() %>%
   ts(., start = c(2016,1), frequency = 12) %>%
   seas(x11 = "") %>%
   final() %>%
@@ -1296,13 +1313,13 @@ SEMI_EQUP_JPN_NTH_GRAPH <- ggplot() + #plotting Japanese Semiconductor Manufactu
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,275), breaks = c(100,200,300,400), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("Key Global Chipmaking Equipment Production") +
-  labs(caption = "Graph created by @JosephPolitano using METI & CBS Data",subtitle = "Global Production of Chipmaking Equipment Has Declined From Peaks But Remains High") +
+  labs(caption = "Graph created by @JosephPolitano using METI & CBS Data",subtitle = "Japanese & Dutch Production of Chipmaking Equipment Has Declined From Peaks But Remains High") +
   theme_apricitas + theme(legend.position = c(.35,.85), plot.title = element_text(size = 25)) +
   scale_color_manual(name= "Industrial Production, Jan 2018 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Netherlands, Machinery and Equipment, n.e.c.\n(Mostly Chip Machinery/Equipment)","Japan, Semiconductor Manufacturing Equipment")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*240), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = SEMI_EQUP_JPN_TWN_NTH_GRAPH, "Netherlands Japan Semiconductor Equipment Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = SEMI_EQUP_JPN_NTH_GRAPH, "Netherlands Japan Semiconductor Equipment Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 US_IND_PRO <- fredr("IPG3344S", observation_start = as.Date("2016-01-01"))
