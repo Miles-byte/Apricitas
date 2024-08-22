@@ -2378,6 +2378,66 @@ TX_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_BATTERY_CAPACITY_GROWTH_STEO <- eia1_series("STEO.BAEPCGW_US.Q") %>%
+  transmute(period = yq(period), category = "Battery", value = value-lead(value)) %>%
+  mutate(period = as.Date(ifelse(quarter(period) %in% 1:2, 
+                                 paste0(year(period), "-01-01"), 
+                                 paste0(year(period), "-07-01")))) %>%
+  group_by(period, category) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+
+US_WIND_CAPACITY_GROWTH_STEO <- eia1_series("STEO.WNEPCGW_US.Q") %>%
+  transmute(period = yq(period), category = "Wind", value = value-lead(value)) %>%
+  mutate(period = as.Date(ifelse(quarter(period) %in% 1:2, 
+                                     paste0(year(period), "-01-01"), 
+                                     paste0(year(period), "-07-01")))) %>%
+  group_by(period, category) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+US_LARGE_SOLAR_CAPACITY_GROWTH_STEO <- eia1_series("STEO.SPEPCGWX_US.Q") %>%
+  transmute(period = yq(period), category = "Utility-Scale Solar", value = value-lead(value)) %>%
+  mutate(period = as.Date(ifelse(quarter(period) %in% 1:2, 
+                                 paste0(year(period), "-01-01"), 
+                                 paste0(year(period), "-07-01")))) %>%
+  group_by(period, category) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+US_SMALL_SOLAR_CAPACITY_GROWTH_STEO <- eia1_series("STEO.SODTG_US.Q") %>%
+  transmute(period = yq(period), category = "Small-Scale Solar", value = value-lead(value)) %>%
+  mutate(period = as.Date(ifelse(quarter(period) %in% 1:2, 
+                                 paste0(year(period), "-01-01"), 
+                                 paste0(year(period), "-07-01")))) %>%
+  group_by(period, category) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+US_CAPACITY_GROWTH_STEO <- rbind(US_BATTERY_CAPACITY_GROWTH_STEO,US_WIND_CAPACITY_GROWTH_STEO,US_LARGE_SOLAR_CAPACITY_GROWTH_STEO,US_SMALL_SOLAR_CAPACITY_GROWTH_STEO) %>%
+  filter(period >= as.Date("2014-01-01"))
+
+NEW_CAPACITY_STACKED <- ggplot(US_CAPACITY_GROWTH_STEO, aes(fill=category, x=period, y=value)) + 
+  annotate("rect", xmin = floor_date(as.Date(today() -120), "month"), xmax = max(US_CAPACITY_GROWTH_STEO$period + 150), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA\nForecast", x = floor_date(as.Date(today() -150), "month"), hjust = 1, y = 35, color = "#EE6055", size = 5,lineheight = 0.8, alpha = 0.6) +
+  annotate("vline", x = as.Date("2022-04-01"), xintercept = as.Date("2022-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "IRA\nPassage", x = as.Date("2022-02-01"), y = 35, color = "white", size = 5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  xlab("Date") +
+  ylab("GW of Capacity") + 
+  scale_y_continuous(labels = scales::number_format(suffix = "GW"), breaks = c(0,5,10,15,20,25,30,35,40), limits = c(0,40), expand = c(0,0)) +
+  ggtitle("US Clean Power Capacity Additions") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "US Clean Energy Buildout Has Accelerated, Especially in Utility-Scale Solar and Batteries") +
+  theme_apricitas + theme(legend.position = c(.25,.82)) +
+  scale_fill_manual(name= "GW of Capacity Added, Semiannual",values = c("#3083DC","#F5B041","#FFE98F","#9A348E"), breaks = c("Battery","Small-Scale Solar","Utility-Scale Solar","Wind")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*40), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NEW_CAPACITY_STACKED, "New Capacity Stacked Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 #GET DATA FROM:
 #https://www.eia.gov/electricity/data/eia860m/
 p_load(tigris)

@@ -23,7 +23,7 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -80,6 +80,14 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
 
+JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe242/tables/gaku-jk2421.csv",fileEncoding="latin1") %>%
+  slice(-1:-6) %>%
+  select(X) %>%
+  transmute(date = seq.Date(from = as.Date("1994-01-01"), by = "quarter", length.out = nrow(.)), value = as.numeric(gsub(",","",X))) %>%
+  drop_na() %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
+
 JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
@@ -117,7 +125,7 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,112.5), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries Except Japan are Above pre-COVID GDP") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries are Now Above pre-COVID GDP") +
   theme_apricitas + theme(legend.position = c(.175,.30)) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.55) +

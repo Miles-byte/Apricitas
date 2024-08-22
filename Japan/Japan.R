@@ -180,7 +180,7 @@ CPI_ALL_LFE_graph <- ggplot() + #plotting MOVE
   annotate("vline", x = as.Date("2014-04-01"), xintercept = as.Date("2014-04-01"), color = "white", size = 1, linetype = "dashed") +
   annotate("hline", y = 0.02, yintercept = 0.02, color = "white", size = 1, linetype = "dashed") +
   annotate("text", label = "2% Inflation Target", x = as.Date("2005-01-01"), y = 0.023, color = "white", size = 5) +
-  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-08-01"), y =0.04, color = "white", size = 5) +
+  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-11-01"), y =0.04, color = "white", size = 5) +
   geom_line(data=CPI_ALL_LFE, aes(x=Time,y= value/100,color=`Items(2020-base)`), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.025,0.045), expand = c(0,0)) +
@@ -258,7 +258,7 @@ CPI_Food_Energy_Durable <- estat_getStatsData(
 CPI_Food_Energy_Durable_graph <- ggplot() + #plotting CPILFE
   annotate("hline", y = 0.0, yintercept = 0.0, color = "white", size = 0.5) +
   annotate("vline", x = as.Date("2014-04-01"), xintercept = as.Date("2014-04-01"), color = "white", size = 1, linetype = "dashed") +
-  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-11-01"), y =0.15, color = "white", size = 5) +
+  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-12-01"), y =0.15, color = "white", size = 5) +
   geom_line(data=CPI_Food_Energy_Durable, aes(x=Time,y= value/100,color=`Items(2020-base)`), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.2,0.21), expand = c(0,0)) +
@@ -289,7 +289,7 @@ CPI_Rent_Services <- estat_getStatsData(
 CPI_RENT_SERVICES_graph <- ggplot() + #plotting CPILFE
   annotate("hline", y = 0.0, yintercept = 0.0, color = "white", size = 0.5) +
   annotate("vline", x = as.Date("2014-04-01"), xintercept = as.Date("2014-04-01"), color = "white", size = 1, linetype = "dashed") +
-  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-08-01"), y =0.04, color = "white", size = 5) +
+  annotate("text",label = "Consumption Tax Hike", x = as.Date("2017-11-01"), y =0.04, color = "white", size = 5) +
   geom_line(data=CPI_Rent_Services, aes(x=Time,y= value/100,color=`Items(2020-base)`), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.0275,0.045), expand = c(0,0)) +

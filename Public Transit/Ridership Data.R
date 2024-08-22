@@ -7,6 +7,9 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
+#https://www.transit.dot.gov/ntd/data-product/2022-ntd-database-file-dictionary
+#https://www.bts.gov/national-transit-map
+#https://www.transit.dot.gov/ntd/ntd-data
 
 NTD_BULK <- get_ntd(data_type = "adjusted",
                     ntd_variable = "UPT",
@@ -431,6 +434,28 @@ METRO_TRANSIT_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = METRO_TRANSIT_graph, "METRO Transit Minneapolis Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+CALIFORNIA_TRANSIT_graph <- ggplot() + 
+  geom_line(data=filter(RAIL_BULK, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="BART (Bay Area)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="Muni (SF)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="LA Metro (LA)"), size = 1.25) +
+  geom_line(data=filter(SAN_DIEGO_TROLLEY, agency == "San Diego Metropolitan Transit System", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="San Diego Trolley (SD)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Santa Clara Valley Transportation Authority", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="VTA Light Rail (SJ)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Sacramento Regional Transit District", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="SacRT (Sacramento)"), size = 1.25) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,190), expand = c(0,0), breaks = c(0,25,50,75,100,125,150,175,200)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("California Rail Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data") +
+  theme_apricitas + theme(legend.position = c(.33,.87)) +
+  scale_color_manual(name= "Ridership, Rolling 12M Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("BART (Bay Area)","LA Metro (LA)","San Diego Trolley (SD)","Muni (SF)","SacRT (Sacramento)","VTA Light Rail (SJ)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2003-01-01")-(.1861*(today()-as.Date("2003-01-01"))), xmax = as.Date("2003-01-01")-(0.049*(today()-as.Date("2003-01-01"))), ymin = 0-(.3*190), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  guides(color = guide_legend(ncol =2))
+
+ggsave(dpi = "retina",plot = CALIFORNIA_TRANSIT_graph, "California Transit Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 COMMUTER_RAIL_BULK <- NTD_BULK %>%
   filter(modes == "CR") %>%
@@ -473,7 +498,7 @@ LARGE_COMMUTER_AGENCIES <- ggplot() +
               filter(agency %in% (COMMUTER_RAIL_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(1:6) %>%
+                                    slice(1:10) %>%
                                     pull(agency))), aes(x=month,y= year_roll/1000000,color = agency), size = 1.25)
 
 LARGE_COMMUTER_AGENCIES <- ggplot() + 
@@ -495,6 +520,25 @@ LARGE_COMMUTER_AGENCIES <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = LARGE_COMMUTER_AGENCIES, "Large Commuter Agencies.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+CALTRAIN_RIDERSHIP <- ggplot() + 
+  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Caltrain Ridership"), size = 1.25) +
+  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="Caltrain Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Caltrain\nElectrification\nCompletes", x = as.Date("2024-07-01"), y = 20, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,25), expand = c(0,0), breaks = c(0,5,10,15,20,25)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Caltrain Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Caltrain Ridership Still Hasn't Recovered to Pre-COVID Levels") +
+  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CALTRAIN_RIDERSHIP, "Caltrain Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 BUS_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Bus") %>%
@@ -620,6 +664,24 @@ AGENCIES_ALL_MODES <- ggplot() +
 
 ggsave(dpi = "retina",plot = AGENCIES_ALL_MODES, "Agencies Total Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+WMATA_CTA_LAMETRO_MONTHLY_RIDERSHIP <- ggplot() + 
+  geom_line(data=filter(AGENCY_BULK, agency == "Chicago Transit Authority", month >= as.Date("2001-01-01")), aes(x=month,y= value/1000000,color="CTA (Chicago)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2001-01-01")), aes(x=month,y= value/1000000,color="LA Metro (LA)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2001-01-01")), aes(x=month,y= value/1000000,color="WMATA (DC)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,60), expand = c(0,0), breaks = c(0,10,20,30,40,50,60)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Total Monthly Ridership (Rail, Bus, etc)") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data, Rankings Selected Based on 2019 Ridership") +
+  theme_apricitas + theme(legend.position = c(.15,.92), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("CTA (Chicago)","LA Metro (LA)","MBTA (Boston)","WMATA (DC)","SEPTA (Philly)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*60), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = WMATA_CTA_LAMETRO_MONTHLY_RIDERSHIP, "WMATA_CTA_LAMETRO Monthly Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 MetroLink_Ridership <- ggplot() + 
   geom_line(data=filter(AGENCY_BULK, agency == "Southern California Regional Rail Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="MetroLink"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
@@ -695,6 +757,16 @@ RESULTS_REGION <- REGION_RANKINGS_LATEST_PREVIOUS %>%
   mutate(message = paste(uza_name, "passed", passed_agency,"to become rank",rank_latest)) %>%
   pull(message) %>%
   walk(print)
+
+LARGE_REGIONS <- ggplot() + 
+  geom_line(data = REGION_BULK %>%
+              filter(uza_name %in% (REGION_BULK %>%
+                                    filter(month == as.Date("2019-12-01")) %>%
+                                    arrange(desc(year_roll)) %>%
+                                    slice(2:7) %>%
+                                    pull(uza_name))), aes(x=month,y= year_roll/1000000,color = uza_name), size = 1.25)
+
+
 
 REGION_Ridership <- ggplot() + 
   geom_line(data=filter(REGION_BULK, uza_name == "Washington--Arlington, DC--VA--MD", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Washington DC MSA"), size = 1.25) +
