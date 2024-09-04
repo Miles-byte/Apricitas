@@ -575,7 +575,7 @@ BLS_NFP_MSA_BINS_2020 <- MSA_map_US %>%
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = BLS_NFP_MSA_BINS_2020, "BLS NFP MSA BINS 2020.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -588,7 +588,7 @@ BLS_NFP_MSA_GRAD_2020 <- MSA_map_US %>%
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = BLS_NFP_MSA_GRAD_2020, "BLS NFP MSA GRAD 2020.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -615,7 +615,7 @@ BLS_NFP_MSA_BUB_2020_GRAPH <- MSA_map_US %>%
   ggtitle("       Change in Nonfarm Payrolls Since Jan 2020\n            50 Largest Metro Areas by Population") +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, 0), "in"), legend.key = element_blank()) +
   theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
   guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
          area = guide_legend(order = 2))
@@ -1198,7 +1198,7 @@ BLS_NFP_MSA_BUB_YOY_GRAPH <- MSA_map_US_NSA %>%
   ggtitle("       Change in Nonfarm Payrolls, Year-on-Year\n            50 Largest Metro Areas by Population") +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, 0), "in"), legend.key = element_blank()) +
   theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
   guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
          area = guide_legend(order = 2))
@@ -1214,6 +1214,6 @@ BLS_NFP_MSA_GRAD_YOY <- MSA_map_US_NSA %>%
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"))
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, 0), "in"))
 
 ggsave(dpi = "retina",plot = BLS_NFP_MSA_GRAD_YOY, "BLS NFP GRAD YOY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

@@ -105,7 +105,7 @@ Meta_test <- dst_meta("NKN1", lang = "en")
 
 REAL_GDP_DOMESTIC_DEMAND <- dst_get_data(table = "NKN1",
                                           TRANSAKT = c("B.1*g Gross domestic product","Final domestic demand","P.31 Household consumption expenditure"),
-                                          PRISENHED = "2010-prices, chained values, (bill. DKK.)",
+                                          PRISENHED = "2020-prices, chained values, (bill. DKK.)",
                                           SÆSON = "Seasonally adjusted",
                                           Tid = "*", 
                                           lang = "en") %>%
@@ -120,7 +120,7 @@ Meta_test <- dst_meta("NKN2", lang = "en")
 
 REAL_NNI <- dst_get_data(table = "NKN2",
                                          TRANSAKT = c("B.5*n Net national income"),
-                                         PRISENHED = "2010-prices, real value",
+                                         PRISENHED = "2020-prices, real value",
                                          SÆSON = "Seasonally adjusted",
                                          Tid = "*", 
                                          lang = "en") %>%
@@ -203,7 +203,7 @@ Meta_test <- dst_meta("NKBP10", lang = "en")
 MANUFACTURING_GVA <- dst_get_data(table = "NKBP10",
                          TRANSAKT = c("B.1g Gross value added"),
                          BRANCHE = c("Total","C Manufacturing"),
-                         PRISENHED = "2010-prices, chained values",
+                         PRISENHED = "2020-prices, chained values",
                          SÆSON = "Seasonally adjusted",
                          Tid = "*", 
                          lang = "en") %>%
@@ -216,7 +216,7 @@ MANUFACTURING_GVA_Graph <- ggplot() +
   geom_line(data=MANUFACTURING_GVA, aes(x=date,y= `C Manufacturing`/1000 ,color="Denmark, Real Manufacturing Gross Value Added,\nIncluding Pharmaceutical Manufacturing"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,(ceiling(max(MANUFACTURING_GVA$`C Manufacturing`) / 25000) * 25))) +
-  ylab("Billions of 2010 Kroner") +
+  ylab("Billions of 2020 Kroner") +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "Danish Manufacturing Real Gross Value Added is Booming Thanks to Weight Loss Drugs") +
   theme_apricitas + theme(legend.position = c(.42,.7), plot.title = element_text(size = 27)) +

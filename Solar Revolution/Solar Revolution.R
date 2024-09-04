@@ -1683,14 +1683,14 @@ US_HYDRO_PCT <- merge(US_HYDRO,US_TOTAL, by = "date") %>%
 
 US_CLEAN_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_line(data= filter(US_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(US_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar"), size = 1.25) +
   geom_line(data= filter(US_WIND_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Wind"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_WIND_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Wind"), size = 1.25) +
   geom_line(data= filter(US_HYDRO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Hydro"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_HYDRO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Hydro"), size = 1.25) +
   geom_line(data= filter(US_NUCLEAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Nuclear"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NUCLEAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Nuclear"), size = 1.25) +
+  geom_line(data= filter(US_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(),limits = c(0, ceiling(max(US_NUCLEAR_PCT$value)/0.1)*0.1), expand = c(0,0)) +
   ylab("Percent of US Electricity Generation") +
@@ -1746,27 +1746,6 @@ US_ALL_STACKED_graph <- ggplot(data = US_ALL_STACKED, aes(x = date, y = rollmean
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_ALL_STACKED_graph, "US All Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-
-TX_CLEAN_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_line(data= filter(TX_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(TX_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar"), size = 1.25) +
-  geom_line(data= filter(TX_WIND_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Wind"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(TX_WIND_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Wind"), size = 1.25) +
-  geom_line(data= filter(TX_NUCLEAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Nuclear"), size = 0.75, alpha = 0.5, linetype = "dashed") +
-  geom_line(data= filter(TX_NUCLEAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Nuclear"), size = 1.25) +
-  xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(),limits = c(0, ceiling(max(TX_WIND_PCT$value)/0.025)*0.025), expand = c(0,0)) +
-  ylab("Percent of Texas Electricity Generation") +
-  ggtitle("Clean Energy, Share of Texas Electricity") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Clean Energy is a Growing Share of Texas' Electricity Generation") +
-  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "Share of US Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",breaks = c("Wind", "Solar", "Nuclear", "Hydro"), values = c("#9A348E","#FFE98F","#00A99D","#3083DC","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*ceiling(max(TX_WIND_PCT$value)/0.025)*0.025), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = TX_CLEAN_PCT_GRAPH, "TX Clean Pct Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 TX_COAL <- eia1_series("ELEC.GEN.COW.TX.99.M") %>%
@@ -2627,7 +2606,7 @@ states_solar_graph <- states_solar %>%
                   breaks = c(0,1000,2000,3000,4000,5000),
                   labels = c("0TWh","1TWh","2TWh","3TWh","4TWh","5TWh"),
                   guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
-  ggtitle("         Solar Generation by State: May 2024") +
+  ggtitle("         Solar Generation by State: June 2024") +
   labs(caption = "Graph created by @JosephPolitano using EIA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +

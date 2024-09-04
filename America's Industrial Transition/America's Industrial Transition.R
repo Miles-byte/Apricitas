@@ -383,7 +383,7 @@ ggsave(dpi = "retina",plot = ISM_SHORT_SUPPLY_GRAPH, "ISM Short Graph.png", type
 MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
   drop_na() %>%
   row_to_names(1) %>%
-  select(68:75) %>%
+  select(61:68) %>%
   `colnames<-`(c("Total","Food/Beverage/Tobacco","Chemical","Plastic/Rubber","Nonmetallic Mineral","Fabricated Metal","Computer/Electronic/Electrical","Transportation Equipment")) %>%
   mutate_if(is.character,as.numeric) %>%
   mutate(Other = Total-`Food/Beverage/Tobacco`-Chemical-`Plastic/Rubber`-`Nonmetallic Mineral`-`Fabricated Metal`-`Computer/Electronic/Electrical`-`Transportation Equipment`) %>%

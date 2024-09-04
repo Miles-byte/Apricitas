@@ -297,8 +297,7 @@ SOUND_TRANSIT_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = SOUND_TRANSIT_graph, "Sound Transit Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-
-#GRAPH OF US LIGHT-RAIL ONLY NETWORKS
+#GRAPH OF LA Metro Growth
 LA_METRO_graph <- ggplot() + 
   #geom_line(data=filter(RAIL_BULK, agency == "Central Puget Sound Regional Transit Authority", month >= as.Date("2005-01-01")), aes(x=month,y= value/1000000*12,color="Sound Transit\nRail Ridership"), size = 0.75, linetype = "dashed") +
   geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/1000000,color="Ridership,\nRolling 12M"), size = 1.25) +
@@ -311,32 +310,33 @@ LA_METRO_graph <- ggplot() +
   annotate("vline", x = as.Date("2012-05-01"), xintercept = as.Date("2012-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Expo Line\n(Now E)\nOpens", x = as.Date("2012-3-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2016-03-01"), xintercept = as.Date("2016-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Gold (A)\nFoothill\nExtension 2A", x = as.Date("2016-01-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Gold Line (A)\nFoothill\nExtension 2A", x = as.Date("2016-01-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2021-10-01"), xintercept = as.Date("2016-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Expo (E)\nPhase 2\nExtension", x = as.Date("2016-07-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Expo Line (E)\nPhase 2\nExtension", x = as.Date("2016-07-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "K\nLine\nOpens", x = as.Date("2022-08-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2023-06-01"), xintercept = as.Date("2023-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Regional\nConnector\nOpens (A/E)", x = as.Date("2023-08-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2024-12-01"), xintercept = as.Date("2024-12-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  # annotate(geom = "segment", x = as.Date("2024-12-01"), xend = as.Date("2024-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "K\nLAX\nExtension", x = as.Date("2025-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "D\nPhase-1\nExtension", x = as.Date("2026-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate(geom = "segment", x = as.Date("2024-12-01"), xend = as.Date("2024-12-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "K Line\nLAX\nExtension", x = as.Date("2025-02-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate(geom = "segment", x = as.Date("2025-01-01"), xend = as.Date("2025-02-01"), y = 0, yend = 95, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "A Line\nPomona\nExtension", x = as.Date("2025-04-01"), y = 85, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "D Line\nPhase-1\nExtension", x = as.Date("2026-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2027-12-01"), xend = as.Date("2027-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "D\nPhase-3\nExtension", x = as.Date("2028-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate("text", label = "D Line\nPhase-3\nExtension", x = as.Date("2028-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2026-12-01"), xend = as.Date("2026-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "A\nFoothill\nExtension 2B", x = as.Date("2027-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate("text", label = "A Line\nMontclair\nExtension", x = as.Date("2027-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2027-12-01"), xend = as.Date("2027-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "D\nPhase-3\nExtension", x = as.Date("2028-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate("text", label = "D Line\nPhase-3\nExtension", x = as.Date("2028-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,165), expand = c(0,0), breaks = c(0,25,50,75,100,125,150)) +
   ylab("Millions of Unlinked Passenger Trips") +
-  ggtitle("LA Metro Total Rail Ridership") +
+  ggtitle("LA Metro Rail Ridership") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail and Heavy Rail Lines",subtitle = "LA Metro's Rail Network is Currently Undergoing Massive Expansion Projects") +
-  theme_apricitas + theme(legend.position = c(.22,.95), plot.title = element_text(size = 27)) +
+  theme_apricitas + theme(legend.position = c(.22,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*165), ymax = 0) +
   coord_cartesian(clip = "off")

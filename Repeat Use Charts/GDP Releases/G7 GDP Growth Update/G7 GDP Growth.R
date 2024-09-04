@@ -170,9 +170,9 @@ GER_POP <- EU_POP_BULK %>%
   filter(s_adj == "SCA", geo == "DE", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
   transmute(date = TIME_PERIOD, value = values)
 
-# GER_PER_CAPITA <- merge(GER_POP,GER, by = "date") %>%
-#   transmute(date, value = value.y/value.x) %>%
-#   mutate(value = value/value[7]*100)
+GER_PER_CAPITA <- merge(GER_POP,GER, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
 
 
 ITA_PER_CAPITA <- merge(ITA_POP,ITA, by = "date") %>%

@@ -1,10 +1,13 @@
-pacman::p_load(prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(ggpubr,prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
 
 REAL_PRIVATE_FIXED_INVEST_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
@@ -69,7 +72,8 @@ STATE_PRIVATE_CONSTRUCTION <- STATE_PRIVATE_CONSTRUCTION_BULK %>%
   rename(NAME = 1) %>%
   drop_na() %>%
   mutate(across(`2008`:`2023`, as.numeric)) %>%
-  mutate(`2019-2023` = (`2023`-`2019`)/`2019`, `2021-2023` = (`2023`-`2021`)/`2021`)
+  mutate(`2019-2023` = (`2023`-`2019`)/`2019`, `2021-2023` = (`2023`-`2021`)/`2021`) %>%
+  mutate(`2019_minus_2023` = (`2023`-`2019`))
 
 State_map <- states(cb = TRUE) %>%
   shift_geometry(position = "below") #moves Alaska and Hawaii below the map
@@ -201,6 +205,73 @@ STATE_PUBLIC_CONSTRUCTION_MAP_GRAPH <- STATE_PUBLIC_CONSTRUCTION_MAP %>%
   theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
 
 ggsave(dpi = "retina",plot = STATE_PUBLIC_CONSTRUCTION_MAP_GRAPH, "States Public Construction Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+STATE_PUBLIC_PRIVATE_CONSTRUCTION <- STATE_PRIVATE_CONSTRUCTION %>%
+  select(-`2019-2023`,-`2021-2023`,-`2019_minus_2023`) %>%
+  rbind(.,STATE_PUBLIC_CONSTRUCTION %>% select(-`2006`,-`2007`,-`2019-2023`,-`2021-2023`)) %>%
+  group_by(NAME) %>%
+  summarize(across(everything(), sum, na.rm = TRUE)) %>%
+  mutate(`2019-2023` = (`2023`-`2019`)/`2019`, `2021-2023` = (`2023`-`2021`)/`2021`)
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") #moves Alaska and Hawaii below the map
+
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP <- merge(STATE_PUBLIC_PRIVATE_CONSTRUCTION,State_map, by = "NAME") %>%
+  st_as_sf()
+
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP %>%
+  st_centroid()
+
+
+michigan_index <- which(STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$NAME == "Michigan")
+michigan_centroid <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[michigan_index]
+
+florida_index <- which(STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$NAME == "Florida")
+florida_centroid <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[florida_index]
+
+california_index <- which(STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$NAME == "California")
+california_centroid <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[california_index]
+
+louisiana_index <- which(STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$NAME == "Louisiana")
+louisiana_centroid <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[louisiana_index]
+
+hawaii_index <- which(STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$NAME == "Hawaii")
+hawaii_centroid <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[hawaii_index]
+
+
+adjusted_michigan_centroid <- st_geometry(michigan_centroid) + c(60000, -130000)
+adjusted_florida_centroid <- st_geometry(florida_centroid) + c(70000, 0)
+adjusted_california_centroid <- st_geometry(california_centroid) + c(-60000, 0)
+adjusted_louisiana_centroid <- st_geometry(louisiana_centroid) + c(-60000, 0)
+adjusted_hawaii_centroid <- st_geometry(hawaii_centroid) + c(120000, -100000)
+
+
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+
+STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_GRAPH <- STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = `2019-2023`, size = `2023`/1000), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_b(name = "2019-2023 Growth, %",breaks = c(0,.25,.5,.75,1), labels = c("0%","25%","50%","75%","100%")) +
+  scale_size_area(name = "2023 Construction",
+                  max_size = 17,
+                  breaks = c(40,80,120),
+                  labels = c("$40B","$80B","$120B"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("    Total Nonresidential Construction by State, 2023") +
+  labs(caption = "Graph created by @JosephPolitano using Census data.NOTE: Dollars Not Adjusted for Inflation\n Data Limitations Require Excluding Small Amounts of Federal Construction & Including Small Amounts of Public Housing") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STATE_PUBLIC_PRIVATE_CONSTRUCTION_MAP_GRAPH, "States Public Private Construction Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 STATE_POPULATION_DATA <- read.xlsx("https://www2.census.gov/programs-surveys/popest/tables/2020-2023/state/totals/NST-EST2023-POP.xlsx") %>%
@@ -452,6 +523,81 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = REGIONAL_MFG_SPENDING_GRAPH, "Regional Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+#PUBLIC INVESTMENT MONTHLY GRAPH 
+
+STATE_AND_LOCAL_CONSTRUCTION_MONTHLY_BULK <- read.xlsx("https://www.census.gov/construction/c30/xlsx/slsatime.xlsx") 
+
+STATE_AND_LOCAL_CONSTRUCTION_MONTHLY <- STATE_AND_LOCAL_CONSTRUCTION_MONTHLY_BULK %>%
+  drop_na() %>%
+  row_to_names(1) %>%
+  select(-Date) %>%
+  mutate(Total = `Total\n_x000D_State and Local Construction`) %>%
+  select(-`Total\n_x000D_State and Local Construction`) %>%
+  mutate_if(is.character,as.numeric) %>%
+  select(-Total) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.))) %>%
+  filter(date >= as.Date("2018-01-01"))
+
+STATE_LOCAL_POWER_GRAPH <- ggplot() + 
+  geom_line(data=STATE_AND_LOCAL_INVESTMENT_MONTHLY, aes(x=date,y= `Power`/1000,color= "State & Local Spending\nPower Infrastructure & Generation"), size = 1.25) + 
+  annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\nAct", x = as.Date("2022-07-16"), y = 21, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  ylab("Billions of Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), breaks = c(0,5,10,15,20,25), limits = c(0,25), expand = c(0,0)) +
+  ggtitle("State & Local Electric Power Construction") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data. NOTE: Nominal Dollars Not Adjusted for Inflation", subtitle = "State and Local Spending on Power Infrastructure and Generation has Boomed Since the IRA") +
+  theme_apricitas + theme(legend.position = c(.25,.87), plot.title = element_text(size = 28)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = STATE_LOCAL_POWER_GRAPH, "State Local Power Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+SELECTED_STATE_AND_LOCAL_CONSTRUCTION_MONTHLY <- STATE_AND_LOCAL_CONSTRUCTION_MONTHLY %>%
+  select(date,`Transportation`,`Highway and street`,`Educational`,`Sewage and waste disposal`,`Power`,`Amusement and recreation`,`Public Safety`,`Water supply`) %>%
+  setNames(c("date","Airports & Mass Transit","Highway & Street","Educational","Sewage & Waste","Power","Amusement & Recreation","Public Safety","Water Supply")) %>%
+  pivot_longer(-date) %>%
+  group_by(name) %>%
+  arrange(name,date) %>%
+  transmute(date,name,`Nominal Spending` = value, `Percent Growth Since 2019` = (value-value[13])/value[13]) %>%
+  pivot_longer(cols = c(`Nominal Spending`,`Percent Growth Since 2019`), names_to = "type", values_to = "value") %>%
+  mutate(name = factor(name, levels = c("Highway & Street","Educational", "Sewage & Waste","Airports & Mass Transit","Water Supply","Power","Amusement & Recreation","Public Safety")))
+
+plot_nominal <- ggplot(subset(SELECTED_STATE_AND_LOCAL_CONSTRUCTION_MONTHLY, type == "Nominal Spending"), aes(x = date, y = value/1000, color = name)) +
+  geom_line(size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,150), expand = c(0,0)) +
+  ylab("Dollars") +
+  labs(subtitle = "Nominal Spending") +
+  scale_color_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0, 0, 0, 0), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"))
+
+plot_percent_growth <- ggplot(subset(SELECTED_STATE_AND_LOCAL_CONSTRUCTION_MONTHLY, type == "Percent Growth Since 2019"), aes(x = date, y = value, color = name)) +
+  geom_line(size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(), limits = c(-.40,2.5), expand = c(0,0)) +
+  ylab("Percent Growth Since Jan 2019") +
+  labs(subtitle = "Percent Growth Since 2019") +
+  scale_color_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0, 0, 0, 0), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"))
+
+# Create a text grob
+tgrob <- text_grob(expression(bold("State & Local Construction Spending")),size = 30, color = "white") 
+# Draw the text
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0,0,0,0, "cm")) + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin=unit(c(-0.15,-0.15,-0.15,-0.15),"cm"))  
+
+STATE_AND_LOCAL_CONSTRUCTION_ARRANGE <- ggarrange(plot_nominal,plot_percent_growth, ncol = 2, nrow = 1, heights = c(5,20), widths = 10, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32") 
+
+FINAL_STATE_AND_LOCAL_CONSTRUCTION <- ggarrange(plot_0,STATE_AND_LOCAL_CONSTRUCTION_ARRANGE, nrow = 2, heights = c(2,20), widths = 10)
+
+ggsave(dpi = "retina",plot = FINAL_STATE_AND_LOCAL_CONSTRUCTION, "Final State & Local Construction Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 #REGIONAL PUBLIC INVESTMENT GRAPH
 
 REGION_PUBLIC_CONSTRUCTION_BULK <- read.xlsx("https://www.census.gov/construction/c30/xlsx/sldivision.xlsx")
@@ -663,6 +809,238 @@ TX_GENERATOR_CAPACITY_MAP <- TX %>%
 
 ggsave(dpi = "retina",plot = TX_GENERATOR_CAPACITY_MAP, "TX New Generator Capacity Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+OPERATING_CLEAN_POWER_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_OPERATING_MAP_DATA.csv") %>%
+  select(Plant.State,Nameplate.Capacity..MW.,Energy.Source.Code,Operating.Month,Operating.Year) %>%
+  setNames(c("State","Capacity","Source","Month","Year")) %>%
+  mutate(Date = as.Date(paste0(Year,"-",Month,"-01"))) %>%
+  filter(Date >= as.Date("2022-08-01") & Date <= as.Date("2024-06-01")) %>% #THIS DATE VALUE NEEDS TO BE UPDATED WHEN NEW DATA IS INCORPORATED
+  mutate(Capacity =  as.numeric(gsub(",","",Capacity))) %>%
+  filter(Source %in% c("WND","SUN","MWH")) %>%
+  group_by(State,Source) %>%
+  summarize(Capacity = sum(Capacity, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(State %in% c("TX","CA","FL","AZ","NV","OH","NM","CO","VA","NY")) %>%
+  mutate(Source = case_when(
+    Source == "MWH" ~ "Batteries",
+    Source == "NUC" ~ "Nuclear",
+    Source == "SUN" ~ "Solar",
+    Source == "WND" ~ "Wind",
+    TRUE ~ Source
+  )) %>%
+  mutate(Source = factor(Source, levels = c("Solar","Wind","Batteries","Nuclear"))) %>%
+  mutate(State = case_when(
+    State == "TX" ~ "Texas",
+    State == "CA" ~ "California",
+    State == "FL" ~ "Florida",
+    State == "AZ" ~ "Arizona",
+    State == "NV" ~ "Nevada",
+    State == "OH" ~ "Ohio",
+    State == "NM" ~ "New Mexico",
+    State == "CO" ~ "Colorado",
+    State == "VA" ~ "Virginia",
+    State == "NY" ~ "New York",
+    TRUE ~ State
+  )) %>%
+  mutate(State = factor(State, levels = rev(c("Texas","California","Florida","Arizona","Nevada","Ohio","New Mexico","Colorado","Virginia","New York"))))
+  
+CAPACITY_BREAKDOWN <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_OPERATING_MAP_DATA.csv") %>%
+  select(Plant.State,Nameplate.Capacity..MW.,Energy.Source.Code,Operating.Month,Operating.Year) %>%
+  setNames(c("State","Capacity","Source","Month","Year")) %>%
+  mutate(Date = as.Date(paste0(Year,"-",Month,"-01"))) %>%
+  filter(Date >= as.Date("2022-08-01") & Date <= as.Date("2024-06-01")) %>% #THIS DATE VALUE NEEDS TO BE UPDATED WHEN NEW DATA IS INCORPORATED
+  mutate(Capacity =  as.numeric(gsub(",","",Capacity))) %>%
+  filter(Source %in% c("WND","SUN","MWH")) %>%
+  group_by(State,Source) %>%
+  summarise(total_capacity = sum(Capacity, na.rm = TRUE))
+
+TOTAL_CAPACITY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_OPERATING_MAP_DATA.csv") %>%
+  select(Plant.State,Nameplate.Capacity..MW.,Energy.Source.Code,Operating.Month,Operating.Year) %>%
+  setNames(c("State","Capacity","Source","Month","Year")) %>%
+  mutate(Date = as.Date(paste0(Year,"-",Month,"-01"))) %>%
+  filter(Date >= as.Date("2022-08-01") & Date <= as.Date("2024-06-01")) %>% #THIS DATE VALUE NEEDS TO BE UPDATED WHEN NEW DATA IS INCORPORATED
+  mutate(Capacity =  as.numeric(gsub(",","",Capacity))) %>%
+  filter(Source %in% c("WND","SUN","MWH")) %>%
+  group_by(Source) %>%  # Group by the type, e.g., solar
+  summarise(total_capacity_by_type = sum(Capacity, na.rm = TRUE))
+
+TOTAL_CAPACITY_PCT <- left_join(CAPACITY_BREAKDOWN,TOTAL_CAPACITY, by = "Source") %>%
+  mutate(percent_of_type_total = round(total_capacity/total_capacity_by_type*100,2))
+
+  
+
+OPERATING_CLEAN_POWER_DATA_GRAPH <- ggplot(data = OPERATING_CLEAN_POWER_DATA, aes(x = State, y = Capacity/1000, fill = Source)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  facet_wrap(~ Source, ncol = 3) +
+  coord_flip() +
+  xlab(NULL) +
+  ylab("Capacity") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "GW"), limits = c(0,10), breaks = c(2,6,10), expand = c(0,0)) +
+  ggtitle(paste("New Renewables Since the IRA Passed\nTop 10 States by Total Additions")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#9A348E","#3083DC","#00A99D"), breaks = c("Solar","Wind","Batteries","Nuclear")) +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data") +
+  theme_apricitas + theme(legend.position = "none", axis.text.y = element_text(size = 14, color = "grey80"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), strip.text.x = element_text(size = 20, face = "bold", color = "white")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = OPERATING_CLEAN_POWER_DATA_GRAPH, "Operating Clean Power Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+INDUS_CONS_EMP <- bls_api("CES2023621001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Industrial Buildings")
+
+HWAY_CONS_EMP <- bls_api("CES2023730001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Highways & Streets")
+
+UTIL_CONS_EMP <- bls_api("CES2023713001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("CES2023711001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  group_by(date) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Power, Water, & Communications Utilities")
+
+OTHR_CONS_EMP <- bls_api("CES2023790001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Other Heavy & Civil Engineering")
+
+#MANUFACTURING EMPLOYMENT
+
+CARS_MANU_EMP <- bls_api("CES3133600101", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Motor Vehicle & Parts Manufacturing")
+
+SEMI_MANU_EMP <- bls_api("CES3133441301", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Semiconductor & Related Device Manufacturing")
+
+ELEC_MANU_EMP <- bls_api("CES3133530001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(.,bls_api("CES3133590001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  group_by(date) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Electrical Equipment & Battery Manufacturing")
+
+ELEC_GENR_EMP <- bls_api("CES4422110001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(pct_change_2020 = (value-value[25])/value[25]) %>%
+  mutate(raw_change_2020 = (value-value[25])) %>%
+  mutate(name = "Electricity Generation, Transmission, & Distribution")
+
+CONS_EMPLOYMENT_GRAPH_PCT <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=OTHR_CONS_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=UTIL_CONS_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=INDUS_CONS_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=HWAY_CONS_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 0.17, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2021-11-15"), xintercept = as.Date("2021-11-15"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 0.17, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  ylab("Percent Growth Since Jan 2020") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.2,-.1,0,.1,.2), limits = c(-.2,.25), expand = c(0,0)) +
+  ggtitle("Growth in Key Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Key Construction Subsectors Has Grown Since the Passage of BIF, IRA, & CHIPS") +
+  theme_apricitas + theme(legend.position = c(.25,.82), plot.title = element_text(size = 28)) +
+  scale_color_manual(name= "% Change Since Jan 2020",values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72"), breaks = c("Highways & Streets", "Power, Water, & Communications Utilities", "Industrial Buildings","Other Heavy & Civil Engineering")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.2-(.3*.45), ymax = -.2) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CONS_EMPLOYMENT_GRAPH_PCT, "CONS EMPLOYMENT PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CONS_EMPLOYMENT_GRAPH_RAW <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=OTHR_CONS_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=UTIL_CONS_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=INDUS_CONS_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=HWAY_CONS_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 43, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2021-11-15"), xintercept = as.Date("2021-11-15"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 43, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-30,-20,-10,0,10,20,30,40,50), limits = c(-35,50), expand = c(0,0)) +
+  ggtitle("Growth in Key Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Key Construction Subsectors Has Grown Since the Passage of BIF, IRA, & CHIPS") +
+  theme_apricitas + theme(legend.position = c(.28,.79), plot.title = element_text(size = 28)) +
+  scale_color_manual(name= "Construction Employment\nChange Since Jan 2020",values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72"), breaks = c("Highways & Streets", "Power, Water, & Communications Utilities", "Industrial Buildings","Other Heavy & Civil Engineering")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*80), ymax = -35) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CONS_EMPLOYMENT_GRAPH_RAW, "CONS EMPLOYMENT RAW Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+MANU_EMPLOYMENT_GRAPH_PCT <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=CARS_MANU_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=SEMI_MANU_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=ELEC_MANU_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  geom_line(data=ELEC_GENR_EMP, aes(x=date,y= pct_change_2020,color= name), size = 1.25) +
+  annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 0.17, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2021-11-15"), xintercept = as.Date("2021-11-15"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 0.17, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  ylab("Percent Growth Since Jan 2020") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.2,-.1,0,.1,.2), limits = c(-.2,.25), expand = c(0,0)) +
+  ggtitle("Growth in Key Industry Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Key Manufacturing Subsectors Has Grown Since the Passage of BIF, IRA, & CHIPS") +
+  theme_apricitas + theme(legend.position = c(.25,.82), plot.title = element_text(size = 28)) +
+  scale_color_manual(name= "% Change Since Jan 2020",values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72"), breaks = c("Motor Vehicle & Parts Manufacturing", "Semiconductor & Related Device Manufacturing", "Electrical Equipment & Battery Manufacturing","Electricity Generation, Transmission, & Distribution")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.2-(.3*.45), ymax = -.2) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MANU_EMPLOYMENT_GRAPH_PCT, "MANU EMPLOYMENT PCT Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+MANU_EMPLOYMENT_GRAPH_RAW <- ggplot() + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=CARS_MANU_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=SEMI_MANU_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=ELEC_MANU_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  geom_line(data=ELEC_GENR_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
+  annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 90, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2021-11-15"), xintercept = as.Date("2021-11-15"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 90, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text",label = "NOTE: Early 2020 Vehicle Manufacturing\nJob Losses Cut Off", hjust = 0, x = as.Date("2018-02-01"), y =-25, color = "white", size = 4, alpha = 0.75, lineheight = 0.8) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-25,0,25,50,75,100), limits = c(-35,100), expand = c(0,0)) +
+  ggtitle("Growth in Key Industry Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Key Construction Subsectors Has Grown Since the Passage of BIF, IRA, & CHIPS") +
+  theme_apricitas + theme(legend.position = c(.29,.79), plot.title = element_text(size = 28), legend.text = element_text(size = 12.5), legend.title = element_text(size = 14)) +
+  scale_color_manual(name= "Employment Change Since Jan 2020",values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72"), breaks = c("Motor Vehicle & Parts Manufacturing", "Semiconductor & Related Device Manufacturing", "Electrical Equipment & Battery Manufacturing","Electricity Generation, Transmission, & Distribution")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*135), ymax = -35) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MANU_EMPLOYMENT_GRAPH_RAW, "MANU EMPLOYMENT RAW Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 STATE_FIPS_DATA <- tidycensus::fips_codes %>%
   filter(!(state_code %in% c("60","66","69","74","78"))) %>%  # Exclude territories if needed, except Puerto Rico
   distinct(state_code, state_name) %>%
@@ -691,8 +1069,7 @@ STATE_MANU_EMP_GROWTH <- STATE_MANU_EMP_GROWTH %>%
   mutate(raw_growth_2020 = value-value[1]) %>%
   ungroup() %>%
   filter(date == max(date))
-
-
+  
 devtools::install_github("UrbanInstitute/urbnmapr")
 library(urbnmapr)
 
@@ -884,10 +1261,718 @@ STATES_MANU_EMP_GROWTH_MAP_GRAPH <- STATES_MANU_EMP_GROWTH_MAP  %>%
 
 ggsave(dpi = "retina",plot = STATES_MANU_EMP_GROWTH_MAP_GRAPH, "States Manu Emp Growth Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+# Function to get BLS QCEW data
+get_state_QCEW_data <- function(FIPS, state_name, code) {
+  seriesID <- paste0("ENU", sprintf("%02d", FIPS), code)
+  data <- bls_api(seriesID, startyear = 2019, registrationKey = Sys.getenv("BLS_KEY"), annualaverage = TRUE)
+  if (nrow(data) == 0) {
+    return(tibble(date = as.Date(character()), FIPS = integer(), name = character(), value = numeric()))
+  }
+  
+  data %>%
+    mutate(date = as.Date(paste0(year,"-01-01")),
+           FIPS = FIPS,
+           name = state_name) %>%
+    arrange(date)
+}
 
-#PUBLIC SECTOR CONSTRUCTION DATA
+#INDUSTRIAL BUILDING CONSTRUCTION
+
+STATE_CONS_INDU_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "00010523621", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_CONS_INDU_EMP_GROWTH <- bind_rows(STATE_CONS_INDU_EMP_GROWTH_DATA_LIST) 
+
+STATE_CONS_INDU_EMP_GROWTH <- STATE_CONS_INDU_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  mutate(name = NAME)
+
+STATE_CONS_INDU_EMP_MAP <- merge(STATE_CONS_INDU_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_CONS_INDU_EMP_MAP_CENTROIDS <- STATE_CONS_INDU_EMP_MAP %>%
+  st_centroid()
 
 
+michigan_index <- which(STATE_CONS_INDU_EMP_MAP_CENTROIDS$NAME == "Michigan")
+michigan_centroid <- STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[michigan_index]
+
+florida_index <- which(STATE_CONS_INDU_EMP_MAP_CENTROIDS$NAME == "Florida")
+florida_centroid <- STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[florida_index]
+
+california_index <- which(STATE_CONS_INDU_EMP_MAP_CENTROIDS$NAME == "California")
+california_centroid <- STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[california_index]
+
+louisiana_index <- which(STATE_CONS_INDU_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+louisiana_centroid <- STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[louisiana_index]
+
+hawaii_index <- which(STATE_CONS_INDU_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+hawaii_centroid <- STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[hawaii_index]
+
+
+adjusted_michigan_centroid <- st_geometry(michigan_centroid) + c(60000, -130000)
+adjusted_florida_centroid <- st_geometry(florida_centroid) + c(70000, 0)
+adjusted_california_centroid <- st_geometry(california_centroid) + c(-60000, 0)
+adjusted_louisiana_centroid <- st_geometry(louisiana_centroid) + c(-60000, 0)
+adjusted_hawaii_centroid <- st_geometry(hawaii_centroid) + c(120000, -100000)
+
+
+STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_CONS_INDU_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+
+STATE_CONS_INDU_EMP_MAP_PCT_GRAPH <- STATE_CONS_INDU_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_INDU_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_INDU_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = pct_growth_2019, size = value/1000), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_c(name = "2019-2023 Growth, %",breaks = c(-.75,-.5,-.25,0,.25,.5,.75), labels = c("-75%","-50%","-25%","0%","25%","50%","75%")) +
+  scale_size_area(name = "2023 Employment",
+                  max_size = 17,
+                  breaks = c(10,20,30,40),
+                  labels = c("10k","20k","30k","40k"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("Industrial Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using Census data.") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STATE_CONS_INDU_EMP_MAP_PCT_GRAPH, "States Industrial Construction Employment Percent Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+STATE_CONS_INDU_EMP_MAP_RAW_GRAPH <- STATE_CONS_INDU_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_INDU_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_INDU_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-10,10),
+                  breaks = c(5,10),
+                  labels = c("5k","10k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("    Change in Industrial Building Construction \n                            Employment, 2019-2023") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_CONS_INDU_EMP_MAP_RAW_GRAPH, "States Industrial Construction Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#Highway Construction
+
+STATE_CONS_HWAY_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001052373", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_CONS_HWAY_EMP_GROWTH <- bind_rows(STATE_CONS_HWAY_EMP_GROWTH_DATA_LIST) 
+
+STATE_CONS_HWAY_EMP_GROWTH <- STATE_CONS_HWAY_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  mutate(name = NAME)
+
+STATE_CONS_HWAY_EMP_MAP <- merge(STATE_CONS_HWAY_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS <- STATE_CONS_HWAY_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_CONS_HWAY_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_CONS_HWAY_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_CONS_HWAY_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_CONS_HWAY_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_CONS_HWAY_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_CONS_HWAY_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+STATE_CONS_HWAY_EMP_MAP_PCT_GRAPH <- STATE_CONS_HWAY_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_HWAY_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_HWAY_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = pct_growth_2019, size = value/1000), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_c(name = "2019-2023 Growth, %",breaks = c(-.75,-.5,-.25,0,.25,.5,.75), labels = c("-75%","-50%","-25%","0%","25%","50%","75%")) +
+  scale_size_area(name = "2023 Employment",
+                  max_size = 17,
+                  breaks = c(10,20,30,40),
+                  labels = c("10k","20k","30k","40k"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("Roadway Construction Employment by State, 2023") +
+  labs(caption = "Graph created by @JosephPolitano using Census data.") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STATE_CONS_HWAY_EMP_MAP_PCT_GRAPH, "States Highway Construction Employment Percent Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+STATE_CONS_HWAY_EMP_MAP_RAW_GRAPH <- STATE_CONS_HWAY_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_HWAY_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_HWAY_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-10,10),
+                  breaks = c(5,10),
+                  labels = c("5k","10k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Roadway Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_CONS_HWAY_EMP_MAP_RAW_GRAPH, "States Highway Construction Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+#Utility Construction
+#STATE_CONS_UTIL_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001052371", get_state_QCEW_data)
+
+STATE_CONS_UTIL_WATER_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "00010523711", get_state_QCEW_data)
+STATE_CONS_UTIL_POWER_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "00010523713", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_CONS_UTIL_EMP_GROWTH <- bind_rows(STATE_CONS_UTIL_WATER_EMP_GROWTH_DATA_LIST) %>%
+  rbind(.,bind_rows(STATE_CONS_UTIL_POWER_EMP_GROWTH_DATA_LIST))
+
+STATE_CONS_UTIL_EMP_GROWTH <- STATE_CONS_UTIL_EMP_GROWTH %>%
+  group_by(date,name) %>%
+  filter(is.na(value) == FALSE) %>%
+  filter(n() == 2) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  arrange(name,date) %>%
+  ungroup() %>%
+  group_by(name) %>%
+  filter(min(date) == as.Date("2019-01-01")) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  mutate(name = NAME)
+
+STATE_CONS_UTIL_EMP_MAP <- merge(STATE_CONS_UTIL_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS <- STATE_CONS_UTIL_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_CONS_UTIL_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_CONS_UTIL_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_CONS_UTIL_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_CONS_UTIL_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_CONS_UTIL_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_CONS_UTIL_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+STATE_CONS_UTIL_EMP_MAP_PCT_GRAPH <- STATE_CONS_UTIL_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_UTIL_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_UTIL_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = pct_growth_2019, size = value/1000), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_c(name = "2019-2023 Growth, %",breaks = c(-.75,-.5,-.25,0,.25,.5,.75), labels = c("-75%","-50%","-25%","0%","25%","50%","75%")) +
+  scale_size_area(name = "2023 Employment",
+                  max_size = 17,
+                  breaks = c(10,20,30,40),
+                  labels = c("10k","20k","30k","40k"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("Power Water, & Utility Construction Employment by State, 2023") +
+  labs(caption = "Graph created by @JosephPolitano using Census data.") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STATE_CONS_UTIL_EMP_MAP_PCT_GRAPH, "States Utility Construction Employment Percent Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+STATE_CONS_UTIL_EMP_MAP_RAW_GRAPH <- STATE_CONS_UTIL_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_UTIL_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_UTIL_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-10,10),
+                  breaks = c(5,10),
+                  labels = c("5k","10k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Power, Water, & Communication Utility Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_CONS_UTIL_EMP_MAP_RAW_GRAPH, "States Utility Construction Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#Other Construction
+STATE_CONS_OTHR_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001052379", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_CONS_OTHR_EMP_GROWTH <- bind_rows(STATE_CONS_OTHR_EMP_GROWTH_DATA_LIST) 
+
+STATE_CONS_OTHR_EMP_GROWTH <- STATE_CONS_OTHR_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  mutate(name = NAME)
+
+STATE_CONS_OTHR_EMP_MAP <- merge(STATE_CONS_OTHR_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS <- STATE_CONS_OTHR_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_CONS_OTHR_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_CONS_OTHR_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_CONS_OTHR_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_CONS_OTHR_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_CONS_OTHR_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_CONS_OTHR_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+STATE_CONS_OTHR_EMP_MAP_PCT_GRAPH <- STATE_CONS_OTHR_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_OTHR_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_OTHR_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = pct_growth_2019, size = value/1000), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_viridis_c(name = "2019-2023 Growth, %",breaks = c(-.75,-.5,-.25,0,.25,.5,.75), labels = c("-75%","-50%","-25%","0%","25%","50%","75%")) +
+  scale_size_area(name = "2023 Employment",
+                  max_size = 17,
+                  breaks = c(10,20,30,40),
+                  labels = c("10k","20k","30k","40k"),
+                  guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
+  ggtitle("Other Heavy & Civil Construction Employment by State, 2023") +
+  #labs(caption = "Graph created by @JosephPolitano using Census data.") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = STATE_CONS_OTHR_EMP_MAP_PCT_GRAPH, "States Other Construction Employment Percent Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+STATE_CONS_OTHR_EMP_MAP_RAW_GRAPH <- STATE_CONS_OTHR_EMP_MAP %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = STATE_CONS_OTHR_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_CONS_OTHR_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "2019-2023 Change",
+                  max_size = 17,
+                  limits = c(-10,10),
+                  breaks = c(5,10),
+                  labels = c("5k","10k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Other Heavy & Civil Construction Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_CONS_OTHR_EMP_MAP_RAW_GRAPH, "States Other Construction Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+ARRANGE_CONS_EMP_PCT <- ggarrange()
+
+ARRANGE_CONS_EMP_RAW <- ggarrange(STATE_CONS_UTIL_EMP_MAP_RAW_GRAPH + ggtitle("           Power, Water, & Communications") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 16, hjust = 0.5)),
+                                  STATE_CONS_HWAY_EMP_MAP_RAW_GRAPH + ggtitle("Highways & Streets") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 16, hjust = 0.5)),
+                                  STATE_CONS_INDU_EMP_MAP_RAW_GRAPH + ggtitle("Industrial Buildings") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 16, hjust = 0.5)),
+                                  STATE_CONS_OTHR_EMP_MAP_RAW_GRAPH + ggtitle("Other Civil Engineering") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 16, hjust = 0.5)), 
+                                  common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+tgrob <- text_grob(expression(bold("Construction Employment Change\n  by State & Subsector, 2019-2023")),size = 27, color = "white", hjust = 0.5, lineheight = 0.8) 
+# Draw the text
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0.3,0,-0.3,0, "cm")) + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin=unit(c(0.35,-0.15,-0.15,-0.15),"cm"))  
+
+FINAL_ARRANGE_CONS_EMP_RAW <- ggarrange(plot_0,ARRANGE_CONS_EMP_RAW, nrow = 2, heights = c(4.5,20), widths = 10)
+
+ggsave(dpi = "retina",plot = FINAL_ARRANGE_CONS_EMP_RAW, "Final Arrange Cons Emp Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#Semiconductor Employment
+STATE_SEMI_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "000105334413", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_MANU_SEMI_EMP_GROWTH <- bind_rows(STATE_SEMI_EMP_GROWTH_DATA_LIST) 
+
+STATE_MANU_SEMI_EMP_GROWTH <- STATE_MANU_SEMI_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  filter(GEOID <= 56 | GEOID == 72) %>%
+  mutate(name = NAME)
+
+STATE_MANU_SEMI_EMP_MAP <- merge(STATE_MANU_SEMI_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS <- STATE_MANU_SEMI_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_MANU_SEMI_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_MANU_SEMI_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_MANU_SEMI_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_MANU_SEMI_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_MANU_SEMI_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_MANU_SEMI_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+STATE_MANU_SEMI_EMP_GROWTH_GRAPH <- STATE_MANU_SEMI_EMP_MAP %>%
+  ggplot() +
+  geom_sf(data = State_map, fill = "grey60") +
+  geom_sf(data = STATE_MANU_SEMI_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_MANU_SEMI_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-15,15),
+                  breaks = c(5,10,15),
+                  labels = c("5k","10k","15k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("Change in Semiconductor Manufacturing Employment\n                                2019-2023") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 24.5),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_MANU_SEMI_EMP_GROWTH_GRAPH, "States Semiconductor Manufacturing Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+#ELECTRICITY GENERATION 
+STATE_ELEC_GENR_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001052211", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_ELEC_GENR_EMP_GROWTH <- bind_rows(STATE_ELEC_GENR_GROWTH_DATA_LIST) 
+
+STATE_ELEC_GENR_EMP_GROWTH <- STATE_ELEC_GENR_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  filter(GEOID <= 56 | GEOID == 72) %>%
+  mutate(name = NAME)
+
+STATE_ELEC_GENR_EMP_MAP <- merge(STATE_ELEC_GENR_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS <- STATE_ELEC_GENR_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_ELEC_GENR_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_ELEC_GENR_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_ELEC_GENR_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_ELEC_GENR_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_ELEC_GENR_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_ELEC_GENR_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+STATE_ELEC_GENR_EMP_GROWTH_GRAPH <- STATE_ELEC_GENR_EMP_MAP %>%
+  ggplot() +
+  geom_sf(data = State_map, fill = "grey60") +
+  geom_sf(data = STATE_ELEC_GENR_EMP_MAP, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_ELEC_GENR_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-15,15),
+                  breaks = c(5,10,15),
+                  labels = c("5k","10k","15k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("     Change in Electricity Generation, Transmission\n           & Distribution Employment, 2019-2023") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 24.5),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_ELEC_GENR_EMP_GROWTH_GRAPH, "States Electricity Generation Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+STATE_MANU_ELEC_MAIN_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001053353", get_state_QCEW_data)
+STATE_MANU_ELEC_OTHR_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001053359", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_MANU_ELEC_EMP_GROWTH <- bind_rows(STATE_MANU_ELEC_MAIN_EMP_GROWTH_DATA_LIST) %>%
+  rbind(.,bind_rows(STATE_MANU_ELEC_OTHR_EMP_GROWTH_DATA_LIST))
+
+STATE_MANU_ELEC_EMP_GROWTH <- STATE_MANU_ELEC_EMP_GROWTH %>%
+  group_by(date,name) %>%
+  filter(is.na(value) == FALSE) %>%
+  filter(n() == 2) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  arrange(name,date) %>%
+  ungroup() %>%
+  group_by(name) %>%
+  filter(min(date) == as.Date("2019-01-01")) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  filter(GEOID <= 56 | GEOID == 72) %>%
+  mutate(name = NAME)
+
+STATE_MANU_ELEC_EMP_MAP <- merge(STATE_MANU_ELEC_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS <- STATE_MANU_ELEC_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_MANU_ELEC_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_MANU_ELEC_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_MANU_ELEC_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_MANU_ELEC_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_MANU_ELEC_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_MANU_ELEC_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+STATE_MANU_ELEC_EMP_GROWTH_GRAPH <- STATE_MANU_ELEC_EMP_MAP %>%
+  ggplot() +
+  geom_sf(data = State_map, fill = "grey60") +
+  geom_sf(data = State_map, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_MANU_ELEC_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-15,15),
+                  breaks = c(5,10,15),
+                  labels = c("5k","10k","15k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("           Change in Electrical Equipment & Battery\n          Manufacturing Employment, 2019-2023") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 24.5),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_MANU_ELEC_EMP_GROWTH_GRAPH, "States Electric Equipment Manufacturing Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+STATE_MANU_CARS_MAIN_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001053361", get_state_QCEW_data)
+STATE_MANU_CARS_BODY_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001053362", get_state_QCEW_data)
+STATE_MANU_CARS_PARTS_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001053363", get_state_QCEW_data)
+
+
+# Combine all state data into one data frame
+STATE_MANU_CARS_EMP_GROWTH <- bind_rows(STATE_MANU_CARS_MAIN_EMP_GROWTH_DATA_LIST) %>%
+  rbind(.,bind_rows(STATE_MANU_CARS_BODY_EMP_GROWTH_DATA_LIST)) %>%
+  rbind(.,bind_rows(STATE_MANU_CARS_PARTS_EMP_GROWTH_DATA_LIST))
+
+STATE_MANU_CARS_EMP_GROWTH <- STATE_MANU_CARS_EMP_GROWTH %>%
+  group_by(date,name) %>%
+  filter(is.na(value) == FALSE) %>%
+  filter(n() == 3) %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  arrange(name,date) %>%
+  ungroup() %>%
+  group_by(name) %>%
+  filter(min(date) == as.Date("2019-01-01")) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+State_map <- states(cb = TRUE) %>%
+  shift_geometry(position = "below") %>% #moves Alaska and Hawaii below the map
+  filter(GEOID <= 56 | GEOID == 72) %>%
+  mutate(name = NAME)
+
+STATE_MANU_CARS_EMP_MAP <- merge(STATE_MANU_CARS_EMP_GROWTH,State_map, by = "name") %>%
+  st_as_sf()
+
+STATE_MANU_CARS_EMP_MAP_CENTROIDS <- STATE_MANU_CARS_EMP_MAP %>%
+  st_centroid()
+
+michigan_index <- which(STATE_MANU_CARS_EMP_MAP_CENTROIDS$NAME == "Michigan")
+florida_index <- which(STATE_MANU_CARS_EMP_MAP_CENTROIDS$NAME == "Florida")
+california_index <- which(STATE_MANU_CARS_EMP_MAP_CENTROIDS$NAME == "California")
+louisiana_index <- which(STATE_MANU_CARS_EMP_MAP_CENTROIDS$NAME == "Louisiana")
+hawaii_index <- which(STATE_MANU_CARS_EMP_MAP_CENTROIDS$NAME == "Hawaii")
+
+STATE_MANU_CARS_EMP_MAP_CENTROIDS$geometry[michigan_index] <- adjusted_michigan_centroid
+STATE_MANU_CARS_EMP_MAP_CENTROIDS$geometry[florida_index] <- adjusted_florida_centroid
+STATE_MANU_CARS_EMP_MAP_CENTROIDS$geometry[california_index] <- adjusted_california_centroid
+STATE_MANU_CARS_EMP_MAP_CENTROIDS$geometry[louisiana_index] <- adjusted_louisiana_centroid
+STATE_MANU_CARS_EMP_MAP_CENTROIDS$geometry[hawaii_index] <- adjusted_hawaii_centroid
+
+
+STATE_MANU_CARS_EMP_GROWTH_GRAPH <- STATE_MANU_CARS_EMP_MAP %>%
+  ggplot() +
+  geom_sf(data = State_map, fill = "grey60") +
+  geom_sf(data = State_map, color = "black", fill = NA, lwd = 0.65) + 
+  geom_point(data = STATE_MANU_CARS_EMP_MAP_CENTROIDS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = raw_growth_2019 > 0, size = raw_growth_2019/1000), shape = 21, alpha = 0.6, show.legend = TRUE, stroke = NA) +
+  scale_fill_manual(name = NULL,
+                    values = c("#3083DC","#EE6055"),
+                    breaks = c(TRUE, FALSE), 
+                    labels = c("Increase", "Decrease"),
+                    guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Size of\nChange",
+                  max_size = 17,
+                  limits = c(-15,15),
+                  breaks = c(5,10,15),
+                  labels = c("5k","10k","15k"),
+                  guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
+  guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("              Change in Motor Vehicle & Parts\n          Manufacturing Employment, 2019-2023") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 24.5),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = STATE_MANU_CARS_EMP_GROWTH_GRAPH, "States Vehicle Manufacturing Employment Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+ARRANGE_MANU_EMP_RAW <- ggarrange(STATE_MANU_CARS_EMP_GROWTH_GRAPH + ggtitle("Vehicle & Parts Manufacturing") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 14, hjust = 0.5)),
+                                  STATE_MANU_SEMI_EMP_GROWTH_GRAPH + ggtitle("Semiconductor & Related Manufacturing") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 14, hjust = 0.5)),
+                                  STATE_MANU_ELEC_EMP_GROWTH_GRAPH + ggtitle("Electrical & Battery Manufacturing") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 14, hjust = 0.5)),
+                                  STATE_ELEC_GENR_EMP_GROWTH_GRAPH + ggtitle("Electricity Generation & Distribution") + labs(caption = NULL) + theme(plot.margin = unit(c(0,0,0,0), units = "cm"), plot.title = element_text(size = 14, hjust = 0.5)), 
+                                  common.legend = TRUE, legend = "right") + bgcolor("#252A32") + border("#252A32")
+
+tgrob <- text_grob(expression(bold("Key Industrial Employment Change\n  by State & Subsector, 2019-2023")),size = 27, color = "white", hjust = 0.5, lineheight = 0.8) 
+# Draw the text
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0.3,0,-0.3,0, "cm")) + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin=unit(c(0.35,-0.15,-0.15,-0.15),"cm"))  
+
+FINAL_ARRANGE_MANU_EMP_RAW <- ggarrange(plot_0,ARRANGE_MANU_EMP_RAW, nrow = 2, heights = c(4.5,20), widths = 10)
+
+ggsave(dpi = "retina",plot = FINAL_ARRANGE_MANU_EMP_RAW, "Final Arrange Manu Emp Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#MANUFACTURING OPERATION
+STATE_BATTERY_EMP_GROWTH_DATA_LIST <- purrr::map2(STATE_FIPS_DATA$FIPS, STATE_FIPS_DATA$state_name, code = "0001052211", get_state_QCEW_data)
+
+# Combine all state data into one data frame
+STATE_BATTERY_EMP_GROWTH <- bind_rows(STATE_BATTERY_EMP_GROWTH_DATA_LIST) 
+
+STATE_BATTERY_EMP_GROWTH <- STATE_BATTERY_EMP_GROWTH %>%
+  group_by(name) %>%
+  mutate(pct_growth_2019 = (value-value[1])/value[1]) %>%
+  mutate(raw_growth_2019 = value-value[1]) %>%
+  ungroup() %>%
+  filter(date == max(date))
+
+
+#MAYBE DO VEHICLE AND OTHER ELECTRICAL COMPONENTS INSTEAD OF BATTERIES? OR SEPARATE BATTERY INTO ELECTRICAL COMPONENTS
+
+
+
+#Utility Operation??
 
 PA_MANU <- bls_api("SMS42000003000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>%
   rbind(.,bls_api("SMS42000003000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
