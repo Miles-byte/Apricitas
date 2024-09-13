@@ -43,7 +43,9 @@ ggsave(dpi = "retina",plot = TOTAL_TRANSIT_RIDERSHIP_graph, "Total Transit Rider
 
 RAIL_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Rail" & modes != "CR") %>%
+  mutate(agency = gsub("San Diego Trolley, Inc.","San Diego Metropolitan Transit System", agency)) %>%
   group_by(agency,month) %>%
+  drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -92,8 +94,8 @@ LARGE_RAIL <- ggplot() +
               filter(agency %in% (RAIL_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(16:20) %>%
-                                    pull(agency))), aes(x=month,y= year_roll/1000000,color = agency), size = 1.25)
+                                    slice(8) %>%
+                                    pull(agency))), aes(x=month,y=year_roll,color = agency), size = 1.25)
 
 BART_PLUS_MUNI <- RAIL_BULK %>%
   filter(agency %in% c("San Francisco Bay Area Rapid Transit District", "City and County of San Francisco")) %>%
@@ -107,6 +109,8 @@ SECOND_FIFTH_NETWORKS_graph <- ggplot() + #plotting regular vs non-regular emplo
   geom_line(data=filter(RAIL_BULK, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="MBTA (Boston)"), size = 1.25) +
   #geom_line(data=filter(BART_PLUS_MUNI, agency == "BART + MUNI (SF)", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="BART + Muni (Bay Area)"), size = 1.25) +
   geom_line(data=filter(RAIL_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="WMATA (DC)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="SEPTA (Philly)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="LA Metro (LA)"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,300), expand = c(0,0), breaks = c(0,100,200,300)) +
@@ -126,19 +130,49 @@ FIRST_FIVE_RIDERSHIP_RECOVERY_graph <- ggplot() + #plotting regular vs non-regul
   geom_line(data=filter(RAIL_BULK, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MBTA (Boston)"), size = 1.25) +
   geom_line(data=filter(RAIL_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="WMATA (DC)"), size = 1.25) +
   geom_line(data=filter(RAIL_BULK, agency == "MTA New York City Transit", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MTA (NYC)"), size = 1.25) +
-  #geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="LA Metro (LA)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="LA Metro (LA)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="SEPTA (Philly)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Port Authority Trans-Hudson Corporation", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="PATH (NY/NJ)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="Muni (SF)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Metropolitan Atlanta Rapid Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MARTA (Atlanta)"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1.25), expand = c(0,0), breaks = c(0,.25,.5,.75,1,1.25)) +
-  ylab("Millions of Unlinked Passenger Trips") +
+  ylab("Percent of 2019 Ridership") +
   ggtitle("Ridership Recovery, US 5 Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 1st-5th Systems Selected Based on 2019 Ridership Rankings",subtitle = "NYC's Subway Has Led the Post-COVID Ridership Recovery") +
   theme_apricitas + theme(legend.position = c(.45,.475), plot.title = element_text(size = 21)) +
-  scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)")) +
+  scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FIRST_FIVE_RIDERSHIP_RECOVERY_graph, "1st Five Ridership Recovery Percent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FIRST_SEVEN_RIDERSHIP_RECOVERY_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=filter(RAIL_BULK, agency == "Chicago Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="CTA (Chicago)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="BART (Bay Area)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MBTA (Boston)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="WMATA (DC)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "MTA New York City Transit", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MTA (NYC)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="LA Metro (LA)"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="SEPTA (Philly)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Port Authority Trans-Hudson Corporation", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="PATH (NY/NJ)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="Muni (SF)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Metropolitan Atlanta Rapid Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MARTA (Atlanta)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1.25), expand = c(0,0), breaks = c(0,.25,.5,.75,1,1.25)) +
+  ylab("Percent of 2019 Ridership") +
+  ggtitle("Ridership Recovery, US 7 Largest Urban Rail Networks") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 1st-5th Systems Selected Based on 2019 Ridership Rankings",subtitle = "NYC's Subway Has Led the Post-COVID Ridership Recovery") +
+  theme_apricitas + theme(legend.position = c(.45,.475), plot.title = element_text(size = 21)) +
+  scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIRST_SEVEN_RIDERSHIP_RECOVERY_graph, "1st Seven Ridership Recovery Percent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 
 
 SIXTH_TENTH_NETWORKS_graph <- ggplot() + #plotting regular vs non-regular employment
@@ -460,6 +494,7 @@ ggsave(dpi = "retina",plot = CALIFORNIA_TRANSIT_graph, "California Transit Rider
 COMMUTER_RAIL_BULK <- NTD_BULK %>%
   filter(modes == "CR") %>%
   group_by(agency,month) %>%
+  drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -543,6 +578,7 @@ ggsave(dpi = "retina",plot = CALTRAIN_RIDERSHIP, "Caltrain Ridership.png", type 
 BUS_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Bus") %>%
   group_by(agency,month) %>%
+  drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -586,6 +622,7 @@ BUS_Ridership <- ggplot() +
   geom_line(data=filter(BUS_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="LA Metro (LA)"), size = 1.25) +
   geom_line(data=filter(BUS_BULK, agency == "Chicago Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="CTA (Chicago)"), size = 1.25) +
   geom_line(data=filter(BUS_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Muni (SF)"), size = 1.25) +
+  geom_line(data=filter(BUS_BULK, agency == "King County", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Metro (Seattle)"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,700), expand = c(0,0)) +
@@ -604,6 +641,7 @@ ggsave(dpi = "retina",plot = MetroLink_Ridership, "MetroLink Ridership.png", typ
 AGENCY_BULK <- NTD_BULK %>%
   #filter(modes_simplified == "Rail" & modes != "CR") %>%
   group_by(agency,month) %>%
+  drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -790,6 +828,7 @@ ggsave(dpi = "retina",plot = REGION_Ridership, "Region Ridership.png", type = "c
 AGENCY_EX_CR_BULK <- NTD_BULK %>%
   filter(modes != "CR") %>%
   group_by(agency,month) %>%
+  drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -802,11 +841,13 @@ RAIL_RECOVERY <- RAIL_BULK %>%
   mutate(year = year(month), month = month(month)) %>%
   group_by(year, month) %>%
   ungroup() %>%
+  group_by(agency) %>%
   mutate(recent_year = max(year),
          recent_month = max(month[year == recent_year])) %>%
   filter((year == recent_year & month <= recent_month) | (year == 2019 & month <= recent_month)) %>%
   group_by(agency, year, recent_year) %>%
   summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019) %>%
   pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
   mutate(percentage_recovery = ((get(paste0("value_", recent_year))) / value_2019)) %>%
   ungroup() %>%
@@ -854,11 +895,13 @@ AGENCY_RECOVERY <- AGENCY_BULK %>%
   mutate(year = year(month), month = month(month)) %>%
   group_by(year, month) %>%
   ungroup() %>%
+  group_by(agency) %>%
   mutate(recent_year = max(year),
          recent_month = max(month[year == recent_year])) %>%
   filter((year == recent_year & month <= recent_month) | (year == 2019 & month <= recent_month)) %>%
   group_by(agency, year, recent_year) %>%
   summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(AGENCY_BULK$month))) %>%
   pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
   mutate(percentage_recovery = ((get(paste0("value_", recent_year))) / value_2019)) %>%
   ungroup() %>%
@@ -866,10 +909,11 @@ AGENCY_RECOVERY <- AGENCY_BULK %>%
 
 
 AGENCY_RECOVERY <- AGENCY_RECOVERY %>%
-  slice(1:10) %>%
+  #slice(1:10) %>%
+  filter(agency %in% c("San Francisco Bay Area Rapid Transit District","Los Angeles County Metropolitan Transportation Authority","Chicago Transit Authority","King County","Washington Metropolitan Area Transit Authority","MTA New York City Transit","New Jersey Transit Corporation","City and County of San Francisco","Massachusetts Bay Transportation Authority","Southeastern Pennsylvania Transportation Authority")) %>%
   arrange(percentage_recovery) %>%
   mutate(agency = case_when(
-    agency == "San Francisco Bay Area Rapid Transit District" ~ "BART (SF)",
+    agency == "San Francisco Bay Area Rapid Transit District" ~ "BART (Bay Area)",
     agency == "Los Angeles County Metropolitan Transportation Authority" ~ "LA Metro (LA)",
     agency == "Chicago Transit Authority" ~ "CTA (Chicago)",
     agency == "King County" ~ "Metro (Seattle)",
@@ -906,11 +950,13 @@ BUS_RECOVERY <- BUS_BULK %>%
   mutate(year = year(month), month = month(month)) %>%
   group_by(year, month) %>%
   ungroup() %>%
+  group_by(agency) %>%
   mutate(recent_year = max(year),
          recent_month = max(month[year == recent_year])) %>%
   filter((year == recent_year & month <= recent_month) | (year == 2019 & month <= recent_month)) %>%
   group_by(agency, year, recent_year) %>%
   summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(AGENCY_BULK$month))) %>%
   pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
   mutate(percentage_recovery = ((get(paste0("value_", recent_year))) / value_2019)) %>%
   ungroup() %>%
@@ -921,7 +967,7 @@ BUS_RECOVERY <- BUS_RECOVERY %>%
   slice(1:10) %>%
   arrange(percentage_recovery) %>%
   mutate(agency = case_when(
-    agency == "San Francisco Bay Area Rapid Transit District" ~ "BART (SF)",
+    agency == "San Francisco Bay Area Rapid Transit District" ~ "BART (Bay Area)",
     agency == "Los Angeles County Metropolitan Transportation Authority" ~ "LA Metro (LA)",
     agency == "Chicago Transit Authority" ~ "CTA (Chicago)",
     agency == "King County" ~ "Metro (Seattle)",

@@ -1024,18 +1024,18 @@ MANU_EMPLOYMENT_GRAPH_RAW <- ggplot() +
   geom_line(data=ELEC_MANU_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
   geom_line(data=ELEC_GENR_EMP, aes(x=date,y= raw_change_2020,color= name), size = 1.25) +
   annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 90, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Inflation\nReduction\n& CHIPS Acts", x = as.Date("2022-09-16"), y = 110, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2021-11-15"), xintercept = as.Date("2021-11-15"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 90, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Bipartisan\nInfrastructure\nLaw", x = as.Date("2021-10-15"), y = 110, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("text",label = "NOTE: Early 2020 Vehicle Manufacturing\nJob Losses Cut Off", hjust = 0, x = as.Date("2018-02-01"), y =-25, color = "white", size = 4, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
   ylab("Change Since Jan 2020") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-25,0,25,50,75,100), limits = c(-35,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-25,0,25,50,75,100,125), limits = c(-35,125), expand = c(0,0)) +
   ggtitle("Growth in Key Industry Employment") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Key Construction Subsectors Has Grown Since the Passage of BIF, IRA, & CHIPS") +
   theme_apricitas + theme(legend.position = c(.29,.79), plot.title = element_text(size = 28), legend.text = element_text(size = 12.5), legend.title = element_text(size = 14)) +
   scale_color_manual(name= "Employment Change Since Jan 2020",values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72"), breaks = c("Motor Vehicle & Parts Manufacturing", "Semiconductor & Related Device Manufacturing", "Electrical Equipment & Battery Manufacturing","Electricity Generation, Transmission, & Distribution")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*135), ymax = -35) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*160), ymax = -35) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MANU_EMPLOYMENT_GRAPH_RAW, "MANU EMPLOYMENT RAW Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
