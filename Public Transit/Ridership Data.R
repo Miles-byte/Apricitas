@@ -468,6 +468,7 @@ METRO_TRANSIT_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = METRO_TRANSIT_graph, "METRO Transit Minneapolis Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
 CALIFORNIA_TRANSIT_graph <- ggplot() + 
   geom_line(data=filter(RAIL_BULK, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="BART (Bay Area)"), size = 1.25) +
   geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="Muni (SF)"), size = 1.25) +
@@ -615,14 +616,22 @@ LARGE_AGENCIES <- ggplot() +
                                     arrange(desc(year_roll)) %>%
                                     slice(1:5) %>%
                                     pull(agency))), aes(x=month,y= year_roll/1000000,color = agency), size = 1.25)
+BRT_BULK <- NTD_BULK %>%
+  filter(modes_simplified == "Bus" & modes == "RB") %>%
+  group_by(agency,month) %>%
+  drop_na() %>%
+  summarize(value = sum(value, na.rm = TRUE)) %>%
+  mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
+  mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
+  mutate(three_month_roll = rollsum(value, 3, fill = NA, align = "right")) %>%
+  ungroup()
 
 
 BUS_Ridership <- ggplot() + 
   geom_line(data=filter(BUS_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="WMATA (DC)"), size = 1.25) +
   geom_line(data=filter(BUS_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="LA Metro (LA)"), size = 1.25) +
   geom_line(data=filter(BUS_BULK, agency == "Chicago Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="CTA (Chicago)"), size = 1.25) +
-  geom_line(data=filter(BUS_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Muni (SF)"), size = 1.25) +
-  geom_line(data=filter(BUS_BULK, agency == "King County", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Metro (Seattle)"), size = 1.25) +
+  geom_line(data=filter(BUS_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Muni (SF)"), size = 1.25)  +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,700), expand = c(0,0)) +
@@ -635,6 +644,35 @@ BUS_Ridership <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MetroLink_Ridership, "MetroLink Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+INDYGO_BUS_graph <- ggplot() + 
+  #geom_line(data=filter(BRT_BULK, agency == "Indianapolis and Marion County Public Transportation", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="IndyGo Bus Rapid Transit Ridership"), size = 1.25) +
+  #geom_line(data=filter(BRT_BULK, agency == "Indianapolis and Marion County Public Transportation", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="IndyGo Bus Rapid Transit Ridership"), size = 0.75, linetype = "dashed") +
+  geom_line(data=filter(BRT_BULK, agency == "Indianapolis and Marion County Public Transportation", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="IndyGo Bus Rapid Transit Ridership\nMonthly, Annualized"), size = 1.25) +
+  annotate("vline", x = as.Date("2019-09-01"), xintercept = as.Date("2019-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Red\nLine\nOpens", x = as.Date("2019-08-15"), y = 2.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2019-09-01"), xintercept = as.Date("2019-12-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Free\nFares\nEnd", x = as.Date("2019-12-15"), y = 2.5, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2024-10-01"), xintercept = as.Date("2024-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Purple\nLine\nOpens", x = as.Date("2024-09-15"), y = 2.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2026-05-01"), xintercept = as.Date("2027-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Blue\nLine\nOpens", x = as.Date("2027-03-01"), y = 30, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3), expand = c(0,0), breaks = c(0,1,2,3)) +
+  scale_x_date(limits = c(as.Date("2019-06-01"), max(BRT_BULK$month))) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("IndyGo (Indianapolis) BRT Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Only Includes BRT Ridership, Not All IndyGo Buses",subtitle = "Indianapolis' New BRT Network is Steadily Gaining Ridership") +
+  theme_apricitas + theme(legend.position = c(.42,.95), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-06-01")-(.1861*(today()-as.Date("2019-06-01"))), xmax = as.Date("2019-06-01")-(0.049*(today()-as.Date("2019-06-01"))), ymin = 0-(.3*3), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+
+ggsave(dpi = "retina",plot = METRO_TRANSIT_graph, "METRO Transit Minneapolis Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 

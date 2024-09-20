@@ -80,6 +80,45 @@ LAB_PROD_RETAIL_TRADE <- bls_api("IPUHN44_45_L000000000", startyear = 1987, endy
   arrange(date) %>%
   filter(date >= as.Date("2004-01-01"))
 
+#Major Sector Industry Productivity Here:
+#https://www.bls.gov/productivity/tables/
+MAJOR_INDUSTRIES_TFP_BULK <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/US%20Service%20Sector%20Productivity/MAJOR_INDUSTRY_TFP.csv")
+
+DETAILED_INDUSTRIES_TFP_2_DIGIT <- MAJOR_INDUSTRIES_TFP_BULK %>%
+  filter(Measure == "Labor productivity" & Units == "Index (2017=100)" & (nchar(as.character(NAICS)) == 2 | Industry == "Professional and business services")) %>%
+  group_by(NAICS) %>%
+  mutate(Value = as.numeric(Value)) %>%
+  ungroup() %>%
+  select(Industry,Value,Year) %>%
+  pivot_wider(names_from = Industry, values_from = Value) %>%
+  mutate(Year = as.Date(paste0(Year, "-01-01"))) %>%
+  mutate(across(where(is.numeric), ~ . /.[33])*100)
+
+DETAILED_INDUSTRIES_TFP_2_DIGIT_GRAPH <- ggplot() + 
+  #geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("2015-01-01")), aes(x=Year,y= `Finance and insurance`,color= "Finance & Insurance"), size = 1.25) +
+  #geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("2013-01-01")), aes(x=Year,y= `Professional, scientific, and technical services`,color= "Professional, Scientific, & Technical Services"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Professional and business services`,color= "Professional and Business Services"), size = 1.25) +
+  #geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("2013-01-01")), aes(x=Year,y= `Management of companies and enterprises`,color= "Management of Companies"), size = 1.25) +
+  #geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("2013-01-01")), aes(x=Year,y= `Administrative and waste management services`,color= "Administrative & Waste Management Services"), size = 1.25) +
+  #geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("2015-01-01")), aes(x=Year,y= `Educational services`,color= "Educational Services"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Health care and social assistance`,color= "Healthcare & Social Assistance"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Arts, entertainment, and recreation`,color= "Arts, Entertainment, & Recreation"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Accommodation and food services`,color= "Accomodation & Food Services"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Information`,color= "Information"), size = 1.25) +
+  annotate("text", label = "NOTE: Y-axis truncated\nfor subcategories with\nfast long-run growth\nto help legibility", x = as.Date("2018-12-01"), hjust = 0.5, y = 70, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,120), breaks = c(60,70,80,90,100,110,120,130), expand = c(0,0)) +
+  ylab("Index 2019 = 100") +
+  ggtitle("The US Service-Sector Productivity Boom") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data.",subtitle = "Productivity Growth has Boomed in Industries Like Information, Food Service, Business, & More") +
+  theme_apricitas + theme(legend.position = c(.3,.83), legend.key.height = unit(0.3, "cm"), legend.spacing.y = unit(0.1, "cm")) +
+  scale_color_manual(name= "Labor Productivity Index, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Information","Accomodation & Food Services", "Professional and Business Services", "Arts, Entertainment, & Recreation","Healthcare & Social Assistance")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1993-01-01")-(.1861*(today()-800-as.Date("1993-01-01"))), xmax = as.Date("1993-01-01")-(0.049*(today()-800-as.Date("1993-01-01"))), ymin = 60-(.3*60), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = DETAILED_INDUSTRIES_TFP_2_DIGIT_GRAPH, "Detailed Industries 2-Digit Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 #Detailed Industry Subcategory Here:
 #https://www.bls.gov/productivity/tables/
 DETAILED_PRODUCTIVITY_BULK <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/US%20Service%20Sector%20Productivity/DETAILED_PRODUCTIVITY_DATA.csv")
@@ -180,7 +219,7 @@ US_RETAIL_PRODUCTIVITY <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,180), breaks = c(0,40,80,120,160), expand = c(0,0)) +
   ylab("Index 2019 = 100") +
   ggtitle("US Retail Trade Labor Productivity") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data.",subtitle = "Food Service Labor Productivity Has Boomed Since the Start of the Pandemic") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data.",subtitle = "Retail Trade Labor Productivity Has Accelerated Since the Start of the Pandemic, Especially in Online Areas") +
   theme_apricitas + theme(legend.position = c(.3,.81), legend.key.height = unit(0.3, "cm"), legend.spacing.y = unit(0.1, "cm")) +
   scale_color_manual(name= "Labor Productivity Index, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Total Retail Trade","Online & Nonstore Retailers","Clothing & Accessory Stores", "Electronics & Appliances Stores", "Sporting Goods, Hobby, Book, & Music Stores", "Health and Personal Care Stores"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25,1.25,1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1993-01-01")-(.1861*(today()-as.Date("1993-01-01"))), xmax = as.Date("1993-01-01")-(0.049*(today()-as.Date("1993-01-01"))), ymin = 0-(.3*180), ymax = 0) +
@@ -188,6 +227,38 @@ US_RETAIL_PRODUCTIVITY <- ggplot() +
 
 ggsave(dpi = "retina",plot = US_RETAIL_PRODUCTIVITY, "US Retail Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+DETAILED_INDUSTRIES_TFP_ALL <- MAJOR_INDUSTRIES_TFP_BULK %>%
+  filter(Measure == "Labor productivity" & Units == "Index (2017=100)") %>%
+  group_by(NAICS) %>%
+  mutate(Value = as.numeric(Value)) %>%
+  ungroup() %>%
+  select(Industry,Value,Year) %>%
+  pivot_wider(names_from = Industry, values_from = Value) %>%
+  mutate(Year = as.Date(paste0(Year, "-01-01"))) %>%
+  mutate(across(where(is.numeric), ~ . /.[33])*100)
+
+
+US_BIZ_LABOR_PRODUCTIVITY <- ggplot() + 
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_ALL, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Administrative and support services`,color= "Administrative & Support Services"), size = 1.25) +
+  geom_line(data=filter(DETAILED_LABOR_PRODUCTIVITY_3_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Publishing`,color= "Information Publishing (incl. Software)"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Management of companies and enterprises`,color= "Management of Companies and Enterprises"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_2_DIGIT, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Professional, scientific, and technical services`,color= "Professional, Scientific, & Technical Services"), size = 1.25) +
+  geom_line(data=filter(DETAILED_INDUSTRIES_TFP_ALL, Year >= as.Date("1993-01-01")), aes(x=Year,y= `Data processing, internet publishing, and other information services`,color= "Computing Infrastructure, Data Processing, Web Search, & Related"), size = 1.25) +
+  annotate("text", label = "NOTE: Y-axis truncated\nfor subcategories with\nfast long-run growth\nto help legibility", x = as.Date("2018-12-01"), hjust = 0.5, y = 70, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,130), breaks = c(60,70,80,90,100,110,120,130), expand = c(0,0)) +
+  ylab("Index 2019 = 100") +
+  ggtitle("US Business Labor Productivity") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data.",subtitle = "Labor Productivity Grew Quickly in Computing Infra, Management, Information, & Professional Services") +
+  theme_apricitas + theme(legend.position = c(.42,.84), legend.key.height = unit(0.3, "cm"), legend.spacing.y = unit(0.1, "cm")) +
+  scale_color_manual(name= "Labor Productivity Index, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Computing Infrastructure, Data Processing, Web Search, & Related","Management of Companies and Enterprises","Information Publishing (incl. Software)", "Professional, Scientific, & Technical Services", "Administrative & Support Services")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1993-01-01")-(.1861*(today()-as.Date("1993-01-01"))), xmax = as.Date("1993-01-01")-(0.049*(today()-as.Date("1993-01-01"))), ymin = 60-(.3*70), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_BIZ_LABOR_PRODUCTIVITY, "US Biz Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+  
+  
 CAPITAL_INTENSITY_LABOR_PRODUCTIVITY <- bls_api("MPU4910152", startyear = 2015, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(year = as.Date(paste0(year, "-01-01"))) %>%
   arrange(year)
