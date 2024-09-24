@@ -549,7 +549,7 @@ QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary jo
   annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2018-03-01"), y =10, color = "white", size = 4, alpha = 0.5) +
   xlab("Date") +
   ylab("Dollar Growth, Year-on-year") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80), limits = c(0,80), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100), limits = c(0,100), expand = c(0,0)) +
   ggtitle("Information Tech Sector Investment") +
   labs(caption = "Graph created by @JosephPolitano using Census QFR data", subtitle = "Information Technology Sector Physical Investment Has Boomed Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.40,.85), legend.key.height = unit(1,"cm")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
