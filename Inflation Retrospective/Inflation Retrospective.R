@@ -422,21 +422,24 @@ BIE_Graph <- ggplot() + #plotting total quits
 
 ggsave(dpi = "retina",plot = BIE_Graph, "BIE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
 
-BIE_LAGGED <- read.csv("https://github.com/Miles-byte/Apricitas/blob/main/Inflation%20Retrospective/BIE_LAGGED_DATA.csv") %>%
+BIE_LAGGED <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Inflation%20Retrospective/BIE_LAGGED_DATA.csv") %>%
+  mutate(date = as.Date(date))
+
+BIE_5YR <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Understanding%20Inflation%20Expectations/ATL_BIE_5YR.csv") %>%
   mutate(date = as.Date(date))
 
 BIE_LAGGED_Graph <- ggplot() + #plotting total quits
-  geom_line(data=BIE_1YR, aes(x=date,y= bie,color= "Business Unit Cost Inflation Expectations: Next Year"), size = 1.25) +  
-  geom_line(data=BIE_LAGGED, aes(x=date,y= bie,color= "Business Unit Cost Inflation Expectations: Next Year"), size = 1.25) + 
-  
+  geom_line(data=BIE_LAGGED, aes(x=date,y= bie_lagged,color= "Business Unit Cost Inflation Over the Last Year"), size = 1.25) + 
+  geom_line(data=BIE_1YR, aes(x=date,y= bie,color= "Business Unit Cost Inflation Expectations For the Next Year"), size = 1.25) +  
+  geom_line(data=BIE_5YR, aes(x=date,y= bie_5yr,color= "Business Unit Cost Inflation Expectations For the Next 5 Years"), size = 1.25) +  
   xlab("Date") +
   ylab("Percent") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.05), breaks = c(0,.01,.02,.03,.04,.05), expand = c(0,0)) +
-  ggtitle("Inflation Expectations are Falling") +
+  ggtitle("Business Inflation Expectations are Falling") +
   labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Business Unit Cost Inflation Expectations are Falling Significantly") +
-  theme_apricitas + theme(legend.position = c(.47,.84)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Business Unit Cost Inflation Expectations: Next Year","Business Unit Cost Inflation Expectations: Next 5-10 Years")) +
+  theme_apricitas + theme(legend.position = c(.38,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Business Unit Cost Inflation Over the Last Year","Business Unit Cost Inflation Expectations For the Next Year","Business Unit Cost Inflation Expectations For the Next 5 Years")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-10-21")-(.1861*(today()-as.Date("2011-10-21"))), xmax = as.Date("2011-10-21")-(0.049*(today()-as.Date("2011-10-21"))), ymin = 0-(.3*.05), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = BIE_Graph, "BIE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 
+ggsave(dpi = "retina",plot = BIE_LAGGED_Graph, "BIE Lagged.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") 

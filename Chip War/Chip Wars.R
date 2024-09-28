@@ -509,13 +509,14 @@ ggsave(dpi = "retina",plot = EU_IC_EXPORTS_CHINA_Graph, "EU IC Exports China.png
 #Creating NSA Japanese Chipmaking Exports to Roll
 JAPAN_CHIPMAKING_EXPORTS <- rbind(JPN_TRADE_DATA_2016_2020,JPN_TRADE_DATA_2021_Plus) %>%
   subset(cat01_code == "70131000") %>%
+  filter(value > 0) %>%
   filter(str_detect(`Quantity-Value by Principal Commodity`, fixed("Value", ignore_case = TRUE))) %>%
   subset(`Quantity-Value by Principal Commodity` != "Value-Year") %>%
   mutate(`Quantity-Value by Principal Commodity` = gsub("Value-","",`Quantity-Value by Principal Commodity`)) %>%
   mutate(date = as.Date(paste0(`Quantity-Value by Principal Commodity`,"-01-",Year),format = "%B-%d-%Y")) %>%
   group_by(date) %>%
   summarise(JP = sum(value, na.rm = TRUE)) %>%
-  left_join(.,YEN_EXCHANGE_RATE) %>%
+  right_join(.,YEN_EXCHANGE_RATE) %>%
   mutate(RollJP = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,rollsum(JP,12))) %>%
   drop_na()
   
@@ -1346,13 +1347,13 @@ US_IND_PRO_CAP_ADJUSTED_GRAPH <- ggplot() + #plotting US Semiconductor Indpro
   geom_line(data=US_IND_PRO, aes(x=date,y= value/value[25]*100,color= "Industrial Production, Semiconductors and Other Electronic Components (NAICS = 3344)"), size = 1.25) +
   geom_line(data=US_IND_CAP, aes(x=date,y= value/US_IND_PRO$value[25]*100,color= "Industrial Capacity, Semiconductors and Other Electronic Components (NAICS = 3344)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,175), breaks = c(75,100,125,150,175), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,200), breaks = c(75,100,125,150,175,200), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("US Semiconductor Production & Capacity") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "US Semiconductor Production and Capacity are at Record Highs") +
   theme_apricitas + theme(legend.position = c(.52,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 75-(.3*100), ymax = 75) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 75-(.3*125), ymax = 75) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_IND_PRO_CAP_ADJUSTED_GRAPH, "IND PRO CAP ADJUSTED Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

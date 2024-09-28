@@ -119,7 +119,7 @@ QSPC_Supply_Graph <- ggplot() + #plotting BIE
   ylab("% of Plants Citing This Reason") +
   ggtitle("Healing Supply Chains") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Manufacturers Are Now Citing Materials/Labor Shortages and Logistics Constraints Less") +
-  theme_apricitas + theme(legend.position = c(.40,.75)) +
+  theme_apricitas + theme(legend.position = c(.35,.75)) +
   scale_color_manual(name= "US Manufacturers, Reasons for Not Running at Full Capacity",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(.1861*(today()-as.Date("2013-04-01")))), ymin = 0-(.3*.50), ymax = 0) +
   coord_cartesian(clip = "off")
