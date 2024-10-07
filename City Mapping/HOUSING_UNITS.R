@@ -12,8 +12,12 @@ SEA <- geo.make(state = "WA",place = "Seattle")
 DEN <- geo.make(state = "CO",place = "Denver")
 ATX <- geo.make(state = "TX",place = "Austin")
 CHA <- geo.make(state = "NC",place = "Charlotte")
+MIA <- geo.make(state = "FL",place = "Miami city")
 
-CITIES <- ATX + SFO + DCA + SEA + DEN + CHA
+CITIES <- ATX + SFO + DCA + SEA + DEN + CHA + MIA
+
+CITIES <- SFO + MIA
+
 
 CITY_HOUSING_df_TOTAL <- NULL
 
@@ -46,6 +50,7 @@ CITY_HOUSING_df_TOTAL <- CITY_HOUSING_df_TOTAL %>%
     NAME == "Seattle city, Washington" ~ "Seattle, WA",
     NAME == "Denver city, Colorado" ~ "Denver, CO",
     NAME == "Charlotte city, North Carolina" ~ "Charlotte, NC",
+    NAME == "Miami city, Florida" ~ "Miami, FL",
     TRUE ~ NAME
   ))
 
@@ -59,12 +64,13 @@ CITY_HOUSING_GRAPH <- ggplot() + #plotting EU NET EV Exports
   annotate("text", label = "No\nPandemic\nData", x = as.Date("2019-10-01"), hjust = 1, y = 525, color = "white", size = 4, alpha = 0.75, lineheight = 0.8) +
   annotate("text", label = "Data Revised\nPost 2020\nCensus Results", x = as.Date("2020-04-01"), y = 525, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k"),limits = c(250,550), expand = c(0,0)) +
+  #scale_y_continuous(labels = scales::number_format(suffix = "k"),limits = c(250,550), expand = c(0,0)) +
   ylab("Housing Units") +
   ggtitle("Housing Units by City") +
   labs(caption = "Graph created by @JosephPolitano using Census Bureau ACS Data.",subtitle = "San Francisco Has Seen Little Housing Growth Over the Last Decade") +
   theme_apricitas + theme(legend.position = c(.15,.81), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC")) +
+  #scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC","Miami, FL")) +
+  scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Miami, FL","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC","Miami, FL")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 250-(.3*300), ymax = 250) +
   coord_cartesian(clip = "off")
 
@@ -86,7 +92,8 @@ LARGE_APARTMENTS_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ggtitle("Units in Large Apartments (50+ Units)") +
   labs(caption = "Graph created by @JosephPolitano using Census Bureau ACS Data.",subtitle = "San Francisco Has Seen Little Housing Growth Over the Last Decade") +
   theme_apricitas + theme(legend.position = c(.15,.81), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC")) +
+  #scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC")) +
+  scale_color_manual(name= "Total Housing Units",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Austin, TX","San Francisco, CA","Miami, FL","Charlotte, NC","Seattle, WA", "Denver, CO", "Washington, DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2012-01-01")-(.1861*(today()-as.Date("2012-01-01"))), xmax = as.Date("2012-01-01")-(0.049*(today()-as.Date("2012-01-01"))), ymin = 0-(.3*150), ymax = 0) +
   coord_cartesian(clip = "off")
 

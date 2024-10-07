@@ -71,14 +71,14 @@ EMPLOY_GROWTH_IND_ITA_graph <- ggplot(data = EMPLOYMENT_INDEXED_NACE_2_ITALY, ae
   geom_line(data = EMPLOYMENT_INDEXED_NACE_2_ITALY_LINE, aes(x=date, y = value/1000, color = "null"), size = 1.25, show.legend = FALSE) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Millions of Jobs") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), expand = c(0,0), limits = c(-1.500,round(max(EMPLOYMENT_INDEXED_NACE_2_ITALY_LINE_MAX$value / 1000), 1))) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), expand = c(0,0), limits = c(-1.500,round(max(EMPLOYMENT_INDEXED_NACE_2_ITALY_LINE_MAX$value / 1000), 1))+.1) +
   ggtitle("The Shape of Italian Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data", subtitle = "White Collar Industries, Construction, and Manufacturing are Driving Italian Job Growth") +
   theme_apricitas + theme(legend.position = c(.485,.145), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Professional & Business Services, Information, Communication, Finance, & Real Estate","Construction","Industry ex Construction","Public Administration, Defense, Education, Health, and Social Work","Agriculture, Forestry, and Fishing","Wholesale/Retail Trade, Transport, Food Service, Accomodations, Arts, Recreation, etc.")) +
   scale_color_manual(name= NULL,values = c("#970C10")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-10-01")-(.1861*(today()-as.Date("2019-10-01"))), xmax = as.Date("2019-10-01")-(0.049*(today()-as.Date("2019-10-01"))), ymin = -1.500-(.3*(round(max(EMPLOYMENT_INDEXED_NACE_2_ITALY_LINE_MAX$value / 1000), 1)+1.5)), ymax = -1.500) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-10-01")-(.1861*(today()-as.Date("2019-10-01"))), xmax = as.Date("2019-10-01")-(0.049*(today()-as.Date("2019-10-01"))), ymin = -1.500-(.3*(round(max(EMPLOYMENT_INDEXED_NACE_2_ITALY_LINE_MAX$value / 1000), 1)+1.6)), ymax = -1.500) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EMPLOY_GROWTH_IND_ITA_graph, "Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

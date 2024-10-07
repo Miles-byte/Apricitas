@@ -137,7 +137,7 @@ IMPGOODS_ALLIES_CHINA_ALL_SPECS <- list(
   'datasetname' = 'ITA',
   'Indicator' = 'ImpGds',
   'Frequency' = 'A',
-  'AreaOrCountry' = "AllCountries,China,Russia,Canada,Mexico,Japan,Australia,NewZealand,SouthKorea,EU,Israel,Brazil,UnitedKingdom,Taiwan,EU,Norway,Iceland,Turkey,Albania,Argentina,Colombia,Morocco,Jordan,Philippines,Thailand,India,HongKong",
+  'AreaOrCountry' = "AllCountries,China,Russia,Canada,Mexico,Japan,Australia,NewZealand,SouthKorea,EU,Israel,Brazil,UnitedKingdom,Taiwan,Norway,Iceland,Turkey,Albania,Argentina,Colombia,Morocco,Jordan,Philippines,Thailand,India,HongKong",
   'Year' = paste(seq(from = 2000, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
@@ -218,6 +218,8 @@ IMPGOODS_CHINA_ALL_BAR_Graph <- ggplot(data = IMPGOODS_CHINA_ALL_BAR, aes(x = Ar
 
 ggsave(dpi = "retina",plot = IMPGOODS_CHINA_ALL_BAR_Graph, "Impgoods China All Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+write.csv(IMPGOODS_CHINA_ALL_BAR %>% select(-date,AreaOrCountry_GROUP),"US_GOODS_IMPORTS_BY_SOURCE_COUNTRY.csv")
+
 #DO US AVERAGE WEIGHTED TARIFF AND AVERAGE WEIGHTED TARIFF ON US EXPORTS
 
 IMPGOODS_ALL_1960_SPECS <- list(
@@ -275,6 +277,11 @@ WEIGHTED_TARIFFS_Graph <- ggplot() + #plotting Wage Growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = WEIGHTED_TARIFFS_Graph, "Weighted Tariffs Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+WEIGHTED_TARIFFS <- merge(CUSTOM_DUTIES,IMPGOODS_ALL_1960, by = "date") %>%
+  mutate(weighted_tariffs = Tariffs/imports)
+
+write.csv(WEIGHTED_TARIFFS, "US_AVERAGE_EFFECTIVE_TARIFF_RATE.csv")
 
 TARIFF_RATE_BY_COUNTRY_BULK <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Universal%20Tariffs/TARIFF_RATE_BY_COUNTRY.csv") %>%
   pivot_longer(-`Country.Name`:-`Country.Code`) %>%
@@ -483,6 +490,7 @@ BREAKING_DOWN_US_TARIFFS_GRAPH <- ggplot() + #plotting integrated circuits expor
 
 ggsave(dpi = "retina",plot = BREAKING_DOWN_US_TARIFFS_GRAPH, "Breaking Down US Tariffs Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+write.csv(Imp_Goods_Category_All %>% select(-ImpGds) %>% setNames(c("date","Foods, Feeds, & Beverages","Industrial Supplies & Materials incl. Oil & Energy","Capital Goods Ex Auto","Motor Vehicles, Parts, & Engines","Consumer Goods Ex Food & Auto")),"BREAKING_DOWN_US_IMPORTS.csv")
 
 ImpGds_CATEGORY <- beaGet(ImpGds_CATEGORY_SPECS, iTableStyle = FALSE, asWide = FALSE) %>%
   mutate(date = as.Date(paste0(TimePeriod,"-01-01"))) %>%

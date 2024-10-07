@@ -45,7 +45,7 @@ RAIL_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Rail" & modes != "CR") %>%
   mutate(agency = gsub("San Diego Trolley, Inc.","San Diego Metropolitan Transit System", agency)) %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -165,7 +165,7 @@ FIRST_SEVEN_RIDERSHIP_RECOVERY_graph <- ggplot() + #plotting regular vs non-regu
   ylab("Percent of 2019 Ridership") +
   ggtitle("Ridership Recovery, US 7 Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 1st-5th Systems Selected Based on 2019 Ridership Rankings",subtitle = "NYC's Subway Has Led the Post-COVID Ridership Recovery") +
-  theme_apricitas + theme(legend.position = c(.45,.475), plot.title = element_text(size = 21)) +
+  theme_apricitas + theme(legend.position = c(.45,.425), plot.title = element_text(size = 21)) +
   scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -309,8 +309,8 @@ SOUND_TRANSIT_graph <- ggplot() +
   annotate("text", label = "Northgate\n1-Line\nExtension", x = as.Date("2021-08-01"), y = 31, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-04-01"), xintercept = as.Date("2024-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 31, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "1 & 2\nLines\nConnected", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
@@ -495,7 +495,7 @@ ggsave(dpi = "retina",plot = CALIFORNIA_TRANSIT_graph, "California Transit Rider
 COMMUTER_RAIL_BULK <- NTD_BULK %>%
   filter(modes == "CR") %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -579,7 +579,7 @@ ggsave(dpi = "retina",plot = CALTRAIN_RIDERSHIP, "Caltrain Ridership.png", type 
 BUS_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Bus") %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -619,7 +619,7 @@ LARGE_AGENCIES <- ggplot() +
 BRT_BULK <- NTD_BULK %>%
   filter(modes_simplified == "Bus" & modes == "RB") %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -672,14 +672,14 @@ INDYGO_BUS_graph <- ggplot() +
 
 
 
-ggsave(dpi = "retina",plot = METRO_TRANSIT_graph, "METRO Transit Minneapolis Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = INDYGO_BUS_graph, "INDYGO BRT Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 
 AGENCY_BULK <- NTD_BULK %>%
   #filter(modes_simplified == "Rail" & modes != "CR") %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -866,7 +866,7 @@ ggsave(dpi = "retina",plot = REGION_Ridership, "Region Ridership.png", type = "c
 AGENCY_EX_CR_BULK <- NTD_BULK %>%
   filter(modes != "CR") %>%
   group_by(agency,month) %>%
-  drop_na() %>%
+  #drop_na() %>%
   summarize(value = sum(value, na.rm = TRUE)) %>%
   mutate(year_roll = rollsum(value, 12, fill = NA, align = "right")) %>%
   mutate(six_month_roll = rollsum(value, 6, fill = NA, align = "right")) %>%
@@ -920,13 +920,14 @@ RAIL_RECOVERY_TOP_10_graph <- ggplot(data = RAIL_RECOVERY_TOP_10, aes(x = agency
   xlab(NULL) +
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
-  ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Urban Rail Networks", sep = "")) +
+  ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Urban Rail Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: Includes Heavy & Light Rail But Not Commuter Rail. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = RAIL_RECOVERY_TOP_10_graph, "Rail Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+?month.abb
 
 AGENCY_RECOVERY <- AGENCY_BULK %>%
   mutate(agency = gsub("MTA Bus Company","MTA New York City Transit", agency)) %>% #Adding outerborough buses to MTA ridership data
@@ -976,7 +977,7 @@ AGENCY_RECOVERY_TOP_10_graph <- ggplot(data = AGENCY_RECOVERY_TOP_10, aes(x = ag
   xlab(NULL) +
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
-  ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Transit Agencies", sep = "")) +
+  ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Transit Agencies", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: MTA Does Not Include LIRR or Metro-North. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
@@ -1031,7 +1032,7 @@ BUS_RECOVERY_TOP_10_graph <- ggplot(data = BUS_RECOVERY_TOP_10, aes(x = agency, 
   xlab(NULL) +
   ylab("% of 2019 Ridership") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
-  ggtitle(paste("Ridership Recovery, Jan-", month.name[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Bus Networks", sep = "")) +
+  ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Bus Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
   theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()

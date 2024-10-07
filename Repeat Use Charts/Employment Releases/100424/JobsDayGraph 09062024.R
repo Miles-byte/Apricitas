@@ -1273,10 +1273,10 @@ TECH_EMPLOY_GROWTH_YOYSUM <- TECH_EMPLOY_GROWTH_YOY %>%
   summarise(sum_value = sum(value, na.rm = TRUE)) %>%
   mutate(series_id = "Sum YoY Growth")
 
-TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, date >= as.Date("2018-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, date >= as.Date("2017-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
-  geom_line(data = filter(TECH_EMPLOY_GROWTH_YOYSUM, date>= as.Date("2018-01-01")), aes(x=date, y = sum_value, color = "Total Tech Employment Growth"), size = 2) +
+  geom_line(data = filter(TECH_EMPLOY_GROWTH_YOYSUM, date>= as.Date("2017-01-01")), aes(x=date, y = sum_value, color = "Total Tech Employment Growth"), size = 2) +
   xlab("Date") +
   ylab("Year-on-Year Change, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400,600), limits = c(-50,400), expand = c(0,0)) +
@@ -1286,7 +1286,7 @@ TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, dat
   scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13), plot.title = element_text(size = 26)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -50-(.3*400), ymax = -50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -50-(.3*400), ymax = -50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TECH_EMPLOY_GROWTH_YOY_graph, "Tech Employ Growth YOY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

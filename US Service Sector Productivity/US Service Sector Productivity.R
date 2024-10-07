@@ -18,7 +18,7 @@ MANUFACTURING_PRODUCTIVITY <- bls_api("PRS30006093", startyear = 1987, endyear =
   arrange(date) %>%
   filter(date >= as.Date("2004-01-01"))
 
-NONFARM_PRODUCTIVITY <- bls_api("PRS85006093", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
+OVERALL_PRODUCTIVITY <- bls_api("PRS85006093", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
   rbind(bls_api("PRS85006093", startyear = 2007, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
   mutate(
   period = as.integer(sub("Q", "", period)),
@@ -30,7 +30,7 @@ NONFARM_PRODUCTIVITY <- bls_api("PRS85006093", startyear = 1987, endyear = forma
 
 US_OVERALL_MANUFACTURING_LABOR_PRODUCTIVITY <- ggplot() +
   geom_line(data=filter(MANUFACTURING_PRODUCTIVITY, date>= as.Date("2005-01-01")), aes(x=date,y= value/value[1]*100,color= "Manufacturing Sector Labor Productivity"), size = 1.25) +
-  geom_line(data=filter(NONFARM_PRODUCTIVITY, date>= as.Date("2005-01-01")), aes(x=date,y= value/value[1]*100,color= "Overall US Labor Productivity"), size = 1.25) + 
+  geom_line(data=filter(OVERALL_PRODUCTIVITY, date>= as.Date("2005-01-01")), aes(x=date,y= value/value[1]*100,color= "Overall US Labor Productivity"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,135), breaks = c(95,100,105,110,115,120,125,130,135), expand = c(0,0)) +
   ylab("Index Q1 2005 = 100") +
@@ -44,11 +44,11 @@ US_OVERALL_MANUFACTURING_LABOR_PRODUCTIVITY <- ggplot() +
 ggsave(dpi = "retina",plot = US_OVERALL_MANUFACTURING_LABOR_PRODUCTIVITY, "US Overall vs Manufacturing Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 US_OVERALL_LABOR_PRODUCTIVITY <- ggplot() + 
-  geom_line(data=filter(NONFARM_PRODUCTIVITY, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "Overall US Labor Productivity\n(Real Output Per Hour Worked)"), size = 1.25) + 
-  annotate(geom = "segment", x = as.Date("2015-01-01"), xend = as.Date("2019-10-01"), y = 100, yend = NONFARM_PRODUCTIVITY$value[64]/NONFARM_PRODUCTIVITY$value[45]*100, color = "#00A99D",linetype = "dashed", size = 1) +
-  annotate("text", label = paste0("Q1 2015-Q4 2019:\n+",round(((NONFARM_PRODUCTIVITY$value[64]/NONFARM_PRODUCTIVITY$value[45])^(4 /(64-45)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
-  annotate(geom = "segment", x = as.Date("2019-10-01"), xend = max(NONFARM_PRODUCTIVITY$date), y = NONFARM_PRODUCTIVITY$value[64]/NONFARM_PRODUCTIVITY$value[45]*100, yend = NONFARM_PRODUCTIVITY$value[nrow(NONFARM_PRODUCTIVITY)]/NONFARM_PRODUCTIVITY$value[45]*100, color = "#EE6055",linetype = "dashed", size = 1) +
-  annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(NONFARM_PRODUCTIVITY$date))), " ", lubridate::year(max(as.Date(NONFARM_PRODUCTIVITY$date)))),"\n+",round(((NONFARM_PRODUCTIVITY$value[nrow(NONFARM_PRODUCTIVITY)]/NONFARM_PRODUCTIVITY$value[64])^(4 /(nrow(NONFARM_PRODUCTIVITY)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-02-01"), y = 116, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  geom_line(data=filter(OVERALL_PRODUCTIVITY, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "Overall US Labor Productivity\n(Real Output Per Hour Worked)"), size = 1.25) + 
+  annotate(geom = "segment", x = as.Date("2015-01-01"), xend = as.Date("2019-10-01"), y = 100, yend = OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45]*100, color = "#00A99D",linetype = "dashed", size = 1) +
+  annotate("text", label = paste0("Q1 2015-Q4 2019:\n+",round(((OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45])^(4 /(64-45)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  annotate(geom = "segment", x = as.Date("2019-10-01"), xend = max(OVERALL_PRODUCTIVITY$date), y = OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45]*100, yend = OVERALL_PRODUCTIVITY$value[nrow(OVERALL_PRODUCTIVITY)]/OVERALL_PRODUCTIVITY$value[45]*100, color = "#EE6055",linetype = "dashed", size = 1) +
+  annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(OVERALL_PRODUCTIVITY$date))), " ", lubridate::year(max(as.Date(OVERALL_PRODUCTIVITY$date)))),"\n+",round(((OVERALL_PRODUCTIVITY$value[nrow(OVERALL_PRODUCTIVITY)]/OVERALL_PRODUCTIVITY$value[64])^(4 /(nrow(OVERALL_PRODUCTIVITY)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-02-01"), y = 116, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
   annotate("text", label = "Productivity Spikes\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-12-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   annotate("text", label = "Productivity Stalls/Falls\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2020-12-01"), hjust = 0.5, y = 116, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
@@ -63,6 +63,36 @@ US_OVERALL_LABOR_PRODUCTIVITY <- ggplot() +
 
 ggsave(dpi = "retina",plot = US_OVERALL_LABOR_PRODUCTIVITY, "US Overall Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+NONFARM_PRODUCTIVITY <- fredr("OPHNFB", observation_start = as.Date("2015-01-01"))
+AVERAGE_COMPENSATION_NOMINAL <- fredr("COMPNFB", observation_start = as.Date("2015-01-01"))
+MEDIAN_WAGE_NOMINAL <- fredr("LES1252881500Q", observation_start = as.Date("2015-01-01"))
+
+PCEPI <- fredr("PCEPI", observation_start = as.Date("2015-01-01"))
+
+AVERAGE_COMPENSATION_REAL <- merge(AVERAGE_COMPENSATION_NOMINAL,PCEPI, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+MEDIAN_WAGE_REAL <- merge(MEDIAN_COMPENSATION_NOMINAL,PCEPI, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+US_PRODUCTIVITY_WAGES <- ggplot() + 
+  geom_line(data=filter(OVERALL_PRODUCTIVITY, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Labor Productivity"), size = 1.25) + 
+  geom_line(data=filter(AVERAGE_COMPENSATION_REAL, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Real Average Compensation"), size = 1.25) + 
+  geom_line(data=filter(MEDIAN_WAGE_REAL, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Real Median Wage"), size = 1.25) + 
+  annotate("text", label = "Productivity & Wages Spike\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-10-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  annotate("text", label = "Productivity & Wages Stall/Fall\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2021-06-01"), hjust = 0.5, y = 118, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,120), breaks = c(95,100,105,110,115), expand = c(0,0)) +
+  ylab("Index Q1 2015 = 100") +
+  ggtitle("US Labor Productivity and Wages ") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data\nWages Deflated by PCEPI. Compensation and Productivity Hourly for Nonfarm Business. Median Wage Weekly",subtitle = "Increased Productivity Has Translated into Rising Wages & Compensation for American Workers") +
+  theme_apricitas + theme(legend.position = c(.23,.915)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 97.5-(.3*20), ymax = 97.5) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_PRODUCTIVITY_WAGES, "US Productivity Wages.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+  
 #TWO DIGIT LABOR PRODUCTIVITY
 
 LAB_PROD_WHOLESALE_TRADE <- bls_api("IPUGN42____L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -117,7 +147,6 @@ DETAILED_INDUSTRIES_TFP_2_DIGIT_GRAPH <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = DETAILED_INDUSTRIES_TFP_2_DIGIT_GRAPH, "Detailed Industries 2-Digit Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-
 
 #Detailed Industry Subcategory Here:
 #https://www.bls.gov/productivity/tables/

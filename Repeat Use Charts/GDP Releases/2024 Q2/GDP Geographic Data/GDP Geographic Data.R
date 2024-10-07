@@ -101,14 +101,15 @@ BEA_GDP_STATE_BINS_RAW <- states %>%
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"),
                     na.value = "grey50", 
                     guide = "legend", 
-                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+")) +
+                    labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+"),
+                    drop = FALSE) +
   ggtitle("             Real GDP Growth Since Q3 2019") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
   geom_label_repel(
     data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("NH","VT","MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0 & GROWTH <= .1, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     segment.color = NA,
@@ -427,13 +428,14 @@ states_centroids_PCE_PC <- states_PCE_PC %>%
 BEA_PCE_PC_STATE_BINS_RAW <- states_PCE_PC %>%
   ggplot(aes(fill = GROWTH_bucket)) +
   geom_sf(color = NA) +
-  geom_sf(data = states, color = "grey25", aes(fill = GROWTH_bucket), lwd = 0.65, alpha = 0) + # Black borders for states
+  geom_sf(data = states_PCE_PC, color = "grey25", aes(fill = GROWTH_bucket), lwd = 0.65, alpha = 0) + # Black borders for states
   scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"),
                     na.value = "grey50",
                     breaks = c("<0","0-0.04","0.04-0.08","0.08-0.12","0.12-0.16","0.16+"),
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"))),
+                    drop = FALSE) +
   ggtitle("         Real PCE Per Capita Growth 2019-2022\n                    At State Price Parities") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -612,7 +614,8 @@ BEA_RPP_STATE_BINS_RAW <- states_RPP %>%
                     na.value = "grey50", 
                     #guide = "legend", 
                     labels = c("<-1.5%", "-1.5-0%", "0-1.5%", "1.5%+"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#FF8E72","#F5B041","#FFE98F")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#FF8E72","#F5B041","#FFE98F"))),
+                    drop = FALSE) +
   ggtitle("       Change in State Price Parities 2019-2022\n                  Relative to National Average") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -1556,7 +1559,7 @@ BEA_GDP_MSA_BINS <- MSA_map_US %>%
                     na.value = "grey50", 
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("              Real GDP Growth, 2019-2022\n            50 Largest Metro Areas by GDP") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -1672,7 +1675,7 @@ BEA_RPI_MSA_BINS <- RPI_MSA_map_US %>%
                     na.value = "grey50", 
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("Real Per-Capita Personal Income Growth, 2019-2022\n              At Metro Area Price Parities \n           50 Largest Metro Areas by GDP") +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -1717,7 +1720,7 @@ BEA_GDP_MSA_TX_BINS <- MSA_map_TX %>%
                       na.value = "grey50", 
                       #guide = "legend", 
                       labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                      guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                      guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
     ggtitle("   Real GDP Growth, 2019-2022\n         Texas Metro Areas") +
     theme(plot.title = element_text(size = 24)) +
     labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -1816,7 +1819,7 @@ BEA_GDP_MSA_CA_BINS <- MSA_map_CA %>%
                     na.value = "grey50",
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("           Real GDP Growth, 2019-2022\n                California Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
@@ -1942,7 +1945,7 @@ BEA_GDP_MSA_FL_BINS <- MSA_map_FL %>%
                     #guide = "legend",
                     breaks = c("<0","0-0.04","0.04-0.08","0.08-0.12","0.12-0.16","0.16+"), 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("       Real GDP Growth, 2019-2022\n             Florida Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
@@ -2042,7 +2045,7 @@ BEA_GDP_MSA_NE_BINS <- MSA_map_NE %>%
                     na.value = "grey50",
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("          Real GDP Growth, 2019-2022\n   Northeast and Mid-Atlantic Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
@@ -2218,7 +2221,7 @@ BEA_GDP_MSA_RM_BINS <- MSA_map_RM %>%
                     na.value = "grey50",
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("          Real GDP Growth, 2019-2022\n          Rocky Mountain Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
@@ -2343,7 +2346,7 @@ BEA_GDP_MSA_MW_BINS <- MSA_map_MW %>%
                     na.value = "grey50",
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("            Real GDP Growth, 2019-2022\n                   Midwest Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
@@ -2521,7 +2524,7 @@ BEA_GDP_MSA_SO_BINS <- MSA_map_SO %>%
                     na.value = "grey50",
                     #guide = "legend", 
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16+%"),
-                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")))) +
+                    guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"))), drop = FALSE) +
   ggtitle("       Real GDP Growth, 2019-2022\n            South Metro Areas") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data. Real Growth Figures Calculated Using 2017 US Dollars") +
