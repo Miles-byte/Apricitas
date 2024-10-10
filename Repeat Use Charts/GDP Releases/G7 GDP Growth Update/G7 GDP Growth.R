@@ -1,4 +1,4 @@
-pacman::p_load(readabs,jsonlite,eurostat,statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(purrr,readabs,jsonlite,eurostat,statcanR,cansim,rsdmx,keyring,wiesbaden,insee,ggpubr,sf,onsr,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -48,6 +48,9 @@ GER <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.DE.
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
+
+ITA <- fredr("CLVMNACSCAB1GQIT", observation_start = as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
 
 ITA_BULK <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD"))
 
@@ -136,7 +139,8 @@ ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", 
 #PER CAPITA
 
 US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date("2018-01-01")) %>%
-  mutate(value = value/value[7]*100)
+  mutate(value = value/value[7]*100) %>%
+  select(date,value)
 
 #change to pn2 for first estimates
 UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
@@ -231,3 +235,6 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
 
 ggsave(dpi = "retina",plot = RGDP_G7_Per_Capita_Graph, "G7 Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
   
+combined_df <- reduce(list(ITA_PER_CAPITA, GER_PER_CAPITA, FRA_PER_CAPITA,JPN_PER_CAPITA,US_PER_CAPITA,UK_PER_CAPITA,CAN_PER_CAPITA), full_join, by = "date") %>% rename_with(~c("date", "ITA", "GER", "FRA", "JPN","US","UK","CAN"))
+
+write.csv(combined_df,"GDP_PER_CAPITA_G7.csv")
