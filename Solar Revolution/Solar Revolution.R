@@ -202,7 +202,7 @@ US_NET_EV_EXPORTS <- merge(US_EV_EXPORTS %>% select(`Total For All Countries`,`E
 US_NET_EV_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`Net Exports`*12)/1000000000,color= "US Net Exports of Electric Vehicles, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollnetexports`)/1000000000,color= "US Net Exports of Electric Vehicles, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
@@ -222,7 +222,7 @@ ggsave(dpi = "retina",plot = US_NET_EV_IMPORTS_GRAPH, "US EV Imports Graph.png",
 US_EV_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   annotate(geom = "vline",x = as.Date("2022-12-29"), xintercept = as.Date("2022-12-29"), size = 0.75,color = "white", linetype = "dashed") +
   annotate(geom = "text", label = "EV Leasing\nCredit\nAnnounced",x = as.Date("2023-06-15"), y = 11, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_EV_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=`China.y`*12/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -324,7 +324,7 @@ US_NET_BATTERY_EXPORTS <- merge(US_BATTERY_EXPORTS %>% select(`Total For All Cou
 US_NET_BATTERY_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 8.45, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`Net Exports`*12)/1000000000,color= "US Net Imports of Rechargeable Batteries, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`rollnetexports`)/1000000000,color= "US Net Imports of Rechargeable Batteries, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
@@ -343,7 +343,7 @@ ggsave(dpi = "retina",plot = US_NET_BATTERY_IMPORTS_GRAPH, "US Battery Imports G
 US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 15, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 15, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`European Union`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`Mexico`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-`South Korea`*12/1000000000,color= "South Korea"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -403,7 +403,7 @@ US_EV_BATTERY_IMPORTS_BREAKDOWN <- US_EV_BATTERY_IMPORTS %>%
 US_EV_BATTERY_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 3, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 3, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`European Union`*12/1000000000,color= "EU"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Mexico`*12/1000000000,color= "Mexico"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_EV_BATTERY_IMPORTS_BREAKDOWN, date >= as.Date("2017-12-01")), aes(x=date,y=`Korea, South`*12/1000000000,color= "South Korea"), size = 0.75, alpha = 0.5, linetype = "dashed") +
@@ -1420,7 +1420,7 @@ REAL_US_BATTERY_MANU <- merge(NOMINAL_BATTERY_MANU,PPI_BATTERY_MANU, by = "date"
 
 REAL_US_BATTERY_MANU_graph <- ggplot() + #plotting real battery shipments
   annotate(geom = "vline",x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), size = 0.75,color = "white", linetype = "dashed") +
-  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-05-01"), y = 125, size = 4,color = "white", lineheight = 0.8) +
+  annotate(geom = "text", label = "IRA\nPassage",x = as.Date("2022-04-01"), y = 125, size = 4,color = "white", lineheight = 0.8) +
   geom_line(data=REAL_US_BATTERY_MANU, aes(x=date,y= value,color="Real Shipments: US Battery Manufacturing"), size = 1.25) +
   annotate(geom = "text", label = "Note: Real Shipments Derived by Deflating Nominal Shipments by PPI: Battery Manufacturing",x = as.Date("2020-03-01"), y = 65, size = 3,color = "white", lineheight = 0.8, alpha = 0.5) +
   xlab("Date") +

@@ -606,6 +606,8 @@ CEX_GOOD_SHARE_OF_INCOME_Graph <- ggplot(data = CEX_DATA, aes(x = name, y = valu
 
 ggsave(dpi = "retina",plot = CEX_GOOD_SHARE_OF_INCOME_Graph, "CEX Good Share of Income Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+write.csv(CEX_DATA, "QUINTILES_DETAILED_DATA.csv")
+
 #From here:
 #https://wits.worldbank.org/CountryProfile/en/Country/WLD/StartYear/1988/EndYear/2021/TradeFlow/Import/Partner/USA/Indicator/AHS-WGHTD-AVRG
 

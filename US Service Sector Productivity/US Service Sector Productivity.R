@@ -325,7 +325,8 @@ DETAILED_OUTPUT_PER_HOUR <- DETAILED_PRODUCTIVITY_BULK %>%
   pivot_wider(names_from = Measure, values_from = Value) %>%
   mutate(`Nominal output per hour worked` = `Sectoral output`/`Hours worked`, `Real output per hour worked` = `Nominal output per hour worked`/`Sectoral output price deflator`*100)
 
-
+#Compare to nominal compensation
+#compare to wage levels
 
 cat("\014")  # ctrl+L
 
