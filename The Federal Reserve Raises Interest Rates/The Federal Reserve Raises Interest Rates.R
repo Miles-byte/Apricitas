@@ -448,6 +448,27 @@ TenYR_Graph <- ggplot() + #plotting durables v services inflation
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1980-01-01")-(.1861*15411), xmax = as.Date("1980-01-01")-(0.049*15411), ymin = -0.015-(.3*.215), ymax = -0.015) +
   coord_cartesian(clip = "off")
 
+EFFR <- fredr(series_id = "EFFR",observation_start = as.Date("2019-01-01"), aggregation_method = "avg") %>%
+  drop_na()
+
+TenYR_EFFR_Graph <- ggplot() + #plotting durables v services inflation
+  geom_line(data=filter(TENYR, date >= as.Date("2019-01-01")), aes(x=date,y= value/100,color= "10-Year Treasury Yields"), size = 1.25) +
+  geom_line(data=filter(EFFR, date >= as.Date("2019-01-01")), aes(x=date,y= value/100,color= "Fed Funds Rate"), size = 1.25) +
+  #geom_line(data=filter(TENYRREAL, date >= as.Date("2019-01-01")), aes(x=date,y= value/100,color= "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Inflation-Indexed"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .5),limits = c(0,.06), breaks = c(0,0.02,0.04,0.06), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The State of Rates") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = "Short-term Rates Have Fallen as the Fed Cuts, But 10Yr Yields Haven't Fallen as Much") +
+  theme_apricitas + theme(legend.position = c(.50,.94)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E"), breaks = c("Fed Funds Rate","10-Year Treasury Yields")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.06), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TenYR_EFFR_Graph, "TenYR EFFR Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 Yield_Curve_Graph <- ggplot() + #plotting national financial conditions indexes
   geom_line(data=Yield_Curve, aes(x=Months/12,y= Dec/100,color= "December 1st 2021"), size = 1.25) +
   geom_point(data=Yield_Curve, aes(x=Months/12,y= Dec/100,color= "December 1st 2021"), size = 2) +

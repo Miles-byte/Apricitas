@@ -1174,7 +1174,7 @@ REAL_PCE_HOUSING_POPULATION_Graph <- ggplot() + #indexed employment rate
   xlab("Date") +
   scale_y_continuous(limits = c(95,max(round(REAL_PCE_HOUSING_POPULATION$Real_Housing_PCE_Per_Capita/10)*10)), expand = c(0,0)) +
   ylab("Index, Q1 1959 = 100") +
-  ggtitle("Real Per-Capita Housing Consumption Has Stagnated") +
+  ggtitle("Real Per-Capita Housing Consumption Had Stagnated") +
   labs(caption = "Graph created by @JosephPolitano using BEA data via @Kaerdmann",subtitle = "Real Consumption of Housing Per-Capita Has Barely Increased Since 2008") +
   theme_apricitas + theme(legend.position = c(.60,.20), plot.title = element_text(size = 22)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
