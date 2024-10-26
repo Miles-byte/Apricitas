@@ -1509,6 +1509,62 @@ EU_EV_NET_EXPORTS_GRAPH <- ggplot() + #plotting EU NET EV Exports
 ggsave(dpi = "retina",plot = EU_EV_NET_EXPORTS_CHINA_US_GRAPH, "EU EV NET Exports China US Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+EU_SOLAR_TRADE_CHINA_BULK_NEW_HS_CODES <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.*.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[partner]=CN,HK,MO&c[product]=854143,854142&c[flow]=1,2&compress=false"))
+
+EU_SOLAR_TRADE_CHINA_BULK_OLD_HS_CODES <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.EU27_2020_EXTRA.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[product]=854140&c[flow]=1,2&compress=false"))
+
+EU_SOLAR_TRADE_CHINA <- EU_SOLAR_TRADE_CHINA_BULK_OLD_HS_CODES %>%
+  transmute(name = flow, value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  group_by(name, date) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  rbind(., EU_SOLAR_TRADE_CHINA_BULK_NEW_HS_CODES %>%
+          transmute(name = flow, value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+          group_by(name, date) %>%
+          summarise(value = sum(as.numeric(value)))) %>%
+  group_by(name, date) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsum = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+EU_SOLAR_TRADE_BULK_NEW_HS_CODES <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.EU27_2020_EXTRA.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[product]=854143,854142&c[flow]=1,2&compress=false"))
+
+EU_SOLAR_TRADE_BULK_OLD_HS_CODES <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/3.0/data/dataflow/ESTAT/DS-045409/1.0/M.*.EU27_2020_EXTRA.*.*.VALUE_IN_EUROS?c[reporter]=EU27_2020&c[product]=854140&c[flow]=1,2&compress=false"))
+
+EU_SOLAR_TRADE <- EU_SOLAR_TRADE_BULK_OLD_HS_CODES %>%
+  transmute(name = flow, value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  group_by(name, date) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  rbind(., EU_SOLAR_TRADE_BULK_NEW_HS_CODES %>%
+          transmute(name = flow, value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+          group_by(name, date) %>%
+          summarise(value = sum(as.numeric(value)))) %>%
+  group_by(name, date) %>%
+  summarise(value = sum(as.numeric(value))) %>%
+  pivot_wider() %>%
+  mutate(NET_EXPORTS = `2`-`1`) %>%
+  arrange(date) %>%
+  mutate(rollsum = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(NET_EXPORTS,12)))
+
+EU_NET_SOLAR_IMPORTS_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(EU_SOLAR_TRADE, date >= as.Date("2017-12-01")), aes(x=date,y=-(NET_EXPORTS*12)/1000000000,color= "Total"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_SOLAR_TRADE, date >= as.Date("2017-12-01")), aes(x=date,y=-(`rollsum`)/1000000000,color= "Total"), size = 1.25) +
+  geom_line(data= filter(EU_SOLAR_TRADE_CHINA, date >= as.Date("2017-12-01")), aes(x=date,y=-(NET_EXPORTS*12)/1000000000,color= "China"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(EU_SOLAR_TRADE_CHINA, date >= as.Date("2017-12-01")), aes(x=date,y=-(`rollsum`)/1000000000,color= "China"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "€",accuracy = 1, suffix = "B"),limits = c(0, 32), expand = c(0,0)) +
+  ylab("Billions of Euros") +
+  ggtitle("Europe's Net Solar Imports") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data. NOTE: China Includes HK & MO",subtitle = "The EU has a Yawning Deficit in the International Solar Trade, Especially With China") +
+  theme_apricitas + theme(legend.position = c(.35,.88)) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total","China")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(30)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EU_NET_SOLAR_IMPORTS_GRAPH, "EU NET Solar Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 NOMINAL_BATTERY_MANU <- fredr(series_id = "A35DVS", observation_start = as.Date("2018-01-01"))
@@ -1913,17 +1969,40 @@ TX_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   geom_line(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 1.25) +
   geom_point(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 3) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_SOLAR_SPLIT$value)/2000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5), expand = c(0,0)) +
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
   ylab("TWh, Monthly") +
   ggtitle("Texas Monthly Solar Generation") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("Texas Solar Generation is Growing Quickly, and is Up ", round(TX_SOLAR_SPLIT$yoypct[nrow(TX_SOLAR_SPLIT)], 2)*100, "% Compared to Last Year")) +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
-  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/2000000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TX_SOLAR_SPLIT_GRAPH, "TX Solar Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TX_WIND_SPLIT <- TX_WIND %>%
+  mutate(yoypct = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(year = year(date), month = month(date)) %>%
+  filter(year >= max(year)-5) %>%
+  mutate(year = as.character(year))
+
+TX_WIND_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= TX_WIND_SPLIT, aes(x=month,y=value/1000,color= year), size = 1.25) +
+  geom_point(data= TX_WIND_SPLIT, aes(x=month,y=value/1000,color= year), size = 3) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_WIND_SPLIT$value)/5000)*5), expand = c(0,0)) +
+  scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
+  ylab("TWh, Monthly") +
+  ggtitle("Texas Monthly Wind Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("Texas Wind Generation is Growing Quickly, and is Up ", round(TX_WIND_SPLIT$yoypct[nrow(TX_WIND_SPLIT)], 2)*100, "% Compared to Last Year")) +
+  theme_apricitas + theme(legend.position = c(.55,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_WIND_SPLIT$year), decreasing = TRUE)[1:6]) +
+  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_WIND_SPLIT$value)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_WIND_SPLIT_GRAPH, "TX WIND Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 CA_SOLAR <- eia1_series("ELEC.GEN.TSN.CA.99.M") %>%

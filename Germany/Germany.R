@@ -233,7 +233,7 @@ CAR_MANUFACTURING_graph <- ggplot() + #plotting car manufacturing
   annotate(geom = "hline", y = 100, yintercept = 100, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "2019 Average", x = as.Date("2021-07-01"), y = 105, color ="#FFE98F", size = 5) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,130), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,200), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("The German Industrial Crunch") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Car Manufacturing Has Still Not Recovered to Pre-Pandemic Levels") +
@@ -279,9 +279,9 @@ EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Thousands of Vehicles") +
-  ggtitle("The German EV Surge") +
+  ggtitle("The German EV Surge & Stagnation") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400), limits = c(0,400), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced is Rapidly Growing as the Industry Retools") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced Had Rapidly Grown But Has Now Been Stagnant for Years") +
   theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "German Quarterly Production, Thousands of Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -376,10 +376,10 @@ HEATPUMP_NUMBER_graph <- ggplot(data = HEATPUMP_NUMBER, aes(x = date, y = value/
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Thousands of Heat Pumps") +
-  ggtitle("The German Heat Pump Surge") +
+  ggtitle("The German Heat Pump Surge & Slump") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,50,100,150), limits = c(0,150), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Heat Pumps Produced is Rapidly Growing amidst the Energy Transition") +
-  theme_apricitas + theme(legend.position = c(.375,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German Heat Pumps Produced Rapidly Grew in 2022 But Has Since Shrunk") +
+  theme_apricitas + theme(legend.position = c(.375,.95)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -547,19 +547,19 @@ CONSTRUCTION_PROD <- get_eurostat("sts_copr_m", legacy_bulk_download = FALSE) %>
   subset(geo == "DE") %>%
   subset(TIME_PERIOD>= as.Date("2018-01-01")) %>%
   subset(nace_r2 == "F") %>%
-  subset(unit == "I15") %>%
+  subset(unit == "I21") %>%
   subset(s_adj == "SCA")
 MANU_PROD <- get_eurostat("sts_inpr_m", legacy_bulk_download = FALSE) %>%
   subset(geo == "DE") %>%
   subset(TIME_PERIOD >= as.Date("2018-01-01")) %>%
   subset(nace_r2 == "C") %>%
-  subset(unit == "I15") %>%
+  subset(unit == "I21") %>%
   subset(s_adj == "SCA")
 SERVICES_PROD <- get_eurostat("sts_sepr_m", legacy_bulk_download = FALSE) %>%
   subset(geo == "DE") %>%
   subset(TIME_PERIOD>= as.Date("2018-01-01")) %>%
   subset(nace_r2 == "H-N_X_K") %>%
-  subset(unit == "I15") %>%
+  subset(unit == "I21") %>%
   subset(s_adj == "SCA") %>%
   arrange(desc(row_number()))
   
@@ -1145,7 +1145,7 @@ WEAPON_ORDER_BACKLOG_MONTHS_graph <- ggplot() + #plotting energy intensive manuf
   ylab("Months of Order Backlogs") +
   ggtitle("German Weapon Backlogs are Growing") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Weapon Orders are Still Rising Faster Than Manufacturers Can Ramp Up Production") +
-  theme_apricitas + theme(legend.position = c(.52,.15)) +
+  theme_apricitas + theme(legend.position = c(.52,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-02-01")-(.1861*(today()-as.Date("2018-02-01"))), xmax = as.Date("2018-02-01")-(0.049*(today()-as.Date("2018-02-01"))), ymin = 0-(.3*(ceiling(max(ORDER_MILITARY_3_DIGIT$`WZ08-254`)/10)*10)), ymax = 0) +
   coord_cartesian(clip = "off")
