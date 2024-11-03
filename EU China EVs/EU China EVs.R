@@ -250,9 +250,9 @@ EU_VEHICLE_NET_EXPORTS_CHINA_US_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ylab("Billions of Euros") +
   ggtitle("EU Net Export of Motor Vehicles") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data  Note: China Includes HK and MO",subtitle = "EU Vehicle Exports are Increasingly Headed to the US, Not China") +
-  theme_apricitas + theme(legend.position = c(.4,.89)) +
+  theme_apricitas + theme(legend.position = c(.35,.89)) +
   theme(legend.key.width =  unit(.82, "cm")) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United States", "China"), guide = guide_legend(override.aes = list(linetype = c(1,1), lwd = c(1.25,1.25)))) +
+  scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United States", "China"), guide = guide_legend(override.aes = list(linetype = c(1,1), lwd = c(1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -2.5-(.3*(42.5)), ymax = -2.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -520,8 +520,8 @@ REAL_EU_BATTERY_MANU_graph <- ggplot() + #plotting real battery shipments
   xlab("Date") +
   scale_y_continuous(limits = c(60,350), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
-  ggtitle("EU's Battery Manufacturing") +
-  labs(caption = "Graph created by @JosephPolitano using Census and BLS Data",subtitle = "EU Battery Manufacturing Has Grown Significantly Over the Last 5 Years") +
+  ggtitle("EU Battery Manufacturing Output") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "EU Battery Manufacturing Has Grown Significantly Over the Last 5 Years") +
   theme_apricitas + theme(legend.position = c(.375,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 60-(.3*290), ymax = 60) +
@@ -529,6 +529,42 @@ REAL_EU_BATTERY_MANU_graph <- ggplot() + #plotting real battery shipments
 
 ggsave(dpi = "retina",plot = REAL_EU_BATTERY_MANU_graph, "Real EU Battery Manufacturing graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+EU_VEHICLE_AND_PARTS_MANUFACTURING <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/sts_inpr_m/1.0/M.PRD.C29.SCA.I21.EU27_2020?compress=false")) %>%
+  transmute(value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  filter(date >= as.Date("2014-01-01")) %>%
+  mutate(value = value/(mean(value[61:72]))*100)
+
+EU_VEHICLE_MANUFACTURING <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/sts_inpr_m/1.0/M.PRD.C291.SCA.I21.EU27_2020?compress=false")) %>%
+  transmute(value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  filter(date >= as.Date("2014-01-01")) %>%
+  mutate(value = value/(mean(value[61:72]))*100)
+
+EU_VEHICLE_BODY_MANUFACTURING <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/sts_inpr_m/1.0/M.PRD.C292.SCA.I21.EU27_2020?compress=false")) %>%
+  transmute(value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  filter(date >= as.Date("2014-01-01")) %>%
+  mutate(value = value/(mean(value[61:72]))*100)
+
+EU_VEHICLE_PARTS_MANUFACTURING <- as.data.frame(readSDMX("https://ec.europa.eu/eurostat/api/dissemination/sdmx/3.0/data/dataflow/ESTAT/sts_inpr_m/1.0/M.PRD.C293.SCA.I21.EU27_2020?compress=false")) %>%
+  transmute(value = as.numeric(OBS_VALUE), date = as.Date(paste0(TIME_PERIOD,"-01"))) %>%
+  filter(date >= as.Date("2014-01-01")) %>%
+  mutate(value = value/(mean(value[61:72]))*100)
+
+REAL_EU_VEHICLE_AND_PARTS_MANUFACTURING_graph <- ggplot() + #plotting real battery shipments
+  geom_line(data=EU_VEHICLE_MANUFACTURING, aes(x=date,y= value,color="Motor Vehicle Assembly"), size = 1.25) +
+  geom_line(data=EU_VEHICLE_BODY_MANUFACTURING, aes(x=date,y= value,color="Vehicle Bodies & Trailers"), size = 1.25) +
+  geom_line(data=EU_VEHICLE_PARTS_MANUFACTURING, aes(x=date,y= value,color="Vehicles Parts & Accessories"), size = 1.25) +
+  geom_line(data=EU_VEHICLE_AND_PARTS_MANUFACTURING, aes(x=date,y= value,color="Total Motor Vehicles, Parts, & Trailers"), size = 2.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(0,125), expand = c(0,0)) +
+  ylab("Index, 2019 Avg = 100") +
+  ggtitle("EU Motor Vehicle Output") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "EU Vehicle Manufacturing Output Remains Down From Pre-COVID Levels") +
+  theme_apricitas + theme(legend.position = c(.25,.30)) +
+  scale_color_manual(name= "Industrial Production, 2019 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Total Motor Vehicles, Parts, & Trailers","Motor Vehicle Assembly","Vehicle Bodies & Trailers","Vehicles Parts & Accessories"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25,1.25,1.25)))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*125), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_EU_VEHICLE_AND_PARTS_MANUFACTURING_graph, "Real EU Motor Vehicle Manufacturing graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 EU_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
@@ -609,8 +645,27 @@ EU_CHANGE_COMPETITIVE_POSITION_graph <- ggplot() + #plotting real battery shipme
 
 ggsave(dpi = "retina",plot = EU_CHANGE_COMPETITIVE_POSITION_graph, "EU Change Competitive Position graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+EU_BIZ_SURVEY_VEHICLES_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/EU%20China%20EVs/EU_BIZ_SURVEY_VEHICLES.csv") %>%
+  mutate(date = as.Date(date))
 
+EU_3M_EXPECTATIONS_graph <- ggplot() + #plotting real battery shipments
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=filter(EU_BIZ_SURVEY_VEHICLES_DATA, date >= as.Date("2014-01-01")), aes(x=date,y= PRODUCTION_EXPECTATIONS,color="Production Expectations"), size = 1.25) +
+  #geom_line(data=filter(EU_BIZ_SURVEY_VEHICLES_DATA, date >= as.Date("2014-01-01")), aes(x=date,y= CONFIDENCE,color="Business Confidence"), size = 1.25) +
+  geom_line(data=filter(EU_BIZ_SURVEY_VEHICLES_DATA, date >= as.Date("2014-01-01")), aes(x=date,y= EMPLOYMENT,color="Employment Expectations"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(-55,55), expand = c(0,0)) +
+  ylab("Balance, >0 = Increasing, <0 = Degreasing") +
+  ggtitle("EU Carmakers Expect to Cut Jobs & Production") +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat Monthly Business Survey Data",subtitle = "EU Carmakers Employment' & Production Expectations are Deep into Recessionary Territory") +
+  theme_apricitas + theme(legend.position = c(.275,.86), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= "Carmakers' 3M Expectations, Balance\nAbove 0 = Increasing, Below 0 = Decreasing",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -55-(.3*110), ymax = -55) +
+  coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = EU_3M_EXPECTATIONS_graph, "EU 3M Expectations graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+  
 p_unload(all)  # Remove all add-ons
 
 # Clear console

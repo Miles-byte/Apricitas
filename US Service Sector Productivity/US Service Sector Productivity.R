@@ -1,4 +1,4 @@
-pacman::p_load(rsdmx,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(statcanR,readabs,rsdmx,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -312,9 +312,6 @@ CAPITAL_INTENSITY_LABOR_PRODUCTIVITY_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = CAPITAL_INTENSITY_LABOR_PRODUCTIVITY_GRAPH, "US Capital Intensity Labor Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-
-  
-
 DETAILED_OUTPUT_PER_HOUR <- DETAILED_PRODUCTIVITY_BULK %>%
   filter(Measure %in% c("Sectoral output","Hours worked","Sectoral output price deflator")) %>%
   filter(Units != "% Change from previous year") %>%
@@ -327,6 +324,27 @@ DETAILED_OUTPUT_PER_HOUR <- DETAILED_PRODUCTIVITY_BULK %>%
 
 #Compare to nominal compensation
 #compare to wage levels
+
+CAN_PRODUCTIVITY <- statcan_data("36-10-0206-01", "eng") %>%
+  filter(VECTOR == "v1409153" & REF_DATE >= as.Date("2015-01-01")) %>%
+  transmute(date = REF_DATE, valye = VALUE)
+
+AUS_PRODUCTIVITY <- read_abs(series_id = "A3606058X") %>%
+  filter(date>= as.Date("2015-01-01")) %>%
+  select(date,value)
+
+UK_PRODUCTIVITY <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/labourproductivity/timeseries/gyy7/prdy") %>%
+  setNames(c("date","value")) %>%
+  transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
+  subset(., value > 1)  %>%
+  mutate_if(is.character,as.numeric) %>%
+  subset(date >= as.Date("2018-01-01")) %>%
+  mutate(value = value/value[7]*100)
+
+FR_PRODUCTIVITY <-
+GER_PRODUCTIVITY <-
+JPN_PRODUCTIVITY <-
+ITA_PRODUCTIVITY <-
 
 cat("\014")  # ctrl+L
 

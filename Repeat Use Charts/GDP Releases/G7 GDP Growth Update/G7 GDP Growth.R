@@ -52,10 +52,10 @@ GER <- read.csv("https://api.statistiken.bundesbank.de/rest/download/BBKRT/Q.DE.
 ITA <- fredr("CLVMNACSCAB1GQIT", observation_start = as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
-ITA_BULK <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_3,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD"))
+ITA_BULK <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/data/IT1,163_156_DF_DCCN_SQCQ_1,1.0/Q...../ALL/?detail=full&startPeriod=2018-01-01&dimensionAtObservation=TIME_PERIOD"))
 
 ITA <- ITA_BULK %>%
-  subset(VALUATION == "L_2015") %>%
+  subset(VALUATION == "L_2020") %>%
   mutate(PRELIMINARY = grepl("_1$", EDITION),
          EDITION_CLEAN = gsub("_1$", "", EDITION),
          EDITION_DATE = ymd(paste0(sub("M", "-", EDITION_CLEAN), "-01")),
@@ -122,14 +122,14 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   geom_line(data=FRA, aes(x=date,y= value,color= "France"), size = 1.25) +
   geom_line(data=JPN, aes(x=date,y= value,color= "Japan"), size = 1.25) +
   geom_line(data=US, aes(x=date,y= value,color= "United States"), size = 1.25) +
-  annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101, color = "white", size = 4) +
+  annotate("text",label = "Pre-COVID GDP", x = as.Date("2019-01-01"), y =101.5, color = "white", size = 4) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,112.5), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Growth in the G7") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries are Now Above pre-COVID GDP") +
-  theme_apricitas + theme(legend.position = c(.175,.30)) +
+  theme_apricitas + theme(legend.position = c(.16,.30), legend.key.height = unit(0,"cm")) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.55) +
   coord_cartesian(clip = "off")
@@ -220,17 +220,17 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   geom_line(data=FRA_PER_CAPITA, aes(x=date,y= value,color= "France"), size = 1.25) +
   geom_line(data=JPN_PER_CAPITA, aes(x=date,y= value,color= "Japan"), size = 1.25) +
   geom_line(data=US_PER_CAPITA, aes(x=date,y= value,color= "United States"), size = 1.25) +
-  annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2018-10-01"), y =101, color = "white", size = 4) +
+  annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2018-10-01"), y =101.5, color = "white", size = 4) +
   #annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-03-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,110), breaks = c(80,90,100,110), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,112.5), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Per Capita Growth in the G7") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US is Leading the Recovery, and Canada Has Had the Largest GDP Per Capita Decline") +
-  theme_apricitas + theme(legend.position = c(.2,.31)) +
+  theme_apricitas + theme(legend.position = c(.16,.31), legend.key.height = unit(0,"cm")) +
   scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 75-(.3*35), ymax = 75) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RGDP_G7_Per_Capita_Graph, "G7 Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

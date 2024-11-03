@@ -339,7 +339,7 @@ BATTERY_NUMBER_graph <- ggplot(data = BATTERY_NUMBER, aes(x = date, y = value/10
   ggtitle("The German Battery Surge") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = .25, suffix = "B", prefix = "€"), breaks = c(0,0.25,0.5,0.75,1,1.25), limits = c(0,ceiling(max(BATTERY_NUMBER$value/50000000)/2)/10), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Value of German EV Output is Rapidly Growing as the Industry Retools") +
-  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Value of German Quarterly Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*(ceiling(max(BATTERY_NUMBER$value/50000000)/2)/10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

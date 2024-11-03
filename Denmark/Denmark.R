@@ -90,13 +90,13 @@ TURNOVER_PHARMA_BREAKDOWN_graph <- ggplot(data = TURNOVER_PHARMA_BREAKDOWN, aes(
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Billions of Danish Krone") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,75), breaks = c(0,25,50,75)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,100), breaks = c(0,25,50,75,100)) +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark data", subtitle = "Production Outsourcing is Rising Among Danish Pharmaceutical Manufacturers") +
   theme_apricitas + theme(legend.position = c(.4,.775)) +
   scale_fill_manual(name= "Sales, Danish Pharmaceutical Manufacturers",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Production on own account","Production outsourced to others","Industrial services","Commercial (resale) turnover","Other sales")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*100), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TURNOVER_PHARMA_BREAKDOWN_graph, "Turnover Pharma Breakdown.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -371,12 +371,12 @@ EXPORTS_SERVICES_IP_QUARTERLY_graph <- ggplot(data = EXPORTS_SERVICES_IP_QUARTER
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Net Exports, Billions of Krone, Not Seasonally Adjusted") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), limits = c(-0.5,10), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), limits = c(-0.5,12), expand = c(0,0)) +
   ggtitle("Denmark's Booming IP Exports") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Danish IP Exports to the US are Rising in the Wake of the Nation's Pharma Boom") +
   theme_apricitas + theme(legend.position = c(.5,.85)) +
   scale_fill_manual(name= "Net Danish Exports, Charges for the Use of Intellectual Property",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("United States","World ex-US")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -0.5-(.3*10.5), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -0.5-(.3*12.5), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EXPORTS_SERVICES_IP_QUARTERLY_graph, "Exports Services Quarterly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
