@@ -1,4 +1,4 @@
-pacman::p_load(estatapi,statcanR,readabs,rsdmx,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(purrr,estatapi,statcanR,readabs,rsdmx,bea.R,cbsodataR,seasonal,eurostat,censusapi,estatapi,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -115,7 +115,27 @@ US_PRODUCTIVITY_WAGES <- ggplot() +
 
 ggsave(dpi = "retina",plot = US_PRODUCTIVITY_WAGES, "US Productivity Wages.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-  
+Total_Quits <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("2015-01-01")) #downloading quits data
+Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2015, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
+Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
+  geom_line(data=Total_Quits, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
+  geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+
+  annotate(geom = "text", label = "Note: Discontinuity at March 2020, When Layoffs hit 13M", x = as.Date("2020-01-01"), y = 1.15, color ="white", size = 4, alpha = 1) +
+  xlab("Date") +
+  ylab("Millions of Employees") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3,4,5), limits = c(0,5), expand = c(0,0)) +
+  ggtitle("The End of The Great Reshuffling") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Quits is Coming Down From Record Highs, as Layoffs Have Risen a Bit") +
+  theme_apricitas + theme(legend.position = c(.26,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Quits, Total Nonfarm","Layoffs and Discharges, Total Nonfarm")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 #TWO DIGIT LABOR PRODUCTIVITY
 
 LAB_PROD_WHOLESALE_TRADE <- bls_api("IPUGN42____L000000000", startyear = 1987, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -309,7 +329,20 @@ US_BIZ_LABOR_PRODUCTIVITY <- ggplot() +
 
 ggsave(dpi = "retina",plot = US_BIZ_LABOR_PRODUCTIVITY, "US Biz Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-  
+
+US_BIZ_CAPITAL_INTENSITY_ALL <- MAJOR_INDUSTRIES_TFP_BULK %>%
+  filter(Measure == "Contribution of capital intensity to labor productivity" & Units == "Index (2017=100)") %>%
+  group_by(NAICS) %>%
+  mutate(Value = as.numeric(Value)) %>%
+  ungroup() %>%
+  select(Industry,Value,Year) %>%
+  pivot_wider(names_from = Industry, values_from = Value) %>%
+  mutate(Year = as.Date(paste0(Year, "-01-01"))) %>%
+  mutate(across(where(is.numeric), ~ . /.[33])*100)  
+
+
+
+
   
 CAPITAL_INTENSITY_LABOR_PRODUCTIVITY <- bls_api("MPU4910152", startyear = 2015, endyear = format(Sys.Date(), "%Y"), registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(year = as.Date(paste0(year, "-01-01"))) %>%
@@ -468,6 +501,80 @@ PRODUCTIVITY_2019_Graph <- ggplot() + #RGDP Index
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = PRODUCTIVITY_2019_Graph, "Productivity Comparison 2019 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BIZ_APPS <- fredr("BABATOTALSAUS", observation_start = as.Date("2016-01-01"))
+HPA_BIZ_APPS <- fredr("BAHBATOTALSAUS", observation_start = as.Date("2016-01-01"))
+PLW_BIZ_APPS <- fredr("BAWBATOTALSAUS", observation_start = as.Date("2016-01-01"))
+
+BIZ_APPS_GRAPH <- ggplot() + #Graphing Business Applications Data
+  geom_line(data=BIZ_APPS, aes(x=date,y= value/1000, color= "Business Applications"), size = 1.25) +
+  geom_line(data=HPA_BIZ_APPS, aes(x=date,y= value/1000, color= "Business Applications with High Propensity of Hiring"), size = 1.25) +
+  geom_line(data=PLW_BIZ_APPS, aes(x=date,y= value/1000, color= "Business Applications with Planned Wages"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,700), expand = c(0,0)) +
+  ylab("Number of Business Applications, Monthly") +
+  ggtitle("America's New Business Boom") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Americans Continue to Found New Businesses at Near-Record Rates") +
+  theme_apricitas + theme(legend.position = c(.325,.91)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Business Applications","Business Applications with High Propensity of Hiring","Business Applications with Planned Wages")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*700), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BIZ_APPS_GRAPH, "Biz Apps.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+FIXED_IP_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T50306',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2014, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_IP_INVEST <- beaGet(FIXED_IP_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2014-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na() %>%
+  mutate(RandD_Growth = t50306_y006rx_18_research_and_development_chained_dollars_level_6/lag(t50306_y006rx_18_research_and_development_chained_dollars_level_6,4)-1,Software_Growth = t50306_b985rx_17_software_chained_dollars_level_6/lag(t50306_b985rx_17_software_chained_dollars_level_6,4)-1) %>%
+  drop_na()
+
+FIXED_EQUIP_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50506',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2014, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_EQUIP_INVEST <- beaGet(FIXED_EQUIP_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2014-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na() %>%
+  mutate(Compu_Growth = u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6/lag(u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6,4)-1) %>%
+  drop_na()
+
+
+FIXED_INVEST_GROWTH_GRAPH <- ggplot() + #growth in IP investment
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = FIXED_EQUIP_INVEST, aes(x=date, y = Compu_Growth, color = "Computers & Peripherals"), size = 1.25) + 
+  geom_line(data = FIXED_IP_INVEST, aes(x=date, y = RandD_Growth, color = "Research and Development"), size = 1.25) + 
+  geom_line(data = FIXED_IP_INVEST, aes(x=date, y = Software_Growth, color = "Software"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.15,0.35), breaks = c(-.1,0,0.1,0.2,.3), expand = c(0,0)) +
+  ylab("Percent Growth, Year on Year") +
+  ggtitle("Real Investment, Year-on-Year Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Software, R&D, and Computers Was Strong During the Pandemic") +
+  theme_apricitas + theme(legend.position = c(.225,.925)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Software","Research and Development","Computers & Peripherals")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -.15-(.3*.5), ymax = -.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIXED_INVEST_GROWTH_GRAPH, "Fixed Invest Growth.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 cat("\014")  # ctrl+L

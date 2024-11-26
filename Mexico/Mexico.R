@@ -162,11 +162,11 @@ MEXICO_MACHINERY_EQUIPMENT_Investment_Graph <- ggplot() +
   geom_line(data = MEXICO_MACHINERY_EQUIPMENT_INVESTMENT_IMPORTED, aes(x = date, y = value, color = "Real Fixed Investment in Machinery and Equipment: Imported"), size = 1.25) +
   geom_line(data = MEXICO_MACHINERY_EQUIPMENT_INVESTMENT_TOTAL, aes(x = date, y = value, color = "Total Real Fixed Investment in Machinery and Equipment"), size = 2.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(50,130), breaks = c(50,60,70,80,90,100,110,120,130), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(50,140), breaks = c(50,60,70,80,90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Index, 2018 = 100") +
   ggtitle("Mexico's Investment Boom") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Mexico data",subtitle = "Mexican Machinery & Equipment Investments are Up, Particularly From a Rise in Imports") +
-  theme_apricitas + theme(legend.position = c(.42,.90)) +
+  theme_apricitas + theme(legend.position = c(.42,.93)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("Total Real Fixed Investment in Machinery and Equipment","Real Fixed Investment in Machinery and Equipment: Domestic-Made","Real Fixed Investment in Machinery and Equipment: Imported"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25, 1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 50-(.3*80), ymax = 50) +
   coord_cartesian(clip = "off")

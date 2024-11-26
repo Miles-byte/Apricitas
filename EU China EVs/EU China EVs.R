@@ -367,14 +367,14 @@ EU_GERMANY_NET_EV_EXPORTS_GRAPH <- ggplot() + #plotting EU NET EV Exports
   geom_line(data= filter(DE_IMPORTS_EXPORTS_EVS_TOTAL_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(NET_EXPORTS*12)/1000000000,color= "Germany"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(DE_IMPORTS_EXPORTS_EVS_TOTAL_MOD, date >= as.Date("2017-12-01")), aes(x=date,y=(`rollsumNET_EXPORTS`)/1000000000,color= "Germany"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(prefix = "€",accuracy = 1, suffix = "B"),limits = c(-7.5, 30), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "€",accuracy = 1, suffix = "B"),limits = c(-7.5, 35), expand = c(0,0)) +
   ylab("Billions of Euros") +
   ggtitle("EU Net Exports of Electric Vehicles") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "The EU and Germany are Making") +
   theme_apricitas + theme(legend.position = c(.4,.89)) +
   #theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= "Solid = 12M Moving Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("European Union","Germany"), guide = guide_legend(override.aes = list(linetype = c(1,1),lwd = c(1.25,1.25)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -7.5-(.3*(37.5)), ymax = -7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = -7.5-(.3*(42.5)), ymax = -7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EU_GERMANY_NET_EV_EXPORTS_GRAPH, "EU NET EV Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

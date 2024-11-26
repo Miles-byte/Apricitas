@@ -18,13 +18,13 @@ BIZ_APPS_GRAPH <- ggplot() + #Graphing Business Applications Data
   geom_line(data=HPA_BIZ_APPS, aes(x=date,y= value/1000, color= "Business Applications with High Propensity of Hiring"), size = 1.25) +
   geom_line(data=PLW_BIZ_APPS, aes(x=date,y= value/1000, color= "Business Applications with Planned Wages"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,650), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,700), expand = c(0,0)) +
   ylab("Number of Business Applications, Monthly") +
   ggtitle("America's New Business Boom") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Americans Continue to Found New Businesses at Near-Record Rates") +
-  theme_apricitas + theme(legend.position = c(.325,.9)) +
+  theme_apricitas + theme(legend.position = c(.325,.91)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Business Applications","Business Applications with High Propensity of Hiring","Business Applications with Planned Wages")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*700), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BIZ_APPS_GRAPH, "Biz Apps.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

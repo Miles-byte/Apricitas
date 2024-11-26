@@ -1526,7 +1526,7 @@ EMP_GROWTH_WAG_LEVEL_GRAPH <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(65,110), breaks = c(60,70,80,90,100,110), expand = c(0,0)) +
   ylab("Index, Jan 2020 = 100") +
   ggtitle("Job Growth by Pre-COVID Wage Level") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Jobs Have Grown Most in America's Highest-Wage Industries, and Slower in Its Low-Wage Ones") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data at 3/4 Digit NAICS Levels",subtitle = "Jobs Have Grown Most in America's Highest-Wage Industries, and Slower in Its Low-Wage Ones") +
   theme_apricitas + theme(legend.position = c(.25,.89)) +
   scale_color_manual(name= "Employment Level, Jan 2020 = 100",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("High Wage Industries (Top 25%)","Low Wage Industries (Bottom 25%)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 65-(.3*45), ymax = 65) +

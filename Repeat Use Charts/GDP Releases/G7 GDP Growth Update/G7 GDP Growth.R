@@ -18,7 +18,8 @@ FRANCE_GDP_INSEE_list_selected =
   filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO.FALSE")#GDP
 
 US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
-  mutate(value = value/value[7]*100)
+  mutate(value = value/value[7]*100) %>%
+  select(date,value)
 
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
@@ -70,7 +71,7 @@ ITA <- ITA_BULK %>%
   ungroup() %>%
   filter(ifelse(n > 1, PRELIMINARY, TRUE)) %>%
   select(-n) %>%
-  transmute(value = obsValue/obsValue[7]*100, date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")))
+  transmute(date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")),value = obsValue/obsValue[7]*100)
 
 # ITA <- fredr(series_id = "CLVMNACSCAB1GQIT",observation_start = as.Date("2018-01-01")) %>%
 #    mutate(value = value/value[7]*100)
@@ -82,8 +83,8 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
   subset(date >= as.Date("2018-01-01")) %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
-
-JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe242/tables/gaku-jk2421.csv",fileEncoding="latin1") %>%
+#Update links from here: https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2024/qe243/gdemenuea.html
+JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe243/tables/gaku-jk2431.csv",fileEncoding="latin1") %>%
   slice(-1:-6) %>%
   select(X) %>%
   transmute(date = seq.Date(from = as.Date("1994-01-01"), by = "quarter", length.out = nrow(.)), value = as.numeric(gsub(",","",X))) %>%
@@ -135,6 +136,9 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+combined_df <- reduce(list(ITA, GER, FRA,JPN,US,UK,CAN), full_join, by = "date") %>% rename_with(~c("date", "ITA", "GER", "FRA", "JPN","US","UK","CAN"))
+
 
 #PER CAPITA
 

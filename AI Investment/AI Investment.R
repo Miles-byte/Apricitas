@@ -59,13 +59,13 @@ US_COMPUTER_NET_IMPORTS_Graph <- ggplot() + #plotting integrated circuits export
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_DPU/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_ADP_PARTS/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_EXPORTS$DPU)*12/5000000000)*5), breaks = c(0,10,20,30,40,50,60), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,10,20,30,40,50,60,80,100,120), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("US Computer Net Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. Large Computers are HS Code 847150, Parts & Accessories are HS Code 847330",subtitle = "US Imports of Large Computers & Parts/Accessories Has Been Skyrocketing") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= "Solid = Rolling 12M Total, Dashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Large Computers (excl. Laptops)","Computer Parts & Accessories")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -5-(.3*(ceiling(max(US_ADP_NET_EXPORTS$DPU)*12/5000000000)*5+5)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -5-(.3*(ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5+5)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_COMPUTER_NET_IMPORTS_Graph, "US Computer Net Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -197,12 +197,12 @@ COM_ELEC_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data= filter(US_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "US"), size = 2.25) +
   xlab("Date") +
   ylab("Sales to Commerical Power Users, 2019 = 100") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130,140,150,160,170,180,190,200), limits = c(80,160), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130,140,150,160,170,180,190,200), limits = c(80,175), expand = c(0,0)) +
   ggtitle("Electricity Sales to Commercial Users\n(Including Data Centers & Crypto Mining)") +
   labs(caption = "Graph created by @JosephPolitano using EIA Electricity data", subtitle = "Data Center and Miner Power Demand Has Mattered in Key Markets Like ND, VA, and TX") +
   theme_apricitas + theme(legend.position = c(.25,.76)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Electricity Sales to Commercial Users\nRolling 12M Total, Indexed, 2019 = 100",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("US","North Dakota","Virginia","Texas"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*80), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*95), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = COM_ELEC_Graph, "Com Elec Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

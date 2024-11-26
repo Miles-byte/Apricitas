@@ -15,13 +15,13 @@ MULTIFAM_STARTS_COMPLETIONS_Graph <- ggplot() + #Starts completions
   geom_line(data = MULTIFAM_STARTS, aes(x=date, y = value, color = "Starts"), size = 1.25) + 
   geom_line(data = MULTIFAM_COMPLETE, aes(x=date, y = value, color = "Completions"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,650), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,800), expand = c(0,0)) +
   ylab("Units, Annual Rate") +
   ggtitle("Multifamily Starts and Completions") +
   labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "Multifamily Housing Completions are Now at a 50-Year High, Well Exceeding Multifamily Starts") +
   theme_apricitas + theme(legend.position = c(.29,.88)) +
   scale_color_manual(name= "5+ Unit Housing Construction, Annual Rate",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Starts","Completions")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*650), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*800), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MULTIFAM_STARTS_COMPLETIONS_Graph, "Multifamily Starts Completions Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
