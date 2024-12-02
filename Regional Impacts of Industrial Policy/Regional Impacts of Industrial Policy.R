@@ -540,7 +540,7 @@ STATE_AND_LOCAL_CONSTRUCTION_MONTHLY <- STATE_AND_LOCAL_CONSTRUCTION_MONTHLY_BUL
   filter(date >= as.Date("2018-01-01"))
 
 STATE_LOCAL_POWER_GRAPH <- ggplot() + 
-  geom_line(data=STATE_AND_LOCAL_INVESTMENT_MONTHLY, aes(x=date,y= `Power`/1000,color= "State & Local Spending\nPower Infrastructure & Generation"), size = 1.25) + 
+  geom_line(data=STATE_AND_LOCAL_CONSTRUCTION_MONTHLY, aes(x=date,y= `Power`/1000,color= "State & Local Spending\nPower Infrastructure & Generation"), size = 1.25) + 
   annotate("vline", x = as.Date("2022-08-16"), xintercept = as.Date("2022-08-16"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Inflation\nReduction\nAct", x = as.Date("2022-07-16"), y = 21, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   xlab("Date") +

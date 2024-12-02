@@ -1,4 +1,4 @@
-pacman::p_load(jsonlite,INEbaseR,seasonal,cbsodataR,rsdmx,dplyr,seasonal,wiesbaden,insee,ggspatial,rnaturalearthdata,rnaturalearth,sf,ecb,eurostat,censusapi,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(openxlsx,jsonlite,INEbaseR,seasonal,cbsodataR,rsdmx,dplyr,seasonal,wiesbaden,insee,ggspatial,rnaturalearthdata,rnaturalearth,sf,ecb,eurostat,censusapi,cli,remotes,magick,cowplot,knitr,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -31,7 +31,7 @@ IND_PRO_PHARMA_graph <- ggplot() + #plotting pharmaceutical manufacturing
   ylab("Index, Jan 2018 = 100") +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "A Boom in Weight Loss & Diabetes Drugs Has Dramatically Increased Danish Pharma Production") +
-  theme_apricitas + theme(legend.position = c(.42,.64)) +
+  theme_apricitas + theme(legend.position = c(.38,.64)) +
   scale_color_manual(name= "Denmark, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Manufacturing of Pharmaceuticals","Total Manufacturing","Manufacturing ex-Pharmaceuticals")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(IND_PRO_PHARMA$`CF Pharmaceuticals`) / 25) * 25)), ymax =0) +
   coord_cartesian(clip = "off")
@@ -85,18 +85,18 @@ TURNOVER_PHARMA_BREAKDOWN <- dst_get_data(table = "OMS5",
   mutate(Category = gsub("Other turnover","Other sales",Category)) %>%
   mutate(Category = factor(Category, levels = rev(c("Production on own account","Production outsourced to others","Industrial services","Commercial (resale) turnover","Other sales"))))
 
-TURNOVER_PHARMA_BREAKDOWN_graph <- ggplot(data = TURNOVER_PHARMA_BREAKDOWN, aes(x = date, y = value/1000000, fill = Category)) +
+TURNOVER_PHARMA_BREAKDOWN_graph <- ggplot(data = TURNOVER_PHARMA_BREAKDOWN, aes(x = date, y = value/1000000*4, fill = Category)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Billions of Danish Krone") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,100), breaks = c(0,25,50,75,100)) +
+  ylab("Billions of Danish Kroner, Annualized Rate") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,400), breaks = c(0,100,200,300,400)) +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark data", subtitle = "Production Outsourcing is Rising Among Danish Pharmaceutical Manufacturers") +
   theme_apricitas + theme(legend.position = c(.4,.775)) +
   scale_fill_manual(name= "Sales, Danish Pharmaceutical Manufacturers",values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Production on own account","Production outsourced to others","Industrial services","Commercial (resale) turnover","Other sales")) +
   theme(legend.text =  element_text(size = 13, color = "white")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*100), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TURNOVER_PHARMA_BREAKDOWN_graph, "Turnover Pharma Breakdown.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -104,7 +104,7 @@ ggsave(dpi = "retina",plot = TURNOVER_PHARMA_BREAKDOWN_graph, "Turnover Pharma B
 Meta_test <- dst_meta("NKN1", lang = "en")
 
 REAL_GDP_DOMESTIC_DEMAND <- dst_get_data(table = "NKN1",
-                                          TRANSAKT = c("B.1*g Gross domestic product","Final domestic demand","P.31 Household consumption expenditure"),
+                                          TRANSAKT = c("B.1*g Gross domestic product","Final domestic demand","P.31 Household consumption expenditure","P.51g Gross fixed capital formation"),
                                           PRISENHED = "2020-prices, chained values, (bill. DKK.)",
                                           SÆSON = "Seasonally adjusted",
                                           Tid = "*", 
@@ -113,7 +113,7 @@ REAL_GDP_DOMESTIC_DEMAND <- dst_get_data(table = "NKN1",
   setNames(c("Category","date","value")) %>%
   filter(date >= as.Date("2016-01-01")) %>%
   pivot_wider(names_from = Category) %>%
-  setNames(c("date","Gross Domestic Product","Household Consumption Expenditure","Final Domestic Demand")) %>%
+  setNames(c("date","Gross Domestic Product","Household Consumption Expenditure","Fixed Investment","Final Domestic Demand")) %>%
   mutate(across(where(is.numeric), ~ . / first(.)*100))
 
 Meta_test <- dst_meta("NKN2", lang = "en")
@@ -130,6 +130,7 @@ REAL_NNI <- dst_get_data(table = "NKN2",
   mutate(across(where(is.numeric), ~ . / first(.)*100))
 
 REAL_GDP_DOMESTIC_DEMAND_graph <- ggplot() + #plotting energy intensive manufacturing
+  #geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Fixed Investment`,color="Real Fixed Investment"), size = 1.25) +
   geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Final Domestic Demand`,color="Real Final Domestic Demand"), size = 1.25) +
   geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Household Consumption Expenditure`,color="Real Household Consumption"), size = 1.25) +
   geom_line(data=REAL_GDP_DOMESTIC_DEMAND, aes(x=date,y= `Gross Domestic Product`,color="Real Gross Domestic Product"), size = 1.25) +
@@ -140,10 +141,56 @@ REAL_GDP_DOMESTIC_DEMAND_graph <- ggplot() + #plotting energy intensive manufact
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "Danish Pharma Exports are Boosting GDP—But Domestic Demand and Consumption Has Fallen") +
   theme_apricitas + theme(legend.position = c(.42,.825), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Denmark, Real Economic Measures",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Real Gross Domestic Product","Real Household Consumption","Real Final Domestic Demand")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 95-(.3*25), ymax =95) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 95-(.3*30), ymax =95) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REAL_GDP_DOMESTIC_DEMAND_graph, "Real GDP Domestic Demand.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+REAL_IMPORT_EXPORTS <- dst_get_data(table = "NKN1",
+                                         TRANSAKT = c("P.7 Imports of goods and services","P.71 Import of goods","P.72 Import of services","P.6 Exports of goods and services","P.61 Export of goods","P.62 Export of services"),
+                                         PRISENHED = "2020-prices, chained values, (bill. DKK.)",
+                                         SÆSON = "Seasonally adjusted",
+                                         Tid = "*", 
+                                         lang = "en") %>%
+  select(-SÆSON,-PRISENHED) %>%
+  setNames(c("Category","date","value")) %>%
+  filter(date >= as.Date("2016-01-01")) %>%
+  pivot_wider(names_from = Category) %>%
+  setNames(c("date","Imports of Goods & Services","Imports of Goods","Imports of Services","Exports of Goods & Services","Exports of Goods", "Exports of Services")) #%>%
+  #mutate(across(where(is.numeric), ~ . / first(.)*100))
+
+
+REAL_IMPORT_EXPORTS_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=REAL_IMPORT_EXPORTS, aes(x=date,y= `Imports of Goods & Services`/`Imports of Goods & Services`[1]*100,color="Real Imports of Goods & Services"), size = 1.25) +
+  geom_line(data=REAL_IMPORT_EXPORTS, aes(x=date,y= `Exports of Goods & Services`/`Exports of Goods & Services`[1]*100,color="Real Exports of Goods & Services"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,155), expand = c(0,0)) +
+  ylab("Index, Q1 2016 = 100") +
+  ggtitle("Denmark's GLP-1 Export Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "Danish Exports are Rising Much Faster than Imports amidst the GLP-1 Boom") +
+  theme_apricitas + theme(legend.position = c(.42,.825), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "Index, Q1 2016=100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Real Exports of Goods & Services","Real Imports of Goods & Services")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 95-(.3*60), ymax =95) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_IMPORT_EXPORTS_graph, "Real Import and Exports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+REAL_IMPORT_EXPORTS_GOODS_graph <- ggplot() + #plotting energy intensive manufacturing
+  geom_line(data=REAL_IMPORT_EXPORTS, aes(x=date,y= `Imports of Goods`*4/1000,color="Real Imports of Goods"), size = 1.25) +
+  geom_line(data=REAL_IMPORT_EXPORTS, aes(x=date,y= `Exports of Goods`*4/1000,color="Real Exports of Goods"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .1, suffix = "T kr."),limits = c(0.55,1.15), expand = c(0,0)) +
+  ylab("Trillions of Real 2020 Kroner, Seasonally Adjusted at Annual Rate") +
+  ggtitle("Denmark's GLP-1 Export Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "Danish Real Exports are Rising Much Faster than Imports amidst the GLP-1 Boom") +
+  theme_apricitas + theme(legend.position = c(.42,.825), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "Real Danish Exports/Imports",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Real Exports of Goods","Real Imports of Goods")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = .55-(.3*.60), ymax =.55) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_IMPORT_EXPORTS_GOODS_graph, "Real Import and Exports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 PHARMA_GDP_CONTRIB <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Denmark/Pharma_Contrib.csv") %>%
   mutate(date = seq.Date(from = as.Date("1991-01-01"), by = "year", length.out = nrow(.))) %>%
@@ -330,18 +377,18 @@ EXPORTS_GOODS_QUARTERLY <- dst_get_data(table = "UHQ",
   pivot_wider(names_from = Country)
 
 EXPORTS_GOODS_QUARTERLY_Graph <- ggplot() + 
-  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Sweden/1000 ,color="Sweden"), size = 1.25) +
-  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Germany/1000 ,color="Germany"), size = 1.25) +
-  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Norway/1000 ,color="Norway"), size = 1.25) +
-  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= `United States`/1000 ,color="United States"), size = 1.25) +
+  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Sweden/1000*4 ,color="Sweden"), size = 1.25) +
+  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Germany/1000*4 ,color="Germany"), size = 1.25) +
+  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= Norway/1000*4 ,color="Norway"), size = 1.25) +
+  geom_line(data=EXPORTS_GOODS_QUARTERLY, aes(x=date,y= `United States`/1000*4 ,color="United States"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,(ceiling(max(EXPORTS_GOODS_QUARTERLY$`United States`) / 10000) * 10))) +
-  ylab("Billions of Kroner") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), expand = c(0,0), limits = c(0,(ceiling(max(EXPORTS_GOODS_QUARTERLY$`United States`) / 100000*4) * 100))) +
+  ylab("Billions of Kroner, Seasonally Adjusted at Annualized Rate") +
   ggtitle("Denmark's Weight Loss Pharma Boom") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "America Has Become the Largest Destination for Danish Exports Amidst a Pharma Boom") +
   theme_apricitas + theme(legend.position = c(.35,.8), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Denmark, Gross Exports of Goods by Destination",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("United States","Germany","Sweden","Norway")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*(ceiling(max(EXPORTS_GOODS_QUARTERLY$`United States`) / 10000) * 10)), ymax =0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*(ceiling(max(EXPORTS_GOODS_QUARTERLY$`United States`) / 100000*4) * 100)), ymax =0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EXPORTS_GOODS_QUARTERLY_Graph, "Exports Goods Quarterly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -366,24 +413,165 @@ EXPORTS_SERVICES_IP_QUARTERLY <- dst_get_data(table = "UHQ",
   pivot_longer(cols = `World ex-US`:`United States`) %>%
   mutate(name = factor(name, levels = rev(c("United States","World ex-US"))))
 
-EXPORTS_SERVICES_IP_QUARTERLY_graph <- ggplot(data = EXPORTS_SERVICES_IP_QUARTERLY, aes(x = date, y = value/1000, fill = name)) +
+EXPORTS_SERVICES_IP_QUARTERLY_graph <- ggplot(data = EXPORTS_SERVICES_IP_QUARTERLY, aes(x = date, y = value/1000*4, fill = name)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
-  ylab("Net Exports, Billions of Krone, Not Seasonally Adjusted") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), limits = c(-0.5,12), expand = c(0,0)) +
+  ylab("Net Exports, Billions of Kroner, NSA, Annualized Rate") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr."), limits = c(-0.5,48), expand = c(0,0)) +
   ggtitle("Denmark's Booming IP Exports") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Danish IP Exports to the US are Rising in the Wake of the Nation's Pharma Boom") +
   theme_apricitas + theme(legend.position = c(.5,.85)) +
   scale_fill_manual(name= "Net Danish Exports, Charges for the Use of Intellectual Property",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("United States","World ex-US")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -0.5-(.3*12.5), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -0.5-(.3*48.5), ymax = -0.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EXPORTS_SERVICES_IP_QUARTERLY_graph, "Exports Services Quarterly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+#IF LINK STOPS WORKING CHECH DANISH QUARTERLY GDP PRESS RELEASE (ONLY DONE IN DANISH)
+GDP_PHARMA_BULK <- read.xlsx("https://www.dst.dk/ext/national/KNRMI--xlsx")
+
+GDP_PHARMA <- GDP_PHARMA_BULK %>%
+  slice(c(5,6,8,9,12,13,15,16)) %>%
+  transpose() %>%
+  slice(-1) %>%
+  setNames(c("XPHARMA_NSA_NOM","XPHARMA_NSA_REAL","PHARMA_NSA_NOM","PHARMA_NSA_REAL",
+             "XPHARMA_SA_NOM","XPHARMA_SA_REAL","PHARMA_SA_NOM","PHARMA_SA_REAL")) %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = seq.Date(from = as.Date("2015-01-01"), length.out = n(), by = "quarter"))
+
+
+REAL_PHARMA_GVA_Graph <- ggplot() + 
+  geom_line(data=filter(GDP_PHARMA, date >= as.Date("2016-01-01")), aes(x=date,y= PHARMA_SA_REAL/PHARMA_SA_REAL[1]*100,color="Danish Real Pharmaceutical Manufacturing Gross Value Added"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), expand = c(0,0), limits = c(0,(ceiling(max(GDP_PHARMA$PHARMA_SA_REAL/GDP_PHARMA$PHARMA_SA_REAL[5]*100) / 100) * 100))) +
+  ylab("Index, Q1 2016 = 100") +
+  ggtitle("Denmark's Weight Loss Pharma Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "America Has Become the Largest Destination for Danish Exports Amidst a Pharma Boom") +
+  theme_apricitas + theme(legend.position = c(.40,.8), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*(ceiling(max(GDP_PHARMA$PHARMA_SA_REAL/GDP_PHARMA$PHARMA_SA_REAL[5]*100) / 100) * 100)), ymax =0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_PHARMA_GVA_Graph, "Real Pharma GVA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+REAL_GDP_VS_XPHARMA_Graph <- ggplot() + 
+  geom_line(data=filter(GDP_PHARMA, date >= as.Date("2016-01-01")), aes(x=date,y= XPHARMA_SA_REAL/XPHARMA_SA_REAL[1]*100,color="Danish Real GDP Excluding Pharmaceutical Manufacturing"), size = 1.25) +
+  geom_line(data=filter(REAL_GDP_DOMESTIC_DEMAND, date >= as.Date("2016-01-01")), aes(x=date,y= `Gross Domestic Product`/`Gross Domestic Product`[1]*100,color="Danish Real GDP"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), expand = c(0,0), limits = c(95,125)) +
+  ylab("Index, Q1 2016 = 100") +
+  ggtitle("Weight Loss Drugs Power Danish GDP") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data",subtitle = "The Vast Majority of Danish GDP Growth is Coming From Pharmaceutical Output of GLP-1 Drugs") +
+  theme_apricitas + theme(legend.position = c(.40,.9), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 95-(.3*(30)), ymax =95) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_GDP_VS_XPHARMA_Graph, "Real GDP vs XPHARMA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#Employment by Sector
+
+Meta_test <- dst_meta("OMS5", lang = "en")
+
+test <- dst_search(string = "employment", field = "text", lang = "en")
+
+Meta_test <- dst_meta("NABB69", lang = "en")
+
+
+PHARMA_EMPLOYMENT <- dst_get_data(table = "NABB69",
+                                              SOCIO = "Employment (number)",
+                                              BRANCHE = "21000 Pharmaceuticals",
+                                              Tid = "*", 
+                                              lang = "en") %>%
+  select(TID,value) %>%
+  setNames(c("date","value"))
+
+PHARMA_EMPLOYMENT_graph <- ggplot() +
+  geom_line(data=filter(PHARMA_EMPLOYMENT, date >= as.Date("1994-01-01")), aes(x=date,y= value/1000,color="Danish Pharmaceutical Manufacturing Employment"), size = 1.25) +
+  xlab("Date") +
+  ylab("") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,ceiling(max(PHARMA_EMPLOYMENT$value/10000))*10), expand = c(0,0)) +
+  ggtitle("Danish Pharmaceutical Employment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Danish Pharma Employment Is Rising in the Wake of the Nation's GLP-1 Boom") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = 0-(.3*(ceiling(max(PHARMA_EMPLOYMENT$value/10000))*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PHARMA_EMPLOYMENT_graph, "Pharma Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+PHARMA_EMPLOYMENT_YOY_graph <- ggplot() +
+  geom_line(data=filter(PHARMA_EMPLOYMENT, date >= as.Date("2015-01-01")) %>% mutate(value = (value-lag(value,1))/1000) %>% drop_na(), aes(x=date,y= value,color="Danish Pharmaceutical Manufacturing Employment, Annual Growth"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Employment, Annual Growth") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(-1,ceiling(max(na.omit(PHARMA_EMPLOYMENT$value-lag(PHARMA_EMPLOYMENT$value,1)))/2000)*2), expand = c(0,0)) +
+  ggtitle("Danish Pharma Manufacturing Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Danish Pharma Employment Is Rising in the Wake of the Nation's GLP-1 Boom") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-740-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-740-as.Date("2016-01-01"))), ymin = -1-(.3*(ceiling(max(na.omit(PHARMA_EMPLOYMENT$value-lag(PHARMA_EMPLOYMENT$value,1)))/2000)*2+1)), ymax = -1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PHARMA_EMPLOYMENT_YOY_graph, "Pharma Employment YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+Meta_test <- dst_meta("FOND01", lang = "en")
+
+GRANTS_PAID <- dst_get_data(table = "FOND01",
+                                  FONDSTYPE = "All foundations",
+                                  AKTP = "Funds paid (million DKK)",
+                                  Tid = "*", 
+                                  lang = "en") %>%
+  select(TID,value) %>%
+  setNames(c("date","value"))
+
+GRANTS_PAID_graph <- ggplot() +
+  geom_line(data=GRANTS_PAID, aes(x=date,y= value/1000,color="Danish Foundations, Annual Grants Paid"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Billions of Danish Kroner") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr"), limits = c(0,30), expand = c(0,0)) +
+  ggtitle("Danish Foundation Spending is Booming") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Grants From Foundations are Rising as Novo Nordisk Foundation Benfits from GLP-1 Profits") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-740-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-740-as.Date("2016-01-01"))), ymin = 0-(.3*(30)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GRANTS_PAID_graph, "Grants Paid Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+Meta_test <- dst_meta("OFF12K", lang = "en")
+
+CORPORATE_TAX <- dst_get_data(table = "OFF12K",
+                            SKATTER = "1.2. Corporation tax, etc.",
+                            SÆSON = "Seasonally adjusted", 
+                            Tid = "*", 
+                            lang = "en") %>%
+  select(TID,value) %>%
+  setNames(c("date","value"))
+
+CORPORATE_TAX_graph <- ggplot() +
+  geom_line(data=filter(CORPORATE_TAX, date >= as.Date("2016-01-01")), aes(x=date,y= value/1000*4,color="Danish Corporate Income Tax Receipts, Annualized Rate"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Billions of Danish Kroner") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "B kr"), limits = c(0,120), expand = c(0,0)) +
+  ggtitle("Danish Corporate Tax Receipts are Booming") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Denmark Data", subtitle = "Danish Corporate Tax Receipts Have Risen Significantly, In Large Part Thanks to Novo Nordisk") +
+  theme_apricitas + theme(legend.position = c(.4,.94), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*(120)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CORPORATE_TAX_graph, "Corporate Tax Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 p_unload(all)  # Remove all packages using the package manager
+
 
 # Clear console
 cat("\014")  # ctrl+L

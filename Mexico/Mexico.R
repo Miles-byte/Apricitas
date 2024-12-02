@@ -242,13 +242,13 @@ NET_IMPORTS_EXPORTS_MEXICO <- ggplot() +
   geom_line(data = NET_EXP_USA, aes(x = date, y = (rollmean*12)/1000000, color = "Mexico, Net Goods Exports to USA"), size = 1.25) +
   geom_line(data = NET_IMP_CHN_TOTAL, aes(x = date, y = (-rollmean*12)/1000000, color = "Mexico, Net Goods Imports from China"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,250), breaks = c(0,50,100,150,200,250), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,275), breaks = c(0,50,100,150,200,250), expand = c(0,0)) +
   ylab("Billions of US Dollars") +
   ggtitle("Mexico's Trade Boom is More Than Reexports") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Mexico data\nNote: China includes HK. Data uses different origin/destination methods so is not directly equivalent to US Census Bureau data",subtitle = "Growth in Mexico's Net Exports to the US Have Vastly Dwarfed Growth in its Imports from China") +
   theme_apricitas + theme(legend.position = c(.3,.85), plot.title = element_text(size = 25.5)) +
   scale_color_manual(name= "Rolling 1Yr Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*250), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*275), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NET_IMPORTS_EXPORTS_MEXICO, "Net Imports Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -466,7 +466,7 @@ STATE_CONSTRUCTION_ACTIVITY_EDIT <- STATE_CONSTRUCTION_ACTIVITY %>%
   {colnames(.) <- .[1, ]; .[-1, ]} %>%
   mutate(category = rep(c("Q1", "Q2", "Q3", "Q4", "6M", "9M", "Annual"), length.out = n())) %>%
   #CHANGE THIS TO MAKE DIFFERENT VERSIONS WHEN DATA IS UPDATED
-  subset(category == "Annual") %>%
+  subset(category == "6M") %>%
   slice(n()) %>%
   select(-category) %>%
   t() %>%
@@ -481,11 +481,11 @@ devtools::install_github("diegovalle/mxmaps")
 library("mxmaps")
 
 MX_CONSTRUCTION_MAP <- mxstate_choropleth(STATE_CONSTRUCTION_ACTIVITY_EDIT,
-                   title = "Construction Activity Growth, 2018-2023",
+                   title = "Construction Activity Growth, 2018-2024",
                    num_colors = 1) +
   theme_apricitas +
   labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Construction is Booming in the Mexican South Thanks to Major Public Works Projects") +
-  scale_fill_viridis_c("Percent Change", limits = c(-0.5,2), breaks = c(-0.5,0,.5,1,1.5,2), labels = c("-50%","0%","50%","100%","150%","200%")) +
+  scale_fill_viridis_c("Percent Change", limits = c(-0.5,2.60), breaks = c(-0.5,0,.5,1,1.5,2,2.5), labels = c("-50%","0%","50%","100%","150%","200%","250%")) +
   annotate(geom = "text", label = "Tren Maya", x = -88, y = 16, color ="white",size = 5, fontface = "bold") + 
   annotate(geom = "segment", x = -88, xend = -88, y = 16.5, yend = 19, color = "white", lwd = 1.25) +
   annotate(geom = "segment", x = -88, xend = -89, y = 16.5, yend = 20.5, color = "white", lwd = 1.25) +
@@ -515,7 +515,7 @@ STATE_MANUFACTURING_ACTIVITY_EDIT <- STATE_MANUFACTURING_ACTIVITY %>%
   {colnames(.) <- .[1, ]; .[-1, ]} %>%
   mutate(category = rep(c("Q1", "Q2", "Q3", "Q4", "6M", "9M", "Annual"), length.out = n())) %>%
   #CHANGE THIS TO MAKE DIFFERENT VERSIONS WHEN DATA IS UPDATED
-  subset(category == "Annual") %>%
+  subset(category == "6M") %>%
   slice(n()) %>%
   select(-category) %>%
   t() %>%
@@ -526,11 +526,11 @@ STATE_MANUFACTURING_ACTIVITY_EDIT <- STATE_MANUFACTURING_ACTIVITY %>%
   mutate(region = sprintf("%02d", 1:32))
 
 MX_MANUFACTURING_MAP <- mxstate_choropleth(STATE_MANUFACTURING_ACTIVITY_EDIT,
-                                          title = "Manufacturing Activity Growth, 2018-2023",
+                                          title = "Manufacturing Activity Growth, 2018-2024",
                                           num_colors = 1) +
   theme_apricitas +
   labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Manufacturing Output Has Risen Significantly In Mexico's Major Northern Export States") +
-  scale_fill_viridis_c("Percent Change\nNote: Data Thru Q3 2023", limits = c(-0.16,.22), breaks = c(-.10,0,.10,.20), labels = c("-10%","0%","10%","20%")) +
+  scale_fill_viridis_c("Percent Change\nNote: Data Thru Q2 2024", limits = c(-0.16,.26), breaks = c(-.10,0,.10,.20), labels = c("-10%","0%","10%","20%")) +
   annotate(geom = "text", 
            label = paste0("Chihuahua: ", 
                           ifelse(STATE_MANUFACTURING_ACTIVITY_EDIT %>% 

@@ -93,7 +93,8 @@ JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/
   mutate(value = value/value[7]*100)
 
 JPN <- fredr(series_id = "JPNRGDPEXP",observation_start = as.Date("2018-01-01")) %>%
-  mutate(value = value/value[7]*100)
+  mutate(value = value/value[7]*100) %>%
+  select(date, value)
 
 #https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2023/qe232/gdemenuea.html
 
@@ -132,7 +133,7 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries are Now Above pre-COVID GDP") +
   theme_apricitas + theme(legend.position = c(.16,.30), legend.key.height = unit(0,"cm")) +
   scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.55) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RGDP_G7_Graph, "G7 Total.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
