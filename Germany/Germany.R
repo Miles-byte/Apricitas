@@ -1038,7 +1038,7 @@ MACHINERY_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufactu
   geom_line(data=subset(IPMAN_GENERAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="General Purpose Machinery"), size = 1.25) +
   geom_line(data=subset(IPMAN_METAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Metal Forming Machinery & Machine Tools"), size = 1.25) +
   geom_line(data=subset(IPMAN_SPECIAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Special Purpose Machinery, Excluding Metal Forming & Agricultural Machinery"), size = 1.25) +
-  geom_line(data=subset(IP_MACHINERY), aes(x=date,y= value/value[13]*100,color="Total Machinery and Equipment"), size = 2.25) +
+  #geom_line(data=subset(IP_MACHINERY), aes(x=date,y= value/value[13]*100,color="Total Machinery and Equipment"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(50,110), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +

@@ -546,10 +546,10 @@ ggsave(dpi = "retina",plot = QFR_Data_Increase_graph, "QFR Invest Increase Graph
 QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data= filter(QFR_Data, date >= as.Date("2015-01-01")), aes(x=date,y= (Publish_Info_Increase+Other_Info_Increase)/1000, color= "Increase in Net Property, Plant, & Equipment, Year-on-Year\nInformation Technology Sector"), size = 1.25) +
-  annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2018-03-01"), y =10, color = "white", size = 4, alpha = 0.5) +
+  annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2018-09-01"), y =12, color = "white", size = 4, alpha = 0.5) +
   xlab("Date") +
   ylab("Dollar Growth, Year-on-year") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100), limits = c(0,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100,120,140,160), limits = c(0,120), expand = c(0,0)) +
   ggtitle("Information Tech Sector Investment") +
   labs(caption = "Graph created by @JosephPolitano using Census QFR data", subtitle = "Information Technology Sector Physical Investment Has Boomed Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.40,.85), legend.key.height = unit(1,"cm")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +

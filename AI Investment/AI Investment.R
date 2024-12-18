@@ -54,8 +54,8 @@ US_ADP_NET_IMPORTS <- merge(US_ADP_IMPORTS,US_ADP_EXPORTS, by = "time") %>%
 
 US_COMPUTER_NET_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= DPU*12/1000000000,color= "Large Computers (excl. Laptops)"), size = 0.75, linetype = "dashed") + 
-  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= ADP_PARTS*12/1000000000,color= "Computer Parts & Accessories"), size = 0.75, linetype = "dashed") + 
+  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= DPU*12/1000000000,color= "Large Computers (excl. Laptops)"), size = 0.75, linetype = "dashed", alpha = 0.5) + 
+  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= ADP_PARTS*12/1000000000,color= "Computer Parts & Accessories"), size = 0.75, linetype = "dashed", alpha = 0.5) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_DPU/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_ADP_PARTS/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
   xlab("Date") +
@@ -367,11 +367,11 @@ US_ADP_PARTS_NET_EXPORTS_COUNTRY <- merge(US_ADP_PARTS_IMPORTS_COUNTRY_ROLLED,US
 
 US_TAIWAN_ADP_NET_IMPORTS_graph <- ggplot() + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_line(data= filter(US_ADP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "Large Computers"), size = 0.75, alpha = 0.75, linetype = "dashed") +
+  geom_line(data= filter(US_ADP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "Large Computers"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_ADP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Large Computers"), size = 1.25) +
-  geom_line(data= filter(US_LOGIC_CHIP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "GPUs/CPUs/TPUs"), size = 0.75, alpha = 0.75, linetype = "dashed") +
+  geom_line(data= filter(US_LOGIC_CHIP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "GPUs/CPUs/TPUs"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_LOGIC_CHIP_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "GPUs/CPUs/TPUs"), size = 1.25) +
-  geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "Computer Parts & Accessories"), size = 0.75, alpha = 0.75, linetype = "dashed") +
+  geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN.x-TAIWAN.y)*12/1000000000, color= "Computer Parts & Accessories"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +

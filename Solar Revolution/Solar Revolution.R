@@ -454,13 +454,13 @@ US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Imports of
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollEU/1000000000,color= "EU"), size = 1.25) +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-rollCN/1000000000,color= "China"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,22.5),breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,25),breaks = c(0,5,10,15,20), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's Net Battery Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data. Note: China Includes HK & MO",subtitle = "US Imports of Rechargeable Batteries Have Surged, Especially From China") +
   theme_apricitas + theme(legend.position = c(.33,.70)) +
   scale_color_manual(name= "US Net Imports of Rechargeable Batteries\nSolid = Rolling 12M Total, Dashed = Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("EU","South Korea","Mexico","Japan","China")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(22.5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(25)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NET_BATTERY_EXPORTS_BREAKDOWN_GRAPH, "US Net Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

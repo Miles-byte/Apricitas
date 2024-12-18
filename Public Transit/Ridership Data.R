@@ -331,6 +331,45 @@ SOUND_TRANSIT_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = SOUND_TRANSIT_graph, "Sound Transit Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+SOUND_TRANSIT_MONTHLY_graph <- ggplot() + 
+  #geom_line(data=filter(RAIL_BULK, agency == "Central Puget Sound Regional Transit Authority", month >= as.Date("2005-01-01")), aes(x=month,y= value/1000000*12,color="Sound Transit\nRail Ridership"), size = 0.75, linetype = "dashed") +
+  geom_line(data=filter(RAIL_BULK, agency == "Central Puget Sound Regional Transit Authority", month >= as.Date("2006-01-01")), aes(x=month,y= value*12/1000000,color="Link Ridership,\nAnnualized"), size = 1.25) +
+  #annotate("vline", x = as.Date("2003-08-01"), xintercept = as.Date("2003-08-01"), color = "white", size = 1, linetype = "dashed") +
+  #annotate("text", label = "Tacoma\nT-Line\nOpens", x = as.Date("2003-05-01"), y = 30, color = "white", size = 5, hjust = 1, lineheight = 0.8) +
+  annotate("vline", x = as.Date("2009-07-01"), xintercept = as.Date("2009-07-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Link\n1-Line\nOpens", x = as.Date("2009-05-01"), y = 41, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2016-03-01"), xintercept = as.Date("2016-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "University\n1-Line\nExtension", x = as.Date("2016-01-01"), y = 41, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2016-09-01"), xintercept = as.Date("2016-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Angle Lake\n1-Line\nExtension", x = as.Date("2016-11-01"), y = 41, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2021-10-01"), xintercept = as.Date("2021-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Northgate\n1-Line\nExtension", x = as.Date("2021-08-01"), y = 41, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-04-01"), xintercept = as.Date("2024-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 41, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 41, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "1 & 2\nLines\nConnected", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Redmond\n2-Line\nExtension", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2026-09-01"), xintercept = as.Date("2026-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Federal Way\n1-Line\nExtension", x = as.Date("2026-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,50), expand = c(0,0), breaks = c(0,10,20,30,40,50)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Seattle Link Light Rail Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes T-Line and Link but not Sounder Commuter Rail",subtitle = "Seattle's Link is One of America's Fastest-Growing Rail Transit Systems") +
+  theme_apricitas + theme(legend.position = c(.33,.95), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*50), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SOUND_TRANSIT_MONTHLY_graph, "Sound Transit Monthly Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 #GRAPH OF LA Metro Growth
 LA_METRO_graph <- ggplot() + 
   #geom_line(data=filter(RAIL_BULK, agency == "Central Puget Sound Regional Transit Authority", month >= as.Date("2005-01-01")), aes(x=month,y= value/1000000*12,color="Sound Transit\nRail Ridership"), size = 0.75, linetype = "dashed") +
@@ -558,22 +597,42 @@ LARGE_COMMUTER_AGENCIES <- ggplot() +
 ggsave(dpi = "retina",plot = LARGE_COMMUTER_AGENCIES, "Large Commuter Agencies.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 CALTRAIN_RIDERSHIP <- ggplot() + 
-  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Caltrain Ridership"), size = 1.25) +
-  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="Caltrain Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
   annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Caltrain\nElectrification\nCompletes", x = as.Date("2024-07-01"), y = 20, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Caltrain Ridership"), size = 1.25) +
+  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="Caltrain Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,25), expand = c(0,0), breaks = c(0,5,10,15,20,25)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Caltrain Ridership") +
-  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Caltrain Ridership Still Hasn't Recovered to Pre-COVID Levels") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Caltrain Ridership Has Bounced Up in Wake of the Line's Electrification") +
   theme_apricitas + theme(legend.position = c(.25,.90)) +
   scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*25), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CALTRAIN_RIDERSHIP, "Caltrain Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+CALTRAIN_RIDERSHIP_MONTHLY <- ggplot() + 
+  annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Caltrain\nElectrification\nCompletes", x = as.Date("2024-07-01"), y = 20, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  #geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Caltrain Ridership"), size = 1.25) +
+  #geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="Caltrain Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  geom_line(data=filter(COMMUTER_RAIL_BULK, agency == "Peninsula Corridor Joint Powers Board", month >= as.Date("2014-01-01")), aes(x=month,y= value/1000000*12,color="Caltrain Ridership"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,25), expand = c(0,0), breaks = c(0,5,10,15,20,25)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Caltrain Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Caltrain Ridership Has Bounced Up in Wake of the Line's Electrification") +
+  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  #scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
+  scale_color_manual(name= "Monthly Ridership, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CALTRAIN_RIDERSHIP_MONTHLY, "Caltrain Ridership Monthly.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 BUS_BULK <- NTD_BULK %>%
@@ -653,8 +712,8 @@ INDYGO_BUS_graph <- ggplot() +
   annotate("text", label = "Red\nLine\nOpens", x = as.Date("2019-08-15"), y = 2.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2019-09-01"), xintercept = as.Date("2019-12-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Free\nFares\nEnd", x = as.Date("2019-12-15"), y = 2.5, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2024-10-01"), xintercept = as.Date("2024-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Purple\nLine\nOpens", x = as.Date("2024-09-15"), y = 2.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-10-01"), xintercept = as.Date("2024-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Purple\nLine\nOpens", x = as.Date("2024-09-15"), y = 2.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2026-05-01"), xintercept = as.Date("2027-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Blue\nLine\nOpens", x = as.Date("2027-03-01"), y = 30, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +

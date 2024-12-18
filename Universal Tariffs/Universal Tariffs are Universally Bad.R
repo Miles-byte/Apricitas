@@ -1,4 +1,4 @@
-pacman::p_load(ggpubr,prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(censusapi,ggpubr,prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -636,6 +636,55 @@ RETALIATORY_TARIFF_DATA_Graph <- ggplot() + #plotting Wage Growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RETALIATORY_TARIFF_DATA_Graph, "Retaliatory Tariffs Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+US_TOTAL_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME", "CAL_DUT_MO"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "-",#ALL COuntries
+  CTY_CODE = "-", #TOTAL
+)
+
+US_TOTAL_IMPORTS <- US_TOTAL_IMPORTS_BULK %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO),CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
+  mutate(date = as.Date(paste0(time,"-01"))) %>%
+  select(CON_VAL_MO,CAL_DUT_MO,date) %>%
+  mutate(rollmean = c(rep(NA,11),roll_mean(CON_VAL_MO,12)), CAL_DUT_MO_rollmean = c(rep(NA,11),roll_mean(CAL_DUT_MO,12)))
+
+US_TOTAL_EXPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  #DF = 1, #excluding reexport
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  E_COMMODITY = "-",
+  CTY_CODE = "-", #All Countries
+)
+
+US_TOTAL_EXPORTS <- US_TOTAL_EXPORTS_BULK %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
+  mutate(date = as.Date(paste0(time,"-01"))) %>%
+  select(ALL_VAL_MO,date) %>%
+  mutate(rollmean = c(rep(NA,11),roll_mean(ALL_VAL_MO,12)))
+
+US_TOTAL_NET_EXPORTS <- merge(US_TOTAL_IMPORTS,US_TOTAL_EXPORTS, by = "date") %>%
+  transmute(date,imports = CON_VAL_MO, exports = ALL_VAL_MO, duties = CAL_DUT_MO, net_imports = CON_VAL_MO-ALL_VAL_MO, roll_imports = rollmean.x, roll_exports = rollmean.y, roll_net_imports = rollmean.x-rollmean.y, roll_duties = CAL_DUT_MO_rollmean, tariff = duties/imports, roll_tariff = roll_duties/roll_imports)
+
+US_TOTAL_EFFECTIVE_TARIFFS_GRAPH <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=US_TOTAL_NET_EXPORTS, aes(x=date,y= tariff,color= "Effective Tariff Rate\n(Tariffs Paid as a Share of All Imports)"), size = 0.75, alpha = 0.5, linetype = "dashed") + 
+  geom_line(data=US_TOTAL_NET_EXPORTS, aes(x=date,y= roll_tariff,color= "Effective Tariff Rate\n(Tariffs Paid as a Share of All Imports)"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.04), breaks = c(0,.01,.02,.03,.04), expand = c(0,0)) +
+  ylab("Percent of Gross Imports") +
+  ggtitle("US Overall Effective Tariff Rate") +
+  labs(caption = "Graph created by @JosephPolitano using Census International Trade data",subtitle = "Tariff Rates Spiked During the Trump Administration and Declined Slightly in the Biden Administration") +
+  theme_apricitas + theme(legend.position = c(.28,.875), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "Solid = Rolling 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*.04), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_TOTAL_EFFECTIVE_TARIFFS_GRAPH, "US Total Effective Tariff Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 
 p_unload(all)  # Remove all packages using the package manager
