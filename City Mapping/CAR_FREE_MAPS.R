@@ -32,7 +32,7 @@ DC_METRO_STATIONS <- file.path(unzip_dir) %>%
 
 VA <- geo.make(state = "VA",county= c("Arlington","Alexandria city","Fairfax County","Fairfax city","Loudoun","Prince William","Falls Church city"),tract = "*")
 
-VA_CAR_FREE <- acs.fetch(geography = VA,endyear = 2022,table.number="B08201")
+VA_CAR_FREE <- acs.fetch(geography = VA,endyear = 2023,table.number="B08201")
 
 VA_CAR_FREE_df <- data.frame(cbind(data.frame(VA_CAR_FREE@geography), data.frame(VA_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -49,7 +49,7 @@ VA_CAR_FREE_df <- data.frame(cbind(data.frame(VA_CAR_FREE@geography), data.frame
 
 MD <- geo.make(state = "MD",county= c("Montgomery","Prince George","Frederick","Charles","Howard","Anne Arundel"),tract = "*")
 
-MD_CAR_FREE <- acs.fetch(geography = MD,endyear = 2022,table.number="B08201")
+MD_CAR_FREE <- acs.fetch(geography = MD,endyear = 2023,table.number="B08201")
 
 MD_CAR_FREE_df <- data.frame(cbind(data.frame(MD_CAR_FREE@geography), data.frame(MD_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -67,7 +67,7 @@ MD_CAR_FREE_df <- data.frame(cbind(data.frame(MD_CAR_FREE@geography), data.frame
 
 DC <- geo.make(state = "DC",county = "*",tract = "*")
 
-DC_CAR_FREE <- acs.fetch(geography = DC,endyear = 2022,table.number="B08201")
+DC_CAR_FREE <- acs.fetch(geography = DC,endyear = 2023,table.number="B08201")
 
 DC_CAR_FREE_df <- data.frame(cbind(data.frame(DC_CAR_FREE@geography), data.frame(DC_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -145,7 +145,7 @@ DC_CAR_FREE_MAP <- ggplot() +
   geom_sf(data = DC_METRO_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in the DC Area") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-77.3,-76.8)) +
   scale_y_continuous(limits = c(38.75,39.12)) +
@@ -173,7 +173,7 @@ DC_CAR_FREE_MAP_NO_LINES <- ggplot() +
   geom_sf(data = DC_OUTLINE, fill = NA, color = "white", lwd = 0.65) +
   scale_fill_viridis_c(name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in the DC Area") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-77.3,-76.8)) +
   scale_y_continuous(limits = c(38.75,39.12)) +
@@ -202,7 +202,7 @@ DC_CAR_FREE_MAP_ZOOMED <- ggplot() +
   geom_sf(data = DC_METRO_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in DC") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-77.15,-76.9)) +
   scale_y_continuous(limits = c(38.7916,38.9955)) +
@@ -231,7 +231,7 @@ DC_CAR_FREE_MAP_ZOOMED_NO_LINES <- ggplot() +
   geom_sf(data = DC_OUTLINE, fill = NA, color = "white", lwd = 0.65) +
   scale_fill_viridis_c(name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in DC") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-77.15,-76.9)) +
   scale_y_continuous(limits = c(38.7916,38.9955)) +
@@ -252,7 +252,7 @@ ggsave(dpi = "retina",plot = DC_CAR_FREE_MAP_ZOOMED_NO_LINES, "DC Car Free Map N
 
 IL <- geo.make(state = "IL",county= c("Cook County","Lake County","Kendall","Kane","DeKalb","McHenry","Grundy","DuPage", "Will County"),tract = "*")
 
-IL_CAR_FREE <- acs.fetch(geography = IL,endyear = 2022,table.number="B08201")
+IL_CAR_FREE <- acs.fetch(geography = IL,endyear = 2023,table.number="B08201")
 
 IL_CAR_FREE_df <- data.frame(cbind(data.frame(IL_CAR_FREE@geography), data.frame(IL_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -268,7 +268,7 @@ IL_CAR_FREE_df <- data.frame(cbind(data.frame(IL_CAR_FREE@geography), data.frame
 
 IN <- geo.make(state = "IN",county= c("Jasper","Lake","Newton","Porter"),tract = "*")
 
-IN_CAR_FREE <- acs.fetch(geography = IN,endyear = 2022,table.number="B08201")
+IN_CAR_FREE <- acs.fetch(geography = IN,endyear = 2023,table.number="B08201")
 
 IN_CAR_FREE_df <- data.frame(cbind(data.frame(IN_CAR_FREE@geography), data.frame(IN_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -356,7 +356,7 @@ CHICAGO_CAR_FREE_MAP_ZOOMED <- ggplot() +
   geom_sf(data = CTA_L_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in Chicago") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-87.3,-88)) +
   scale_y_continuous(limits = c(41.64,42.075)) +
@@ -384,7 +384,7 @@ CHICAGO_CAR_FREE_MAP_NO_LINES <- ggplot() +
   #geom_sf(data = CTA_L_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in Chicago") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-87.3,-88)) +
   scale_y_continuous(limits = c(41.64,42.075)) +
@@ -406,7 +406,7 @@ ggsave(dpi = "retina",plot = CHICAGO_CAR_FREE_MAP_NO_LINES, "Chicago Car Free Ma
 
 MA <- geo.make(state = "MA",county= c("Essex","Middlesex","Norfolk","Plymouth","Suffolk"),tract = "*")
 
-MA_CAR_FREE <- acs.fetch(geography = MA,endyear = 2022,table.number="B08201")
+MA_CAR_FREE <- acs.fetch(geography = MA,endyear = 2023,table.number="B08201")
 
 MA_CAR_FREE_df <- data.frame(cbind(data.frame(MA_CAR_FREE@geography), data.frame(MA_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -422,7 +422,7 @@ MA_CAR_FREE_df <- data.frame(cbind(data.frame(MA_CAR_FREE@geography), data.frame
 
 # IN <- geo.make(state = "IN",county= c("Jasper","Lake","Newton","Porter"),tract = "*")
 # 
-# IN_CAR_FREE <- acs.fetch(geography = IN,endyear = 2022,table.number="B08201")
+# IN_CAR_FREE <- acs.fetch(geography = IN,endyear = 2023,table.number="B08201")
 # 
 # IN_CAR_FREE_df <- data.frame(cbind(data.frame(IN_CAR_FREE@geography), data.frame(IN_CAR_FREE@estimate))) %>% 
 #   summarize(NAME,
@@ -492,7 +492,7 @@ MBTA_LINES <- file.path(unzip_dir) %>%
   st_read()
 
 temp_zip <- tempfile(fileext = ".zip")
-download.file("https://github.com/Miles-byte/Apricitas/raw/main/City%20Mapping/CTA_STATIONS.zip", temp_zip, mode = "wb")
+download.file("https://github.com/Miles-byte/Apricitas/raw/main/City%20Mapping/mbta_rapid_transit.zip", temp_zip, mode = "wb")
 unzip_dir <- tempfile()
 unzip(temp_zip, exdir = unzip_dir)
 
@@ -509,7 +509,7 @@ BOSTON_CAR_FREE_MAP <- ggplot() +
   geom_sf(data = MBTA_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75), limits = c(0,0.75), labels = c("0%","25%","50%","75+%")) +
   ggtitle("Car-Free Households in Boston") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-70.85,-71.25)) +
   scale_y_continuous(limits = c(42.22,42.43)) +
@@ -537,7 +537,7 @@ BOSTON_CAR_FREE_MAP_NO_LINES <- ggplot() +
   #geom_sf(data = MBTA_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75), limits = c(0,0.75), labels = c("0%","25%","50%","75+%")) +
   ggtitle("Car-Free Households in Boston") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-70.85,-71.25)) +
   scale_y_continuous(limits = c(42.22,42.43)) +
@@ -558,7 +558,7 @@ ggsave(dpi = "retina",plot = BOSTON_CAR_FREE_MAP_NO_LINES, "Boston Car Free Map 
 
 PA <- geo.make(state = "PA",county= c("Bucks","Chester","Delaware","Montgomery","Philadelphia"),tract = "*")
 
-PA_CAR_FREE <- acs.fetch(geography = PA,endyear = 2022,table.number="B08201")
+PA_CAR_FREE <- acs.fetch(geography = PA,endyear = 2023,table.number="B08201")
 
 PA_CAR_FREE_df <- data.frame(cbind(data.frame(PA_CAR_FREE@geography), data.frame(PA_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -573,7 +573,7 @@ PA_CAR_FREE_df <- data.frame(cbind(data.frame(PA_CAR_FREE@geography), data.frame
   )
 
 NJ <- geo.make(state = "NJ",county= c("Burlington","Camden","Gloucester"),tract = "*")
-NJ_CAR_FREE <- acs.fetch(geography = NJ,endyear = 2022,table.number="B08201")
+NJ_CAR_FREE <- acs.fetch(geography = NJ,endyear = 2023,table.number="B08201")
 
 NJ_CAR_FREE_df <- data.frame(cbind(data.frame(NJ_CAR_FREE@geography), data.frame(NJ_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -663,7 +663,7 @@ PHILLY_CAR_FREE_MAP <- ggplot() +
   geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in Philadelphia") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-74.925,-75.45)) +
   scale_y_continuous(limits = c(39.825,40.15)) +
@@ -691,7 +691,7 @@ PHILLY_CAR_FREE_MAP_NO_LINES <- ggplot() +
   #geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(option = "turbo",name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in Philadelphia") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-74.925,-75.45)) +
   scale_y_continuous(limits = c(39.825,40.15)) +
@@ -714,7 +714,7 @@ ggsave(dpi = "retina",plot = PHILLY_CAR_FREE_MAP_NO_LINES, "Philly Car Free Map 
 
 CA <- geo.make(state = "CA",county= c("Los Angeles","Ventura","Kern","Orange","Riverside"),tract = "*")
 
-CA_CAR_FREE <- acs.fetch(geography = CA,endyear = 2022,table.number="B08201")
+CA_CAR_FREE <- acs.fetch(geography = CA,endyear = 2023,table.number="B08201")
 
 CA_CAR_FREE_df <- data.frame(cbind(data.frame(CA_CAR_FREE@geography), data.frame(CA_CAR_FREE@estimate))) %>% 
   summarize(NAME,
@@ -775,7 +775,7 @@ LA_CAR_FREE_MAP_NO_LINES <- ggplot() +
   #geom_sf(data = SEPTA_STATIONS, color = "black", size = 0.5) +
   scale_fill_viridis_c(name= "Households\n% Car-Free", breaks = c(0,.25,.5,.75,1), labels = scales::percent_format(accuracy = 1)) +
   ggtitle("Car-Free Households in Los Angeles") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-118.7,-118.1)) +
   scale_y_continuous(limits = c(33.725,34.325)) +

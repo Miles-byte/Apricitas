@@ -2229,6 +2229,187 @@ JOB_GROWTH_STATE <- states_job_growth  %>%
 
 ggsave(dpi = "retina",plot = JOB_GROWTH_STATE, "Job Growth By State Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+states_territories_centroids <- states_territories_centroids %>%
+  mutate(Growth_bucket = case_when(
+    Growth < 0 ~ 0,
+    Growth > 0.15 ~ 0.15,
+    TRUE ~ Growth
+  ))
+
+states_territories_labls <- states_territories_labls %>%
+  mutate(Growth_bucket = case_when(
+    Growth < 0 ~ 0,
+    Growth > 0.15 ~ 0.15,
+    TRUE ~ Growth
+  ))
+
+JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
+  mutate(Growth_bucket = case_when(
+    Growth < 0 ~ 0,
+    Growth > 0.15 ~ 0.15,
+    TRUE ~ Growth
+  )) %>%
+  ggplot(aes(fill = Growth_bucket)) +
+  geom_sf(color = NA) +
+  geom_sf(color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(0,.15), label = c("<0%","5%","10%","15%+"),breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("PR")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids, state_abbv %in% c("VI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(states_territories_labls, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  ggtitle("    Change in Nonfarm Payrolls Since Jan 2020") +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_GRADIENT_RAINBOW, "Job Growth By State Map Gradient Rainbow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 # AL_NSA <- fredr(series_id = "ALNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
 #   mutate(name = "Alabama")
 # AK_NSA <- fredr(series_id = "AKNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
@@ -2791,6 +2972,156 @@ JOB_GROWTH_STATE_YOY <- states_job_growth_NSA  %>%
   theme(plot.title = element_text(size = 26))
 
 ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY, "Job Growth By State Yoy Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+JOB_GROWTH_STATE_YOY_RAINBOW <- states_job_growth_NSA  %>%
+  ggplot(aes(fill = Yoy_Growth)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states_job_growth_NSA, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NH")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 380000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VT")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 150000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MA")), 
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 100000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("PR")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
+    size = 3, 
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(states_territories_labls_NSA, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  ggtitle(paste("Change in Nonfarm Payrolls,",format(ymd(states_job_growth_NSA$date[1]) %m-% months(12), "%b %Y"), "to", format(ymd(states_job_growth_NSA$date[1]), "%b %Y"))) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 26))
+
+ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY_RAINBOW, "Job Growth By State Yoy Map Rainbow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 PAYEMS_2020 <- fredr(series_id = "PAYEMS",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%

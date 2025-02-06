@@ -355,7 +355,7 @@ STEO_Crude_Production_Graph <- ggplot() + #plotting US Crude Production
   ylab("Mbbl Per Day") +
   ggtitle("America's Oil Recovery") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "US Oil Production Is Now at Record High Levels") +
-  theme_apricitas + theme(legend.position = c(.55,.92)) +
+  theme_apricitas + theme(legend.position = c(.45,.92)) +
   scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*14), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

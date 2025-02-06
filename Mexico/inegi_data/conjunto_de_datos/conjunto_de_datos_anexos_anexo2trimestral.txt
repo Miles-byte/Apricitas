@@ -1,0 +1,4 @@
+"Comentarios del Tabulado."
+"A precios de mercado"
+"Los códigos se derivan del SCN 2008, modificados para uso del SCN de México."
+"SCN - SCIAN Se refiere a la codificación del Sistema de Cuentas Nacionales 2008 y del Sistema de Clasificación Industrial de América del Norte 2018."

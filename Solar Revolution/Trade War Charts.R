@@ -1,3 +1,19 @@
+pacman::p_load(purrr,sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+
+#Using an updated version of the Chinese national stats bureau rstatscn package that fixes a json error in the old database
+install_github("pcdi/rstatscn")
+library(rstatscn)
+
+devtools::install_github("jameelalsalam/eia2")
+library("eia2")
+
+theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
+  theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
+
+apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
+
+
 US_SOLAR_IMPORTS_BULK_TARIFFS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("MONTH", "YEAR","CON_VAL_MO","GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME","CAL_DUT_MO"), 
@@ -26,13 +42,13 @@ US_SOLAR_PANEL_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate(geom = "text", label = "Antidumping\nTariffs\nStart\nIncreasing",x = as.Date("2024-06-15"), y = 21, size = 4,color = "white", lineheight = 0.8, hjust = 0) +
   geom_line(data=US_SOLAR_PANEL_IMPORTS, aes(x=date,y= CON_VAL_MO/1000000000*12,color= "US Solar Panel Imports,\nMonthly Annualized"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,25), breaks = c(0,5,10,15,20,25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,27.5), breaks = c(0,5,10,15,20,25), expand = c(0,0)) +
   ylab("Dollars, Monthly Annualized") +
   ggtitle("US Solar Panel Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census International Trade data",subtitle = "US Solar Panels Imports Have Sunk to the Lowest Levels in Two Years Amidst Tariffs") +
   theme_apricitas + theme(legend.position = c(.5,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 0-(.3*27.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_SOLAR_PANEL_IMPORTS_GRAPH, "US Solar Panel Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -121,7 +137,6 @@ US_LION_EV_BATTERY_IMPORTS_BREAKDOWN_GRAPH <- ggplot() + #plotting US Net Import
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_LION_EV_BATTERY_IMPORTS_BREAKDOWN_GRAPH, "US Lion EV Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
 
 
 US_LION_EV_BATTERY_IMPORTS_BREAKDOWN_MONTHLY_GRAPH <- ggplot() + #plotting US Net Imports of EVs
@@ -651,3 +666,387 @@ I_COMMODITY = "76072010",
 I_COMMODITY = "760810",
 I_COMMODITY = "760820",
 I_COMMODITY = "760900",)
+
+
+
+US_CHINA_TARIFFED_GOODS1 <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO","GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME","CAL_DUT_MO"), 
+  time = paste("from 2023 to", format(Sys.Date(), "%Y")),
+  CTY_CODE = "5700", #FROM CHINA
+  I_COMMODITY ="870360",
+  I_COMMODITY ="870370",
+  I_COMMODITY ="870380",
+  I_COMMODITY ="8703900100",
+  I_COMMODITY ="6307909842",
+  I_COMMODITY ="6307909844",
+  I_COMMODITY ="6307909850",
+  I_COMMODITY ="6307909870",
+  I_COMMODITY ="6307909875",
+  I_COMMODITY ="8507600010",
+  I_COMMODITY ="8507600020",
+  I_COMMODITY ="2602",
+  I_COMMODITY ="2605",
+  I_COMMODITY ="2606",
+  I_COMMODITY ="2608",
+  I_COMMODITY ="2610",
+  I_COMMODITY ="2611006000",
+  I_COMMODITY ="284180",
+  I_COMMODITY ="284441",
+  I_COMMODITY ="284442",
+  I_COMMODITY ="284443",
+  I_COMMODITY ="284444",
+  I_COMMODITY ="2849903000",
+  I_COMMODITY ="720260",
+  I_COMMODITY ="790111",
+  I_COMMODITY ="790120",
+  I_COMMODITY ="800110",
+  I_COMMODITY ="800120",
+  I_COMMODITY ="810110",
+  I_COMMODITY ="810320",
+  I_COMMODITY ="811221",
+  I_COMMODITY ="850511",
+  I_COMMODITY ="854110",
+  I_COMMODITY ="854121",
+  I_COMMODITY ="854129",
+  I_COMMODITY ="854130",
+  I_COMMODITY ="854151",
+  I_COMMODITY ="854159",
+  I_COMMODITY ="854190",
+  I_COMMODITY ="854231",
+  I_COMMODITY ="854232",
+  I_COMMODITY ="854233",
+  I_COMMODITY ="854239",
+  I_COMMODITY ="854290",
+  I_COMMODITY ="854142",
+  I_COMMODITY ="854143",
+  I_COMMODITY = "720610",
+  I_COMMODITY = "720690",
+  I_COMMODITY = "720711",
+  I_COMMODITY = "720712",
+  I_COMMODITY = "720719", 
+  I_COMMODITY = "720720",
+  I_COMMODITY = "720826",
+  I_COMMODITY = "720827",
+  I_COMMODITY = "720836",
+  I_COMMODITY = "720837",
+  I_COMMODITY = "720838",
+  I_COMMODITY = "720839",
+  I_COMMODITY = "720851",
+  I_COMMODITY = "720852",
+  I_COMMODITY = "720853",
+  I_COMMODITY = "720854",
+  I_COMMODITY = "720890",
+  I_COMMODITY = "720915",
+  I_COMMODITY = "720916",
+  I_COMMODITY = "720917",
+  I_COMMODITY = "720925",
+  I_COMMODITY = "720926",
+  I_COMMODITY = "720927",
+  I_COMMODITY = "720928",
+  I_COMMODITY = "720990",
+  I_COMMODITY = "721011",
+  I_COMMODITY = "721012",
+  I_COMMODITY = "721020",
+  I_COMMODITY = "721030",
+  I_COMMODITY = "721041",
+  I_COMMODITY = "721049",
+  I_COMMODITY = "721050",
+  I_COMMODITY = "721061",
+  I_COMMODITY = "721069",
+  I_COMMODITY = "721113",
+  I_COMMODITY = "721114",
+  I_COMMODITY = "721190",
+  I_COMMODITY = "721210",
+  I_COMMODITY = "721220",
+  I_COMMODITY = "721250",
+  I_COMMODITY = "721260",
+  I_COMMODITY = "721310",
+  I_COMMODITY = "721320",
+  I_COMMODITY = "721399",
+  I_COMMODITY = "721420",
+  I_COMMODITY = "721430",
+  I_COMMODITY = "721491",
+  I_COMMODITY = "721499",
+  I_COMMODITY = "721510",
+  I_COMMODITY = "721550",
+  I_COMMODITY = "721610",
+  I_COMMODITY = "721621",
+  I_COMMODITY = "721622",
+  I_COMMODITY = "721631",
+  I_COMMODITY = "721632",
+  I_COMMODITY = "721633",
+  I_COMMODITY = "721640",
+  I_COMMODITY = "721650",
+  I_COMMODITY = "721699",
+  I_COMMODITY = "721810",
+  I_COMMODITY = "721891",
+  I_COMMODITY = "721899",
+  I_COMMODITY = "721911",
+  I_COMMODITY = "721912",
+  I_COMMODITY = "721913",
+  I_COMMODITY = "721914",
+  I_COMMODITY = "721921",
+  I_COMMODITY = "721922",
+  I_COMMODITY = "721923",
+  I_COMMODITY = "721924",
+  I_COMMODITY = "721931",
+  I_COMMODITY = "721932",
+  I_COMMODITY = "721933",
+  I_COMMODITY = "721934",
+  I_COMMODITY = "721935",
+  I_COMMODITY = "721990",
+  I_COMMODITY = "722090",
+  I_COMMODITY = "7221",
+  I_COMMODITY = "722211",
+  I_COMMODITY = "722219",
+  I_COMMODITY = "722220",
+  I_COMMODITY = "722230",
+  I_COMMODITY = "722410",
+  I_COMMODITY = "722490",
+  I_COMMODITY = "722511",
+  I_COMMODITY = "722519",
+  I_COMMODITY = "722591",
+  I_COMMODITY = "722592",
+  I_COMMODITY = "722599",
+  I_COMMODITY = "722620",
+  I_COMMODITY = "722710",
+  I_COMMODITY = "722720",
+  I_COMMODITY = "722840",
+  I_COMMODITY = "722920",
+  I_COMMODITY = "730110",
+  I_COMMODITY = "730240",
+  I_COMMODITY = "730411",
+  I_COMMODITY = "730422",
+  I_COMMODITY = "730439",
+  I_COMMODITY = "730449",
+  I_COMMODITY = "730611",
+)
+
+US_CHINA_TARIFFED_GOODS2 <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO","GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME","CAL_DUT_MO"), 
+  time = paste("from 2023 to", format(Sys.Date(), "%Y")),
+  CTY_CODE = "5700", #FROM CHINA
+  I_COMMODITY = "7306218010",
+  I_COMMODITY = "7306218050",
+  I_COMMODITY = "7306291030",
+  I_COMMODITY = "7306291090",
+  I_COMMODITY = "7306292000",
+  I_COMMODITY = "7306293100",
+  I_COMMODITY = "7306294100",
+  I_COMMODITY = "7306296010",
+  I_COMMODITY = "7306296050",
+  I_COMMODITY = "7306298110",
+  I_COMMODITY = "7306298150",
+  I_COMMODITY = "7306301000",
+  I_COMMODITY = "7306303000",
+  I_COMMODITY = "7306305010",
+  I_COMMODITY = "7306305015",
+  I_COMMODITY = "7306305020",
+  I_COMMODITY = "7306305025",
+  I_COMMODITY = "7306305026",
+  I_COMMODITY = "7306305027",
+  I_COMMODITY = "7306305028",
+  I_COMMODITY = "7306305031",
+  I_COMMODITY = "7306305032",
+  I_COMMODITY = "7306305033",
+  I_COMMODITY = "7306305035",
+  I_COMMODITY = "7306305040",
+  I_COMMODITY = "7306305041",
+  I_COMMODITY = "7306305043",
+  I_COMMODITY = "7306305055",
+  I_COMMODITY = "7306305056",
+  I_COMMODITY = "7306305057",
+  I_COMMODITY = "7306305085",
+  I_COMMODITY = "7306305090",
+  I_COMMODITY = "7306401010",
+  I_COMMODITY = "7306401015",
+  I_COMMODITY = "7306405005",
+  I_COMMODITY = "7306405015",
+  I_COMMODITY = "7306501000",
+  I_COMMODITY = "7306503000",
+  I_COMMODITY = "7306505010",
+  I_COMMODITY = "7306505030",
+  I_COMMODITY = "7306505050",
+  I_COMMODITY = "7306505070",
+  I_COMMODITY = "7306611000",
+  I_COMMODITY = "7306613000",
+  I_COMMODITY = "7306615000",
+  I_COMMODITY = "7306617030",
+  I_COMMODITY = "7306617060",
+  I_COMMODITY = "7306691000",
+  I_COMMODITY = "7306693000",
+  I_COMMODITY = "7306697030",
+  I_COMMODITY = "7306697060",
+  I_COMMODITY = "7306901000",
+  I_COMMODITY = "7306905000",
+  I_COMMODITY = "7601103000",
+  I_COMMODITY = "7601106030",
+  I_COMMODITY = "7601106090",
+  I_COMMODITY = "7601203000",
+  I_COMMODITY = "7601206000",
+  I_COMMODITY = "7601209030",
+  I_COMMODITY = "7601209045",
+  I_COMMODITY = "7601209060",
+  I_COMMODITY = "7601209075",
+  I_COMMODITY = "7601209080",
+  I_COMMODITY = "7601209085",
+  I_COMMODITY = "7601209095",
+  I_COMMODITY = "7604101000",
+  I_COMMODITY = "7604103000",
+  I_COMMODITY = "7604105000",
+  I_COMMODITY = "760421",
+  I_COMMODITY = "7604291010",
+  I_COMMODITY = "7604291090",
+  I_COMMODITY = "7604293030",
+  I_COMMODITY = "7604293060",
+  I_COMMODITY = "7604293090",
+  I_COMMODITY = "7604295020",
+  I_COMMODITY = "7604295050",
+  I_COMMODITY = "7604295090",
+  I_COMMODITY = "760511",
+  I_COMMODITY = "760519",
+  I_COMMODITY = "760521",
+  I_COMMODITY = "760529",
+  I_COMMODITY = "7606113030",
+  I_COMMODITY = "7606113060",
+  I_COMMODITY = "7606116000",
+  I_COMMODITY = "7606123015",
+  I_COMMODITY = "7606123025",
+  I_COMMODITY = "7606123035",
+  I_COMMODITY = "7606123045",
+  I_COMMODITY = "7606123055",
+  I_COMMODITY = "7606123091",
+  I_COMMODITY = "7606123096",
+  I_COMMODITY = "7606126000",
+  I_COMMODITY = "7606913055",
+  I_COMMODITY = "7606913095",
+  I_COMMODITY = "7606916055",
+  I_COMMODITY = "7606916095",
+  I_COMMODITY = "7606923025",
+  I_COMMODITY = "7606923035",
+  I_COMMODITY = "7606926055",
+  I_COMMODITY = "7606926095",
+  I_COMMODITY = "7607113000", 
+  I_COMMODITY = "7607116010",
+  I_COMMODITY = "7607116090",
+  I_COMMODITY = "7607119030",
+  I_COMMODITY = "7607119060",
+  I_COMMODITY = "7607119090",
+  I_COMMODITY = "7607196000",
+  I_COMMODITY = "7607201000",
+  I_COMMODITY = "760810",
+  I_COMMODITY = "760820",
+  I_COMMODITY = "7609",
+  I_COMMODITY = "901831",
+  I_COMMODITY = "901832",
+  I_COMMODITY = "810194",
+  I_COMMODITY = "8101991000",
+  I_COMMODITY = "8101998000",
+  I_COMMODITY = "280461",
+  I_COMMODITY = "3818",
+  I_COMMODITY = "842619",
+)
+
+CHINA_IMPORTS_HS10_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO","GEN_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME","CAL_DUT_MO","COMM_LVL"), 
+  time = paste("from 2023 to", format(Sys.Date(), "%Y")),
+  CTY_CODE = "5700", #FROM CHINA
+  COMM_LVL = "HS10", #10 DIGIT HS CODE
+)
+
+CHINA_IMPORTS_HS8 <- CHINA_IMPORTS_HS10_BULK %>%
+  mutate(I_COMMODITY_HS8 = substr(I_COMMODITY, 1, 8)) %>%
+  filter(I_COMMODITY_HS8 %in% c("85414910", "85414970", "85414980", "85414995", "72081015", "72081030", "72081060", "72082530", "72082560", "72084030", "72084060", "72091815", "72091825", "72091860", "72107030", "72107060", "72109010", "72109060", "72109090", "72111915", "72111920", "72111930", "72111945", "72111960", "72111975", "72112315", "72112320", "72112330", "72112345", "72112360", "72112920", "72112945", "72112960", "72123010", "72123030", "72123050", "72124010", "72124050", "72139130", "72139145", "72139160", "72159010", "72159030", "72159050", "72171010", "72171020", "72171030", "72171050", "72171060", "72171070", "72171080", "72171090", "72172015", "72172030", "72172045", "72172060", "72172075", "72173015", "72173030", "72173060", "72173075", "72179010", "72179050", "72201210", "72201250", "72202010", "72202060", "72202070", "72202080", "72224030", "72224060", "72230010", "72230050", "72230090", "72253011", "72253030", "72253051", "72253070", "72254011", "72254030", "72254051", "72254070", "72255011", "72255060", "72255070", "72255080", "72261110", "72261190", "72261910", "72261990", "72269105", "72269115", "72269125", "72269150", "72269170", "72269180", "72269210", "72269230", "72269250", "72269270", "72269280", "72269901", "72279010", "72279020", "72279060", "72282010", "72282050", "72283040", "72283060", "72283080", "72285010", "72285050", "72286010", "72286060", "72286080", "72287030", "72287060", "72299010", "72299050", "72299090", "73021010", "73021050", "73042330", "73042360", "73042430", "73042440", "73042460", "73042910", "73042920", "73042931", "73042941", "73042950", "73042961", "73043130", "73043160", "73041910", "73041950", "73029010", "73029090", "73045110", "73045150", "73045910", "73045920", "73045960", "73045980", "73049010", "73049070", "73051110", "73051150", "73051210", "73051250", "73051910", "73051950", "73052020", "73052040", "73052060", "73052080", "73053120", "73053140", "73053160", "73053910", "73053950", "73059010", "73059050", "73061910", "73061951", "73062130", "73062140", "87024031","87024061","87029031","87029061","40151210","25041010","25041050","25049000","28259030","72029340","72029380","79011210","79011250","81129230")) %>%
+  group_by(time,I_COMMODITY_HS8) %>%
+  mutate(across(c(CON_VAL_MO, CAL_DUT_MO, GEN_VAL_MO), as.numeric)) %>%
+  group_by(time,I_COMMODITY_HS8) %>%
+  summarize(across(c(CON_VAL_MO, CAL_DUT_MO, GEN_VAL_MO), sum, na.rm = TRUE), .groups = "drop") %>%
+  mutate(CTY_NAME = "CHINA", CTY_CODE = "5700") %>%
+  mutate(I_COMMODITY = I_COMMODITY_HS8) %>%
+  select(-I_COMMODITY_HS8)
+
+US_CHINA_TARIFFED_GOODS <- US_CHINA_TARIFFED_GOODS1 %>%
+  transmute(time,I_COMMODITY, CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO), GEN_VAL_MO = as.numeric(GEN_VAL_MO), CTY_NAME, CTY_CODE) %>%
+  rbind(US_CHINA_TARIFFED_GOODS2 %>% transmute(time,I_COMMODITY, CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO), GEN_VAL_MO = as.numeric(GEN_VAL_MO), CTY_NAME, CTY_CODE)) %>%
+  rbind(CHINA_IMPORTS_HS8)
+
+US_CHINA_TARIFFED_GOODS <- US_CHINA_TARIFFED_GOODS %>%
+  mutate(category = case_when(
+    grepl("^87", I_COMMODITY) ~ "EVs",
+    grepl("^63", I_COMMODITY) ~ "Medical Supplies",
+    grepl("^40", I_COMMODITY) ~ "Medical Supplies",
+    grepl("^9018", I_COMMODITY) ~ "Medical Supplies",
+    grepl("^9018", I_COMMODITY) ~ "Medical Supplies",
+    grepl("^85079040", I_COMMODITY) ~ "Non-EV Batteries",
+    grepl("^8507600010", I_COMMODITY) ~ "EV Batteries",
+    grepl("^8507600020", I_COMMODITY) ~ "Non-EV Batteries",
+    grepl("^2504", I_COMMODITY) ~ "Natural Graphite",
+    grepl("^8505", I_COMMODITY) ~ "Permanent Magnets",
+    grepl("^8541", I_COMMODITY) ~ "Semiconductors",
+    grepl("^8542", I_COMMODITY) ~ "Semiconductors",
+    grepl("^842619", I_COMMODITY) ~ "Ship-to-Shore Cranes",
+    grepl("^72", I_COMMODITY) ~ "Steel & Aluminum Products",
+    grepl("^73", I_COMMODITY) ~ "Steel & Aluminum Products",
+    grepl("^76", I_COMMODITY) ~ "Steel & Aluminum Products",
+    grepl("^3818", I_COMMODITY) ~ "Silicon & Wafers",
+    grepl("^280461", I_COMMODITY) ~ "Silicon & Wafers",
+    grepl("^26", I_COMMODITY) ~ "Critical Minerals",
+    grepl("^28", I_COMMODITY) ~ "Critical Minerals",
+    grepl("^79", I_COMMODITY) ~ "Critical Minerals",
+    grepl("^80", I_COMMODITY) ~ "Critical Minerals",
+    grepl("^81", I_COMMODITY) ~ "Critical Minerals",
+    TRUE ~ NA_character_  # Default case
+  )) %>%
+  mutate(category = case_when(
+         grepl("^854142", I_COMMODITY) ~ "Solar Cells",
+         grepl("^854143", I_COMMODITY) ~ "Solar Cells",
+         grepl("^854143", I_COMMODITY) ~ "Solar Cells",
+         grepl("^8101", I_COMMODITY) ~ "Tungsten",
+         grepl("^7202", I_COMMODITY) ~ "Critical Minerals",
+         TRUE ~ category)) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  filter(time >= as.Date("2023-10-01") & time <= as.Date("2024-09-01")) %>%
+  group_by(category) %>%
+  summarize(across(c(CON_VAL_MO, CAL_DUT_MO, GEN_VAL_MO), sum, na.rm = TRUE), .groups = "drop") %>%
+  mutate(phase = case_when(
+    category == "EVs" ~ "Sep 2024",
+    category == "EV Batteries" ~ "Sep 2024",
+    category == "Medical Supplies" ~ "Sep 2024",
+    category == "Non-EV Batteries" ~ "Jan 2026",
+    category == "Natural Graphite" ~ "Jan 2026",
+    category == "Critical Minerals" ~ "Sep 2024",
+    category == "Permanent Magnets" ~ "Jan 2026",
+    category == "Semiconductors" ~ "Jan 2025",
+    category == "Ship-to-Shore Cranes" ~ "Sep 2024",
+    category == "Solar Cells" ~ "Sep 2024",
+    category == "Steel & Aluminum Products" ~ "Sep 2024",
+    category == "Tungsten" ~ "Jan 2025",
+    category == "Silicon & Wafers" ~ "Jan 2025",
+    TRUE ~ category
+  )) %>%
+  mutate(category = factor(category, levels = rev(c("EV Batteries","Steel & Aluminum Products","Medical Supplies","Critical Minerals","EVs","Ship-to-Shore Cranes","Solar Cells","Semiconductors","Silicon & Wafers","Tungsten","Non-EV Batteries","Permanent Magnets","Natural Graphite"))))
+
+
+US_CHINA_TARIFFED_GOODS_GRAPH <- ggplot(data = US_CHINA_TARIFFED_GOODS, aes(x = category, y = CON_VAL_MO/1000000000, fill = phase)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  geom_text(aes(label = paste0(" ",category)), 
+            position = position_stack(vjust = 0), # Centers text within the bars
+            angle = 0, 
+            hjust = 0, 
+            size = 7,
+            color = "white",
+            fontface = "bold") +
+  xlab(NULL) +
+  ggtitle("Chinese Imports Hit by New US Tariffs") +
+  ylab("Imports 12M Before Oct 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,12.5), expand = c(0,0)) +
+  scale_fill_manual(name= "Phase:",values = c("#3083DC","#00A99D","#EE6055"), breaks = c("Sep 2024","Jan 2025","Jan 2026")) +
+  labs(caption = "Graph created by @JosephPolitano using Census data") +
+  theme_apricitas + theme(legend.position = c(.75,.75), plot.margin= grid::unit(c(0.2, .2, 0.1, .2), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"),axis.text.y = element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = US_CHINA_TARIFFED_GOODS_GRAPH, "US China Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

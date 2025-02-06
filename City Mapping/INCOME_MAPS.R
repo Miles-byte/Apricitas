@@ -15,7 +15,7 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 
 VA <- geo.make(state = "VA",county= c(013,510),tract = "*")
 
-VA_INCOME <- acs.fetch(geography = VA,endyear = 2022,table.number="B19013")
+VA_INCOME <- acs.fetch(geography = VA,endyear = 2023,table.number="B19013")
 
 VA_INCOME_df <- data.frame( GEOID = paste0(VA_INCOME@geography$state,
                                                         str_pad(VA_INCOME@geography$county,
@@ -29,7 +29,7 @@ row.names=NULL)
 
 DC <- geo.make(state = "DC",county = "*",tract = "*")
 
-DC_INCOME <- acs.fetch(geography = DC,endyear = 2022,table.number="B19013")
+DC_INCOME <- acs.fetch(geography = DC,endyear = 2023,table.number="B19013")
 
 DC_INCOME_df <- data.frame( GEOID = paste0(DC_INCOME@geography$state,
                                             str_pad(DC_INCOME@geography$county,
@@ -92,7 +92,7 @@ DC_INCOME_MAP <- ggplot() +
   geom_sf(data = DC_VA_SHAPE, aes(fill = median_income/1000), color = NA) +
   scale_fill_viridis_c(name= "Median Household Income", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
   ggtitle("Income in DC, Arlington, & Alexandria") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = "Median Income is Highest in NW DC and Arlington While Lowest Across the Anacostia River") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = "Median Income is Highest in NW DC and Arlington While Lowest Across the Anacostia River") +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -111,7 +111,7 @@ ggsave(dpi = "retina",plot = DC_INCOME_MAP, "DC Income Map.png", type = "cairo-p
 
 IL <- geo.make(state = "IL",county= "Cook",tract = "*")
 
-IL_INCOME <- acs.fetch(geography = IL,endyear = 2022,table.number="B19013")
+IL_INCOME <- acs.fetch(geography = IL,endyear = 2023,table.number="B19013")
 
 IL_INCOME_df <- data.frame( GEOID = paste0(IL_INCOME@geography$state,
                                            str_pad(IL_INCOME@geography$county,
@@ -158,7 +158,7 @@ IL_INCOME_MAP <- ggplot() +
   geom_sf(data = IL_SHAPE, aes(fill = median_income/1000), color = NA) +
   scale_fill_viridis_c(name= "Median Household Income", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
   ggtitle("Income in Cook County") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = "Median Income is Highest in Chicago's North Side and Lowest in the South Side") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = "Median Income is Highest in Chicago's North Side and Lowest in the South Side") +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -177,7 +177,7 @@ ggsave(dpi = "retina",plot = IL_INCOME_MAP, "IL Income Map.png", type = "cairo-p
 
 NY <- geo.make(state = "NY",county= c("New York", "Kings", "Queens", "Bronx", "Richmond"),tract = "*")
 
-NY_INCOME <- acs.fetch(geography = NY,endyear = 2022,table.number="B19013")
+NY_INCOME <- acs.fetch(geography = NY,endyear = 2023,table.number="B19013")
 
 NY_INCOME_df <- data.frame(GEOID = paste0(NY_INCOME@geography$state,
                                            str_pad(NY_INCOME@geography$county,
@@ -200,7 +200,7 @@ NY_SHAPE <- NY_SHAPE %>%
 #HUDSON COUNTY
 NJ <- geo.make(state = "NJ",county= "Hudson",tract = "*")
 
-NJ_INCOME <- acs.fetch(geography = NJ,endyear = 2022,table.number="B19013")
+NJ_INCOME <- acs.fetch(geography = NJ,endyear = 2023,table.number="B19013")
 
 NJ_INCOME_df <- data.frame(GEOID = paste0(NJ_INCOME@geography$state,
                                           str_pad(NJ_INCOME@geography$county,
@@ -253,7 +253,7 @@ NY_INCOME_MAP <- ggplot() +
   geom_sf(data = NY_SHAPE, aes(fill = median_income/1000), color = NA) +
   scale_fill_viridis_c(name= "Median Household Income", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
   ggtitle("Income in NYC & Hudson County") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = "Income is Highest in Lower Manhattan & the Upper East Side, Lowest in East Harlem & the Bronx") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = "Income is Highest in Lower Manhattan & the Upper East Side, Lowest in East Harlem & the Bronx") +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -272,7 +272,7 @@ ggsave(dpi = "retina",plot = NY_INCOME_MAP, "NY Income Map.png", type = "cairo-p
 
 OH <- geo.make(state = "OH",county= "Lucas",tract = "*")
 
-OH_INCOME <- acs.fetch(geography = OH,endyear = 2022,table.number="B19013")
+OH_INCOME <- acs.fetch(geography = OH,endyear = 2023,table.number="B19013")
 
 OH_INCOME_df <- data.frame(GEOID = paste0(OH_INCOME@geography$state,
                                           str_pad(OH_INCOME@geography$county,
@@ -322,7 +322,7 @@ OH_INCOME_MAP <- ggplot() +
   geom_sf(data = OH_SHAPE, aes(fill = median_income/1000), color = NA) +
   scale_fill_viridis_c(name= "Median Household Income", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
   ggtitle("Income in Lucas County, Ohio") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -340,7 +340,7 @@ ggsave(dpi = "retina",plot = OH_INCOME_MAP, "OH Income Map.png", type = "cairo-p
 #SF
 BAY <- geo.make(state = "CA",county= c("San Francisco","Alameda","Santa Clara","San Mateo", "Marin", "Sonoma","Napa","Solano","Contra Costa"),tract = "*")
 
-BAY_INCOME <- acs.fetch(geography = BAY,endyear = 2022,table.number="B19013")
+BAY_INCOME <- acs.fetch(geography = BAY,endyear = 2023,table.number="B19013")
 
 BAY_INCOME_df <- data.frame(GEOID = paste0(BAY_INCOME@geography$state,
                                           str_pad(BAY_INCOME@geography$county,
@@ -388,7 +388,7 @@ BAY_INCOME_MAP <- ggplot() +
   geom_sf(data = BAY_SHAPE, aes(fill = median_income/1000), color = NA) +
   scale_fill_viridis_c(name= "Median\nHousehold\nIncome", breaks = c(50,100,150,200,250), labels = c("$50k","$100k","$150k","$200k","$250k+")) +
   ggtitle("Income in The Bay Area") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = "Median Income is Highest in Chicago's North Side and Lowest in the South Side") +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = "Median Income is Highest in Chicago's North Side and Lowest in the South Side") +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -406,7 +406,7 @@ ggsave(dpi = "retina",plot = BAY_INCOME_MAP, "Bay Area Map.png", type = "cairo-p
 #SEATTLE
 WA <- geo.make(state = "WA",county= c("King","Pierce","Snohomish","Kitsap"),tract = "*")
 
-WA_INCOME <- acs.fetch(geography = WA,endyear = 2022,table.number="B19013")
+WA_INCOME <- acs.fetch(geography = WA,endyear = 2023,table.number="B19013")
 
 WA_INCOME_df <- data.frame(GEOID = paste0(WA_INCOME@geography$state,
                                           str_pad(WA_INCOME@geography$county,
@@ -462,7 +462,7 @@ WA_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-122.6,-122)) +
   scale_y_continuous(limits = c(47.45,47.75)) +
   ggtitle("Income in & Around Seattle, Washington") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -481,7 +481,7 @@ ggsave(dpi = "retina",plot = WA_INCOME_MAP, "WA Income Map.png", type = "cairo-p
 
 WI <- geo.make(state = "WI",county= c("Dane","Columbia","Sauk","Iowa","Lafayette","Green County","Rock","Jefferson"),tract = "*")
 
-WI_INCOME <- acs.fetch(geography = WI,endyear = 2022,table.number="B19013")
+WI_INCOME <- acs.fetch(geography = WI,endyear = 2023,table.number="B19013")
 
 WI_INCOME_df <- data.frame(GEOID = paste0(WI_INCOME@geography$state,
                                           str_pad(WI_INCOME@geography$county,
@@ -537,7 +537,7 @@ WI_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-89.65,-89.1)) +
   scale_y_continuous(limits = c(42.95,43.25)) +
   ggtitle("Income in & Around Madison, Wisconsin") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -556,7 +556,7 @@ ggsave(dpi = "retina",plot = WI_INCOME_MAP, "WI Income Map.png", type = "cairo-p
 
 OR <- geo.make(state = "OR",county= c("Clackamas","Columbia","Multnomah","Washington","Yamhill"),tract = "*")
 
-OR_INCOME <- acs.fetch(geography = OR,endyear = 2022,table.number="B19013")
+OR_INCOME <- acs.fetch(geography = OR,endyear = 2023,table.number="B19013")
 
 OR_INCOME_df <- data.frame(GEOID = paste0(OR_INCOME@geography$state,
                                           str_pad(OR_INCOME@geography$county,
@@ -570,7 +570,7 @@ row.names=NULL)
 
 OR_WA <- geo.make(state = "WA",county= c("Clark","Skamania"),tract = "*")
 
-OR_WA_INCOME <- acs.fetch(geography = OR_WA,endyear = 2022,table.number="B19013")
+OR_WA_INCOME <- acs.fetch(geography = OR_WA,endyear = 2023,table.number="B19013")
 
 OR_WA_INCOME_df <- data.frame(GEOID = paste0(OR_WA_INCOME@geography$state,
                                           str_pad(OR_WA_INCOME@geography$county,
@@ -630,7 +630,7 @@ OR_WA_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-123,-122.3)) +
   scale_y_continuous(limits = c(45.35,45.75)) +
   ggtitle("Income in & Around Portland, Oregon") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -649,7 +649,7 @@ ggsave(dpi = "retina",plot = OR_WA_INCOME_MAP, "Portland Income Map.png", type =
 
 MN <- geo.make(state = "MN",county= c("Anoka", "Carver", "Chisago", "Dakota", "Hennepin", "Isanti", "Le Sueur", "Mille Lacs", "Ramsey", "Scott", "Sherburne", "Washington", "Wright"),tract = "*")
 
-MN_INCOME <- acs.fetch(geography = MN,endyear = 2022,table.number="B19013")
+MN_INCOME <- acs.fetch(geography = MN,endyear = 2023,table.number="B19013")
 
 MN_INCOME_df <- data.frame(GEOID = paste0(MN_INCOME@geography$state,
                                           str_pad(MN_INCOME@geography$county,
@@ -705,7 +705,7 @@ MN_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-93.75,-92.86)) +
   scale_y_continuous(limits = c(44.75,45.25)) +
   ggtitle("Income in & Around The Twin Cities, MN") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -724,7 +724,7 @@ ggsave(dpi = "retina",plot = MN_INCOME_MAP, "MN Income Map.png", type = "cairo-p
 
 CO <- geo.make(state = "CO",county= c("Denver", "Arapahoe","Jefferson", "Adams", "Douglas", "Broomfield", "Elbert", "Park", "Clear Creek", "Gilpin", "Weld", "Boulder"),tract = "*")
 
-CO_INCOME <- acs.fetch(geography = CO,endyear = 2022,table.number="B19013")
+CO_INCOME <- acs.fetch(geography = CO,endyear = 2023,table.number="B19013")
 
 CO_INCOME_df <- data.frame(GEOID = paste0(CO_INCOME@geography$state,
                                           str_pad(CO_INCOME@geography$county,
@@ -781,7 +781,7 @@ CO_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-105.5,-104.4)) +
   scale_y_continuous(limits = c(39.4,40.1)) +
   ggtitle("Income in & Around Denver, Colorado") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -800,7 +800,7 @@ ggsave(dpi = "retina",plot = CO_INCOME_MAP, "CO Income Map.png", type = "cairo-p
 
 MI <- geo.make(state = "MI",county= c("Wayne", "Oakland","Macomb", "Livingston", "St. Clair", "Lapeer", "Lenawee", "Washtenaw", "Shiawassee", "Genesee"),tract = "*")
 
-MI_INCOME <- acs.fetch(geography = MI,endyear = 2022,table.number="B19013")
+MI_INCOME <- acs.fetch(geography = MI,endyear = 2023,table.number="B19013")
 
 MI_INCOME_df <- data.frame(GEOID = paste0(MI_INCOME@geography$state,
                                           str_pad(MI_INCOME@geography$county,
@@ -857,7 +857,7 @@ MI_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-84,-82.75)) +
   scale_y_continuous(limits = c(42.1,42.8)) +
   ggtitle("Income in & Around Detroit, Michigan") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -877,7 +877,7 @@ ggsave(dpi = "retina",plot = MI_INCOME_MAP, "MI Income Map.png", type = "cairo-p
 
 ME <- geo.make(state = "ME",county= c("York", "Cumberland","Oxford", "Kennebec", "Lincoln","Androscoggin","Sagadahoc"),tract = "*")
 
-ME_INCOME <- acs.fetch(geography = ME,endyear = 2022,table.number="B19013")
+ME_INCOME <- acs.fetch(geography = ME,endyear = 2023,table.number="B19013")
 
 ME_INCOME_df <- data.frame(GEOID = paste0(ME_INCOME@geography$state,
                                           str_pad(ME_INCOME@geography$county,
@@ -934,7 +934,7 @@ ME_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-70.75,-69.75)) +
   scale_y_continuous(limits = c(43.5,44)) +
   ggtitle("Income in & Around Portland, Maine") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -958,9 +958,9 @@ MEM_TN <- geo.make(state = "TN",county= c("Shelby", "Tipton","Fayette"),tract = 
 MEM_MS <- geo.make(state = "MS",county= c("DeSoto","Marshall","Tate","Coahoma","Tunica","Benton"),tract = "*")
 MEM_AR <- geo.make(state = "AR",county= c("Crittenden", "St. Francis"),tract = "*")
 
-MEM_TN_INCOME <- acs.fetch(geography = MEM_TN,endyear = 2022,table.number="B19013")
-MEM_MS_INCOME <- acs.fetch(geography = MEM_MS,endyear = 2022,table.number="B19013")
-MEM_AR_INCOME <- acs.fetch(geography = MEM_AR,endyear = 2022,table.number="B19013")
+MEM_TN_INCOME <- acs.fetch(geography = MEM_TN,endyear = 2023,table.number="B19013")
+MEM_MS_INCOME <- acs.fetch(geography = MEM_MS,endyear = 2023,table.number="B19013")
+MEM_AR_INCOME <- acs.fetch(geography = MEM_AR,endyear = 2023,table.number="B19013")
 
 MEM_TN_INCOME_df <- data.frame(GEOID = paste0(MEM_TN_INCOME@geography$state,
                                           str_pad(MEM_TN_INCOME@geography$county,
@@ -1048,7 +1048,7 @@ MEM_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-90.35,-89.45)) +
   scale_y_continuous(limits = c(34.8,35.38)) +
   ggtitle("Income in & Around Memphis, Tennessee") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",
@@ -1068,8 +1068,8 @@ ggsave(dpi = "retina",plot = MEM_INCOME_MAP, "MEM Income Map.png", type = "cairo
 STL_IL <- geo.make(state = "IL",county= c("Bond", "Calhoun", "Clinton", "Jersey", "Macoupin", "Madison", "Monroe", "St. Clair"),tract = "*")
 STL_MO <- geo.make(state = "MO",county= c("Crawford", "Franklin", "Jefferson", "Lincoln", "St. Charles","Warren", "St. Louis County", "St. Louis city"),tract = "*")
 
-STL_IL_INCOME <- acs.fetch(geography = STL_IL,endyear = 2022,table.number="B19013")
-STL_MO_INCOME <- acs.fetch(geography = STL_MO,endyear = 2022,table.number="B19013")
+STL_IL_INCOME <- acs.fetch(geography = STL_IL,endyear = 2023,table.number="B19013")
+STL_MO_INCOME <- acs.fetch(geography = STL_MO,endyear = 2023,table.number="B19013")
 
 STL_IL_INCOME_df <- data.frame(GEOID = paste0(STL_IL_INCOME@geography$state,
                                               str_pad(STL_IL_INCOME@geography$county,
@@ -1142,7 +1142,7 @@ STL_INCOME_MAP <- ggplot() +
   scale_x_continuous(limits = c(-90.65,-89.8)) +
   scale_y_continuous(limits = c(38.4,39)) +
   ggtitle("Income in & Around St. Louis, Missouri") +
-  labs(caption = "Graph created by @JosephPolitano using ACS 2022 5-Yr Estimates", subtitle = NULL) +
+  labs(caption = "Graph created by @JosephPolitano using ACS 2023 5-Yr Estimates", subtitle = NULL) +
   theme_apricitas + 
   theme(plot.title = element_text(size = 30),
         legend.position = "right",

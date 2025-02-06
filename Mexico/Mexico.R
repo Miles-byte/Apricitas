@@ -1,4 +1,4 @@
-pacman::p_load(viridis,siebanxicor,inegiR,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(dplyr,readr,viridis,siebanxicor,inegiR,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -418,7 +418,7 @@ ALL_MANUFACTURING_EMPLOYEES_MEX_Graph <- ggplot() +
   ylab("Index, 2018 = 100") +
   ggtitle("Mexican Manufacturing Employment") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Mexico data",subtitle = "Mexican Manufacturing Employment Has Been Much Stronger in Export-Oriented Firms") +
-  theme_apricitas + theme(legend.position = c(.4,.85)) +
+  theme_apricitas + theme(legend.position = c(.35,.85)) +
   scale_color_manual(name= "Employment Index, 2018 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("All Manufacturing","Export-Oriented Manufacturing (IMMEX Program)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 90-(.3*25), ymax = 90) +
   coord_cartesian(clip = "off")
@@ -453,6 +453,65 @@ CONSUMER_SENTIMENT_Graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONSUMER_SENTIMENT_Graph, "Consumer Sentiment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+GVA_AUTOS  <- inegi_series(serie = "733786", token = Sys.getenv("TOKEN_INEGI"))
+
+GVA_TRAILERS <- inegi_series(serie = "733787", token = Sys.getenv("TOKEN_INEGI"))
+
+GVA_AUTO_PARTS <- inegi_series(serie = "733788", token = Sys.getenv("TOKEN_INEGI"))
+
+REAL_AUTO_VALUE_ADD_Graph <- ggplot() + 
+  geom_line(data = GVA_AUTO_PARTS, aes(x = date, y = values/1000, color = "Motor Vehicle Parts Manufacturing"), size = 1.25) +
+  geom_line(data = GVA_AUTOS, aes(x = date, y = values/1000, color = "Motor Vehicle Manufacturing"), size = 1.25) +
+  #geom_line(data = GVA_TRAILERS, aes(x = date, y = values/1000000, color = "My Household is Better Off Than 12M Ago"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix ="B"), limits = c(0,750), breaks = c(0,250,500,750), expand = c(0,0)) +
+  ylab("Billions of 2018 Mexican Pesos") +
+  ggtitle("Mexican Auto Output is at Record Highs") +
+  labs(caption = "Graph created by @JosephPolitano using Bank of Mexico data",subtitle = "The Mexican Auto Industry has Been Growing Steadily Over the Last Decade") +
+  theme_apricitas + theme(legend.position = c(.4,.72)) +
+  scale_color_manual(name= "Real Value Added, Mexico (NSA)",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("Motor Vehicle Manufacturing","Motor Vehicle Parts Manufacturing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1993-01-01")-(.1861*(today()-as.Date("1993-01-01"))), xmax = as.Date("1993-01-01")-(0.049*(today()-as.Date("1993-01-01"))), ymin = 0-(.3*750), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_AUTO_VALUE_ADD_Graph, "Real Auto Value Add Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+flash_zip_url <- "https://en.www.inegi.org.mx/contenidos/programas/pibo/2018/datosabiertos/eopibt_trimestral_csv.zip"
+flash_zip_file <- "eopibt_trimestral_csv.zip"
+flash_extract_dir <- "inegi_data"
+
+# Download and unzip the file
+download.file(zip_url, zip_file, mode = "wb")
+unzip(zip_file, exdir = extract_dir)
+
+# List files in extracted folder
+flash_data_dir <- file.path(extract_dir, "conjunto_de_datos")
+flash_files <- list.files(data_dir, full.names = TRUE)
+
+# Read a specific CSV (adjust the filename as needed)
+flash_gdp_annual <- read_csv(files[3])  # Change index to match the desired file
+
+flash_gdp_annual <- as.data.frame(flash_gdp_annual) %>%
+  t() %>%
+  as.data.frame() %>%
+  .[-1, , drop = FALSE] %>%
+  setNames(c("total","primary","secondary","tertiary","seasonally")) %>%
+  transmute(total = as.numeric(total),date = seq.Date(from = as.Date("2015-01-01"), by = "3 months", length = nrow(.)))
+
+FLASH_GDP_ANNUAL_Graph <- ggplot() + 
+  geom_line(data = filter(flash_gdp_annual, date >= as.Date("2022-01-01")), aes(x = date, y = total/100, color = "Mexican Real GDP Growth, Year-on-Year"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.05), breaks = c(-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  ylab("Year-on-Year Growth") +
+  ggtitle("Mexico's Year-on-Year GDP Growth") +
+  labs(caption = "Graph created by @JosephPolitano using INGEI data",subtitle = "Mexican GDP Growth is Decelerating") +
+  theme_apricitas + theme(legend.position = c(.62,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 0-(.3*0.05), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FLASH_GDP_ANNUAL_Graph, "Mexico Flash GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 temp_file <- tempfile(fileext = ".xlsx")
 GET("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_10.xlsx", write_disk(temp_file, overwrite = TRUE))
@@ -502,6 +561,7 @@ MX_CONSTRUCTION_MAP <- mxstate_choropleth(STATE_CONSTRUCTION_ACTIVITY_EDIT,
   theme(legend.position = c(.85,.7),axis.title.y = element_blank() ,axis.title.x = element_blank(), panel.grid.major=element_blank(),panel.grid.minor = element_blank(),  axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, -.75), "in"), legend.key = element_blank())
 
 ggsave(dpi = "retina",plot = MX_CONSTRUCTION_MAP, "MX Construction Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 temp_file <- tempfile(fileext = ".xlsx")
 GET("https://www.inegi.org.mx/contenidos/programas/itaee/2018/tabulados/ori/ITAEE_11.xlsx", write_disk(temp_file, overwrite = TRUE))

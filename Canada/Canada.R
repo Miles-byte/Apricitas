@@ -300,12 +300,12 @@ CANADA_IMMIGRANT_GRAPH <- ggplot() + #plotting Canada Immigrant
   geom_line(data=CANADA_IMMIGRANT, aes(x=REF_DATE, y= Population,color= "Population"), size = 1.25)+ 
   xlab("Date") +
   ylab("People, Thousands") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "k"), breaks = c(0,250,500,750,1000), limits = c(0,1000), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "k"), breaks = c(0,250,500,750,1000,1250), limits = c(0,1250), expand = c(0,0)) +
   ggtitle("Bienvenue au Canada") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "The Number of Recent Prime-Age Canadian Immigrants Stalled in 2020 But Has Surged Recently") +
   theme_apricitas + theme(legend.position = c(.55,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Immigrants Landed in the Last 5 Years, Age 25-54, Canada",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population","Employment")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*1000), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*1250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CANADA_IMMIGRANT_GRAPH, "Canada Immigrant Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -324,12 +324,12 @@ CANADA_GDP_GRAPH <- ggplot() + #plotting Canada Immigrant
   geom_line(data=CANADA_GDP, aes(x=Date, y= value,color= "Canada"), size = 1.25)+ 
   xlab("Date") +
   ylab("Index, Jan 2000 = 100") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1), breaks = c(0,50,100,150), limits = c(75,160), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1), breaks = c(0,50,100,150,200), limits = c(75,175), expand = c(0,0)) +
   ggtitle("Can Canada Catch?") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada and BEA data", subtitle = "After Falling Behind the US Early in the Pandemic, Canada is Closing the Output Gap") +
   theme_apricitas + theme(legend.position = c(.55,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Real GDP",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 75-(.3*85), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 75-(.3*100), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CANADA_GDP_GRAPH, "Canada GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

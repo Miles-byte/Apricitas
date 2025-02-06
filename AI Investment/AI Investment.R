@@ -9,6 +9,10 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 devtools::install_github("jameelalsalam/eia2")
 library("eia2")
 
+install_github("keberwein/blscrapeR")
+library(blscrapeR)
+
+
 US_ADP_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
@@ -104,18 +108,18 @@ DATA_CENTER_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
 ggsave(dpi = "retina",plot = DATA_CENTER_CONSTRUCTION_Graph, "DATA CENTER CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 OFFICE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
-  drop_na() %>%
-  row_to_names(1) %>%
+  row_to_names(2) %>%
   select(1,`General`,`Financial`) %>%
   mutate(`General` = as.numeric(`General`) + as.numeric(`Financial`)) %>%
   .[order(nrow(.):1),] %>%
-  mutate(date = seq.Date(from = as.Date("2014-01-01"), by = "month", length.out = nrow(.)))
+  drop_na() %>%
+  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.)))
 
 DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
   annotate(geom = "segment", x = as.Date("2022-11-01"), xend = as.Date("2022-11-01"), y = 0, yend = 20, color = "white",linetype = "dashed", size = 1) +
   annotate("text", label = "ChatGPT\nLaunch", x = as.Date("2022-09-01"), y = 17.5, color = "white", size = 4, hjust = 1, lineheight = 0.8) +
   geom_line(data=DATA_CENTER_CONSTRUCTION, aes(x=date,y= `Data center`/1000,color= "US Data Center Construction Spending"), size = 1.25) + 
-  geom_line(data=OFFICE_CONSTRUCTION, aes(x=date,y= `General`/1000,color= "US Office Construction Spending,"), size = 1.25) + 
+  geom_line(data=filter(OFFICE_CONSTRUCTION, date >= as.Date("2014-01-01")), aes(x=date,y= `General`/1000,color= "US Office Construction Spending"), size = 1.25) + 
   xlab("Date") +
   ylab("Spending, Billions") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(20,40,60,80), limits = c(0,ceiling(max(OFFICE_CONSTRUCTION$`General`)/5000)*5), expand = c(0,0)) +
@@ -127,6 +131,29 @@ DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening 
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph, "DATA CENTER VS OFFICE CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+OFFICE_PRICES <- bls_api("PCU236223236223", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(paste0(year,"-",gsub("M","",period),"-01"))) %>%
+  arrange(date)
+
+REAL_OFFICE_CONSTRUCTION <- merge(OFFICE_CONSTRUCTION,OFFICE_PRICES, by = "date") %>%
+  mutate(value = value/value[128]) %>%
+  transmute(date, value = General/value)
+
+REAL_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=REAL_OFFICE_CONSTRUCTION, aes(x=date,y= value/1000,color= "US Real Office Construction,\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
+  xlab("Date") +
+  ylab("Spending, Billions of Jan 2017 Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80), limits = c(0,80), expand = c(0,0)) +
+  ggtitle("US Office Construction Continues Falling") +
+  labs(caption = "Graph created by @JosephPolitano using Census Construction data & BLS PPI Price Data", subtitle = "Office Construction is at the Lowest Level in a Decade Amidst Remote Work & High Interest Rates") +
+  theme_apricitas + theme(legend.position = c(.35,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*(80)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_OFFICE_CONSTRUCTION_Graph, "REAL OFFICE CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 
 
 QFR_Data <- getCensus(
@@ -427,7 +454,7 @@ US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(FIXED_EQUIP_INVEST_REAL$computers_and_peripheral)/5000)*5), expand = c(0,0)) +
   ylab("Billions of 2017 Dollars") +
-  ggtitle("US Computer Investment is at Record Highs") +
+  ggtitle("US Computer Investment Near Record Highs") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Computer Investment Has Grown Significantly Since 2020, Breaking Years of Stagnation") +
   theme_apricitas + theme(legend.position = c(.3,.8)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +

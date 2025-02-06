@@ -141,7 +141,7 @@ FIRST_FIVE_RIDERSHIP_RECOVERY_graph <- ggplot() + #plotting regular vs non-regul
   ylab("Percent of 2019 Ridership") +
   ggtitle("Ridership Recovery, US 5 Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 1st-5th Systems Selected Based on 2019 Ridership Rankings",subtitle = "NYC's Subway Has Led the Post-COVID Ridership Recovery") +
-  theme_apricitas + theme(legend.position = c(.45,.475), plot.title = element_text(size = 21)) +
+  theme_apricitas + theme(legend.position = c(.4,.475), plot.title = element_text(size = 21)) +
   scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -165,7 +165,7 @@ FIRST_SEVEN_RIDERSHIP_RECOVERY_graph <- ggplot() + #plotting regular vs non-regu
   ylab("Percent of 2019 Ridership") +
   ggtitle("Ridership Recovery, US 7 Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 1st-5th Systems Selected Based on 2019 Ridership Rankings",subtitle = "NYC's Subway Has Led the Post-COVID Ridership Recovery") +
-  theme_apricitas + theme(legend.position = c(.45,.425), plot.title = element_text(size = 21)) +
+  theme_apricitas + theme(legend.position = c(.4,.425), plot.title = element_text(size = 21)) +
   scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.25), ymax = 0) +
   coord_cartesian(clip = "off")

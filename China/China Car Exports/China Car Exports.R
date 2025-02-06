@@ -108,13 +108,13 @@ IND_PRO_MV_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
   geom_line(data= IND_PRO_MV, aes(x=date,y=`Output of Motor Vehicles, Current Period`/100 ,color= "Chinese Industrial Production of Motor Vehicles, Monthly"), size = 1.25) +
   geom_line(data= filter(IND_PRO_MV, date > as.Date("1993-01-01")), aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3.50), breaks = c(0,1.00,2.00,3.00,4.00), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,4), breaks = c(0,1.00,2.00,3.00,4.00), expand = c(0,0)) +
   ylab("Units, Monthly") +
   ggtitle("Chinese Motor Vehicle Production") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese Motor Vehicle Production Remains Below Pre-Pandemic Averages Despite an Export Boom") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_MV$date)-(.1861*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), xmax = min(IND_PRO_MV$date)-(0.049*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), ymin = 0-(.3*3.5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_MV$date)-(.1861*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), xmax = min(IND_PRO_MV$date)-(0.049*(max(IND_PRO_MV$date)-min(IND_PRO_MV$date))), ymin = 0-(.3*4), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = IND_PRO_MV_GRAPH, "China Ind Pro Car Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -141,13 +141,13 @@ IND_PRO_MV_NEV_merge <- merge(IND_PRO_MV,IND_PRO_NEV_RBIND, by = "date") %>%
 IND_PRO_MV_NEV_SHARE_GRAPH <- ggplot() + #plotting Chinese Semiconductor Production
   geom_line(data=IND_PRO_MV_NEV_merge, aes(x=date,y= pct_NEV, color= "China, EV & PHEV Production as a Share of Total Motor Vehicle Production"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.50), breaks = c(0,.1,.2,.3,.4,.5,.6), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.60), breaks = c(0,.1,.2,.3,.4,.5,.6), expand = c(0,0)) +
   ylab("Percent of Total Vehicle Production") +
   ggtitle("The Chinese EV Revolution") +
   labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "New Energy Vehicle Production is Growing Rapidly—and Now Makes Up 1/3 of Total Vehicle Output") +
   theme_apricitas + theme(legend.position = c(.475,.975)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_MV_NEV_merge$date)-(.1861*(max(IND_PRO_MV_NEV_merge$date)-min(IND_PRO_MV_NEV_merge$date))), xmax = min(IND_PRO_MV_NEV_merge$date)-(0.049*(max(IND_PRO_MV_NEV_merge$date)-min(IND_PRO_MV_NEV_merge$date))), ymin = 0-(.3*.50), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_MV_NEV_merge$date)-(.1861*(max(IND_PRO_MV_NEV_merge$date)-min(IND_PRO_MV_NEV_merge$date))), xmax = min(IND_PRO_MV_NEV_merge$date)-(0.049*(max(IND_PRO_MV_NEV_merge$date)-min(IND_PRO_MV_NEV_merge$date))), ymin = 0-(.3*.60), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = IND_PRO_MV_NEV_SHARE_GRAPH, "China Ind Pro NEV Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -156,13 +156,13 @@ IND_PRO_NEV_GRAPH <- ggplot() + #plotting Chinese Motor Vehicle Production
   geom_line(data= IND_PRO_NEV_RBIND, aes(x=date,y=`Output of New Energy Vehicles, Current Period`/100 ,color= "Chinese Industrial Production\nNew Energy (BEV and PHEV) Motor Vehicles, Monthly"), size = 1.25) +
   #geom_line(data= filter(IND_PRO_MV, date > as.Date("1993-01-01")), aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"),limits = c(0,1.5), breaks = c(0,.25,.5,.75,1,1.25,1.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"),limits = c(0,1.75), breaks = c(0,.25,.5,.75,1,1.25,1.5,1.75), expand = c(0,0)) +
   ylab("Units, Monthly") +
   ggtitle("Chinese New Energy Vehicle Production") +
-  labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese New Energy Vehicle Production is Surging, Exceeding 1.25M a Month") +
+  labs(caption = "Graph created by @JosephPolitano using National Bureau of Statistics of China Data",subtitle = "Chinese New Energy Vehicle Production is Surging, Exceeding 1.5M a Month") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_NEV_RBIND$date)-(.1861*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), xmax = min(IND_PRO_NEV_RBIND$date)-(0.049*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), ymin = 0-(.3*1.25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = min(IND_PRO_NEV_RBIND$date)-(.1861*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), xmax = min(IND_PRO_NEV_RBIND$date)-(0.049*(max(IND_PRO_NEV_RBIND$date)-min(IND_PRO_NEV_RBIND$date))), ymin = 0-(.3*1.75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = IND_PRO_NEV_GRAPH, "China Ind Pro NEV Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

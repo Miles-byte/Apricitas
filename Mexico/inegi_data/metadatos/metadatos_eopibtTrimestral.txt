@@ -1,0 +1,30 @@
+
+Identifier:   DCAT-MEX-INEGI-SCNM.EOPIBT-AB2018-034
+
+Title:   Sistema de Cuentas Nacionales de México. Estimación Oportuna del Producto Interno Bruto Trimestral
+
+Description:   INEGI. Sistema de Cuentas Nacionales de México. Estimación Oportuna del Producto Interno Bruto Trimestral. SNIEG. Información de Interés Nacional. 
+
+Ofrece en el corto plazo, una visión oportuna y coherente de la evolución de las actividades económicas del país (primarias, secundarias y terciarias), proporcionando información oportuna, para apoyar la toma de decisiones. 
+
+Modified:   2025-01-29
+
+Publisher:   Instituto Nacional de Estadística y Geografía, INEGI
+
+Mbox:   atencion.usuarios@inegi.org.mx
+
+License:   https://www.inegi.org.mx/inegi/terminos.html
+
+DataDictionary:   
+
+Keyword:   "producto interno bruto", "economía", "actividad económica", "actividades primarias", "actividades secundarias", "actividades terciarias", "evolución", "corto plazo", "estimación", "modelos econométricos."
+
+ContactPoint:   Mtro. J. Armando Aguiar Rodríguez, 800 111 4634
+
+Temporal:   2015-01-2024-12
+
+Spatial:   Estados Unidos Mexicanos
+
+AccrualPeriodicity:   Trimestralmente
+
+Distribution:   https://www.inegi.org.mx/programas/pibo/2018/

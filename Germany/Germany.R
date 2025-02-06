@@ -44,19 +44,19 @@ ENERGY_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturin
 
 ggsave(dpi = "retina",plot = ENERGY_MANUFACTURING_graph, "Energy Intensive Manufacturing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-IP_CHEM <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C200000.G.C.I15.A&its_fileFormat=sdmx&mode=its")) %>%
+IP_CHEM <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C200000.G.C.I21.A&its_fileFormat=sdmx&mode=its")) %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2017-01-01"))
-IP_BASIC_METAL <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C240000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+IP_BASIC_METAL <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C240000.G.C.I21.A&its_fileFormat=sdmx&mode=its"))  %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2017-01-01"))
-IP_COKE_PETROLEUM <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C190000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+IP_COKE_PETROLEUM <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C190000.G.C.I21.A&its_fileFormat=sdmx&mode=its"))  %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2017-01-01"))
-IP_GLASS <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C230000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+IP_GLASS <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C230000.G.C.I21.A&its_fileFormat=sdmx&mode=its"))  %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2017-01-01"))
-IP_PAPER <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C170000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+IP_PAPER <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C170000.G.C.I21.A&its_fileFormat=sdmx&mode=its"))  %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2017-01-01"))
 
@@ -144,8 +144,8 @@ ggsave(dpi = "retina",plot = NAT_GAS_graph, "Germany Nat Gas Consumption.png", t
 GDP <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), language = "en") %>%
   subset(VGRPB5 == "VGRPKM") %>%
   subset(WERT05 == "X13JDKSB") %>%
-  select(JAHR, QUARTG, SUB003_val) %>%
-  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = SUB003_val) %>%
+  select(JAHR, QUARTG, STR006_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = STR006_val) %>%
   arrange(date) %>%
   subset(date >= as.Date("2000-01-01"))
 
@@ -155,7 +155,7 @@ GDP_graph <- ggplot() + #plotting GDP For US vs Germany
   geom_line(data=GDP, aes(x=date,y= value/value[1]*100,color="Germany"), size = 1.25) +
   geom_line(data=US_GDP, aes(x=date,y= value/value[1]*100,color="United States"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,140), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,145), expand = c(0,0)) +
   ylab("Index, Q1 2000 = 100") +
   ggtitle("Germany's Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis and BEA Data",subtitle = "Since 2018, German Economic Growth Has Been Especially Weak") +
@@ -270,7 +270,7 @@ EV_STACKED_EURO_graph <- ggplot(data = IP_EV_EURO, aes(x = date, y = value/10000
   ggtitle("The German EV Surge") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "€"), breaks = c(0,5,10,15), limits = c(0,15), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Value of German EV Output is Rapidly Growing as the Industry Retools") +
-  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.325,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Value of German Quarterly Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*15), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -279,10 +279,10 @@ EV_STACKED_NUMBER_graph <- ggplot(data = IP_EV_NUMBER, aes(x = date, y = value/1
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Thousands of Vehicles") +
-  ggtitle("The German EV Surge & Stagnation") +
+  ggtitle("The German EV Surge & Slowdown") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,200,400), limits = c(0,400), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced Had Rapidly Grown But Has Now Been Stagnant for Years") +
-  theme_apricitas + theme(legend.position = c(.425,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis data", subtitle = "The Number of German EVs Produced Had Rapidly Grown But then Slowed Down Post-2023") +
+  theme_apricitas + theme(legend.position = c(.375,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "German Quarterly Production, Thousands of Vehicles",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Battery Electric Vehicles","Plug-in Hybrids")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -723,7 +723,7 @@ EMP_EXP_graph <- ggplot() + #plotting employment expectations
   ylab("Balance, Increase minus Decrease") +
   ggtitle("Germany's Labor Market Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using Eurostat Data",subtitle = "German Employment Expectations Are Weak—Expecially in Industry") +
-  theme_apricitas + theme(legend.position = c(.725,.175)) +
+  theme_apricitas + theme(legend.position = c(.625,.175)) +
   scale_color_manual(name= "Employment Expectations, Next 3M",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   guides(color = guide_legend(ncol = 2)) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -35-(.3*60), ymax = -35) +
@@ -985,14 +985,14 @@ IPMAN_COAL_graph <- ggplot() + #plotting energy intensive manufacturing
 
 ggsave(dpi = "retina",plot = IPMAN_COAL_graph, "IPMAN Coal graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-IP_MACHINERY <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C280000.G.C.I15.A&its_fileFormat=sdmx&mode=its"))  %>%
+IP_MACHINERY <- as.data.frame(readSDMX("https://www.bundesbank.de/statistic-rmi/StatisticDownload?tsId=BBDE1.M.DE.Y.BAA1.N2C280000.G.C.I21.A&its_fileFormat=sdmx&mode=its"))  %>%
   transmute(date = as.Date(as.yearmon(TIME_PERIOD)),value = as.numeric(OBS_VALUE)) %>%
   subset(date >= as.Date("2018-01-01")) %>%
   arrange(date)
 
 IPMAN_GENERAL_MACHINERY <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-281") %>% #taking manufacturing and energy intensive manufacturing data 
-  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  filter(WERT03 %in% c("X13JDKSB","BV4TB")) %>%#calendar and seasonally adjusted
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
@@ -1003,7 +1003,7 @@ IPMAN_GENERAL_MACHINERY <- IPMAN_3_DIGIT %>%
 
 IPMAN_AGRICULTURAL_MACHINERY <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-283") %>% #taking manufacturing and energy intensive manufacturing data 
-  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  filter(WERT03 %in% c("X13JDKSB","BV4TB")) %>%#calendar and seasonally adjusted
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
@@ -1014,7 +1014,7 @@ IPMAN_AGRICULTURAL_MACHINERY <- IPMAN_3_DIGIT %>%
 
 IPMAN_METAL_MACHINERY <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-284") %>% #taking manufacturing and energy intensive manufacturing data 
-  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  filter(WERT03 %in% c("X13JDKSB","BV4TB")) %>%#calendar and seasonally adjusted
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
@@ -1025,7 +1025,7 @@ IPMAN_METAL_MACHINERY <- IPMAN_3_DIGIT %>%
 
 IPMAN_SPECIAL_MACHINERY <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-289") %>% #taking manufacturing and energy intensive manufacturing data 
-  filter(WERT03 %in% c("BV4KSB","BV4TB")) %>%#calendar and seasonally adjusted
+  filter(WERT03 %in% c("X13JDKSB","BV4TB")) %>%#calendar and seasonally adjusted
   mutate(MONAT = gsub("MONAT","",MONAT)) %>%
   mutate(date = as.Date(paste0(JAHR,"-", MONAT,"-01"))) %>%
   transmute(date, value = PRO101_val, category = WZ08V3, seasonal = WERT03) %>%
@@ -1035,10 +1035,10 @@ IPMAN_SPECIAL_MACHINERY <- IPMAN_3_DIGIT %>%
   mutate(across(where(is.numeric), ~ ./.[13]*100))
 
 MACHINERY_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturing
-  geom_line(data=subset(IPMAN_GENERAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="General Purpose Machinery"), size = 1.25) +
-  geom_line(data=subset(IPMAN_METAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Metal Forming Machinery & Machine Tools"), size = 1.25) +
-  geom_line(data=subset(IPMAN_SPECIAL_MACHINERY), aes(x=date,y= `BV4KSB`,color="Special Purpose Machinery, Excluding Metal Forming & Agricultural Machinery"), size = 1.25) +
-  #geom_line(data=subset(IP_MACHINERY), aes(x=date,y= value/value[13]*100,color="Total Machinery and Equipment"), size = 2.25) +
+  geom_line(data=subset(IPMAN_GENERAL_MACHINERY), aes(x=date,y= `X13JDKSB`,color="General Purpose Machinery"), size = 1.25) +
+  geom_line(data=subset(IPMAN_METAL_MACHINERY), aes(x=date,y= `X13JDKSB`,color="Metal Forming Machinery & Machine Tools"), size = 1.25) +
+  geom_line(data=subset(IPMAN_SPECIAL_MACHINERY), aes(x=date,y= `X13JDKSB`,color="Special Purpose Machinery, Excluding Metal Forming & Agricultural Machinery"), size = 1.25) +
+  geom_line(data=subset(IP_MACHINERY), aes(x=date,y= value/value[13]*100,color="Total Machinery and Equipment"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(50,110), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +

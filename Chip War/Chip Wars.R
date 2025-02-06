@@ -986,7 +986,7 @@ IND_PRO_CN <- IND_PRO_BULK %>%
 CHINA_IND_PRO_CHIP <- ggplot() + #plotting Chinese Semiconductor Production
   geom_line(data= IND_PRO_CN, aes(x=date,y=`Output of Integrated Circuits, Current Period` ,color= "China, Industrial Production of Integrated Circuits"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,400), breaks = c(0,100,200,300,400), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,500), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
   ylab("Index, Dec 2014 = 100") +
   ggtitle("Chinese Chip Production") +
   labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "Chinese Chip Production Fell Significantly in 2022 But Has Since Rebounded a Bit") +

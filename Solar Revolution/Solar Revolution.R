@@ -1077,7 +1077,7 @@ US_NAT_MAGNET_GRAPH_CHINA <- ggplot() + #plotting integrated circuits exports
 
 ggsave(dpi = "retina",plot = US_NAT_MAGNET_GRAPH_CHINA, "US Nat Magnet Graph China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-US_CRITICAL_MINERALS_CHINA <- ggplot() + #plotting critical mineral imports
+US_CRITICAL_MINERALS_CHINA_GRAPH <- ggplot() + #plotting critical mineral imports
   geom_line(data=filter(US_CRITICAL_MINERALS_CHINA, date>= as.Date("2016-01-01")), aes(x=date,y= (x*12)/1000000000,color= "Critical Minerals Excluding Natural Graphite\n(Based on Executive Order 14017 List)"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,4), breaks = c(0,1,2,3,4), expand = c(0,0)) +
@@ -1089,7 +1089,7 @@ US_CRITICAL_MINERALS_CHINA <- ggplot() + #plotting critical mineral imports
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*4), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = US_CRITICAL_MINERALS_CHINA, "US Critical Minerals Graph China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = US_CRITICAL_MINERALS_CHINA_GRAPH, "US Critical Minerals Graph China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 US_SOLAR_PRICES_MONTHLY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/US_SOLAR_COST_MONTHLY_DATA.csv") %>%
@@ -1791,7 +1791,7 @@ US_WIND_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
   ylab("TWh, Monthly") +
   ggtitle("US Monthly Wind Generation") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("US Solar Generation is Growing Slowly, and is Up ", round(US_WIND_SPLIT$yoypct[nrow(US_WIND_SPLIT)], 2)*100, "% Compared to Last Year")) +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("US Wind Generation is Growing Slowly, and is Up ", round(US_WIND_SPLIT$yoypct[nrow(US_WIND_SPLIT)], 2)*100, "% Compared to Last Year")) +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(US_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
   annotation_custom(apricitas_logo_rast, xmin = -1.5-(.1861*(0-12)), xmax = -1.5-(0.049*(0-12)), ymin = 0-(.3*(ceiling(max(US_WIND_SPLIT$value)/35000)*35)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -2047,21 +2047,41 @@ TX_CA_UTILITY_SOLAR_SHARE <- merge(TX_UTILITY_SOLAR,CA_UTILITY_SOLAR, by = "date
 
 TX_CA_SOLAR_SHARE_GRAPH <- ggplot() + #plotting EU NET EV Exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("hline", y = 1, yintercept = 1, color = "white", size = 1, alpha = 0.75, linetype = "dashed") +
   geom_line(data= filter(TX_CA_TOTAL_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Total Texas Solar as a Share of Total California Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(TX_CA_TOTAL_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Total Texas Solar as a Share of Total California Solar"), size = 1.25) +
   geom_line(data= filter(TX_CA_UTILITY_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Utility-Scale Texas Solar as a Share of Utility-Scale California Solar"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(TX_CA_UTILITY_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Utility-Scale Texas Solar as a Share of Utility-Scale California Solar"), size = 1.25) +
+  annotate("text",label = "100%", x = as.Date("2024-01-01"), y =1.05, color = "white", size = 5, alpha = 0.75) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1.10), expand = c(0,0)) +
   ylab("Percent of California's") +
-  ggtitle("Texas Solar as a % of California's") +
+  ggtitle("Texas Solar Power as a % of California's") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas is Quickly Catching Up to California, America's Solar Leader") +
-  theme_apricitas + theme(legend.position = c(.45,.85), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "Net Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#00A99D"), breaks = c("Utility-Scale Texas Solar as a Share of Utility-Scale California Solar","Total Texas Solar as a Share of Total California Solar")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  theme_apricitas + theme(legend.position = c(.42,.775), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Dashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#00A99D"), breaks = c("Utility-Scale Texas Solar as a Share of Utility-Scale California Solar","Total Texas Solar as a Share of Total California Solar")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*1.1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TX_CA_SOLAR_SHARE_GRAPH, "TX CA Electricity Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+TX_CA_SOLAR_SHARE_MONTHLY_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("hline", y = 1, yintercept = 1, color = "white", size = 1, alpha = 0.75, linetype = "dashed") +
+  geom_line(data= filter(TX_CA_TOTAL_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Total Solar incl. Rooftop"), size = 1.25) +
+  geom_line(data= filter(TX_CA_UTILITY_SOLAR_SHARE, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Utility-Scale Solar"), size = 1.25) +
+  annotate("text",label = "100%", x = as.Date("2024-01-01"), y =1.05, color = "white", size = 5, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0,1.20), expand = c(0,0)) +
+  ylab("Percent of California's") +
+  ggtitle("Texas Solar Power as a % of California's") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas is Quickly Catching Up to California, America's Solar Leader") +
+  theme_apricitas + theme(legend.position = c(.2,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D"), breaks = c("Utility-Scale Solar","Total Solar incl. Rooftop")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*1.2), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_CA_SOLAR_SHARE_MONTHLY_GRAPH, "TX CA Electricity Share Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 TX_TOTAL <- eia1_series("ELEC.GEN.ALL-TX-99.M") %>%
@@ -2501,6 +2521,65 @@ US_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_PRODUCTION_STEO_GRAPH, "US Electricity Production STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_COMMERCIAL_STEO <- eia1_series("STEO.ELCCP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Commercial", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_RESIDENTIAL_STEO <- eia1_series("STEO.ELRCP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Residential", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_INDUSTRIAL_STEO <- eia1_series("STEO.ELICP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Industrial", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_ELECTRICITY_CONSUMPTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_GAS_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 175, color = "#EE6055", size = 5, alpha = 0.6) +
+  geom_line(data= filter(US_COMMERCIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Commercial"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_RESIDENTIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Residential"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_INDUSTRIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Industrial"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_COMMERCIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Commercial"), size = 1.25) +
+  geom_line(data= filter(US_RESIDENTIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Residential"), size = 1.25) +
+  geom_line(data= filter(US_INDUSTRIAL_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Industrial"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_RESIDENTIAL_STEO$value)/10)*10+10), expand = c(0,0)) +
+  ylab("TWh, Monthly") +
+  ggtitle("America's Growing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "After Decades of Stagnation, Load Growth Has Returned to the US") +
+  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Electricity Sales to Ultimate Customers\nDashed = Monthly, Solid = 12M Moving Average",values = c("#EE6055","#FFE98F","#00A99D","#A7ACD9","#3083DC","#9A348E"), breaks = c("Residential","Commercial","Industrial")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*(ceiling(max(US_RESIDENTIAL_STEO$value)/10)*10+10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_CONSUMPTION_STEO_GRAPH, "US Electricity Consumption STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_TOTAL_CONSUMPTION_STEO <- eia1_series("STEO.ELTCP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total Consumption", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_GAS_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -1100), "month"), y = 4000, color = "#EE6055", size = 5, alpha = 0.6) +
+  #geom_line(data= filter(US_TOTAL_CONSUMPTION_STEO, date >= as.Date("1997-01-01")), aes(x=date,y=value,color= "US Total Sales of Electricity"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_TOTAL_CONSUMPTION_STEO, date >= as.Date("2000-01-01")), aes(x=date,y=rollmean*12,color= "US Total Sales of Electricity\n12M Rolling Total"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::comma_format(suffix = "TWh"), limits= c(3200,4200),expand = c(0,0)) +
+  ylab("TWh, 12M Total") +
+  ggtitle("America's Growing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "After Almost Two Decades of Stagnation, Rapid Load Growth Has Returned to the US") +
+  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#3083DC","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*((today()-as.Date("2000-01-01")))), ymin = 3200-(.3*(1000)), ymax = 3200) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_GRAPH, "US Electricity Consumption Total STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 US_BATTERY_STEO <- eia1_series("STEO.BAEPCGW_US.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
   arrange(date) %>%
@@ -2581,19 +2660,19 @@ US_CAPACITY_GROWTH_STEO <- rbind(US_BATTERY_CAPACITY_GROWTH_STEO,US_WIND_CAPACIT
 
 NEW_CAPACITY_STACKED <- ggplot(US_CAPACITY_GROWTH_STEO, aes(fill=category, x=period, y=value)) + 
   annotate("rect", xmin = floor_date(as.Date(today() -120), "month"), xmax = max(US_CAPACITY_GROWTH_STEO$period + 150), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "EIA\nForecast", x = floor_date(as.Date(today() -150), "month"), hjust = 1, y = 35, color = "#EE6055", size = 5,lineheight = 0.8, alpha = 0.6) +
+  annotate("text", label = "EIA\nForecast", x = floor_date(as.Date(today() -150), "month"), hjust = 1, y = 45, color = "#EE6055", size = 5,lineheight = 0.8, alpha = 0.6) +
   annotate("vline", x = as.Date("2022-04-01"), xintercept = as.Date("2022-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "IRA\nPassage", x = as.Date("2022-02-01"), y = 35, color = "white", size = 5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "IRA\nPassage", x = as.Date("2022-02-01"), y = 45, color = "white", size = 5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   geom_bar(position="stack", stat="identity", size = 0, color = NA) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   xlab("Date") +
   ylab("GW of Capacity") + 
-  scale_y_continuous(labels = scales::number_format(suffix = "GW"), breaks = c(0,5,10,15,20,25,30,35,40), limits = c(0,40), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "GW"), breaks = c(0,5,10,15,20,25,30,35,40,45,50), limits = c(0,50), expand = c(0,0)) +
   ggtitle("US Clean Power Capacity Additions") +
   labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "US Clean Energy Buildout Has Accelerated, Especially in Utility-Scale Solar and Batteries") +
   theme_apricitas + theme(legend.position = c(.25,.82)) +
   scale_fill_manual(name= "GW of Capacity Added, Semiannual",values = c("#3083DC","#F5B041","#FFE98F","#9A348E"), breaks = c("Battery","Small-Scale Solar","Utility-Scale Solar","Wind")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*40), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-06-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-06-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 0-(.3*50), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NEW_CAPACITY_STACKED, "New Capacity Stacked Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
