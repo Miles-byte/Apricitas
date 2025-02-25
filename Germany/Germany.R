@@ -37,7 +37,7 @@ ENERGY_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturin
   ylab("Index, Jan 2018 = 100") +
   ggtitle("The German Industrial Crunch") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "The Energy Crisis Has Crushed Energy-Intensive German Manufacturing") +
-  theme_apricitas + theme(legend.position = c(.6,.87)) +
+  theme_apricitas + theme(legend.position = c(.6,.88)) +
   scale_color_manual(name= "Germany, Industrial Production",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Manufacturing","Energy-Intensive Manufacturing")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 65-(.3*45), ymax = 65) +
   coord_cartesian(clip = "off")
@@ -184,7 +184,7 @@ GDP_LIVE_GRAPH <- ggplot() +
   ylab("Index, Q3 2019 = 100") +
   ggtitle("Germany's Economic Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German GDP is Now Only Barely Above Pre-Pandemic Levels") +
-  theme_apricitas + theme(legend.position = c(.42,.24)) +
+  theme_apricitas + theme(legend.position = c(.35,.24)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 87.55-(.3*15), ymax = 87.55) +
   coord_cartesian(clip = "off")
@@ -206,13 +206,13 @@ GDP_INDUSTRY_GVA_LIVE_GRAPH <- ggplot() +
   annotate("text",label = "Pre-COVID Level", x = as.Date("2016-01-01"), y =100.75, color = "white", size = 4) +
   annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,105), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(80,110), expand = c(0,0)) +
   ylab("Index, Q3 2019 = 100") +
   ggtitle("Germany's Economic Slowdown") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German GDP is Barely Above 2019 Levels While Industry GVA Remains Below 2017 Highs") +
-  theme_apricitas + theme(legend.position = c(.28,.38)) +
+  theme_apricitas + theme(legend.position = c(.28,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*24), ymax = 80) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*30), ymax = 80) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GDP_INDUSTRY_GVA_LIVE_GRAPH, "Germany GDP INDUSTRY GVA LIVE Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -909,7 +909,7 @@ WEAPON_MANUFACTURING_graph <- ggplot() + #plotting energy intensive manufacturin
   ylab("Volume Index, Oct 2021 = 100") +
   ggtitle("German Weapon & Ammo Production") +
   labs(caption = "Graph created by @JosephPolitano using DeStatis Data. Trend-Cycle Adjustment Made Using BV4.1",subtitle = "German Weapon Production is Up Significantly Since the Start of Russia's Invasion") +
-  theme_apricitas + theme(legend.position = c(.52,.25)) +
+  theme_apricitas + theme(legend.position = c(.52,.15)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), guide = guide_legend(override.aes = list(lwd = c(2.25,1.25))), breaks = c("Industrial Production of Weapons and Ammunition, Germany, Trend Adjusted","Industrial Production of Weapons and Ammunition, Germany, Seasonally Adjusted")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(IPMAN_WEAPON$X13JDKSB)/10)*10)), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -934,6 +934,23 @@ ORDER_BACKLOG_WEAPONS_graph <- ggplot() + #plotting energy intensive manufacturi
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ORDER_BACKLOG_WEAPONS_graph, "Weapon Order Backlog graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+ORDER_BACKLOG_WEAPONS_TOTAL_graph <- ggplot() + #plotting energy intensive manufacturing
+  #geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4KSB`/`BV4KSB`[1]*100,color="Seasonally Adjusted"), size = 1.25) +
+  #geom_line(data=subset(IPMAN_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `BV4TB`/`BV4TB`[46]*100,color="Industrial Production of Weapons and Ammunition, Germany, Trend"), size = 1.25) +
+  geom_line(data=subset(ORDERS_WEAPON, date >= as.Date("2018-01-01")), aes(x=date,y= `INSGESAMT`,color="Backlog of Orders of Weapons & Ammunition,\nGermany, Indexed to October 2021"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,(ceiling(max(unlist(ORDERS_WEAPON[sapply(ORDERS_WEAPON, is.numeric)])) / 10) * 10)), expand = c(0,0)) +
+  ylab("Volume Index, Oct 2021 = 100") +
+  ggtitle("German Weapon & Ammo Backlogs") +
+  labs(caption = "Graph created by @JosephPolitano using DeStatis Data",subtitle = "German Weapon Order Backlogs are Rising Significantly Amidst Continental Rearmament") +
+  theme_apricitas + theme(legend.position = c(.42,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(ceiling(max(unlist(ORDERS_WEAPON[sapply(ORDERS_WEAPON, is.numeric)])) / 10) * 10)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ORDER_BACKLOG_WEAPONS_TOTAL_graph, "Weapon Order Backlog Total graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 IPMAN_BATTERIES <- IPMAN_3_DIGIT %>%
   filter(WZ08V3 == "WZ08-272") %>% #taking manufacturing and energy intensive manufacturing data 

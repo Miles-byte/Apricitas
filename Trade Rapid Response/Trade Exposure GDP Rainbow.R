@@ -8,7 +8,7 @@ US_COUNTRIES_IMPORTS_BULK_STATE <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/imports/statehs",
   vars = c("CON_VAL_YR","CTY_NAME","CTY_CODE","STATE"),
-  time = "2023-12",
+  time = "2024-12",
   #I_COMMODITY = "????",
   #I_COMMODITY = "*",#ALL COuntries
   #CTY_CODE = "0201", #TOTAL

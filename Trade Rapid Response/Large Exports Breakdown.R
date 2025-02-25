@@ -9,7 +9,7 @@ US_COUNTRIES_HS4_EXPORTS_BULK <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_NAME","CTY_CODE","DF"),
-  time = "2023-12",
+  time = "2024-12",
   DF = 1,
   #I_COMMODITY = "????",
   #I_COMMODITY = "*",#ALL COuntries
@@ -27,7 +27,7 @@ US_COUNTRIES_HS4_EXPORTS_TOTAL <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
   vars = c("ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
-  time = "2023-12",
+  time = "2024-12",
   DF = 1,
   COMM_LVL = "HS4",
   #I_COMMODITY = "????",
@@ -43,12 +43,10 @@ US_COUNTRIES_HS4_EXPORTS_TOTAL <- getCensus(
 US_COUNTRIES_HS4_EXPORTS_TOTAL <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
-  vars = c("ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
-  time = "2023-12",
-  DF = 1,
-  COMM_LVL = "HS4",
+  vars = c("ALL_VAL_YR","E_COMMODITY","CTY_NAME","COMM_LVL"),
+  time = "2024-12",
   #I_COMMODITY = "????",
-  #I_COMMODITY = "*",#ALL COuntries
+  COMM_LVL = "HS4",
   #CTY_CODE = "0201", #TOTAL
   CTY_NAME = "TOTAL FOR ALL COUNTRIES",
   #CTY_NAME = Countries[1],
@@ -56,11 +54,27 @@ US_COUNTRIES_HS4_EXPORTS_TOTAL <- getCensus(
   #CTY_NAME = Countries[3],
   #CTY_NAME = Countries[5],
 )
+
+US_COUNTRIES_HS4_EXPORTS_TOTAL <- getCensus(
+  key = Sys.getenv("CENSUS_KEY"),
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("ALL_VAL_YR","E_COMMODITY","CTY_CODE","CTY_NAME","COMM_LVL"),
+  time = "2024-12",
+  #I_COMMODITY = "????",
+  COMM_LVL = "HS4",
+  #CTY_CODE = "0201", #TOTAL
+  CTY_NAME = "CHINA",
+  #CTY_NAME = Countries[1],
+  #CTY_NAME = Countries[2],
+  #CTY_NAME = Countries[3],
+  #CTY_NAME = Countries[5],
+)
+
 US_COUNTRIES_HS4_EXPORTS_1 <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
-  vars = c("ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
-  time = "2023-12",
+  vars = c("ALL_VAL_YR", "E_COMMODITY","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
+  time = "2024-12",
   DF = 1,
   COMM_LVL = "HS4",
   #I_COMMODITY = "????",
@@ -72,11 +86,12 @@ US_COUNTRIES_HS4_EXPORTS_1 <- getCensus(
   #CTY_NAME = Countries[3],
   #CTY_NAME = Countries[5],
 )
+
 US_COUNTRIES_HS4_EXPORTS_2 <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
   vars = c("ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
-  time = "2023-12",
+  time = "2024-12",
   DF = 1,
   COMM_LVL = "HS4",
   #I_COMMODITY = "????",
@@ -93,7 +108,7 @@ US_COUNTRIES_HS4_EXPORTS_3 <- getCensus(
   key = Sys.getenv("CENSUS_KEY"),
   name = "timeseries/intltrade/exports/hs",
   vars = c("ALL_VAL_YR", "E_COMMODITY","E_COMMODITY_LDESC","CTY_CODE","DF","CTY_NAME","COMM_LVL"),
-  time = "2023-12",
+  time = "2024-12",
   DF = 1,
   COMM_LVL = "HS4",
   #I_COMMODITY = "????",
@@ -163,7 +178,7 @@ TOP_EXPORT_LEVELS_TOTAL_GRAPH <- ggplot(data = TOP_EXPORT_LEVELS_TOTAL_TOP5, aes
             color = "white",
             fontface = "bold") +
   xlab(NULL) +
-  ylab("Annual Exports, 2023") +
+  ylab("Annual Exports, 2024") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(TOP_EXPORT_LEVELS_TOTAL$ALL_VAL_YR/10000000000))*10), expand = c(0,0)) +
   labs(subtitle = "By Dollar Value") +
   theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0, .2, 0, .2), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"),axis.text.y = element_blank()) +
@@ -180,7 +195,7 @@ TOP_EXPORT_SHARE_TOTAL_GRAPH <- ggplot(data = TOP_EXPORT_SHARES_TOTAL_TOP5, aes(
             color = "white",
             fontface = "bold") +
   xlab(NULL) +
-  ylab("% of Total US Exports in Category, 2023") +
+  ylab("% of Total US Exports in Category, 2024") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   labs(subtitle = "By % of US Exports") +
   theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0, .2, 0, .2), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"),axis.text.y = element_blank()) +

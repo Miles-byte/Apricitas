@@ -24,7 +24,7 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -84,7 +84,7 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
 #Update links from here: https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2024/qe243/gdemenuea.html
-JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe243/tables/gaku-jk2431.csv",fileEncoding="latin1") %>%
+JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe244/tables/gaku-jk2441.csv",fileEncoding="latin1") %>%
   slice(-1:-6) %>%
   select(X) %>%
   transmute(date = seq.Date(from = as.Date("1994-01-01"), by = "quarter", length.out = nrow(.)), value = as.numeric(gsub(",","",X))) %>%
@@ -148,7 +148,7 @@ US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date
   select(date,value)
 
 #change to pn2 for first estimates
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -159,8 +159,8 @@ UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/econ
 GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), language = "en") %>%
   subset(VGRPB5 == "VGRPKM") %>%
   subset(WERT05 == "X13JDKSB") %>%
-  select(JAHR, QUARTG, SUB003_val) %>%
-  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = SUB003_val) %>%
+  select(JAHR, QUARTG, STR006_val) %>%
+  transmute(date = as.Date(as.yearqtr(paste0(JAHR,QUARTG),"%YQUART%q")), value = STR006_val) %>%
   arrange(date) %>%
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
