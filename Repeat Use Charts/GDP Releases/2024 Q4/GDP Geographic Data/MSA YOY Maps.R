@@ -596,6 +596,15 @@ MSA_map_RM_yoy <- merge(MSA_map, BEA_GDP_METRO_RM_YOY, by = "GEOID") %>%
   mutate(NAME = sub(",.*", "", NAME)) %>%
   st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84")
 
+MSA_map_RM_centroids_yoy <- MSA_map_RM_yoy %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(MSA_map_RM_yoy, .) %>%
+  st_centroid()
+
+
 BEA_GDP_MSA_RM_GRADIENT_YOY <- MSA_map_RM_yoy %>%
   mutate(Growth = case_when(
     Growth < 0 ~ 0,

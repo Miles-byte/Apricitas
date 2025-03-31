@@ -243,12 +243,12 @@ US_CHIPMAKING_CHINA_EXPORTS <- getCensus(
   transmute(date = seq(from = as.Date("2013-01-01"), by = "month", length = nrow(.)), `8486`=x)
 
 US_IC_EXPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
-  geom_line(data=filter(US_CIRCUITS_CHINA_EXPORTS, date>= as.Date("2016-01-01")), aes(x=date,y= (`8542`*12)/1000000000,color= "Semiconductors"), size = 1.25) + 
-  geom_line(data=filter(US_CHIPMAKING_CHINA_EXPORTS, date >= as.Date("2016-01-01")), aes(x=date,y= (`8486`*12)/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
+  geom_line(data=filter(US_CIRCUITS_CHINA_EXPORTS, date>= as.Date("2015-01-01")), aes(x=date,y= (`8542`*12)/1000000000,color= "Semiconductors"), size = 1.25) + 
+  geom_line(data=filter(US_CHIPMAKING_CHINA_EXPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= (`8486`*12)/1000000000,color= "Machines For Manufacturing Semiconductors"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854231`/1000000000,color= "Logic Chips (test)"), size = 1.25) + 
   # geom_line(data=US_CIRCUITS_CHINA_EXPORTS, aes(x=date,y= `854232`/1000000000,color= "Memory Chips (test)"), size = 1.25) + 
   annotate("vline", x = as.Date("2022-10-01"), xintercept = as.Date("2022-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Chip\nSanctions", x = as.Date("2022-09-01"), hjust = 1, y = 11, color = "white", size = 5, alpha = 0.75, lineheight = 0.8) +
+  annotate("text", label = "Chip\nSanctions", x = as.Date("2022-11-01"), hjust = 0, y = 11, color = "white", size = 5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,15), breaks = c(0,5,10,15), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
@@ -301,7 +301,7 @@ US_IC_IMPORTS_CHINA_Graph <- ggplot() + #plotting integrated circuits exports
   labs(caption = "Graph created by @JosephPolitano using Census data seasonally adjusted using X-13ARIMA. Note: China Includes HK & MO",subtitle = "The US Doesn't Import Many Semiconductors From China, and Imports Have Been Declining") +
   theme_apricitas + theme(legend.position = c(.65,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*5.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*5.75), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_IC_IMPORTS_CHINA_Graph, "US IC Imports China.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

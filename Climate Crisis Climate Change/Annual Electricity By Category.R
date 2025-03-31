@@ -6,22 +6,22 @@ usethis::edit_r_environ()
 ?eia1_series_req()
 
 SOLAR <- eia1_series("ELEC.GEN.TSN-US-99.A")%>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Solar") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Solar")
   
 WIND <- eia1_series("ELEC.GEN.WND-US-99.A") %>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Wind") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Wind")
   
 HYDRO <- eia1_series("ELEC.GEN.HYC-US-99.A") %>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Hydro") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Hydro")
   
 NUCLEAR <- eia1_series("ELEC.GEN.NUC-US-99.A") %>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Nuclear") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Nuclear")
   
 COAL <- eia1_series("ELEC.GEN.COW-US-99.A") %>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Coal")%>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Coal")
   
 NATURAL_GAS <- eia1_series("ELEC.GEN.NG-US-99.A") %>%
-  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Natural Gas") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")),value = generation, sector = "Natural Gas")
   
 ALL_SECTOR_GENERATION <- rbind(SOLAR,WIND,HYDRO,NUCLEAR,COAL,NATURAL_GAS) %>%
   mutate(sector = factor(sector, levels = c("Coal","Natural Gas","Nuclear","Hydro","Solar","Wind")))
@@ -29,7 +29,7 @@ ALL_SECTOR_GENERATION <- rbind(SOLAR,WIND,HYDRO,NUCLEAR,COAL,NATURAL_GAS) %>%
 ALL_SECTOR_GENERATION_GRAPH <- ggplot() + #plotting components of annual inflation
   geom_bar(data = ALL_SECTOR_GENERATION, aes(x = date, y = value/1000000, fill = sector), color = NA, size = 0, stat= "identity") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "PWh"),limits = c(0,4.2), breaks = c(0,1,2,3,4), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "PWh"),limits = c(0,4.3), breaks = c(0,1,2,3,4), expand = c(0,0)) +
   ylab("PWh") +
   ggtitle("US Power Generation by Year") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Low Carbon Energy Sources Now Make Up a Record Share of America's Electricity") +

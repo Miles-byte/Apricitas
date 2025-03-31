@@ -232,7 +232,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,112.5), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Per Capita Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US is Leading the Recovery, and Canada Has Had the Largest GDP Per Capita Decline") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US is Leading the Recovery, and Germany Has Had the Largest GDP Per Capita Decline") +
   theme_apricitas + theme(legend.position = c(.16,.31), legend.key.height = unit(0,"cm")) +
   scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.5) +

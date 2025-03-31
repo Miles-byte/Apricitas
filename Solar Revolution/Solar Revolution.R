@@ -427,14 +427,14 @@ US_NET_BATTERY_IMPORTS_GRAPH <- ggplot() + #plotting US Net Imports of EVs
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`Net Exports`*12)/1000000000,color= "US Net Imports of Rechargeable Batteries, Monthly Annualized"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_NET_BATTERY_EXPORTS, date >= as.Date("2017-12-01")), aes(x=date,y=-(`rollnetexports`)/1000000000,color= "US Net Imports of Rechargeable Batteries, Rolling 12M Total"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0, 31), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0, 35), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("America's Net Battery Imports") +
   labs(caption = "Graph created by @JosephPolitano using US Census Data",subtitle = "The US has Become a Major Net Importer of Batteries Post-COVID & Post-IRA") +
   theme_apricitas + theme(legend.position = c(.40,.85)) +
   theme(legend.key.width =  unit(.82, "cm")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("US Net Imports of Rechargeable Batteries, Rolling 12M Total","US Net Imports of Rechargeable Batteries, Monthly Annualized"), guide = guide_legend(override.aes = list(linetype = c(1,2), lwd = c(1.25,0.75), alpha = c(1,0.5)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(31)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*((today()-as.Date("2018-01-01")))), ymin = 0-(.3*(35)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NET_BATTERY_IMPORTS_GRAPH, "US Battery Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -2116,7 +2116,7 @@ TX_CLEAN_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   ggtitle("Clean Energy, Share of Texas Electricity") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Clean Energy is a Growing Share of Texas' Electricity Generation") +
   theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
-  scale_color_manual(name= "Share of US Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",breaks = c("Wind", "Solar", "Nuclear", "Hydro"), values = c("#9A348E","#FFE98F","#00A99D","#3083DC","#EE6055","#A7ACD9")) +
+  scale_color_manual(name= "Share of TX Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",breaks = c("Wind", "Solar", "Nuclear", "Hydro"), values = c("#9A348E","#FFE98F","#00A99D","#3083DC","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*ceiling(max(TX_WIND_PCT$value)/0.025)*0.025), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

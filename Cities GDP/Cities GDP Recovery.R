@@ -287,7 +287,7 @@ BEA_GDP_CONTRIB_BREAKDOWN_graph <- ggplot(BEA_GDP_CONTRIB_BREAKDOWN, aes(x = dat
   geom_bar(stat = "identity", position = "stack", color = NA) + facet_grid(~ GeoName) +
   xlab("Date") +
   ylab("%") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.5),expand = c(0,0)) +
   ggtitle("Real GDP Growth in Texas & Florida") +
   labs(caption = "Graph created by @JosephPolitano using BEA data. White Collar Including Professional & Business, Information, and Finance", subtitle = "White Collar Industries Were Major Contributors to Growth in Texas & Florida") +
   theme_apricitas + theme(legend.position = c(.175,.825), panel.spacing.x = unit (1.5, "lines"), strip.text.x = element_text(size = 20, color = "white")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +

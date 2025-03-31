@@ -254,7 +254,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -266,7 +266,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -290,7 +290,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -302,7 +302,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -314,7 +314,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,

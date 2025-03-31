@@ -172,11 +172,11 @@ CHINA_RETALIATION_EXPORTS_Stacked <- ggplot(CHINA_RETALIATION_EXPORTS, aes(fill=
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  ylab("GW of Capacity, Monthly Average") + 
+  ylab("Billions of Dollars, 12M Moving Average") + 
   scale_y_continuous(labels = scales::dollar_format(suffix = "B"), breaks = c(0,5,10,15,20), limits = c(0,20), expand = c(0,0)) +
   ggtitle("China's Tariff Retaliation") +
   labs(caption = "Graph created by @JosephPolitano using US Census data.\nEnergy is Affected Goods of HS Code Category 27, Ag Machinery 84, Trucks and Tractors 87", subtitle = "China Hit a Small Amount of Goods—Mostly Energy Products—With Retaliatory Tariffs") +
-  theme_apricitas + theme(legend.position = c(.3,.85)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.29,.84)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "US Exports Hit by Chinese Retaliatory Tariffs",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#F5B041","#9A348E","#00A99D","#EE6055","#FFE98F")),breaks = c("Energy","Trucks & Tractors","Agricultural Machinery")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*20), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -277,7 +277,194 @@ CHINA_BATTERY_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
 ggsave(dpi = "retina",plot = CHINA_BATTERY_IMPORTS_Graph, "China Battery Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-UMICH
-EXPORTS TARIFFED
-UMICH
-AG EXPORTS
+
+US_SOY_EXPORTS_BULK <- getCensus(
+  key = Sys.getenv("CENSUS_KEY"),
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY","CTY_NAME","CTY_CODE"),
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  #I_COMMODITY = "*",#ALL COuntries
+  #CTY_CODE = "0201", #TOTAL
+  E_COMMODITY = "1201", #Soy
+  #E_COMMODITY = "5201", #Cotton
+  #E_COMMODITY = "100790", #Grain Sorghum
+  CTY_NAME = "CHINA",
+  #CTY_NAME = Countries[4],
+  #CTY_NAME = Countries[5],
+)
+
+US_SOY_EXPORTS <- US_SOY_EXPORTS_BULK %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
+  mutate(rollsum = rollsum(ALL_VAL_MO,12,na.pad = TRUE, align = "right")) %>%
+  drop_na() %>%
+  mutate(date = as.Date(paste0(time,"-01-01")))
+
+US_COTTON_EXPORTS_BULK <- getCensus(
+  key = Sys.getenv("CENSUS_KEY"),
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY","CTY_NAME","CTY_CODE"),
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  #I_COMMODITY = "*",#ALL COuntries
+  #CTY_CODE = "0201", #TOTAL
+  #E_COMMODITY = "1201", #Soy
+  E_COMMODITY = "5201", #Cotton
+  #E_COMMODITY = "100790", #Grain Sorghum
+  CTY_NAME = "CHINA",
+  #CTY_NAME = Countries[4],
+  #CTY_NAME = Countries[5],
+)
+
+US_COTTON_EXPORTS <- US_COTTON_EXPORTS_BULK %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
+  mutate(rollsum = rollsum(ALL_VAL_MO,12,na.pad = TRUE, align = "right")) %>%
+  drop_na() %>%
+  mutate(date = as.Date(paste0(time,"-01-01")))
+  
+
+US_SORGHUM_EXPORTS_BULK <- getCensus(
+  key = Sys.getenv("CENSUS_KEY"),
+  name = "timeseries/intltrade/exports/hs",
+  vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY","CTY_NAME","CTY_CODE"),
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  #I_COMMODITY = "*",#ALL COuntries
+  #CTY_CODE = "0201", #TOTAL
+  #E_COMMODITY = "1201", #Soy
+  #E_COMMODITY = "5201", #Cotton
+  E_COMMODITY = "100790", #Grain Sorghum
+  CTY_NAME = "CHINA",
+  #CTY_NAME = Countries[4],
+  #CTY_NAME = Countries[5],
+)
+
+US_SORGHUM_EXPORTS <- US_SORGHUM_EXPORTS_BULK %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
+  mutate(rollsum = rollsum(ALL_VAL_MO,12,na.pad = TRUE, align = "right")) %>%
+  drop_na() %>%
+  mutate(date = as.Date(paste0(time,"-01-01")))
+
+
+CHINA_KEY_AG_Graph <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=filter(US_SOY_EXPORTS, date >= as.Date("2016-01-01")), aes(x=date,y= rollsum/1000000000,color= "Soy"), size = 1.25) + 
+  geom_line(data=filter(US_COTTON_EXPORTS, date >= as.Date("2016-01-01")), aes(x=date,y= rollsum/1000000000,color= "Cotton"), size = 1.25) + 
+  geom_line(data=filter(US_SORGHUM_EXPORTS, date >= as.Date("2016-01-01")), aes(x=date,y= rollsum/1000000000,color= "Sorghum"), size = 1.25) + 
+  annotate("vline", x = as.Date("2018-07-01"), xintercept = as.Date("2018-07-01"), color = "white", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "1st Chinese\nRetaliatory\nTariffs",x = as.Date("2018-08-01"), y = 21, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  annotate("vline", x = as.Date("2020-01-01"), xintercept = as.Date("2020-01-01"), color = "white", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "Phase 1\nDeal\nSigned",x = as.Date("2020-02-01"), y = 21, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  annotate("vline", x = as.Date("2025-03-01"), xintercept = as.Date("2025-03-01"), color = "white", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "2nd Chinese\nRetaliatory\nTariffs",x = as.Date("2025-02-01"), y = 21, size = 4,color = "white",hjust = 1, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,25), breaks = c(0,5,10,15,20,25), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Major US Crops Hit by Retaliatory Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data. Soybeans are HS Code 1201",subtitle = "Chinese Tariffs Have Hit >$20B in US Agricultural Exports, Especially Soy, Cotton, and Sorghum") +
+  theme_apricitas + theme(legend.position = c(.15,.82), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "US Exports to China",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Soy","Cotton","Sorghum")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*(25)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINA_KEY_AG_Graph, "China Key Ag Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+COMPUTER_IMPORTS_CHINA_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "8471", #Computers
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  CTY_NAME = "CHINA",
+  CTY_NAME = "THAILAND",
+  CTY_NAME = "MEXICO",
+  CTY_NAME = "TAIWAN",
+  CTY_NAME = "VIETNAM",
+)
+
+COMPUTER_IMPORTS_BREAKDOWN <- COMPUTER_IMPORTS_CHINA_BULK %>%
+  select(time,CON_VAL_MO,CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  pivot_wider(values_from = CON_VAL_MO, names_from = CTY_NAME) %>%
+  mutate(OTHER = `TOTAL FOR ALL COUNTRIES`-`THAILAND`-`VIETNAM`-`CHINA`-`TAIWAN`-`MEXICO`) %>%
+  mutate(across(where(is.numeric), ~ rollapplyr(.x, width = 12, sum, fill = NA))) %>%
+  mutate(date = as.Date(paste0(time,"-01-01")))
+
+
+LAPTOP_IMPORTS_CHINA_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "847130", #Computers
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  CTY_NAME = "CHINA",
+  CTY_NAME = "THAILAND",
+  CTY_NAME = "MEXICO",
+  CTY_NAME = "TAIWAN",
+  CTY_NAME = "VIETNAM",
+)
+
+LAPTOP_IMPORTS_BREAKDOWN <- LAPTOP_IMPORTS_CHINA_BULK %>%
+  select(time,CON_VAL_MO,CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  pivot_wider(values_from = CON_VAL_MO, names_from = CTY_NAME) %>%
+  mutate(across(where(is.numeric),~ replace_na(.x, 0))) %>%
+  mutate(OTHER = `TOTAL FOR ALL COUNTRIES`-`THAILAND`-`VIETNAM`-`CHINA`-`TAIWAN`-`MEXICO`) %>%
+  mutate(across(where(is.numeric), ~ rollapplyr(.x, width = 12, sum, fill = NA))) %>%
+  mutate(date = as.Date(paste0(time,"-01-01")))
+
+COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN <- merge(COMPUTER_IMPORTS_BREAKDOWN,LAPTOP_IMPORTS_BREAKDOWN, by = "date") %>%
+  transmute(date, MEXICO = MEXICO.x-MEXICO.y, CHINA = CHINA.x-CHINA.y, TAIWAN = TAIWAN.x-TAIWAN.y,VIETNAM = VIETNAM.x-VIETNAM.y, THAILAND = THAILAND.x-THAILAND.y, OTHER = OTHER.x-OTHER.y)
+  
+
+US_COMPUTER_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `OTHER`/1000000000,color= "Other"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `THAILAND`/1000000000,color= "Thailand"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `VIETNAM`/1000000000,color= "Vietnam"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `TAIWAN`/1000000000,color= "Taiwan"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `MEXICO`/1000000000,color= "Mexico"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `CHINA`/1000000000,color= "China"), size = 1.25) + 
+  annotate("vline", x = as.Date("2018-07-01"), xintercept = as.Date("2018-07-01"), color = "white", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "China\nTrade War\nBegins",x = as.Date("2018-08-01"), y = 59, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  # annotate("vline", x = as.Date("2020-01-01"), xintercept = as.Date("2020-01-01"), color = "white", size = 1.25, linetype = "dashed") +
+  # annotate(geom = "text", label = "Phase 1\nDeal\nSigned",x = as.Date("2020-02-01"), y = 21, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  # annotate("vline", x = as.Date("2025-03-01"), xintercept = as.Date("2025-03-01"), color = "white", size = 1.25, linetype = "dashed") +
+  # annotate(geom = "text", label = "2nd Chinese\nRetaliatory\nTariffs",x = as.Date("2025-02-01"), y = 21, size = 4,color = "white",hjust = 1, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,64), breaks = c(0,20,40,60), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("Shifting US Computer Imports") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data. Computers are HS Code 8471",subtitle = "Mexico is the Number-1 Source of Computer Imports, With Taiwan Surging as Well") +
+  theme_apricitas + theme(legend.position = c(.15,.52), plot.title = element_text(size = 27),legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13))) +
+  scale_color_manual(name= "US Imports by Country",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("China","Mexico","Taiwan","Vietnam","Thailand","Other")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*(60)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_COMPUTER_IMPORTS_Graph, "US Computer Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_COMPUTER_XLAPTOP_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `OTHER`/1000000000,color= "Other"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `THAILAND`/1000000000,color= "Thailand"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `VIETNAM`/1000000000,color= "Vietnam"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `TAIWAN`/1000000000,color= "Taiwan"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `MEXICO`/1000000000,color= "Mexico"), size = 1.25) + 
+  geom_line(data=filter(COMPUTER_X_LAPTOP_IMPORTS_BREAKDOWN, date >= as.Date("2015-01-01")), aes(x=date,y= `CHINA`/1000000000,color= "China"), size = 1.25) + 
+  annotate("vline", x = as.Date("2018-07-01"), xintercept = as.Date("2018-07-01"), color = "white", size = 1.25, linetype = "dashed") +
+  annotate(geom = "text", label = "China\nTrade War\nBegins",x = as.Date("2018-08-01"), y = 40, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  #annotate("vline", x = as.Date("2020-01-01"), xintercept = as.Date("2020-01-01"), color = "white", size = 1.25, linetype = "dashed") +
+  #annotate(geom = "text", label = "Phase 1\nDeal\nSigned",x = as.Date("2020-02-01"), y = 21, size = 4,color = "white",hjust = 0, lineheight = 0.8) +
+  #annotate("vline", x = as.Date("2025-03-01"), xintercept = as.Date("2025-03-01"), color = "white", size = 1.25, linetype = "dashed") +
+  #annotate(geom = "text", label = "2nd Chinese\nRetaliatory\nTariffs",x = as.Date("2025-02-01"), y = 21, size = 4,color = "white",hjust = 1, lineheight = 0.8) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,60), breaks = c(0,20,40,60), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("US Non-Laptop Computer Imports") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data. HS Code 8471 ex 847130",subtitle = "Mexico is the Number-1 Source of Computer Imports Ex-Laptops, With Taiwan Surging to #2") +
+  theme_apricitas + theme(legend.position = c(.15,.78), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "US Imports by Country",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Mexico","China","Taiwan","Vietnam","Thailand","Other")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*(60)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = US_COMPUTER_XLAPTOP_IMPORTS_Graph, "US Computer X-Laptop Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

@@ -318,7 +318,7 @@ ggsave(dpi = "retina",plot = STATE_PRIVATE_CONSTRUCTION_PER_CAPITA_GRAPH, "State
 
 
 STATE_PRIVATE_CONSTRUCTION_LINEAR <- STATE_PRIVATE_CONSTRUCTION %>%
-  select(-`2019-2023`,-`2021-2023`) %>%
+  select(-`2019-2023`,-`2021-2023`,-`2019_minus_2023`) %>%
   transpose() %>%
   row_to_names(1) %>%
   mutate(across(everything(), as.numeric)) %>%

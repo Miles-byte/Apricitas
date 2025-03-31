@@ -1,4 +1,4 @@
-pacman::p_load(ggrepel,bea.R,tidyverse,ggpubr,purrr,sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(zoo,scales,ggrepel,bea.R,tidyverse,ggpubr,purrr,sf,seasonal,tigris,maps,readabs,rsdmx,censusapi,estatapi,seasonal,openxlsx,readxl,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,tools,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 #pacman::p_load(ggpubr,prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 
@@ -8,7 +8,7 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-Countries <- c("CANADA","MEXICO")
+Countries <- c("CANADA","MEXICO","CHINA")
 #List Countries
 US_COUNTRIES_HS4_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
@@ -35,7 +35,10 @@ TOP_IMPORT_LEVELS_TOTAL <- US_COUNTRIES_HS4_IMPORTS_BULK %>%
   mutate(CON_VAL_YR = sum(CON_VAL_YR, na.rm = TRUE)) %>%
   unique() %>%
   ungroup() %>%
+  filter(I_COMMODITY != "2716") %>% #excluding electricity
+  filter(I_COMMODITY != "9801") %>% #excluding repairs
   arrange(desc(CON_VAL_YR))
+  
 
 TOP_IMPORT_SHARES_TOTAL <- US_COUNTRIES_HS4_IMPORTS_BULK %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
@@ -49,16 +52,17 @@ TOP_IMPORT_SHARES_TOTAL <- US_COUNTRIES_HS4_IMPORTS_BULK %>%
   transmute(I_COMMODITY, I_COMMODITY_LDESC = I_COMMODITY_LDESC.x,CON_VAL_YR = CON_VAL_YR.y,CON_VAL_SHARE = CON_VAL_YR.y/CON_VAL_YR.x) %>%
   filter(CON_VAL_YR >= 2000000000) %>%
   filter(I_COMMODITY != "2716") %>% #excluding electricity
+  filter(I_COMMODITY != "9801") %>% #excluding repairs
   arrange(desc(CON_VAL_SHARE))
 
 TOP_IMPORT_LEVELS_TOTAL_TOP5 <- TOP_IMPORT_LEVELS_TOTAL %>%
   slice(1:5) %>%
-  mutate(I_COMMODITY_LDESC = c("Crude Oil","Cars/SUVs/Minivans","Computers","Vehicle Parts","Pickup/Delivery Trucks")) %>%
+  mutate(I_COMMODITY_LDESC = c("Crude Oil","Phones","Computers","Cars/SUVs/Minivans","Vehicle Parts")) %>%
   mutate(I_COMMODITY_LDESC = factor(I_COMMODITY_LDESC, levels = rev(I_COMMODITY_LDESC)))
 
 TOP_IMPORT_SHARES_TOTAL_TOP5 <- TOP_IMPORT_SHARES_TOTAL %>%
   slice(1:5) %>%
-  mutate(I_COMMODITY_LDESC = c("Live Cattle","Tomatoes","Canola Oil","Pickup/Delivery Trucks","Patricle Board")) %>%
+  mutate(I_COMMODITY_LDESC = c("Canola Oil","Particle Board","Holiday/Party Supplies","Potash Fertilizers","Ethylene Polymers")) %>%
   mutate(I_COMMODITY_LDESC = factor(I_COMMODITY_LDESC, levels = rev(I_COMMODITY_LDESC)))
 
 
@@ -122,7 +126,7 @@ plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0,0.5,
 Large_Imports <- ggarrange(TOP_IMPORT_LEVELS_TOTAL_GRAPH,TOP_IMPORT_SHARE_TOTAL_GRAPH, ncol = 2, nrow = 1, heights = c(5,20), widths = 10, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
 
 Large_Imports <- ggarrange(plot_0,Large_Imports, nrow = 2, heights = c(4,20), widths = 10) %>%
-  annotate_figure(.,bottom = text_grob("\nGraph Created by @Josephpolitano Using Census Data\nNOTE: Breakdowns Based on 4-Digit HS Codes. % of Imports Data Only For Goods Above $5B in Imports", color = "grey55",hjust = 1, x = 1, size = 10))+ bgcolor("#252A32") + border("#252A32")
+  annotate_figure(.,bottom = text_grob("\nGraph Created by @Josephpolitano Using Census Data\nNOTE: Breakdowns Based on 4-Digit HS Codes. % of Imports Data Only For Goods Above $2B in Imports", color = "grey55",hjust = 1, x = 1, size = 10))+ bgcolor("#252A32") + border("#252A32")
 
 ggsave(dpi = "retina",plot = Large_Imports, "Large Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -190,7 +194,7 @@ US_COUNTRIES_TOTAL_IMPORTS_BREAKDOWN <- US_COUNTRIES_TOTAL_IMPORTS %>%
   #mutate(CON_VAL_YR = ifelse(row_number() == 1, CON_VAL_YR - sum(CON_VAL_YR[-1]), CON_VAL_YR)) %>%
   arrange(desc(CON_VAL_YR)) %>%
   filter(!CTY_NAME %in% c("AUSTRALIA AND OCEANIA","AFRICA","CENTRAL AMERICA","AUSTRALIA & OCEANIA","SOUTH AMERICA","NORTH AMERICA","PACIFIC RIM COUNTRIES","CAFTA-DR","NAFTA","TWENTY LATIN AMERICAN REPUBLICS","OECD","NATO","LAFTA","EURO AREA","APEC","ASEAN","CACM","EUROPE","ASIA")) %>%
-  filter(!CTY_NAME %in% c("EUROPEAN UNION")) %>%
+  #filter(!CTY_NAME %in% c("EUROPEAN UNION")) %>%
   mutate(CON_VAL_YR = CON_VAL_YR / first(CON_VAL_YR)) %>%
   mutate(CTY_NAME = case_when(CTY_NAME == "CHINA" ~ "China",
                               CTY_NAME == "HONG KONG" ~ "China",
@@ -200,7 +204,7 @@ US_COUNTRIES_TOTAL_IMPORTS_BREAKDOWN <- US_COUNTRIES_TOTAL_IMPORTS %>%
   arrange(desc(CON_VAL_YR)) %>%
   slice(-1) %>%
   slice(1:10) %>%
-  mutate(TARIFF = c("Tariffs Paused For 30 Days","Tariffed","Tariffs Paused For 30 Days","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed")) %>%
+  mutate(TARIFF = c("Tariffs Paused Until March 4","Tariffed","Tariffs Paused Until March 4","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed","Not Tariffed")) %>%
   mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
   mutate(CTY_NAME = case_when(CTY_NAME == "Korea, South" ~ "South Korea",
          TRUE ~ CTY_NAME)) %>%
@@ -222,10 +226,10 @@ US_COUNTRIES_TOTAL_IMPORTS_BREAKDOWN_Graph <- ggplot(data = US_COUNTRIES_TOTAL_I
             fontface = "bold") +
   xlab(NULL) +
   ggtitle("Trump is Tariffing the Largest US Trade Partners") +
-  ylab("% of Total US Imports in Category, 2024") +
+  ylab("% of Total US Imports, 2024") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.175), expand = c(0,0)) +
   labs(subtitle = "Top Sources of US Goods Imports, %") +
-  scale_fill_manual(name= NULL,values = c("#D28E20","#EE6055","#00A99D"), breaks = c("Tariffs Paused For 30 Days","Tariffed","Not Tariffed"), labels = c("Tariffs Paused For 30 Days","Tariffed","Not Yet Tariffed")) +
+  scale_fill_manual(name= NULL,values = c("#D28E20","#EE6055","#00A99D"), breaks = c("Tariffs Paused Until March 4","Tariffed","Not Tariffed"), labels = c("Tariffs Paused Until March 4","Tariffed","Not Yet Tariffed")) +
   theme_apricitas + theme(legend.position = c(.65,.525), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), plot.title = element_text(size =27),plot.subtitle = element_text(size = 20, color = "white", face = "bold"),axis.text.y = element_blank()) +
   coord_flip()
   

@@ -174,6 +174,22 @@ MEXICO_MACHINERY_EQUIPMENT_Investment_Graph <- ggplot() +
 ggsave(dpi = "retina",plot = MEXICO_MACHINERY_EQUIPMENT_Investment_Graph, "Mexico Machinery Equipment Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
+MEXICO_MACHINERY_EQUIPMENT_CONSTRUCTION_Investment_Graph <- ggplot() + 
+  geom_line(data = MEXICO_MACHINERY_EQUIPMENT_INVESTMENT_TOTAL, aes(x = date, y = value, color = "Machinery & Equipment"), size = 1.25) +
+  geom_line(data = NONRES_CONSTRUCTION, aes(x = date, y = value, color = "Nonresidential Construction"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(50,150), breaks = c(50,60,70,80,90,100,110,120,130,140,150), expand = c(0,0)) +
+  ylab("Index, 2018 = 100") +
+  ggtitle("Mexico's Investment Boom") +
+  labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Mexican Industrial Investment in Construction, Machinery, & Equipment Have Risen") +
+  theme_apricitas + theme(legend.position = c(.42,.85)) +
+  scale_color_manual(name= "Index of Real Fixed Investment, Mexico",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("Nonresidential Construction","Machinery & Equipment")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 50-(.3*100), ymax = 50) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MEXICO_MACHINERY_EQUIPMENT_CONSTRUCTION_Investment_Graph, "Mexico Machinery Equipment Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 REMITTANCE_QUARTERLY_RECEIPTS <- getSerieDataFrame(getSeriesData(series = "SE28528"), "SE28528") %>%
   filter(date >= as.Date("2016-01-01"))
 
@@ -425,6 +441,33 @@ ALL_MANUFACTURING_EMPLOYEES_MEX_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = ALL_MANUFACTURING_EMPLOYEES_MEX_Graph, "All Manufacturing Employees Mex Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+IMMEX_MANUFACTURING_EMPLOYEES_MEX_RAW <- inegi_series(serie = "454534", token = Sys.getenv("TOKEN_INEGI")) %>%
+  filter(date>=as.Date("2017-01-01")) %>%
+  arrange(date)
+
+XIMMEX_MANUFACTURING_EMPLOYEES_MEX_RAW <- inegi_series(series_id = "702335", token = Sys.getenv("TOKEN_INEGI")) %>%
+  filter(date>=as.Date("2017-01-01")) %>%
+  mutate(values = values*4768216.75/100) %>%
+  merge(.,IMMEX_MANUFACTURING_EMPLOYEES_MEX_RAW, by = "date") %>%
+  transmute(date, values = values.x-values.y)
+
+ALL_MANUFACTURING_EMPLOYEES_MEX_RAW_Graph <- ggplot() + 
+  geom_line(data = XIMMEX_MANUFACTURING_EMPLOYEES_MEX_RAW, aes(x = date, y = values/1000-values[1]/1000, color = "All Other Manufacturing"), size = 1.25) +
+  geom_line(data = IMMEX_MANUFACTURING_EMPLOYEES_MEX_RAW, aes(x = date, y = values/1000-values[1]/1000, color = "Export-Oriented Manufacturing (IMMEX Program)"), size = 1.25) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(-200,500), breaks = c(-200,-100,0,100,200,300,400,500), expand = c(0,0)) +
+  ylab("Change Since Jan 2017") +
+  ggtitle("Mexican Manufacturing Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Mexican Manufacturing Employment Has Been Much Stronger in Export-Oriented Firms") +
+  theme_apricitas + theme(legend.position = c(.33,.88)) +
+  scale_color_manual(name= "Formal Manufacturing Job Growth Since Jan 2017",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("Export-Oriented Manufacturing (IMMEX Program)","All Other Manufacturing")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -200-(.3*700), ymax = -200) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ALL_MANUFACTURING_EMPLOYEES_MEX_RAW_Graph, "All Manufacturing Employees Mex Raw Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 CONSUMER_SENTIMENT <- inegi_series(serie = "454186", token = Sys.getenv("TOKEN_INEGI")) %>%
   filter(date>=as.Date("2017-01-01"))
 
@@ -671,6 +714,49 @@ MX_MANUFACTURING_MAP <- mxstate_choropleth(STATE_MANUFACTURING_ACTIVITY_EDIT,
 
 
 ggsave(dpi = "retina",plot = MX_MANUFACTURING_MAP, "MX Manufacturing Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+temp_file <- tempfile(fileext = ".xlsx")
+GET("https://en.www.inegi.org.mx/contenidos/programas/exporta_ef/tabulados/EAEF_Entidad.xlsx", write_disk(temp_file, overwrite = TRUE))
+
+STATE_EXPORTS <- read.xlsx(temp_file)
+
+STATE_EXPORTS_EDIT <- STATE_EXPORTS %>%
+  slice(-1:-4,-37:-109) %>%
+  as.data.frame() %>%
+  select(1, last_col()) %>%
+  setNames(c("states","value")) %>%
+  mutate(region = sprintf("%02d", 1:32)) %>%
+  mutate(value = as.numeric(value))
+
+temp_file <- tempfile(fileext = ".xlsx")
+GET("https://en.www.inegi.org.mx/contenidos/programas/pibent/2018/tabulados/ori/PIBE_2.xlsx", write_disk(temp_file, overwrite = TRUE))
+
+STATE_GDP <- read.xlsx(temp_file)
+
+STATE_GDP_EDIT <- STATE_GDP %>%
+  slice(182:213) %>%
+  as.data.frame() %>%
+  select(1, last_col()) %>%
+  setNames(c("states","value")) %>%
+  mutate(region = sprintf("%02d", 1:32)) %>%
+  mutate(value = as.numeric(value)) %>%
+  mutate(value = value/(fredr("DEXMXUS", frequency = "a")$value[nrow(fredr("DEXMXUS", frequency = "a"))-1]))
+
+STATE_EXPORTS_SHARE_GDP <- merge(STATE_EXPORTS_EDIT,STATE_GDP_EDIT, by = "region") %>%
+  transmute(region, states = states.x, value = value.x/(value.y*1000))
+
+devtools::install_github("diegovalle/mxmaps")
+library("mxmaps")
+
+MX_STATE_EXPORTS_SHARE_GDP_MAP <- mxstate_choropleth(STATE_EXPORTS_SHARE_GDP,
+                                                     title = "Gross Exports Relative to GDP, 2023",
+                                                     num_colors = 1) +
+  theme_apricitas +
+  labs(caption = "Graph created by @JosephPolitano using INEGI data",subtitle = "Mexico's Northern Border States are Export Powerhouses Vulnerable to a Trade War") +
+  scale_fill_gradientn(colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  theme(legend.position = c(.85,.7),axis.title.y = element_blank() ,axis.title.x = element_blank(), panel.grid.major=element_blank(),panel.grid.minor = element_blank(),  axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, 0, 0, -.75), "in"), legend.key = element_blank())
+
+ggsave(dpi = "retina",plot = MX_STATE_EXPORTS_SHARE_GDP_MAP, "MX State Export Share GDP Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 p_unload(all)  # Remove all packages using the package manager
