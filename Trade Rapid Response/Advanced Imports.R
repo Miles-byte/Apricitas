@@ -29,12 +29,13 @@ ADVANCED_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.25),limits = c(0,2),breaks = c(0,0.25,0.5,0.75,1,1.25,1.5,1.75,2), expand = c(0,0)) +
   ylab("Dollars, Seasonally Adjusted Annual Rate") +
-  ggtitle("Imports Spiked in January Amid Tariff Fears") +
+  ggtitle("Imports Have Spiked Amid Tariff Fears") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Consumers & Businesses Rushed to Buy Goods Before Trump's Tariffs Come In Place") +
-  theme_apricitas + theme(legend.position = c(.35,.89), plot.title = element_text(size = 26)) +
+  theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*(2)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ADVANCED_IMPORTS_Graph, "Advanced Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
 

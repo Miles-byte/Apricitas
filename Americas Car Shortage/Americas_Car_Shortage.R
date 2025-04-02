@@ -1,4 +1,4 @@
-pacman::p_load(magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(openxlsx,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 library(blscrapeR)
 
 Inventory <- fredr(series_id = "N864RX1Q020SBEA",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
@@ -149,7 +149,7 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
   geom_line(data=Auto_Industrial_Capacity, aes(x=date,y= value, color = "Industrial Capacity: Automobile and Light Duty Motor Vehicles"), size = 1.25)+ 
   xlab("Date") +
   ylab("Industrial Capacity, 2017 = 100") +
-  scale_y_continuous(limits = c(60,170), breaks = c(60,80,100,120,140,160), expand = c(0,0)) +
+  scale_y_continuous(limits = c(60,180), breaks = c(60,80,100,120,140,160,180), expand = c(0,0)) +
   #scale_x_date(limits = c(as.Date("2020-01-01"),as.Date("2021-8-01"))) +
   ggtitle("Capacity Growth") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Still Shows the Scars of 2008") +
@@ -157,7 +157,7 @@ Auto_Industrial_Capacity_Graph <- ggplot() + #plotting capacity utilization in A
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#A7ACD9")) +
   #annotate(geom = "hline", y = 0.819, yintercept = .819, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   #annotate(geom = "text", label = "Lowest Possible Estimate of 'Full Employment'", x = as.Date("1996-01-01"), y = 0.825, color ="#FFE98F") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 60-(.3*90), ymax = 60) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(11596)), xmax = as.Date("1990-01-01")-(0.049*(11596)), ymin = 60-(.3*120), ymax = 60) +
   coord_cartesian(clip = "off")
 
 Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Automobiles
@@ -300,7 +300,7 @@ UNFILLED_ORDERS_Graph <- ggplot() + #plotting auto assemblies
   coord_cartesian(clip = "off")
 
 #QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
-DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2023Q3.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
+DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2024Q4.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
   slice(-(1:3)) %>%
   setnames(c("date","Mortgage","HELOC","Auto","Credit Card","Student Loan","Other","All","X")) %>%
   select(-Other,-All,-X) %>%
@@ -309,11 +309,11 @@ DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medial
   pivot_longer(cols = Mortgage:`Student Loan`)
 
 #QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
-NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2023Q3.xlsx?sc_lang=en", sheet = "Page 14 Data") %>%
+NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2024Q4.xlsx?sc_lang=en", sheet = "Page 14 Data") %>%
   slice(-(1:4)) %>%
-  select(1:9) %>%
-  setnames(c("date","Auto","CC","Mortgage","HELOC","Student Loan","Other","All","X")) %>%
-  select(-Other,-All,-X) %>%
+  select(1:8) %>%
+  setnames(c("date","Auto","CC","Mortgage","HELOC","Student Loan","Other","All")) %>%
+  select(-Other,-All) %>%
   mutate(date = seq.Date(from = as.Date("2003-01-01"), by = "3 months", length = nrow(.))) %>%
   mutate(across(where(is.character), ~ as.numeric(.))) %>%
   pivot_longer(cols = Auto:`Student Loan`)
