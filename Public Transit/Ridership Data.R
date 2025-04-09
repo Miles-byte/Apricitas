@@ -1129,6 +1129,7 @@ AGENCY_RECOVERY_YOY <- AGENCY_RECOVERY_YOY %>%
     agency == "City and County of San Francisco" ~ "Muni (SF)",
     agency == "Massachusetts Bay Transportation Authority" ~ "MBTA (Boston)",
     agency == "Southeastern Pennsylvania Transportation Authority" ~ "SEPTA (Philly)",
+    agency == "County of Miami-Dade" ~ "MDT (Miami)",
     TRUE ~ agency
   ))
 
