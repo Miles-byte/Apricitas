@@ -374,6 +374,305 @@ CAR_TOTAL_USMCA <- CAR_IMPORTS_USMCA %>%
   unique()
 
 
+CAR_PARTS_IMPORTS <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_YR", "I_COMMODITY", "CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC"),
+  time = "2024-12",
+  I_COMMODITY = "4009120020",
+  I_COMMODITY = "4009220020",
+  I_COMMODITY = "4009320020",
+  I_COMMODITY = "4009420020",
+  I_COMMODITY = "4011101000",
+  I_COMMODITY = "4011105000",
+  I_COMMODITY = "4011201000",
+  I_COMMODITY = "4012194000",
+  I_COMMODITY = "4012198000",
+  I_COMMODITY = "4012206000",
+  I_COMMODITY = "4013100010",
+  I_COMMODITY = "4013100020",
+  I_COMMODITY = "4016996010",
+  I_COMMODITY = "7007215100",
+  I_COMMODITY = "700910",
+  I_COMMODITY = "732010",
+  I_COMMODITY = "7320201000",
+  I_COMMODITY = "830120",
+  I_COMMODITY = "8302103000",
+  I_COMMODITY = "830230",
+  I_COMMODITY = "840731",
+  I_COMMODITY = "840732",
+  I_COMMODITY = "840733",
+  I_COMMODITY = "840734",
+  I_COMMODITY = "8408202000",
+  I_COMMODITY = "8409911040",
+  I_COMMODITY = "8409991040",
+  I_COMMODITY = "8413301000",
+  I_COMMODITY = "8413309000",
+  I_COMMODITY = "8413911000",
+  I_COMMODITY = "8413919010",
+  I_COMMODITY = "8414308030",
+  I_COMMODITY = "8414593000",
+  I_COMMODITY = "8414596540",
+  I_COMMODITY = "8414800500",
+  I_COMMODITY = "841520",
+  I_COMMODITY = "842123",
+  I_COMMODITY = "842132",
+  I_COMMODITY = "842549",
+  I_COMMODITY = "842691",
+  I_COMMODITY = "8431100090",
+  #I_COMMODITY = "8471", #excluding computers
+  I_COMMODITY = "8507600010",
+  I_COMMODITY = "8482101000",
+  I_COMMODITY = "8482105044",
+  I_COMMODITY = "8482105048",
+  I_COMMODITY = "8482200020",
+  I_COMMODITY = "8482200030",
+  I_COMMODITY = "8482200040",
+  I_COMMODITY = "8482200061",
+  I_COMMODITY = "8482200070",
+  I_COMMODITY = "8482200081",
+  I_COMMODITY = "848240",
+  I_COMMODITY = "848250",
+  I_COMMODITY = "8483101030",
+  I_COMMODITY = "8483103000",
+  I_COMMODITY = "850132",
+  I_COMMODITY = "850134",
+  I_COMMODITY = "850140",
+  I_COMMODITY = "850151",
+  I_COMMODITY = "850152",
+  I_COMMODITY = "850710",
+  I_COMMODITY = "850760",
+  I_COMMODITY = "8507904000",
+  I_COMMODITY = "8507908000",
+  I_COMMODITY = "851110",
+  I_COMMODITY = "851120",
+  I_COMMODITY = "8511300040",
+  I_COMMODITY = "8511300080",
+  I_COMMODITY = "851140",
+  I_COMMODITY = "851150",
+  I_COMMODITY = "8511802000",
+  I_COMMODITY = "8511806000",
+  I_COMMODITY = "8511906020",
+  I_COMMODITY = "8511906040",
+  I_COMMODITY = "8512202000",
+  I_COMMODITY = "8512204000",
+  I_COMMODITY = "851230",
+  I_COMMODITY = "8512402000",
+  I_COMMODITY = "8512404000",
+  I_COMMODITY = "8512902000",
+  I_COMMODITY = "8512906000",
+  I_COMMODITY = "8512907000",
+  I_COMMODITY = "8519812000",
+  I_COMMODITY = "8525601010",
+  I_COMMODITY = "852721",
+  I_COMMODITY = "852729",
+  I_COMMODITY = "8536410005",
+  I_COMMODITY = "853710",
+  I_COMMODITY = "853720",
+  I_COMMODITY = "8539100010",
+  I_COMMODITY = "8539100050",
+  I_COMMODITY = "854430",
+  I_COMMODITY = "8706000300",
+  I_COMMODITY = "8706000500",
+  I_COMMODITY = "8706001500",
+  I_COMMODITY = "8706002500",
+  I_COMMODITY = "8707",
+  I_COMMODITY = "8707100040",
+  I_COMMODITY = "8707100020",
+  I_COMMODITY = "8707905020",
+  I_COMMODITY = "8707905040",
+  I_COMMODITY = "8707905060",
+  I_COMMODITY = "8707905080",
+  I_COMMODITY = "8708103000",
+  I_COMMODITY = "8708106000",
+  I_COMMODITY = "870821",
+  I_COMMODITY = "870822",
+  I_COMMODITY = "870829",
+  I_COMMODITY = "870830",
+  I_COMMODITY = "8708407000",
+  I_COMMODITY = "8708407500",
+  I_COMMODITY = "870850",
+  I_COMMODITY = "870870",
+  I_COMMODITY = "870880",
+  I_COMMODITY = "870891",
+  I_COMMODITY = "8708936000",
+  I_COMMODITY = "8708937500",
+  I_COMMODITY = "870894",
+  I_COMMODITY = "870895",
+  I_COMMODITY = "8708995300",
+  I_COMMODITY = "8708995500",
+  I_COMMODITY = "8708995800",
+  I_COMMODITY = "8708996800",
+  I_COMMODITY = "8716905000",
+  I_COMMODITY = "901510",
+  I_COMMODITY = "902910",
+  I_COMMODITY = "9029204080",
+  I_COMMODITY = "940120",
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  #CTY_NAME = "CHINA",
+  #CTY_NAME = "HONG KONG",
+  CTY_NAME = "MEXICO",
+  CTY_NAME = "CANADA",
+  #CTY_NAME = "EUROPEAN UNION"
+)
+
+CAR_PARTS_TOTAL <- CAR_PARTS_IMPORTS %>%
+  mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
+  group_by(CTY_NAME) %>%
+  summarize(time,CTY_CODE,CON_VAL_YR = sum(CON_VAL_YR, na.rm = TRUE)) %>%
+  ungroup() %>%
+  unique()
+
+
+CAR_PARTS_IMPORTS_USMCA <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_YR", "I_COMMODITY", "CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC","RP"),
+  time = "2024-12",
+  I_COMMODITY = "4009120020",
+  I_COMMODITY = "4009220020",
+  I_COMMODITY = "4009320020",
+  I_COMMODITY = "4009420020",
+  I_COMMODITY = "4011101000",
+  I_COMMODITY = "4011105000",
+  I_COMMODITY = "4011201000",
+  I_COMMODITY = "4012194000",
+  I_COMMODITY = "4012198000",
+  I_COMMODITY = "4012206000",
+  I_COMMODITY = "4013100010",
+  I_COMMODITY = "4013100020",
+  I_COMMODITY = "4016996010",
+  I_COMMODITY = "7007215100",
+  I_COMMODITY = "700910",
+  I_COMMODITY = "732010",
+  I_COMMODITY = "7320201000",
+  I_COMMODITY = "830120",
+  I_COMMODITY = "8302103000",
+  I_COMMODITY = "830230",
+  I_COMMODITY = "840731",
+  I_COMMODITY = "840732",
+  I_COMMODITY = "840733",
+  I_COMMODITY = "840734",
+  I_COMMODITY = "8408202000",
+  I_COMMODITY = "8409911040",
+  I_COMMODITY = "8409991040",
+  I_COMMODITY = "8413301000",
+  I_COMMODITY = "8413309000",
+  I_COMMODITY = "8413911000",
+  I_COMMODITY = "8413919010",
+  I_COMMODITY = "8414308030",
+  I_COMMODITY = "8414593000",
+  I_COMMODITY = "8414596540",
+  I_COMMODITY = "8414800500",
+  I_COMMODITY = "841520",
+  I_COMMODITY = "842123",
+  I_COMMODITY = "842132",
+  I_COMMODITY = "842549",
+  I_COMMODITY = "842691",
+  I_COMMODITY = "8431100090",
+  #I_COMMODITY = "8471", #excluding computers
+  I_COMMODITY = "8507600010",
+  I_COMMODITY = "8482101000",
+  I_COMMODITY = "8482105044",
+  I_COMMODITY = "8482105048",
+  I_COMMODITY = "8482200020",
+  I_COMMODITY = "8482200030",
+  I_COMMODITY = "8482200040",
+  I_COMMODITY = "8482200061",
+  I_COMMODITY = "8482200070",
+  I_COMMODITY = "8482200081",
+  I_COMMODITY = "848240",
+  I_COMMODITY = "848250",
+  I_COMMODITY = "8483101030",
+  I_COMMODITY = "8483103000",
+  I_COMMODITY = "850132",
+  I_COMMODITY = "850134",
+  I_COMMODITY = "850140",
+  I_COMMODITY = "850151",
+  I_COMMODITY = "850152",
+  I_COMMODITY = "850710",
+  I_COMMODITY = "850760",
+  I_COMMODITY = "8507904000",
+  I_COMMODITY = "8507908000",
+  I_COMMODITY = "851110",
+  I_COMMODITY = "851120",
+  I_COMMODITY = "8511300040",
+  I_COMMODITY = "8511300080",
+  I_COMMODITY = "851140",
+  I_COMMODITY = "851150",
+  I_COMMODITY = "8511802000",
+  I_COMMODITY = "8511806000",
+  I_COMMODITY = "8511906020",
+  I_COMMODITY = "8511906040",
+  I_COMMODITY = "8512202000",
+  I_COMMODITY = "8512204000",
+  I_COMMODITY = "851230",
+  I_COMMODITY = "8512402000",
+  I_COMMODITY = "8512404000",
+  I_COMMODITY = "8512902000",
+  I_COMMODITY = "8512906000",
+  I_COMMODITY = "8512907000",
+  I_COMMODITY = "8519812000",
+  I_COMMODITY = "8525601010",
+  I_COMMODITY = "852721",
+  I_COMMODITY = "852729",
+  I_COMMODITY = "8536410005",
+  I_COMMODITY = "853710",
+  I_COMMODITY = "853720",
+  I_COMMODITY = "8539100010",
+  I_COMMODITY = "8539100050",
+  I_COMMODITY = "854430",
+  I_COMMODITY = "8706000300",
+  I_COMMODITY = "8706000500",
+  I_COMMODITY = "8706001500",
+  I_COMMODITY = "8706002500",
+  I_COMMODITY = "8707",
+  I_COMMODITY = "8707100040",
+  I_COMMODITY = "8707100020",
+  I_COMMODITY = "8707905020",
+  I_COMMODITY = "8707905040",
+  I_COMMODITY = "8707905060",
+  I_COMMODITY = "8707905080",
+  I_COMMODITY = "8708103000",
+  I_COMMODITY = "8708106000",
+  I_COMMODITY = "870821",
+  I_COMMODITY = "870822",
+  I_COMMODITY = "870829",
+  I_COMMODITY = "870830",
+  I_COMMODITY = "8708407000",
+  I_COMMODITY = "8708407500",
+  I_COMMODITY = "870850",
+  I_COMMODITY = "870870",
+  I_COMMODITY = "870880",
+  I_COMMODITY = "870891",
+  I_COMMODITY = "8708936000",
+  I_COMMODITY = "8708937500",
+  I_COMMODITY = "870894",
+  I_COMMODITY = "870895",
+  I_COMMODITY = "8708995300",
+  I_COMMODITY = "8708995500",
+  I_COMMODITY = "8708995800",
+  I_COMMODITY = "8708996800",
+  I_COMMODITY = "8716905000",
+  I_COMMODITY = "901510",
+  I_COMMODITY = "902910",
+  I_COMMODITY = "9029204080",
+  I_COMMODITY = "940120",
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  #CTY_NAME = "CHINA",
+  #CTY_NAME = "HONG KONG",
+  CTY_NAME = "MEXICO",
+  CTY_NAME = "CANADA",
+  #CTY_NAME = "EUROPEAN UNION"
+  RP = "18",
+)
+
+CAR_PARTS_TOTAL_USMCA <- CAR_PARTS_IMPORTS_USMCA %>%
+  mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
+  group_by(CTY_NAME) %>%
+  summarize(time,CTY_CODE,CON_VAL_YR = sum(CON_VAL_YR, na.rm = TRUE)) %>%
+  ungroup() %>%
+  unique()
+
+
 BULK_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_YR","I_COMMODITY","CTY_CODE", "CTY_NAME","COMM_LVL"), 
@@ -679,8 +978,14 @@ EFFECTIVE_TARIFF <- data.frame(
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-04"), value, value - .6654735594*.25*CAR_TOTAL$CON_VAL_YR[1]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Excluding non-canadian content from vehicles
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-04"), value, value - .491*.25*CAR_TOTAL$CON_VAL_YR[5]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Excluding non-Canadian content from vehicles
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-04"), value, value + .25*CAR_TOTAL$CON_VAL_YR[6]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Excluding Non-Mexican Content
-  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-03"), value, value + .10*1558459217222/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #10% RECIPROCAL
-  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-09"), value, value + .1678111*1558459217222/TOTAL_IMPORTS$CON_VAL_YR[1])) #REST OF RECIPRICAL
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-03"), value, value + .10*1305214086314/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #10% RECIPROCAL
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-09"), value, value + .1678111*1305214086314/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #REST OF RECIPR0CAL
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-09"), value, value + .50*279176209825/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #50% CHINA RECIPROCAL LIST
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-10"), value, value - .1474396*1026093911593/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#10-40% non-China Paused
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-10"), value, value + .41*279176209825/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #41% CHINA RECIPROCAL LIST
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-05-03"), value, value + .25*CAR_PARTS_TOTAL$CON_VAL_YR[3]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #25% Vehicle Parts 
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-05-03"), value, value - .25*(CAR_PARTS_TOTAL_USMCA$CON_VAL_YR[1]+CAR_PARTS_TOTAL_USMCA$CON_VAL_YR[2])/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Temporary Exclusion for USMCA Parts
+  #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-05-03"), value, value + .25*(.530272*CAR_PARTS_TOTAL_USMCA$CON_VAL_YR[1]+0.368127*CAR_PARTS_TOTAL_USMCA$CON_VAL_YR[2])/TOTAL_IMPORTS$CON_VAL_YR[1])) #Adding Canadian/Mexican Content for USMCA Parts
 
 TARIFF_TIMELINE_LINE_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -711,27 +1016,99 @@ ggsave(dpi = "retina",plot = TARIFF_TIMELINE_LINE_GRAPH, "Tariff Timeline Line G
 TARIFF_TIMELINE_LINE_RATE_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   #geom_line(data=IMPLEMENTED_SHARE, aes(x=date,y= value,color= "Share of US Imports Hit By New Tariffs"), size = 1.25) + 
-  geom_segment(aes(x = as.Date("2025-02-03"), xend = as.Date("2025-02-03"), y = 0, yend = 0.075), color = "white", size = 1, linetype = "dashed") +
+  geom_segment(aes(x = as.Date("2025-02-03"), xend = as.Date("2025-02-03"), y = 0, yend = 0.09), color = "white", size = 1, linetype = "dashed") +
   annotate(geom = "text", label = "10% China",x = as.Date("2025-02-02"), y = .06, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
   geom_segment(aes(x = as.Date("2025-03-03"), xend = as.Date("2025-03-03"), y = 0, yend = 0.155), color = "white", size = 1, linetype = "dashed") +
   annotate(geom = "text", label = "10% China\n25% Mexico\n10-25% Canada",x = as.Date("2025-03-02"), y = .125, size = 4, color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-03-06"), xend = as.Date("2025-03-06"), y = 0, yend = 0.195), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "Exclusion for\nUSMCA Goods\nFrom Canada\nand Mexico",x = as.Date("2025-03-07"), y = .18, size = 4,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-06"), xend = as.Date("2025-03-06"), y = 0, yend = 0.185), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "Exclusion for\nUSMCA Goods",x = as.Date("2025-03-07"), y = .16, size = 4,color = "white",hjust = 0, lineheight = 0.9) +
   geom_segment(aes(x = as.Date("2025-03-11"), xend = as.Date("2025-03-11"), y = 0, yend = 0.135), color = "white", size = 1, linetype = "dashed") +
   annotate(geom = "text", label = "25% Steel\n25% Aluminum",x = as.Date("2025-03-12"), y = 0.06, size = 4,color = "white",hjust = 0, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-04-02"), xend = as.Date("2025-04-02"), y = 0, yend = 0.26), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "10% Most Countries\n25% Automobiles",x = as.Date("2025-04-01"), y = 0.235, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-04-08"), xend = as.Date("2025-04-08"), y = 0, yend = 0.30), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "Additional 10-40%\nMost Countries",x = as.Date("2025-04-07"), y = 0.28, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-02"), xend = as.Date("2025-04-02"), y = 0, yend = 0.21), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "10% Most Countries\n25% Automobiles",x = as.Date("2025-04-01"), y = 0.20, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  
+  geom_segment(aes(x = as.Date("2025-04-08"), xend = as.Date("2025-04-08"), y = 0, yend = 0.275), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "10-40% Most Countries\n74% China",x = as.Date("2025-04-07"), y = 0.25, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  
+  geom_segment(aes(x = as.Date("2025-04-09"), xend = as.Date("2025-04-09"), y = 0, yend = 0.35), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "41% China\n90-Day Pause on\n10-40% Other Countries",x = as.Date("2025-04-08"), y = 0.325, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  
   geom_line(data=EFFECTIVE_TARIFF, aes(x=date,y= value,color= "Tariff Rate on 2024 Import Mix"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.3), breaks = c(0,.05,.10,.15,.20,.25,.30,.35,.4,.45,.5), expand = c(0,0)) +
-  ylab("% of Total US Imports") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.35), breaks = c(0,.05,.10,.15,.20,.25,.30,.35,.4,.45,.5), expand = c(0,0)) +
+  ylab("Tariff Rate on 2024 Import Mix") +
   ggtitle("A Timeline of Trump's 2nd-Term Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data.",subtitle = "In His 2nd Term, Trump Has Imposed Tariffs On Trillions of Dollars in US Trade") +
   theme_apricitas + theme(legend.position = c(.25,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-20")-(.1861*(today()-as.Date("2025-01-20"))), xmax = as.Date("2025-01-20")-(0.049*(today()-as.Date("2025-01-20"))), ymin = 0-(.3*(.3)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-20")-(.1861*(today()-as.Date("2025-01-20"))), xmax = as.Date("2025-01-20")-(0.049*(today()-as.Date("2025-01-20"))), ymin = 0-(.3*(.35)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TARIFF_TIMELINE_LINE_RATE_GRAPH, "Tariff Timeline Line Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+#China timeline
+
+
+
+CHINA_IMPORTS <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_YR","CTY_CODE", "CTY_NAME","CAL_DUT_YR"), 
+  time = "2024-12",
+  CTY_NAME = "CHINA",
+  CTY_NAME = "HONG KONG",
+  CTY_NAME = "MACAU",
+)
+
+CHINA_IMPORTS <- CHINA_IMPORTS %>%
+  mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
+  mutate(CAL_DUT_YR = as.numeric(CAL_DUT_YR)) %>%
+  group_by(time) %>%
+  summarise(CON_VAL_YR = sum(CON_VAL_YR), CAL_DUT_YR = sum(CAL_DUT_YR))
+
+
+EFFECTIVE_TARIFF_CHINA <- data.frame(
+  date = seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day"),
+  value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-02-04"), CHINA_IMPORTS$CAL_DUT_YR[1]/CHINA_IMPORTS$CON_VAL_YR[1], CHINA_IMPORTS$CAL_DUT_YR[1]/CHINA_IMPORTS$CON_VAL_YR[1] + .1*CHINA_IMPORTS$CON_VAL_YR[1]/CHINA_IMPORTS$CON_VAL_YR[1]), #10% China
+  category = "Implemented"
+) %>%
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-04"), value, value + .1*CHINA_TOTAL$CON_VAL_YR[1]/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #10% China Again
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-12"), value, value + .25*STEEL_TOTAL$CON_VAL_YR[2]/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #25% MEXICO
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-12"), value, value + .25*ALUMINUM_TOTAL$CON_VAL_YR[2]/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #25% MEXICO
+  #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-12"), value, value + 29000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #USING BCG ESTIMATE FOR COST OF TARIFF ON DERIVATIVES
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-03-04"), value, value + .25*CAR_TOTAL$CON_VAL_YR[2]/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #Excluding Non-Mexican Content
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-03"), value, value + .10*279176209825/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #10% RECIPROCAL
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-09"), value, value + .74*279176209825/CHINA_IMPORTS$CON_VAL_YR[1])) %>% #74% RECIPROCAL
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-04-10"), value, value + .41*279176209825/CHINA_IMPORTS$CON_VAL_YR[1]))#41% CHINA RECIPROCAL LIST
+
+
+CHINA_TARIFF_TIMELINE_LINE_RATE_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  #geom_line(data=IMPLEMENTED_SHARE, aes(x=date,y= value,color= "Share of US Imports Hit By New Tariffs"), size = 1.25) + 
+  geom_segment(aes(x = as.Date("2025-02-03"), xend = as.Date("2025-02-03"), y = 0, yend = .35), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "10% All Goods",x = as.Date("2025-02-02"), y = .3, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-03"), xend = as.Date("2025-03-03"), y = 0, yend = .35), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "10% All Goods",x = as.Date("2025-03-02"), y = .3, size = 4, color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-11"), xend = as.Date("2025-03-11"), y = 0, yend = .35), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "25% Steel\n25% Aluminum",x = as.Date("2025-03-12"), y = 0.16, size = 4,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-02"), xend = as.Date("2025-04-02"), y = 0, yend = .54), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "10% Most Goods\n25% Automobiles",x = as.Date("2025-04-01"), y = .45, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-08"), xend = as.Date("2025-04-08"), y = 0, yend = .98), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "74% Most Goods",x = as.Date("2025-04-07"), y = .80, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-09"), xend = as.Date("2025-04-09"), y = 0, yend = 1.30), color = "white", size = 1, linetype = "dashed") +
+  annotate(geom = "text", label = "41% Most Goods",x = as.Date("2025-04-08"), y = 1.25, size = 4,color = "white",hjust = 1, lineheight = 0.9) +
+  
+  geom_line(data=EFFECTIVE_TARIFF_CHINA, aes(x=date,y= value,color= "Tariff Rate on 2024 Import Mix"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1.50), breaks = c(0,.25,.5,.75,1,1.25,1.5), expand = c(0,0)) +
+  ylab("Tariff Rate on 2024 Import Mix") +
+  ggtitle("A Timeline of Trump's 2nd-Term China Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data.",subtitle = "In His 2nd Term, Trump Has Imposed Extreme Tariffs On All Imports From China") +
+  theme_apricitas + theme(legend.position = c(.25,.89), plot.title = element_text(size = 25)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-20")-(.1861*(today()-as.Date("2025-01-20"))), xmax = as.Date("2025-01-20")-(0.049*(today()-as.Date("2025-01-20"))), ymin = 0-(.3*(1.50)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHINA_TARIFF_TIMELINE_LINE_RATE_GRAPH, "China Tariff Timeline Line Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+

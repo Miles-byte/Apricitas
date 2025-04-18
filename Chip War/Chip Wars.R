@@ -349,7 +349,7 @@ US_CHIP_MACHINES_IMPORTS_DOLLAR_BAR_Graph <- ggplot(data = filter(US_CHIP_MACHIN
   ylab("Billions of Dollars, Annual Rate") +
   scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,5,10,15,20,25), limits = c(0,25), expand = c(0,0)) +
   ggtitle("US Chipmaking Machine Imports") +
-  labs(caption = "Graph created by @JosephPolitano using Census data Seasonally Adjusted using X-13ARIMA", subtitle = "American Imports of Chipmaking Equipment have Held Steady for More than Two Years Straight") +
+  labs(caption = "Graph created by @JosephPolitano using Census data Seasonally Adjusted using X-13ARIMA", subtitle = "American Imports of Chipmaking Equipment have Jumped in Recent Months") +
   theme_apricitas + theme(legend.position = c(.2,.8), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= NULL,values = c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*25), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis

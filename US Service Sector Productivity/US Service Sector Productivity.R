@@ -35,7 +35,7 @@ US_OVERALL_MANUFACTURING_LABOR_PRODUCTIVITY <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(95,140), breaks = c(95,100,105,110,115,120,125,130,135,140), expand = c(0,0)) +
   ylab("Index Q1 2005 = 100") +
   ggtitle("US Labor Productivity") +
-  labs(caption = "Graph created by @JosephPolitano using BLS dat. NOTE: Labor Productivity Defined as Output per Hour Worked",subtitle = "US Labor Productivity Has Grown Significantly—Outside of The Manufacturing Sector") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data. NOTE: Labor Productivity Defined as Output per Hour Worked",subtitle = "US Labor Productivity Has Grown Significantly—Outside of The Manufacturing Sector") +
   theme_apricitas + theme(legend.position = c(.30,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Overall US Labor Productivity","Manufacturing Sector Labor Productivity")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 95-(.3*45), ymax = 95) +

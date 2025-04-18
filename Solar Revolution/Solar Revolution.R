@@ -45,7 +45,7 @@ IND_PRO_PV1 <- IND_PRO_PV %>%
   subset(date >= as.Date("2016-01-01"))
 
 IND_PRO_PV_GRAPH <- ggplot() + #plotting Chinese PV Production
-  geom_line(data= IND_PRO_PV1, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
+  #geom_line(data= IND_PRO_PV1, aes(x=date,y=rollmean/100,color= "Rolling 1-year Average"), size = 1.25) +
   geom_line(data= IND_PRO_PV1, aes(x=date,y=`Output of Photovoltaic Cells, Current Period`/100 ,color= "Chinese Industrial Production of Photovoltaic Cells, Monthly"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "GW"),limits = c(0, ceiling(max(IND_PRO_PV1$`Output of Photovoltaic Cells, Current Period`/1000))*10), expand = c(0,0)) +
