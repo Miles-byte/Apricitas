@@ -9,7 +9,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 US_COUNTRIES_HS10_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
-  vars = c("CON_VAL_YR", "I_COMMODITY","CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC","COMM_LVL"), 
+  vars = c("CON_VAL_YR", "I_COMMODITY","CTY_CODE","CTY_NAME","COMM_LVL","I_COMMODITY_LDESC"), 
   time = "2024-12",
   COMM_LVL = "HS10",
   #I_COMMODITY = "????",
@@ -21,6 +21,7 @@ US_COUNTRIES_HS10_IMPORTS_BULK <- getCensus(
 )
 
 US_COUNTRIES_IMPORTS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
+  #filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
   select(-COMM_LVL,-COMM_LVL_1,-CTY_CODE,-time) %>%
@@ -297,13 +298,13 @@ ggsave(dpi = "retina",plot = TARIFF_TIMELINE_LINE_RATE_PROJ_GRAPH, "Tariff Timel
 
 US_HS6_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
-  vars = c("CON_VAL_YR", "I_COMMODITY","CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC","COMM_LVL"), 
+  vars = c("I_COMMODITY","CTY_CODE","I_COMMODITY_LDESC","COMM_LVL"), 
   time = "2024-12",
   COMM_LVL = "HS6",
   #I_COMMODITY = "????",
   #I_COMMODITY = "*",#ALL COuntries
   #CTY_CODE = "0201", #TOTAL
-  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  CTY_CODE = "-",
   #CTY_NAME = Countries[4],
   #CTY_NAME = Countries[5],
 ) %>%
@@ -358,30 +359,24 @@ ggsave(dpi = "retina",plot = ELECTRONICS_IMPORTS_BY_COUNTRY_GRAPH, "Electronics 
 
 
 
+
 US_CHIP_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME"), 
   time = paste("from 2013 to", format(Sys.Date(), "%Y")),
-  I_COMMODITY = "85411000",
-  I_COMMODITY = "85412100",
-  I_COMMODITY = "85412900",
-  I_COMMODITY = "85413000",
-  I_COMMODITY = "85414910",
-  I_COMMODITY = "85414970",
-  I_COMMODITY = "85414980",
-  I_COMMODITY = "85414995",
-  I_COMMODITY = "85415100",
-  I_COMMODITY = "85415100",
-  I_COMMODITY = "85415900",
-  I_COMMODITY = "85419000",
-  I_COMMODITY = "85423100",
-  I_COMMODITY = "85423200",
-  I_COMMODITY = "85423300",
-  I_COMMODITY = "85423900",
-  I_COMMODITY = "85429000",
-  I_COMMODITY = "85415100",
-  I_COMMODITY = "85415900",
-  I_COMMODITY = "85419000",
+  I_COMMODITY = "854110",
+  I_COMMODITY = "854121",
+  I_COMMODITY = "854129",
+  I_COMMODITY = "854130",
+  I_COMMODITY = "854149",
+  I_COMMODITY = "854149",
+  I_COMMODITY = "854151",
+  I_COMMODITY = "854151",
+  I_COMMODITY = "854159",
+  I_COMMODITY = "854190",
+  I_COMMODITY = "854151",
+  I_COMMODITY = "854159",
+  I_COMMODITY = "854190",
   I_COMMODITY = "8542",
   #I_COMMODITY = "????",
   #I_COMMODITY = "*",#ALL COuntries
@@ -390,6 +385,7 @@ US_CHIP_IMPORTS_BULK <- getCensus(
   #CTY_NAME = Countries[4],
   #CTY_NAME = Countries[5],
 )
+
 
 
 US_CHIP_IMPORTS <- US_CHIP_IMPORTS_BULK %>%
@@ -405,6 +401,7 @@ US_CHIP_IMPORTS <- US_CHIP_IMPORTS_BULK %>%
   ungroup() %>%
   pivot_longer(-time) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
+  #filter(time == as.Date("2024-12-01"))
   mutate(name = case_when(
     name == "MALAYSIA" ~ "Malaysia",
     name == "TAIWAN" ~ "Taiwan",
@@ -432,10 +429,10 @@ US_CHIP_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=US_CHIP_IMPORTS, aes(x=time,y= Taiwan/1000000000,color= "Taiwan"), size = 1.25) + 
   geom_line(data=US_CHIP_IMPORTS, aes(x=time,y= Other/1000000000,color= "Other"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,20), breaks = c(0,5,10,15,20), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,20), breaks = c(0,10,20,30,40), expand = c(0,0)) +
   ylab("Billions of Dollars, 12MMA") +
   ggtitle("Chip Imports Targeted for Trump Tariffs") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "America Imports Billions in Chips, Mostly From Taiwan, Malaysia, Israel, the EU, & South Korea") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "America Imports Billions in Chips, Mostly From Taiwan, Malaysia, Israel, the EU, & South Korea") +
   theme_apricitas + theme(plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Taiwan", "Malaysia", "Israel", "EU", "South Korea", "China", "Other")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*20), ymax = 0) +
@@ -445,25 +442,1010 @@ US_CHIP_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
 ggsave(dpi = "retina",plot = US_CHIP_IMPORTS_GRAPH, "US Chip Import Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
+US_PHARMA_IMPORTS_BULK_1 <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "2903451000",
+  I_COMMODITY = "2903599000",
+  I_COMMODITY = "2903699000",
+  I_COMMODITY = "2903780000",
+  I_COMMODITY = "2903799070",
+  I_COMMODITY = "2903891500",
+  I_COMMODITY = "2903892000",
+  I_COMMODITY = "2903897010",
+  I_COMMODITY = "2903897090",
+  I_COMMODITY = "2903920000",
+  I_COMMODITY = "2904994000",
+  I_COMMODITY = "2905299000",
+  I_COMMODITY = "2905399000",
+  I_COMMODITY = "2905591000",
+  I_COMMODITY = "2905599000",
+  I_COMMODITY = "2906195000",
+  I_COMMODITY = "2906296000",
+  I_COMMODITY = "2907299000",
+  I_COMMODITY = "2908196000",
+  I_COMMODITY = "2909191800",
+  I_COMMODITY = "2909200000",
+  I_COMMODITY = "2909306000",
+  I_COMMODITY = "2909491000",
+  I_COMMODITY = "2909491500",
+  I_COMMODITY = "2909492000",
+  I_COMMODITY = "2909496000",
+  I_COMMODITY = "2909504010",
+  I_COMMODITY = "2909504050",
+  I_COMMODITY = "2909504500",
+  I_COMMODITY = "2909505000",
+  I_COMMODITY = "2912195000",
+  I_COMMODITY = "2912492600",
+  I_COMMODITY = "2914190000",
+  I_COMMODITY = "2914409000",
+  I_COMMODITY = "2914503000",
+  I_COMMODITY = "2914505000",
+  I_COMMODITY = "2914620000",
+  I_COMMODITY = "2914692100",
+  I_COMMODITY = "2914699000",
+  I_COMMODITY = "2914794000",
+  I_COMMODITY = "2915293000",
+  I_COMMODITY = "2915393100",
+  I_COMMODITY = "2915393500",
+  I_COMMODITY = "2915394700",
+  I_COMMODITY = "2915399000",
+  I_COMMODITY = "2915901010",
+  I_COMMODITY = "2915901050",
+  I_COMMODITY = "2915901400",
+  I_COMMODITY = "2915901800",
+  I_COMMODITY = "2915901810",
+  I_COMMODITY = "2915901890",
+  I_COMMODITY = "2915902000",
+  I_COMMODITY = "2915905010",
+  I_COMMODITY = "2915905050",
+  I_COMMODITY = "2916193000",
+  I_COMMODITY = "2916195000",
+  I_COMMODITY = "2916205000",
+  I_COMMODITY = "2916315000",
+  I_COMMODITY = "2916394600",
+  I_COMMODITY = "2916397900",
+  I_COMMODITY = "2917130030",
+  I_COMMODITY = "2917130090",
+  I_COMMODITY = "2917191000",
+  I_COMMODITY = "2917197020",
+  I_COMMODITY = "2917197050",
+  I_COMMODITY = "2917340110",
+  I_COMMODITY = "2917340150",
+  I_COMMODITY = "2917393000",
+  I_COMMODITY = "2918115100",
+  I_COMMODITY = "2918135000",
+  I_COMMODITY = "2918165010",
+  I_COMMODITY = "2918165050",
+  I_COMMODITY = "2918196000",
+  I_COMMODITY = "2918199000",
+  I_COMMODITY = "2918221000",
+  I_COMMODITY = "2918225000",
+  I_COMMODITY = "2918233000",
+  I_COMMODITY = "2918235000",
+  I_COMMODITY = "2918292000",
+  I_COMMODITY = "2918296500",
+  I_COMMODITY = "2918297500",
+  I_COMMODITY = "2918302500",
+  I_COMMODITY = "2918303000",
+  I_COMMODITY = "2918309000",
+  I_COMMODITY = "2918993000",
+  I_COMMODITY = "2918994300",
+  I_COMMODITY = "2918994700",
+  I_COMMODITY = "2918995000",
+  I_COMMODITY = "2919903000",
+  I_COMMODITY = "2919905010",
+  I_COMMODITY = "2919905050",
+  I_COMMODITY = "2920905100",
+  I_COMMODITY = "2921191100",
+  I_COMMODITY = "2921196110",
+  I_COMMODITY = "2921196140",
+  I_COMMODITY = "2921196195",
+  I_COMMODITY = "2921290010",
+  I_COMMODITY = "2921290020",
+  I_COMMODITY = "2921290030",
+  I_COMMODITY = "2921290055",
+  I_COMMODITY = "2921301000",
+  I_COMMODITY = "2921305000",
+  I_COMMODITY = "2921429000",
+  I_COMMODITY = "2921460000",
+  I_COMMODITY = "2921493800",
+  I_COMMODITY = "2921494300",
+  I_COMMODITY = "2921494500",
+  I_COMMODITY = "2921495000",
+  I_COMMODITY = "2921598010",
+  I_COMMODITY = "2921598090",
+  I_COMMODITY = "2922110000",
+  I_COMMODITY = "2922140000",
+  I_COMMODITY = "2922190900",
+  I_COMMODITY = "2922192000",
+  I_COMMODITY = "2922193300",
+  I_COMMODITY = "2922196000",
+  I_COMMODITY = "2922197000",
+  I_COMMODITY = "2922199000",
+  I_COMMODITY = "2922199610",
+  I_COMMODITY = "2922199619",
+  I_COMMODITY = "2922199690",
+  I_COMMODITY = "2922292700",
+  I_COMMODITY = "2922296100",
+  I_COMMODITY = "2922298110",
+  I_COMMODITY = "2922298190",
+  I_COMMODITY = "2922310000",
+  I_COMMODITY = "2922392500",
+  I_COMMODITY = "2922394500",
+  I_COMMODITY = "2922395000",
+  I_COMMODITY = "2922410010",
+  I_COMMODITY = "2922410090",
+  I_COMMODITY = "2922425000",
+  I_COMMODITY = "2922440000",
+  I_COMMODITY = "2922491000",
+  I_COMMODITY = "2922492600",
+  I_COMMODITY = "2922493000",
+  I_COMMODITY = "2922493700",
+  I_COMMODITY = "2922494910",
+  I_COMMODITY = "2922494915",
+  I_COMMODITY = "2922494950",
+  I_COMMODITY = "2922498000",
+  I_COMMODITY = "2922500700",
+  I_COMMODITY = "2922501000",
+  I_COMMODITY = "2922501100",
+  I_COMMODITY = "2922501300",
+  I_COMMODITY = "2922501400",
+  I_COMMODITY = "2922501700",
+  I_COMMODITY = "2922502500",
+  I_COMMODITY = "2922503500",
+  I_COMMODITY = "2922504000",
+  I_COMMODITY = "2922505000",
+  I_COMMODITY = "2923100000",
+  I_COMMODITY = "2923202010",
+  I_COMMODITY = "2923202050",
+  I_COMMODITY = "2923900100",
+  I_COMMODITY = "2924110000",
+  I_COMMODITY = "2924191110",
+  I_COMMODITY = "2924191120",
+  I_COMMODITY = "2924191130",
+  I_COMMODITY = "2924191150",
+  I_COMMODITY = "2924198000",
+  I_COMMODITY = "2924211600",
+  I_COMMODITY = "2924215000",
+  I_COMMODITY = "2924291000",
+  I_COMMODITY = "2924296210",
+  I_COMMODITY = "2924296250",
+  I_COMMODITY = "2924297100",
+  I_COMMODITY = "2924297710",
+  I_COMMODITY = "2924297720",
+  I_COMMODITY = "2924297730",
+  I_COMMODITY = "2924297790",
+  I_COMMODITY = "2924299500",
+  I_COMMODITY = "2925120000",
+  I_COMMODITY = "2925194200",
+  I_COMMODITY = "2925199100",
+  I_COMMODITY = "2925210000",
+  I_COMMODITY = "2925292000",
+  I_COMMODITY = "2925296000",
+  I_COMMODITY = "2925299000",
+  I_COMMODITY = "2926301000",
+  I_COMMODITY = "2926400000",
+  I_COMMODITY = "2926901400",
+  I_COMMODITY = "2926904300",
+  I_COMMODITY = "2926904801",
+  I_COMMODITY = "2927004000",
+  I_COMMODITY = "2927005000",
+  I_COMMODITY = "2928002500",
+  I_COMMODITY = "2928003000",
+  I_COMMODITY = "2928005000",
+  I_COMMODITY = "2929902000",
+  I_COMMODITY = "2929905015",
+  I_COMMODITY = "2929905018",
+  I_COMMODITY = "2929905020",
+  I_COMMODITY = "2929905095",
+  I_COMMODITY = "2930202010",
+  I_COMMODITY = "2930202050",
+  I_COMMODITY = "2930209010",
+  I_COMMODITY = "2930209020",
+  I_COMMODITY = "2930209050",
+  I_COMMODITY = "2930306000",
+  I_COMMODITY = "2930902900",
+  I_COMMODITY = "2930904910",
+  I_COMMODITY = "2930904920",
+  I_COMMODITY = "2930904950",
+  I_COMMODITY = "2930909208",
+  I_COMMODITY = "2930909210",
+  I_COMMODITY = "2930909212",
+  I_COMMODITY = "2930909222",
+  I_COMMODITY = "2930909225",
+  I_COMMODITY = "2930909231",
+  I_COMMODITY = "2930909235",
+  I_COMMODITY = "2930909251",
+  I_COMMODITY = "2931490005",
+  I_COMMODITY = "2931490008",
+  I_COMMODITY = "2931490010",
+  I_COMMODITY = "2931490020",
+  I_COMMODITY = "2931490025",
+  I_COMMODITY = "2931490055",
+  I_COMMODITY = "2931490080",
+  I_COMMODITY = "2931530000",
+  I_COMMODITY = "2931902200",
+  I_COMMODITY = "2931909010",
+  I_COMMODITY = "2931909021",
+  I_COMMODITY = "2931909025",
+  I_COMMODITY = "2931909029",
+  I_COMMODITY = "2931909035",
+  I_COMMODITY = "2931909040",
+  I_COMMODITY = "2931909052",
+  I_COMMODITY = "2932140000",
+  I_COMMODITY = "2932195100",
+  I_COMMODITY = "2932202000",
+  I_COMMODITY = "2932203000",
+  I_COMMODITY = "2932205010",
+  I_COMMODITY = "2932205020",
+  I_COMMODITY = "2932205030",
+  I_COMMODITY = "2932205050",
+  I_COMMODITY = "2932996100",
+  I_COMMODITY = "2932997000",
+  I_COMMODITY = "2932999010",
+  I_COMMODITY = "2932999090",
+  I_COMMODITY = "2933110000",
+  I_COMMODITY = "2933193500",
+  I_COMMODITY = "2933194500",
+  I_COMMODITY = "2933199000",
+  I_COMMODITY = "2933210000",
+  I_COMMODITY = "2933292000",
+  I_COMMODITY = "2933293500",
+  I_COMMODITY = "2933294300",
+  I_COMMODITY = "2933294500",
+  I_COMMODITY = "2933299000",
+  I_COMMODITY = "2933330100",
+  I_COMMODITY = "2933340000",
+  I_COMMODITY = "2933350000",
+  I_COMMODITY = "2933370000",
+  I_COMMODITY = "2933390800",
+  I_COMMODITY = "2933391000",
+  I_COMMODITY = "2933392000",
+  I_COMMODITY = "2933392100",
+  I_COMMODITY = "2933392300",
+  I_COMMODITY = "2933392500",
+  I_COMMODITY = "2933392700",
+  I_COMMODITY = "2933393100",
+  I_COMMODITY = "2933394100",
+  I_COMMODITY = "2933396110",
+  I_COMMODITY = "2933396120",
+  I_COMMODITY = "2933396191",
+  I_COMMODITY = "2933399200",
+  I_COMMODITY = "2933410000",
+  I_COMMODITY = "2933490800",
+  I_COMMODITY = "2933491000",
+  I_COMMODITY = "2933491500",
+  I_COMMODITY = "2933491700",
+  I_COMMODITY = "2933492000",
+  I_COMMODITY = "2933492600",
+  I_COMMODITY = "2933493000",
+  I_COMMODITY = "2933496000",
+  I_COMMODITY = "2933497000",
+  I_COMMODITY = "2933521000",
+  I_COMMODITY = "2933529000",
+  I_COMMODITY = "2933530000",
+  I_COMMODITY = "2933540000",
+  I_COMMODITY = "2933591000",
+  I_COMMODITY = "2933591500",
+  I_COMMODITY = "2933591800",
+  I_COMMODITY = "2933592100",
+  I_COMMODITY = "2933592200",
+  I_COMMODITY = "2933593600",
+  I_COMMODITY = "2933594600",
+  I_COMMODITY = "2933595300",
+  I_COMMODITY = "2933595900",
+  I_COMMODITY = "2933597000",
+  I_COMMODITY = "2933598000",
+  I_COMMODITY = "2933598500",
+  I_COMMODITY = "2933599500",
+  I_COMMODITY = "2933696010",
+)
+
+
+US_PHARMA_IMPORTS_BULK_2 <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "2933696015",
+  I_COMMODITY = "2933696021",
+  I_COMMODITY = "2933696030",
+  I_COMMODITY = "2933696050",
+  I_COMMODITY = "2933720000",
+  I_COMMODITY = "2933790800",
+  I_COMMODITY = "2933791500",
+  I_COMMODITY = "2933798500",
+  I_COMMODITY = "2933910000",
+  I_COMMODITY = "2933990100",
+  I_COMMODITY = "2933990200",
+  I_COMMODITY = "2933990500",
+  I_COMMODITY = "2933990600",
+  I_COMMODITY = "2933990800",
+  I_COMMODITY = "2933991100",
+  I_COMMODITY = "2933991200",
+  I_COMMODITY = "2933991600",
+  I_COMMODITY = "2933991701",
+  I_COMMODITY = "2933992200",
+  I_COMMODITY = "2933992400",
+  I_COMMODITY = "2933992600",
+  I_COMMODITY = "2933994200",
+  I_COMMODITY = "2933994600",
+  I_COMMODITY = "2933995100",
+  I_COMMODITY = "2933995300",
+  I_COMMODITY = "2933995510",
+  I_COMMODITY = "2933995530",
+  I_COMMODITY = "2933995590",
+  I_COMMODITY = "2933995800",
+  I_COMMODITY = "2933996100",
+  I_COMMODITY = "2933996500",
+  I_COMMODITY = "2933997000",
+  I_COMMODITY = "2933997500",
+  I_COMMODITY = "2933997900",
+  I_COMMODITY = "2933998210",
+  I_COMMODITY = "2933998220",
+  I_COMMODITY = "2933998290",
+  I_COMMODITY = "2933998500",
+  I_COMMODITY = "2933998900",
+  I_COMMODITY = "2933999000",
+  I_COMMODITY = "2933999701",
+  I_COMMODITY = "2934101000",
+  I_COMMODITY = "2934102000",
+  I_COMMODITY = "2934109000",
+  I_COMMODITY = "2934204000",
+  I_COMMODITY = "2934208000",
+  I_COMMODITY = "2934302300",
+  I_COMMODITY = "2934302700",
+  I_COMMODITY = "2934304300",
+  I_COMMODITY = "2934305000",
+  I_COMMODITY = "2934910000",
+  I_COMMODITY = "2934920000",
+  I_COMMODITY = "2934990100",
+  I_COMMODITY = "2934990300",
+  I_COMMODITY = "2934990500",
+  I_COMMODITY = "2934990600",
+  I_COMMODITY = "2934990700",
+  I_COMMODITY = "2934990800",
+  I_COMMODITY = "2934990900",
+  I_COMMODITY = "2934991100",
+  I_COMMODITY = "2934991200",
+  I_COMMODITY = "2934991500",
+  I_COMMODITY = "2934991600",
+  I_COMMODITY = "2934991800",
+  I_COMMODITY = "2934992000",
+  I_COMMODITY = "2934993000",
+  I_COMMODITY = "2934993900",
+  I_COMMODITY = "2934994400",
+  I_COMMODITY = "2934994700",
+  I_COMMODITY = "2934997000",
+  I_COMMODITY = "2934999001",
+  I_COMMODITY = "2935500000",
+  I_COMMODITY = "2935900600",
+  I_COMMODITY = "2935901000",
+  I_COMMODITY = "2935901300",
+  I_COMMODITY = "2935901500",
+  I_COMMODITY = "2935902000",
+  I_COMMODITY = "2935903000",
+  I_COMMODITY = "2935903200",
+  I_COMMODITY = "2935903300",
+  I_COMMODITY = "2935904200",
+  I_COMMODITY = "2935904800",
+  I_COMMODITY = "2935906000",
+  I_COMMODITY = "2935907500",
+  I_COMMODITY = "2935909500",
+  I_COMMODITY = "2936210000",
+  I_COMMODITY = "2936220000",
+  I_COMMODITY = "2936230000",
+  I_COMMODITY = "2936240100",
+  I_COMMODITY = "2936250000",
+  I_COMMODITY = "2936260000",
+  I_COMMODITY = "2936270000",
+  I_COMMODITY = "2936280000",
+  I_COMMODITY = "2936291000",
+  I_COMMODITY = "2936291610",
+  I_COMMODITY = "2936291620",
+  I_COMMODITY = "2936291630",
+  I_COMMODITY = "2936292000",
+  I_COMMODITY = "2936295020",
+  I_COMMODITY = "2936295030",
+  I_COMMODITY = "2936295050",
+  I_COMMODITY = "2936900110",
+  I_COMMODITY = "2936900150",
+  I_COMMODITY = "2937110000",
+  I_COMMODITY = "2937120000",
+  I_COMMODITY = "2937190000",
+  I_COMMODITY = "2937210010",
+  I_COMMODITY = "2937210020",
+  I_COMMODITY = "2937210030",
+  I_COMMODITY = "2937210040",
+  I_COMMODITY = "2937220000",
+  I_COMMODITY = "2937231010",
+  I_COMMODITY = "2937231020",
+  I_COMMODITY = "2937231050",
+  I_COMMODITY = "2937232500",
+  I_COMMODITY = "2937235010",
+  I_COMMODITY = "2937235020",
+  I_COMMODITY = "2937235050",
+  I_COMMODITY = "2937291000",
+  I_COMMODITY = "2937299020",
+  I_COMMODITY = "2937299040",
+  I_COMMODITY = "2937299050",
+  I_COMMODITY = "2937299095",
+  I_COMMODITY = "2937500000",
+  I_COMMODITY = "2937900500",
+  I_COMMODITY = "2937901000",
+  I_COMMODITY = "2937902000",
+  I_COMMODITY = "2937904000",
+  I_COMMODITY = "2937904500",
+  I_COMMODITY = "2937909000",
+  I_COMMODITY = "2938100000",
+  I_COMMODITY = "2938900000",
+  I_COMMODITY = "2939110000",
+  I_COMMODITY = "2939191000",
+  I_COMMODITY = "2939192000",
+  I_COMMODITY = "2939195000",
+  I_COMMODITY = "2939200010",
+  I_COMMODITY = "2939200050",
+  I_COMMODITY = "2939300000",
+  I_COMMODITY = "2939410000",
+  I_COMMODITY = "2939420000",
+  I_COMMODITY = "2939440000",
+  I_COMMODITY = "2939450000",
+  I_COMMODITY = "2939490300",
+  I_COMMODITY = "2939590000",
+  I_COMMODITY = "2939620000",
+  I_COMMODITY = "2939630000",
+  I_COMMODITY = "2939690000",
+  I_COMMODITY = "2939720000",
+  I_COMMODITY = "2939790000",
+  I_COMMODITY = "2939800050",
+  I_COMMODITY = "2940006000",
+  I_COMMODITY = "2941101000",
+  I_COMMODITY = "2941102000",
+  I_COMMODITY = "2941103000",
+  I_COMMODITY = "2941105000",
+  I_COMMODITY = "2941201000",
+  I_COMMODITY = "2941205000",
+  I_COMMODITY = "2941300000",
+  I_COMMODITY = "2941400000",
+  I_COMMODITY = "2941500000",
+  I_COMMODITY = "2941901010",
+  I_COMMODITY = "2941901050",
+  I_COMMODITY = "2941903000",
+  I_COMMODITY = "2941905000",
+  I_COMMODITY = "2942000500",
+  I_COMMODITY = "2942003500",
+  I_COMMODITY = "2942005000",
+  I_COMMODITY = "3001200000",
+  I_COMMODITY = "3001900110",
+  I_COMMODITY = "3001900150",
+  I_COMMODITY = "3001900190",
+  I_COMMODITY = "3002120010",
+  I_COMMODITY = "3002120020",
+  I_COMMODITY = "3002120030",
+  I_COMMODITY = "3002120040",
+  I_COMMODITY = "3002120090",
+  I_COMMODITY = "3002130010",
+  I_COMMODITY = "3002130090",
+  I_COMMODITY = "3002140010",
+  I_COMMODITY = "3002140090",
+  I_COMMODITY = "3002150011",
+  I_COMMODITY = "3002150091",
+  I_COMMODITY = "3002410000",
+  I_COMMODITY = "3002420000",
+  I_COMMODITY = "3002490010",
+  I_COMMODITY = "3002490050",
+  I_COMMODITY = "3002510000",
+  I_COMMODITY = "3002590000",
+  I_COMMODITY = "3002901000",
+  I_COMMODITY = "3002905210",
+  I_COMMODITY = "3002905220",
+  I_COMMODITY = "3002905250",
+  I_COMMODITY = "3003100000",
+  I_COMMODITY = "3003200000",
+  I_COMMODITY = "3003391000",
+  I_COMMODITY = "3003395000",
+  I_COMMODITY = "3003410000",
+  I_COMMODITY = "3003420000",
+  I_COMMODITY = "3003490000",
+  I_COMMODITY = "3003900120",
+  I_COMMODITY = "3003900140",
+  I_COMMODITY = "3003900160",
+  I_COMMODITY = "3003900180",
+  I_COMMODITY = "3003900190",
+  I_COMMODITY = "3004101010",
+  I_COMMODITY = "3004101020",
+  I_COMMODITY = "3004101045",
+  I_COMMODITY = "3004105010",
+  I_COMMODITY = "3004105045",
+  I_COMMODITY = "3004105055",
+  I_COMMODITY = "3004105065",
+  I_COMMODITY = "3004105075",
+  I_COMMODITY = "3004200010",
+  I_COMMODITY = "3004200020",
+  I_COMMODITY = "3004200030",
+  I_COMMODITY = "3004200045",
+  I_COMMODITY = "3004200055",
+  I_COMMODITY = "3004200065",
+  I_COMMODITY = "3004200075",
+  I_COMMODITY = "3004310000",
+  I_COMMODITY = "3004320000",
+  I_COMMODITY = "3004390010",
+  I_COMMODITY = "3004390050",
+  I_COMMODITY = "3004410000",
+  I_COMMODITY = "3004420000",
+  I_COMMODITY = "3004490005",
+  I_COMMODITY = "3004490010",
+  I_COMMODITY = "3004490020",
+  I_COMMODITY = "3004490030",
+  I_COMMODITY = "3004490040",
+  I_COMMODITY = "3004490050",
+  I_COMMODITY = "3004490060",
+  I_COMMODITY = "3004490070",
+  I_COMMODITY = "3004501000",
+  I_COMMODITY = "3004502000",
+  I_COMMODITY = "3004503000",
+  I_COMMODITY = "3004504000",
+  I_COMMODITY = "3004505005",
+  I_COMMODITY = "3004505010",
+  I_COMMODITY = "3004505020",
+  I_COMMODITY = "3004505030",
+  I_COMMODITY = "3004505040",
+  I_COMMODITY = "3004600000",
+  I_COMMODITY = "3004901000",
+  I_COMMODITY = "3004909201",
+  I_COMMODITY = "3004909202",
+  I_COMMODITY = "3004909204",
+  I_COMMODITY = "3004909206",
+  I_COMMODITY = "3004909208",
+  I_COMMODITY = "3004909212",
+  I_COMMODITY = "3004909213",
+  I_COMMODITY = "3004909214",
+  I_COMMODITY = "3004909215",
+  I_COMMODITY = "3004909216",
+  I_COMMODITY = "3004909217",
+  I_COMMODITY = "3004909218",
+  I_COMMODITY = "3004909219",
+  I_COMMODITY = "3004909221",
+  I_COMMODITY = "3004909222",
+  I_COMMODITY = "3004909223",
+  I_COMMODITY = "3004909225",
+  I_COMMODITY = "3004909227",
+  I_COMMODITY = "3004909229",
+  I_COMMODITY = "3004909231",
+  I_COMMODITY = "3004909232",
+  I_COMMODITY = "3004909233",
+  I_COMMODITY = "3004909234",
+  I_COMMODITY = "3004909236",
+  I_COMMODITY = "3004909237",
+  I_COMMODITY = "3004909238",
+  I_COMMODITY = "3004909239",
+  I_COMMODITY = "3004909240",
+  I_COMMODITY = "3004909242",
+  I_COMMODITY = "3004909244",
+  I_COMMODITY = "3004909250",
+  I_COMMODITY = "3004909255",
+  I_COMMODITY = "3004909256",
+  I_COMMODITY = "3004909257",
+  I_COMMODITY = "3004909259",
+  I_COMMODITY = "3004909263",
+  I_COMMODITY = "3004909266",
+  I_COMMODITY = "3004909268",
+  I_COMMODITY = "3004909270",
+  I_COMMODITY = "3004909276",
+  I_COMMODITY = "3004909280",
+  I_COMMODITY = "3004909284",
+  I_COMMODITY = "3004909289",
+  I_COMMODITY = "3004909291",
+  I_COMMODITY = "3006301000",
+  I_COMMODITY = "3006305000",
+  I_COMMODITY = "3006600000",
+  I_COMMODITY = "3006700000",
+)
 
 
 
-US_CATEGORY_PHARMA_IMPORTS <- US_PHARMA_IMPORTS %>%
-  group_by(I_COMMODITY,I_COMMODITY_LDESC) %>%
-  summarise(Imports = sum(CON_VAL_YR)) %>%
-  arrange(Imports)
 
-US_CATEGORY_COPPER_IMPORTS <- US_COPPER_IMPORTS %>%
-  group_by(I_COMMODITY,I_COMMODITY_LDESC) %>%
-  summarise(Imports = sum(CON_VAL_YR)) %>%
-  arrange(desc(Imports))
+US_PHARMA_IMPORTS_BULK_3 <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "I_COMMODITY","CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "3006931000",
+  I_COMMODITY = "3006932000",
+  I_COMMODITY = "3006935000",
+  I_COMMODITY = "3006936000",
+  I_COMMODITY = "3006938000",
+  I_COMMODITY = "3104200010",
+  I_COMMODITY = "3104200050",
+  I_COMMODITY = "3104300000",
+  I_COMMODITY = "3104900100",
+  I_COMMODITY = "3105100000",
+  I_COMMODITY = "3105200000",
+  I_COMMODITY = "3105600000",
+  I_COMMODITY = "3203008000",
+  I_COMMODITY = "3204138000",
+  I_COMMODITY = "3204172000",
+  I_COMMODITY = "3204180000",
+  I_COMMODITY = "3206110000",
+  I_COMMODITY = "3206190000",
+  I_COMMODITY = "3402421000",
+  I_COMMODITY = "3402422010",
+  I_COMMODITY = "3402422020",
+  I_COMMODITY = "3402422050",
+  I_COMMODITY = "3402429000",
+  I_COMMODITY = "3606903000",
+  I_COMMODITY = "3808941000",
+  I_COMMODITY = "3808945010",
+  I_COMMODITY = "3808945050",
+  I_COMMODITY = "3808945080",
+  I_COMMODITY = "3808945095",
+  I_COMMODITY = "3818000010",
+  I_COMMODITY = "3818000090",
+  I_COMMODITY = "3824910000",
+  I_COMMODITY = "3824992900",
+  I_COMMODITY = "3824994900",
+  I_COMMODITY = "3824995500",
+  I_COMMODITY = "3824999310",
+  I_COMMODITY = "3824999320",
+  I_COMMODITY = "3824999330",
+  I_COMMODITY = "3824999361",
+  I_COMMODITY = "3824999386",
+  I_COMMODITY = "3824999397",
+  I_COMMODITY = "3901909000",
+  I_COMMODITY = "3902900010",
+  I_COMMODITY = "3902900050",
+  I_COMMODITY = "3904610010",
+  I_COMMODITY = "3904610090",
+  I_COMMODITY = "3905911000",
+  I_COMMODITY = "3905998000",
+  I_COMMODITY = "3906905000",
+  I_COMMODITY = "3907100000",
+  I_COMMODITY = "3907210000",
+  I_COMMODITY = "3907290000",
+  I_COMMODITY = "3907300000",
+  I_COMMODITY = "3907610010",
+  I_COMMODITY = "3907610050",
+  I_COMMODITY = "3907690010",
+  I_COMMODITY = "3907690050",
+  I_COMMODITY = "3907700000",
+  I_COMMODITY = "3907995010",
+  I_COMMODITY = "3907995050",
+  I_COMMODITY = "3908100000",
+  I_COMMODITY = "3910000000",
+  I_COMMODITY = "3911902500",
+  I_COMMODITY = "3911909110",
+  I_COMMODITY = "3911909150",
+  I_COMMODITY = "3912310010",
+  I_COMMODITY = "3912310090",
+  I_COMMODITY = "3912390000",
+  I_COMMODITY = "3912900010",
+  I_COMMODITY = "3912900090",
+  I_COMMODITY = "3913902015",
+  I_COMMODITY = "3913902090",
+  I_COMMODITY = "3913905000",
+  I_COMMODITY = "3914006000",
+)
 
-US_CATEGORY_LUMBER_IMPORTS <- US_LUMBER_IMPORTS %>%
-  group_by(I_COMMODITY,I_COMMODITY_LDESC) %>%
-  summarise(Imports = sum(CON_VAL_YR)) %>%
-  arrange(desc(Imports))
+
+
+US_PHARMA_IMPORTS <- #US_PHARMA_IMPORTS %>%
+  rbind(US_PHARMA_IMPORTS_BULK_1,US_PHARMA_IMPORTS_BULK_2,US_PHARMA_IMPORTS_BULK_3) %>%
+  #filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  filter(!CTY_NAME %in% c("AUSTRIA","BELGIUM","BULGARIA","CROATIA","CYPRUS","CZECH REPUBLIC","DENMARK","ESTONIA","FINLAND","FRANCE","GERMANY","GREECE","HUNGARY","IRELAND","ITALY","LATVIA","LITHUANIA","LUXEMBOURG","MALTA","NETHERLANDS","POLAND","PORTUGAL","ROMANIA","SLOVAKIA","SLOVENIA","SPAIN","SWEDEN")) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  group_by(CTY_NAME, time) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = CON_VAL_MO) %>%
+  mutate(across(where(is.numeric), ~replace_na(.x, 0))) %>%
+  arrange(time) %>%
+  mutate(across(where(is.numeric), ~rollapply(.x, 12, sum, fill = NA, align = "right"))) %>%
+  ungroup() %>%
+  pivot_longer(-time) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  #filter(time == as.Date("2024-12-01"))
+  mutate(name = case_when(
+    name == "EUROPEAN UNION" ~ "EU",
+    #name == "IRELAND" ~ "Ireland",
+    name == "SINGAPORE" ~ "Singapore",
+    name == "SWITZERLAND" ~ "Switzerland",
+    name == "INDIA" ~ "India",
+    name == "JAPAN" ~ "Japan",
+    name == "CHINA" ~ "China",
+    name == "HONG KONG" ~ "China",
+    name == "MACAU" ~ "China",
+    name == "CANADA" ~ "Canada",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(time) %>%
+  group_by(name,time) %>%
+  summarise(value = sum(value)) %>%
+  drop_na() %>%
+  pivot_wider()
+
+US_PHARMA_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= Other/1000000000,color= "Other"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= China/1000000000,color= "China"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= Canada/1000000000,color= "Canada"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= Switzerland/1000000000,color= "Switzerland"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= India/1000000000,color= "India"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= Singapore/1000000000,color= "Singapore"), size = 1.25) + 
+  geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= EU/1000000000,color= "EU"), size = 1.25) + 
+  #geom_line(data=US_PHARMA_IMPORTS, aes(x=time,y= Ireland/1000000000,color= "Ireland"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,200), breaks = c(0,25,50,75,100,125,150,175,200), expand = c(0,0)) +
+  ylab("Billions of Dollars, 12MMA") +
+  ggtitle("Pharma Imports Targeted for Trump Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using Census data",subtitle = "America Imports Billions in Pharmaceuticals, Almost Entirely From The European Union") +
+  theme_apricitas + 
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("EU","Singapore","Switzerland","China","India","Canada","South Korea","Other")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*200), ymax = 0) +
+  theme_apricitas + theme(plot.title = element_text(size = 27)) + theme(legend.position = c(.3,.80), legend.key.height = unit(0.3, "cm"), legend.spacing.y = unit(0.1, "cm")) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_PHARMA_IMPORTS_GRAPH, "US Pharma Import Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+US_PHARMA_IMPORTS_COUNTRY_BREAKDOWN <- #US_PHARMA_IMPORTS %>%
+  rbind(US_PHARMA_IMPORTS_BULK_1,US_PHARMA_IMPORTS_BULK_2,US_PHARMA_IMPORTS_BULK_3) %>%
+  #filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES","EUROPEAN UNION","OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  #filter(!CTY_NAME %in% c("AUSTRIA","BELGIUM","BULGARIA","CROATIA","CYPRUS","CZECH REPUBLIC","DENMARK","ESTONIA","FINLAND","FRANCE","GERMANY","GREECE","HUNGARY","IRELAND","ITALY","LATVIA","LITHUANIA","LUXEMBOURG","MALTA","NETHERLANDS","POLAND","PORTUGAL","ROMANIA","SLOVAKIA","SLOVENIA","SPAIN","SWEDEN")) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  group_by(CTY_NAME, time) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = CON_VAL_MO) %>%
+  mutate(across(where(is.numeric), ~replace_na(.x, 0))) %>%
+  arrange(time) %>%
+  mutate(across(where(is.numeric), ~rollapply(.x, 12, sum, fill = NA, align = "right"))) %>%
+  ungroup() %>%
+  pivot_longer(-time) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  filter(time == as.Date("2024-12-01")) %>%
+  arrange(desc(value)) %>%
+  slice(1:10) %>%
+  mutate(name = str_to_title(name)) %>%
+  mutate(name = factor(name, levels = rev(name)))
+
+UPCOMING_PHARMA_TARIFF_TARGET_BAR_CHART <- ggplot(data = US_PHARMA_IMPORTS_COUNTRY_BREAKDOWN, aes(x = name, y = value/1000000000)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ggtitle("Source of Pharma Imports Targeted\nFor Upcoming Trump Tariffs") +
+  ylab("US Pharma Imports From Country, 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,100), expand = c(0,0)) +
+  #labs(subtitle = "By % of US Imports") +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Trump is Preparing to Hit Nearly $270B In Pharma Imports With Tariffs") +
+  theme_apricitas + theme(legend.position = c(.5,.4), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 16, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = UPCOMING_PHARMA_TARIFF_TARGET_BAR_CHART, "Upcoming Pharma Tariff Target Bar Chart Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_HS10_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("I_COMMODITY","CTY_CODE","I_COMMODITY_LDESC","COMM_LVL"), 
+  time = "2024-12",
+  COMM_LVL = "HS10",
+  #I_COMMODITY = "????",
+  #I_COMMODITY = "*",#ALL COuntries
+  #CTY_CODE = "0201", #TOTAL
+  CTY_CODE = "-",
+  #CTY_NAME = Countries[4],
+  #CTY_NAME = Countries[5],
+) %>%
+  select(I_COMMODITY, I_COMMODITY_LDESC)
+
+
+
+US_CATEGORY_PHARMA_IMPORTS <- #US_PHARMA_IMPORTS %>%
+  rbind(US_PHARMA_IMPORTS_BULK_1,US_PHARMA_IMPORTS_BULK_2,US_PHARMA_IMPORTS_BULK_3) %>%
+  #filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  filter(I_COMMODITY %in% c(
+    "3002150011",
+    "3004909215",
+    "2937190000",
+    "3002150091",
+    "3002140010",
+    "3004909291",
+    "3004909221",
+    "3004909239",
+    "3002410000",
+    "3002120090"
+  )) %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES","OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  filter(!CTY_NAME %in% c("AUSTRIA","BELGIUM","BULGARIA","CROATIA","CYPRUS","CZECH REPUBLIC","DENMARK","ESTONIA","FINLAND","FRANCE","GERMANY","GREECE","HUNGARY","IRELAND","ITALY","LATVIA","LITHUANIA","LUXEMBOURG","MALTA","NETHERLANDS","POLAND","PORTUGAL","ROMANIA","SLOVAKIA","SLOVENIA","SPAIN","SWEDEN")) %>%
+  mutate(CTY_NAME = case_when(
+    #CTY_NAME == "IRELAND" ~ "Ireland",
+    CTY_NAME == "EUROPEAN UNION" ~ "European Union",
+    CTY_NAME == "SINGAPORE" ~ "Singapore",
+    CTY_NAME == "SWITZERLAND" ~ "Switzerland",
+    CTY_NAME == "INDIA" ~ "India",
+    CTY_NAME == "JAPAN" ~ "Japan",
+    CTY_NAME == "CHINA" ~ "China",
+    CTY_NAME == "HONG KONG" ~ "China",
+    #CTY_NAME == "Germany" ~ "Germany",
+    #CTY_NAME == "Belgium" ~ "Belgium",
+    CTY_NAME == "MACAU" ~ "China",
+    CTY_NAME == "CANADA" ~ "Canada",
+    TRUE ~ "Other"
+  )) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  filter(time >= as.Date("2024-01-01") & time <= as.Date("2024-12-01")) %>%
+  mutate(I_COMMODITY_6 = substr(I_COMMODITY, 1, 6)) %>%
+  #left_join(.,US_HS6_IMPORTS_BULK, by = c("I_COMMODITY_6" = "I_COMMODITY")) %>%
+  left_join(.,US_HS10_IMPORTS_BULK, by = "I_COMMODITY") %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  group_by(I_COMMODITY, I_COMMODITY_LDESC, CTY_NAME) %>%
+  mutate(I_COMMODITY = case_when(
+    I_COMMODITY == "3002150011" ~ "Diagnostic Tests",
+    I_COMMODITY == "3004909215" ~ "Cancer Drugs & Related",
+    I_COMMODITY == "2937190000" ~ "Peptide & Protein Hormones",
+    I_COMMODITY == "3002150091" ~ "Immunological Drugs",
+    I_COMMODITY == "3002140010" ~ "Monoclonal Antibodies",
+    I_COMMODITY == "3004909291" ~ "General Prescription Drugs",
+    I_COMMODITY == "3004909221" ~ "Heart Medications",
+    I_COMMODITY == "3004909239" ~ "Antidepressants & Related",
+    I_COMMODITY == "3002410000" ~ "Vaccines",
+    I_COMMODITY == "3002120090" ~ "Blood Products"
+  )) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  mutate(I_COMMODITY = factor(I_COMMODITY, levels = rev(c("Diagnostic Tests","Cancer Drugs & Related","Peptide & Protein Hormones","Immunological Drugs","Monoclonal Antibodies","General Prescription Drugs","Heart Medications","Antidepressants & Related","Vaccines","Blood Products")))) %>%
+  mutate(CTY_NAME = factor(CTY_NAME, levels = rev(c("European Union","Singapore","Switzerland","India","Japan","China","Canada","Other"))))
+
+
+PHARMA_IMPORTS_BY_COUNTRY_GRAPH <- ggplot(data = US_CATEGORY_PHARMA_IMPORTS, aes(x = I_COMMODITY, y = CON_VAL_MO/1000000000, fill = CTY_NAME)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab(NULL) +
+  ggtitle("Key Pharma Imports Targeted\nFor Future Trump Tariffs") +
+  ylab("Affected US Imports by Category, 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,80), expand = c(0,0)) +
+  #labs(subtitle = "By % of US Imports") +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("European Union","Singapore","Switzerland","India","Japan","China","Canada","Other")) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Trump has Promised Tariffs on A Wide Range of Pharmaceuticals\nIncluding these Goods Which Remain Currently Exempt from Tariffs") +
+  theme_apricitas + theme(legend.position = c(.7,.4), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 15, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = PHARMA_IMPORTS_BY_COUNTRY_GRAPH, "Pharma Imports By Country Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_LUMBER_IMPORTS_COUNTRY_CATEGORY <- US_LUMBER_IMPORTS %>%
+  mutate(category = case_when(
+    str_starts(I_COMMODITY, "40") ~ "Rubber & Articles",
+    str_starts(I_COMMODITY, "44") ~ "Wood & Articles",
+    TRUE ~ "Paper & Articles"
+  )) %>%
+    mutate(CTY_NAME = case_when(
+      CTY_NAME == "INDONESIA" ~ "Indonesia",
+      CTY_NAME == "BRAZIL" ~ "Brazil",
+      CTY_NAME == "CHILE" ~ "Chile",
+      CTY_NAME == "GERMANY" ~ "Germany",
+      CTY_NAME == "VIETNAM" ~ "Vietnam",
+      CTY_NAME == "MEXICO" ~ "Mexico",
+      CTY_NAME == "UNITED KINGDOM" ~ "UK",
+      CTY_NAME == "CHINA" ~ "China",
+      CTY_NAME == "HONG KONG" ~ "China",
+      #CTY_NAME == "Germany" ~ "Germany",
+      #CTY_NAME == "Belgium" ~ "Belgium",
+      CTY_NAME == "THAILAND" ~ "Thailand",
+      CTY_NAME == "MACAU" ~ "China",
+      CTY_NAME == "CANADA" ~ "Canada",
+      TRUE ~ "Other"
+    )) %>%
+  group_by(CTY_NAME, category) %>%
+  filter(CTY_NAME != "Other") %>%
+  summarise(CON_VAL_YR = sum(CON_VAL_YR)) %>%
+  ungroup %>%
+  mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
+  mutate(CTY_NAME = gsub("\\bUk\\b", "UK", CTY_NAME)) %>%
+  mutate(category = factor(category, levels = rev(c("Wood & Articles","Paper & Articles","Rubber & Articles")))) %>%
+  mutate(CTY_NAME = factor(CTY_NAME, levels = rev(c("Canada","China","Indonesia","Brazil","Chile","Germany","Vietnam","Mexico","Thailand","UK"))))
+
+WOOD_IMPORTS_BY_COUNTRY_GRAPH <- ggplot(data = US_LUMBER_IMPORTS_COUNTRY_CATEGORY, aes(x = CTY_NAME, y = CON_VAL_YR/1000000000, fill = category)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab(NULL) +
+  ggtitle("Key Sources of Wood & Related Imports\nTargeted For Future Trump Tariffs") +
+  ylab("Affected US Imports by Country, 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,10), expand = c(0,0)) +
+  #labs(subtitle = "By % of US Imports") +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Wood & Articles","Paper & Articles","Rubber & Articles")) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Trump Promised Tariffs on Wood & Related Goods, Which The US Imports From These Countries") +
+  theme_apricitas + theme(legend.position = c(.5,.6), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 15, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = WOOD_IMPORTS_BY_COUNTRY_GRAPH, "Wood Imports By Country Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_COPPER_IMPORTS_COUNTRY_CATEGORY <- US_COPPER_IMPORTS %>%
+  mutate(category = case_when(
+    str_starts(I_COMMODITY, "7403") ~ "Unwrought Copper",
+    TRUE ~ "Copper Products (Wire, Pipes, Etc)",
+  )) %>%
+  mutate(CTY_NAME = case_when(
+    CTY_NAME == "CHILE" ~ "Chile",
+    CTY_NAME == "CANADA" ~ "Canada",
+    CTY_NAME == "MEXICO" ~ "Mexico",
+    CTY_NAME == "PERU" ~ "Peru",
+    CTY_NAME == "GERMANY" ~ "Germany",
+    CTY_NAME == "KOREA, SOUTH" ~ "South Korea",
+    CTY_NAME == "THAILAND" ~ "Thailand",
+    CTY_NAME == "CHINA" ~ "China",
+    CTY_NAME == "HONG KONG" ~ "China",
+    #CTY_NAME == "Germany" ~ "Germany",
+    #CTY_NAME == "Belgium" ~ "Belgium",
+    CTY_NAME == "MACAU" ~ "China",
+    CTY_NAME == "CONGO (KINSHASA)" ~ "DRC",
+    CTY_NAME == "INDIA" ~ "India",
+    TRUE ~ "Other"
+  )) %>%
+  group_by(CTY_NAME, category) %>%
+  filter(CTY_NAME != "Other") %>%
+  summarise(CON_VAL_YR = sum(CON_VAL_YR)) %>%
+  ungroup() %>%
+  mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
+  mutate(CTY_NAME = gsub("^Drc$", "DRC", CTY_NAME)) %>%
+  mutate(category = factor(category, levels = rev(c("Unwrought Copper","Copper Products (Wire, Pipes, Etc)")))) %>%
+  mutate(CTY_NAME = factor(CTY_NAME, levels = rev(c("Chile","Canada","Mexico","Peru","Germany","South Korea","China","Thailand","DRC","India"))))
+
+COPPER_IMPORTS_BY_COUNTRY_GRAPH <- ggplot(data = US_COPPER_IMPORTS_COUNTRY_CATEGORY, aes(x = CTY_NAME, y = CON_VAL_YR/1000000000, fill = category)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab(NULL) +
+  ggtitle("Key Sources of Copper Imports\nTargeted For Future Trump Tariffs") +
+  ylab("Affected US Imports by Country, 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,8), expand = c(0,0)) +
+  #labs(subtitle = "By % of US Imports") +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Unwrought Copper","Copper Products (Wire, Pipes, Etc)")) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Trump Promised Tariffs on Copper, Which The US Imports From These Countries") +
+  theme_apricitas + theme(legend.position = c(.5,.6), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 15, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = COPPER_IMPORTS_BY_COUNTRY_GRAPH, "Copper Imports By Country Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 US_CATEGORY_CRITICAL_MINERALS_IMPORTS <- US_CRIT_MINERALS_IMPORTS %>%
-  group_by(I_COMMODITY,I_COMMODITY_LDESC) %>%
+  group_by(I_COMMODITY_6) %>%
+  #group_by(I_COMMODITY) %>%
   summarise(Imports = sum(CON_VAL_YR)) %>%
-  arrange(desc(Imports))
+  left_join(.,US_HS6_IMPORTS_BULK, by = c("I_COMMODITY_6" = "I_COMMODITY")) %>%
+  #left_join(.,US_HS10_IMPORTS_BULK, by = "I_COMMODITY") %>%
+  arrange(desc(Imports)) %>%
+  slice(1:20) %>%
+  mutate(I_COMMODITY_6 = c("Enriched Uranium",
+                    "Rhodium",
+                    "Palladium",
+                    "Platinum",
+                    "Natural Uranium",
+                    "High Grade Zinc",
+                    "Misc. Radioactives",
+                    "Platinum Scrap",
+                    "Zinc",
+                    "Tin",
+                    "Aluminum Oxide",
+                    "Uranium Ores & Concentrates",
+                    "Titanium, Unwrought",
+                    "Nickel, Misc.",
+                    "Ferrochromium",
+                    "Titanium, Misc.",
+                    "Ferrosilicon Manganese",
+                    "Calcium Phosphates",
+                    "Titanium Ores & Concentrates",
+                    "Zinc Oxide & Peroxide"
+                    )) %>%
+  mutate(I_COMMODITY_6 = factor(I_COMMODITY_6, levels = rev(I_COMMODITY_6)))
+
+CRITICAL_MINERALS_BREAKDOWN_GRAPH <- ggplot(data = US_CATEGORY_CRITICAL_MINERALS_IMPORTS, aes(x = I_COMMODITY_6, y = Imports/1000000000)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ggtitle('Key "Critical Mineral" Imports\nTargeted for Future Trump Tariffs') +
+  ylab("Affected US Imports by Category, 2024") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,6), expand = c(0,0)) +
+  #labs(subtitle = "By % of US Imports") +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F"))) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Trump Tariffs on a Wide Range of Critical Minerals, Including These") +
+  theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 13, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = CRITICAL_MINERALS_BREAKDOWN_GRAPH, "Critical Minerals Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

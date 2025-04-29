@@ -1969,14 +1969,14 @@ TX_SOLAR_SPLIT_GRAPH <- ggplot() + #plotting EU NET EV Exports
   geom_line(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 1.25) +
   geom_point(data= TX_SOLAR_SPLIT, aes(x=month,y=value/1000,color= year), size = 3) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5+1), expand = c(0,0)) +
   scale_x_continuous(breaks = c(1,2,3,4,5,6,7,8,9,10,11,12), labels = c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")) +
   ylab("TWh, Monthly") +
   ggtitle("Texas Monthly Solar Generation") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = paste0("Texas Solar Generation is Growing Quickly, and is Up ", round(TX_SOLAR_SPLIT$yoypct[nrow(TX_SOLAR_SPLIT)], 2)*100, "% Compared to Last Year")) +
   theme_apricitas + theme(legend.position = c(.085,.85), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"), breaks = sort(unique(TX_SOLAR_SPLIT$year), decreasing = TRUE)[1:6]) +
-  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = 1-(.1861*11), xmax = 1-(0.049*11), ymin = 0-(.3*(ceiling(max(TX_SOLAR_SPLIT$value)/5000)*5+1)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TX_SOLAR_SPLIT_GRAPH, "TX Solar Split Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

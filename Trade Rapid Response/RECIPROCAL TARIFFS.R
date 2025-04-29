@@ -125,7 +125,8 @@ RECIPROCAL_TARIFF_RATE_CAPS <- merge(US_IMPORTS_BULK,US_EXPORTS_BULK, by = "CTY_
   select(CTY_NAME, tariff)
 
 RECIPROCAL_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
-  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  filter(CTY_NAME == "ISRAEL") %>%
+  #filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
   left_join(.,RECIPROCAL_TARIFF_RATE_CAPS, by = "CTY_NAME") %>%
   select(-COMM_LVL,-COMM_LVL_1,-CTY_CODE,-time) %>%
@@ -140,14 +141,28 @@ RECIPROCAL_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                              "8511906020", "8511906040", "8525601010", "8536410005", "8539100010", 
                                              "8539100050", "8707100020", "8707100040", "8707905020", "8707905040", 
                                              "8707905060", "8707905080", "9029204080"), 0, tariff)) %>% #10 digit HS codes for excluded car parts
-  mutate(tariff = if_else(I_COMMODITY_8 %in% c("4009120020", "4009220020", "4009320020", "4009420020", "4013100010", 
-                                           "4013100020", "4016996010", "8409911040", "8409991040", "8413919010", 
-                                           "8414308030", "8414596540", "8431100090", "8482105044", "8482105048", 
-                                           "8482200020", "8482200030", "8482200040", "8482200061", "8482200070", 
-                                           "8482200081", "8483101030", "8511100000", "8511300040", "8511300080", 
-                                           "8511906020", "8511906040", "8525601010", "8536410005", "8539100010", 
-                                           "8539100050", "8707100020", "8707100040", "8707905020", "8707905040", 
-                                           "8707905060", "8707905080", "9029204080"), 0, tariff)) %>% #car parts
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c(
+    "40112010", "40121940", "40122060", "40131000", "40131002",
+    "70072151", "73202010", "83021000", "84073100", "84082020",
+    "84099110", "84133010", "84133090", "84139110", "84139190",
+    "84143080", "84145930", "84145965", "84148005", "84152000",
+    "84212300", "84213200", "84254900", "84311000", "84821010",
+    "84821050", "84821050", "84822000", "84822000", "84822000",
+    "84822000", "84822000", "84822000", "84825000", "84831010",
+    "84831030", "85013200", "85013300", "85014000", "85015100",
+    "85015200", "85071000", "85079040", "85079080",
+    "85111000", "85112000", "85113000", "85113000", "85114000",
+    "85115000", "85118020", "85119060", "85119060", "85122020",
+    "85122040", "85123000", "85124020", "85124040", "85129020",
+    "85129060", "85129070", "85198120", "85269010", "85364100",
+    "85391000", "85391000", "85443000", "87060025", "87060005",
+    "87060015", "87071000", "87079050", "87079050", "87079050",
+    "87081030", "87082100", "87082200", "87082900", "87083000",
+    "87084011", "87084070", "87084075", "87085000", "87088000",
+    "87089100", "87089360", "87089375", "87089400", "87089580",
+    "87089953", "87089955", "87089958", "87089968", "87169050",
+    "90292040"
+  ), 0, tariff)) %>% #car parts
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("87032201", "87032301", "87032401", "87033101", "87033201", "87033301", 
                                                "87034000", "87035000", "87036000", "87037000", "87038000", "87039001", 
                                                "87042101", "87043101", "87044100", "87045100", "87046000"), 0, tariff)) %>% #car exclusion
@@ -457,7 +472,8 @@ RECIPROCAL_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                              "870829", "870830", "870850", "870870", "870880", "870891", "870894", "870895", "901510",
                                              "902910"), 0, tariff)) %>%
   mutate(tariff = if_else(I_COMMODITY %in% c("8507600010","8507600010"), 0, tariff)) %>% #only motor vehicle batteries
-  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8404"), 0, tariff)) %>%
+  #mutate(tariff = if_else(I_COMMODITY_4 %in% c("8404"), 0, tariff)) %>%
+  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8707"), 0, tariff)) %>%
   mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542"), 0, tariff)) %>% #April 11th Electronics Exemption
   mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190"), 0, tariff)) %>% #April 11th Electronics Exemption
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995"), 0, tariff)) %>% #April 11th Electronics Exemption
