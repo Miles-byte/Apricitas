@@ -84,7 +84,7 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
 #Update links from here: https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2024/qe243/gdemenuea.html
-JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2024/qe244/tables/gaku-jk2441.csv",fileEncoding="latin1") %>%
+JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2025/qe251/tables/gaku-jk2511.csv",fileEncoding="latin1") %>%
   slice(-1:-6) %>%
   select(X) %>%
   transmute(date = seq.Date(from = as.Date("1994-01-01"), by = "quarter", length.out = nrow(.)), value = as.numeric(gsub(",","",X))) %>%
@@ -117,6 +117,7 @@ AUS_GDP <- read_abs(series_id = "A2304402X") %>%
 
 RGDP_G7_Graph <- ggplot() + #RGDP Index
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  #geom_line(data=SPA_GDP, aes(x=date,y= value,color= "Spain"), size = 1.25) +
   geom_line(data=UK, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN, aes(x=date,y= value,color= "Canada"), size = 1.25) +
   geom_line(data=GER, aes(x=date,y= value,color= "Germany"), size = 1.25) +
@@ -130,9 +131,9 @@ RGDP_G7_Graph <- ggplot() + #RGDP Index
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(72.5,115), breaks = c(80,90,100,110), expand = c(0,0)) +
   ylab("Index, 2019 Q3 = 100") +
   ggtitle("Real GDP Growth in the G7") +
-  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries But Germany are Now Above pre-COVID GDP") +
-  theme_apricitas + theme(legend.position = c(.16,.30), legend.key.height = unit(0,"cm")) +
-  scale_color_manual(name= "Real GDP 2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED",subtitle = "The US is Leading the Recovery, and All Countries are Now Above pre-COVID GDP") +
+  theme_apricitas + theme(legend.position = c(.17,.30), legend.key.height = unit(0,"cm")) +
+  scale_color_manual(name= "Real GDP\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Spain","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.5) +
   coord_cartesian(clip = "off")
 
@@ -165,7 +166,23 @@ GER_PER_CAPITA <- retrieve_data(tablename = "81000BV007", genesis=c(db='de'), la
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
 
+EU_GDP_BULK <- get_eurostat("namq_10_gdp",legacy_bulk_download = FALSE)
+
 EU_POP_BULK <- get_eurostat("namq_10_pe",legacy_bulk_download = FALSE)
+
+SPA_GDP <- EU_GDP_BULK %>%
+  filter(s_adj == "SCA", geo == "ES", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "B1GQ", unit == "CLV20_MEUR") %>%
+  transmute(date = TIME_PERIOD, value = values) %>%
+  mutate(value = value/value[7]*100)
+
+SPA_POP <- EU_POP_BULK %>%
+  filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = TIME_PERIOD, value = values)
+
+SPA_PER_CAPITA <- merge(SPA_POP,SPA_GDP, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[7]*100)
+
 
 ITA_POP <- EU_POP_BULK %>%
   filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
@@ -217,6 +234,7 @@ JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
   mutate(value = value/value[7]*100)
 
 RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
+  geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
@@ -234,7 +252,7 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
   ggtitle("Real GDP Per Capita Growth in the G7") +
   labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US is Leading the Recovery, and Germany Has Had the Largest GDP Per Capita Decline") +
   theme_apricitas + theme(legend.position = c(.16,.31), legend.key.height = unit(0,"cm")) +
-  scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Australia","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
+  scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#B30089","#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("Spain","United States","Canada","France","Germany","Italy","United Kingdom","Japan")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-90-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-90-as.Date("2018-01-01"))), ymin = 72.5-(.3*40), ymax = 72.5) +
   coord_cartesian(clip = "off")
 

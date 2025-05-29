@@ -770,17 +770,17 @@ RGDPQuarterly <- beaGet(RGDP_Contributions_Specs, iTableStyle = FALSE) %>%
 GDPContribBEA_Graph <- ggplot(RGDP_Contributions, aes(fill=name, x=date, y=value/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_point(data = RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  geom_point(data = RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.04,0.05), breaks = c(-0.04,-.02,0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.0525,0.05), breaks = c(-0.04,-.02,0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Contributions to US Real GDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
-  theme_apricitas + theme(legend.position = c(.25,.85)) +
+  theme_apricitas + theme(legend.position = "right") +
   #scale_color_manual(name = NULL, values = "black") +
-  scale_fill_manual(name= "Contributions to Quarterly Real GDP Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Consumption","Investment","Net Exports","Government")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.04-(.3*.09), ymax = -0.04) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Consumption","Investment","Net Exports","Government")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.0525-(.3*.1025), ymax = -0.0525) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GDPContribBEA_Graph, "GDP Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -804,17 +804,17 @@ RGDPInvestmentQuarterly <- beaGet(RGDP_Contributions_Specs, iTableStyle = FALSE)
 InvestmentQuarterlyContribBEA_Graph <- ggplot(RGDP_Investment_Contributions, aes(fill=name, x=date, y=value/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_point(data = RGDPInvestmentQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  geom_point(data = RGDPInvestmentQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.03,0.035), breaks = c(-.02,-0.01,0,0.01,0.02,0.03,0.04,0.06), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.03,0.04), breaks = c(-.02,-0.01,0,0.01,0.02,0.03,0.04,0.06), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Investment's Contribution to US Real GDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
   theme_apricitas + theme(legend.position = c(.275,.875), plot.title = element_text(size = 24)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= "Contributions to Quarterly Real GDP Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Nonresidential Fixed Investment", "Residential Fixed Investment", "Change in Private Inventories")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.03-(.3*.065), ymax = -0.03) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.03-(.3*.07), ymax = -0.03) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = InvestmentQuarterlyContribBEA_Graph, "Investment Quarterly Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -838,17 +838,17 @@ RGDPConsumptionQuarterly <- beaGet(RGDP_Contributions_Specs, iTableStyle = FALSE
 ConsumptionQuarterlyContribBEA_Graph <- ggplot(RGDP_Consumption_Contributions, aes(fill=name, x=date, y=value/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_point(data = RGDPConsumptionQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  geom_point(data = RGDPConsumptionQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.01,0.035), breaks = c(-0.04,-0.03,-.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06,0.08), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.01,0.0375), breaks = c(-0.04,-0.03,-.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06,0.08), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Consumption's Contribution to US RGDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
   theme_apricitas + theme(legend.position = c(.275,.875), plot.title = element_text(size = 24)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= "Contributions to Quarterly Real GDP Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Durable Goods", "Nondurable Goods", "Services")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.01-(.3*.041), ymax = -0.01) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.01-(.3*.0475), ymax = -0.01) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ConsumptionQuarterlyContribBEA_Graph, "Consumption Quarterly Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -872,17 +872,17 @@ RGDPGovtnQuarterly <- beaGet(RGDP_Contributions_Specs, iTableStyle = FALSE) %>%
 GovtQuarterlyContribBEA_Graph <- ggplot(RGDP_Govt_Contributions, aes(fill=name, x=date, y=value/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_point(data = RGDPGovtnQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  geom_point(data = RGDPGovtnQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(-0.0075,0.0125), breaks = c(-0.0075,-0.005,-0.0025,0,.0025,.005,.0075,0.01,0.0125), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .25),limits = c(-0.0075,0.016), breaks = c(-0.0075,-0.005,-0.0025,0,.0025,.005,.0075,0.01,0.0125,0.015), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Government's Contribution to US Real GDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
   theme_apricitas + theme(legend.position = c(.275,.875), plot.title = element_text(size = 23)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= "Contributions to Quarterly Real GDP Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Federal Defense", "Federal Nondefense", "State & Local")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.0075-(.3*.02), ymax = -0.0075) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.0075-(.3*.0235), ymax = -0.0075) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GovtQuarterlyContribBEA_Graph, "Govt Quarterly Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -905,17 +905,17 @@ RGDPNetExpQuarterly <- beaGet(RGDP_Contributions_Specs, iTableStyle = FALSE) %>%
 NetExptQuarterlyContribBEA_Graph <- ggplot(RGDP_NetExp_Contributions, aes(fill=name, x=date, y=value/100)) + 
   geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_point(data = RGDPNetExpQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "black", shape = 23) +
+  geom_point(data = RGDPNetExpQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
   guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.03,0.03), breaks = c(-0.03,-0.02,-0.01,0,0.01,0.02,0.03), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.05,0.03), breaks = c(-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03), expand = c(0,0)) +
   ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
   ggtitle("Net Exports' Contribution to US Real GDP Growth") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
   theme_apricitas + theme(legend.position = c(.7,.85), plot.title = element_text(size = 23)) +
   #scale_color_manual(name = NULL, values = "black") +
   scale_fill_manual(name= "Contributions to Quarterly Real GDP Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","black"), breaks = c("Net Exports of Goods", "Net Exports of Services")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.03-(.3*.06), ymax = -0.03) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.05-(.3*.08), ymax = -0.05) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NetExptQuarterlyContribBEA_Graph, "Net Exp Quarterly Contributions BEA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -1178,7 +1178,7 @@ FIXED_INVESTMENT_RESIDENTIAL_Graph <- ggplot() + #indexed employment rate
   ylab("Index, Q1 2018 = 100") +
   ggtitle("US Real Residential Fixed Investment") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
-  theme_apricitas + theme(legend.position = c(.20,.60)) +
+  theme_apricitas + theme(legend.position = c(.20,.80)) +
   scale_color_manual(name= "Real Fixed Investment",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Single-Family Structures","Multi-Family Structures","Residential Improvements")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 85-(.3*65), ymax = 85) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -1743,6 +1743,127 @@ ALT_POWER_FIXED_INVEST_graph <- ggplot(data = ALT_POWER_FIXED_INVEST, aes(x = da
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ALT_POWER_FIXED_INVEST_graph, "Alt Power Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
+  geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6/1000, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/5000)*5), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars") +
+  ggtitle("US Computer Investment At Record Highs") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Computer Investment Has Grown Significantly Since 2020, Breaking Years of Stagnation") +
+  theme_apricitas + theme(legend.position = c(.3,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*(ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH, "US Computer Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+REAL_IMPORTS_EXPORTS_GDP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T40206B',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2014, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+REAL_IMPORTS_EXPORTS_GDP <- beaGet(REAL_IMPORTS_EXPORTS_GDP_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2014-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names()
+
+REAL_IMPORTS_GDP_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = REAL_IMPORTS_EXPORTS_GDP, aes(x=date, y = t40206b_a255rx_95_imports_of_goods_chained_dollars_level_6/1000000, color = "Real Imports of Goods"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.5, suffix = "T"), limits = c(1.5,ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_a255rx_95_imports_of_goods_chained_dollars_level_6)/500000)*.5), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars, Seasonally Adjusted Annualized Rate") +
+  ggtitle("The Rush to Import Before Trump's Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Imports of Goods Jumped to a Record High in Q1 2025 Amidst a Rush to Front-Run Tariffs") +
+  theme_apricitas + theme(legend.position = c(.3,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 1.5-(.3*(ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_a255rx_95_imports_of_goods_chained_dollars_level_6)/500000)*.5-1.5)), ymax = 1.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_IMPORTS_GDP_Graph, "Real Imports GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+REAL_IMPORTS_GDP_Category_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = REAL_IMPORTS_EXPORTS_GDP, aes(x=date, y = t40206b_lb001160_145_medicinal_dental_and_pharmaceutical_preparations_including_vitamins_chained_dollars_level_6/1000, color = "Pharmaceuticals & Related"), size = 1.25) + 
+  geom_line(data = REAL_IMPORTS_EXPORTS_GDP, aes(x=date, y = t40206b_b852rx_119_computers_peripherals_and_parts_chained_dollars_level_6/1000, color = "Computers & Related"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_lb001160_145_medicinal_dental_and_pharmaceutical_preparations_including_vitamins_chained_dollars_level_6)/500000)*500), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars, Seasonally Adjusted Annualized Rate") +
+  ggtitle("The Rush to Import Before Trump's Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Imports of Drugs & Computers Surged as Companies Rushed to Get Ahead of Trump's Tariffs") +
+  theme_apricitas + theme(legend.position = c(.3,.8)) +
+  scale_color_manual(name= "Real Imports of Goods, Select Categories",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 1.5-(.3*(ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_lb001160_145_medicinal_dental_and_pharmaceutical_preparations_including_vitamins_chained_dollars_level_6)/500000)*500)-1.5), ymax = 1.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_IMPORTS_GDP_Category_Graph, "Real Imports Category GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CHANGE_IN_INVENTORIES_GDP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50705BU1',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2014, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+CHANGE_IN_INVENTORIES_GDP <- beaGet(CHANGE_IN_INVENTORIES_GDP_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2014-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names()
+
+CHANGE_IN_INVENTORIES_GDP_GRAPH <- ggplot() + #indexed employment rate
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = CHANGE_IN_INVENTORIES_GDP, aes(x=date, y = u50705bu1_c4222_56_drugs_and_druggists_sundries_wholesalers_current_dollars_level_6/1000, color = "Change in Private Inventories: Drug Wholesalers"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(-40,ceiling(max(CHANGE_IN_INVENTORIES_GDP$u50705bu1_c4222_56_drugs_and_druggists_sundries_wholesalers_current_dollars_level_6)/50000)*50), expand = c(0,0)) +
+  ylab("Billions of Dollars, Seasonally Adjusted Annualized Rate") +
+  ggtitle("Pharma Companies are Stockpiling\nAhead of Trump's Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Inventories for Drug Wholesalers Skyrocketed Alongside Imports in Q1 2025") +
+  theme_apricitas + theme(legend.position = c(.4,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -40-(.3*140), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -40-(.3*((ceiling(max(CHANGE_IN_INVENTORIES_GDP$u50705bu1_c4222_56_drugs_and_druggists_sundries_wholesalers_current_dollars_level_6)/50000)*50)+40)), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CHANGE_IN_INVENTORIES_GDP_GRAPH, "Change in Inventories GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+test <- beaSets(Sys.getenv("BEA_KEY"))
+
+beaParams(Sys.getenv("BEA_KEY"))
+
+test <- beaParamVals(Sys.getenv("BEA_KEY"),"NIUnderlyingDetail","TableName")
+
+test <- test$ParamValue
+
+?beaParams
+
+test <- beaSearch("Real Exports",beaKey = Sys.getenv("BEA_KEY"))
+
+FIXED_IP_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T40206',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
 
 
 ggsave(dpi = "retina",plot = GDPQuarterlyContrib_Graph, "Quarterly GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

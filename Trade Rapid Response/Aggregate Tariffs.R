@@ -1,5 +1,7 @@
 pacman::p_load(censusapi,ggpubr,prismatic,maps,tigris,sf,maps,openxlsx,tidyverse,janitor,bea.R,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
+options(scipen = 999)
+
 US_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("GEN_VAL_YR","CTY_CODE", "CTY_NAME"), 
@@ -74,29 +76,37 @@ AGG_RECIPROCAL_TARIFF_RATE_CAPS <- merge(US_IMPORTS_BULK,US_EXPORTS_BULK, by = "
   mutate(tariff = ifelse(CTY_NAME %in% c("RUSSIA","BELARUS","CUBA","KOREA, NORTH"), 0, tariff)) %>%
   mutate(tariff = ifelse(CTY_NAME %in% c("MEXICO","CANADA"), 0, tariff)) %>%
   mutate(tariff = ifelse(CTY_NAME %in% EU_27, tariff[CTY_NAME == "EUROPEAN UNION"],tariff)) %>%
-  mutate(tariff = ifelse(CTY_NAME %in% c("CHINA","HONG KONG","MACAU"), 1.25, tariff)) %>%
+  mutate(tariff = ifelse(CTY_NAME %in% c("CHINA","HONG KONG","MACAU"), 0.1, tariff)) %>%
   mutate(tariff = ifelse(!CTY_NAME %in% c("CHINA","HONG KONG","MACAU","MEXICO","CANADA","RUSSIA","BELARUS","CUBA","KOREA, NORTH"), .1, tariff)) %>%
   #mutate(tariff = 0) %>%
   select(CTY_NAME, tariff)
 
+
+
+
+#UPDATE FOR USMCA PART EXCLUSION!
 AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
-  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
+  mutate(I_COMMODITY = as.character(I_COMMODITY)) %>%
+  mutate(I_COMMODITY = if_else(nchar(I_COMMODITY) == 9, paste0("0", I_COMMODITY), I_COMMODITY)) %>%
   left_join(.,AGG_RECIPROCAL_TARIFF_RATE_CAPS, by = "CTY_NAME") %>%
   select(-COMM_LVL,-COMM_LVL_1,-CTY_CODE,-time) %>%
   mutate(I_COMMODITY_8 = substr(I_COMMODITY, 1, 8)) %>%
   mutate(I_COMMODITY_6 = substr(I_COMMODITY, 1, 6)) %>%
   mutate(I_COMMODITY_4 = substr(I_COMMODITY, 1, 4)) %>%
-  mutate(tariff = if_else(I_COMMODITY %in% c("4009120020", "4009220020", "4009320020", "4009420020", "4013100010", 
-                                             "4013100020", "4016996010", "8409911040", "8409991040", "8413919010", 
-                                             "8414308030", "8414596540", "8431100090", "8482105044", "8482105048", 
-                                             "8482200020", "8482200030", "8482200040", "8482200061", "8482200070", 
-                                             "8482200081", "8483101030", "8511100000", "8511300040", "8511300080", 
-                                             "8511906020", "8511906040", "8525601010", "8536410005", "8539100010", 
-                                             "8539100050", "8707100020", "8707100040", "8707905020", "8707905040", 
-                                             "8707905060", "8707905080", "9029204080"), 0, tariff)) %>% #10 digit HS codes for excluded car parts
+  mutate(tariff = if_else(CTY_NAME %in% c("CHINA","HONG KONG","MACAU"), tariff+.2, tariff)) %>% #Adding China 20% IEEPA Fentanyl Tariffs
+  mutate(tariff = if_else(I_COMMODITY %in% I_COMMODITY %in% c("4009120020", "4009220020", "4009320020", "4009420020", "4013100010", 
+                                                              "4013100020", "4016996010", "8409911040", "8409991040", "8413919010", 
+                                                              "8414308030", "8414596540", "8431100090", "8482105044", "8482105048", 
+                                                              "8482200020", "8482200030", "8482200040", "8482200061", "8482200070", 
+                                                              "8482200081", "8483101030", "8511100000", "8511300040", "8511300080", 
+                                                              "8511906020", "8511906040", "8525601010", "8536410005", "8539100010", 
+                                                              "8539100050", "8707100020", "8707100040", "8707905020", "8707905040", 
+                                                              "8707905060", "8707905080", "9029204080") & CTY_NAME != "MEXICO" & CTY_NAME != "CANADA", .25, tariff)) %>% #10 digit HS codes for excluded car parts
   mutate(tariff = if_else(I_COMMODITY_8 %in% c(
-    "40112010", "40121940", "40122060", "40131000", "40131002",
+    "40111010", "40111050",
+    "40112010", "40121940", "40122060",
     "70072151", "73202010", "83021000", "84073100", "84082020",
     "84099110", "84133010", "84133090", "84139110", "84139190",
     "84143080", "84145930", "84145965", "84148005", "84152000",
@@ -116,11 +126,13 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
     "87089100", "87089360", "87089375", "87089400", "87089580",
     "87089953", "87089955", "87089958", "87089968", "87169050",
     "90292040"
-  ), 0, tariff)) %>% #car parts
+  ) & CTY_NAME != "MEXICO" & CTY_NAME != "CANADA", .25, tariff)) %>% #car parts
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("87032201", "87032301", "87032401", "87033101", "87033201", "87033301", 
                                                "87034000", "87035000", "87036000", "87037000", "87038000", "87039001", 
                                                "87042101", "87043101", "87044100", "87045100", "87046000"), .25, tariff)) %>% #car exclusion
-  
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c("87032201", "87032301", "87032401", "87033101", "87033201", "87033301", 
+                                               "87034000", "87035000", "87036000", "87037000", "87038000", "87039001", 
+                                               "87042101", "87043101", "87044100", "87045100", "87046000") & CTY_NAME == "UNITED KINGDOM", .1124, tariff)) %>% #car exclusion
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("87032201", "87032301", "87032401", "87033101", "87033201", "87033301", 
                                                "87034000", "87035000", "87036000", "87037000", "87038000", "87039001", 
                                                "87042101", "87043101", "87044100", "87045100", "87046000") & CTY_NAME == "MEXICO", tariff-.491*tariff, tariff)) %>% #Mexico car content
@@ -144,7 +156,7 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                                "27112900", "27121000", "27122000", "27129010", "27129020", "27131100", "27131200", 
                                                "27132000", "27139000", "27141000", "27149000", "27150000", "27160000", "28012000", 
                                                "28042900", "28045000", "28046100", "28048000", "28049000", "28051910", "28051920", 
-                                               "28051990"), 0, tariff)) %>% #ANNEX 2
+                                               "28051990") & CTY_NAME != "CHINA", 0, tariff)) %>% #ANNEX 2
   
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("28053000", "28111100", "28111910", "28112910", "28112920", "28121900", "28139010",
                                                "28152000", "28161000", "28164010", "28164020", "28170000", "28181010", "28181020",
@@ -189,7 +201,7 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                                "29334908", "29334910", "29334915", "29334917", "29334920", "29334926", "29334930",
                                                "29334960", "29334970", "29335210", "29335290", "29335300", "29335400", "29335910",
                                                "29335915", "29335918", "29335921", "29335922", "29335936", "29335946", "29335953",
-                                               "29335959"), 0, tariff)) %>% #ANNEX 2
+                                               "29335959") & CTY_NAME != "CHINA", 0, tariff)) %>% #ANNEX 2
   
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("29335970", "29335980", "29335985", "29335995", "29336960", "29337200", "29337908",
                                                "29337915", "29337985", "29339100", "29339901", "29339902", "29339905", "29339906",
@@ -232,7 +244,7 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                                "44032501", "44032601", "44034200", "44034902", "44039100", "44039301", "44039401",
                                                "44039501", "44039601", "44039700", "44039800", "44039901", "44041000", "44042000",
                                                "44050000", "44061100", "44061200", "44069100", "44069200", "44071100", "44071200",
-                                               "44071300", "44071400", "44071900", "44072100", "44072200"), 0, tariff)) %>% #ANNEX 2
+                                               "44071300", "44071400", "44071900", "44072100", "44072200") & CTY_NAME != "CHINA", 0, tariff)) %>% #ANNEX 2
   
   mutate(tariff = if_else(I_COMMODITY_8 %in% c("44072301", "44072500", "44072600", "44072700", "44072800", "44072902", "44079100",
                                                "44079200", "44079300", "44079400", "44079500", "44079600", "44079700", "44079902",
@@ -280,7 +292,7 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
                                                "81125900", "81129210", "81129230", "81129240", "81129260", "81129265", "81129910",
                                                "81129991", "85411000", "85412100", "85412900", "85413000", "85414910", "85414970",
                                                "85414980", "85414995", "85415100", "85415900", "85419000", "85423100", "85423200",
-                                               "85423300", "85423900", "85429000"), 0, tariff)) %>% #Annex 2
+                                               "85423300", "85423900", "85429000") & CTY_NAME != "CHINA", 0, tariff)) %>% #Annex 2
   mutate(tariff = if_else(I_COMMODITY %in% c(
     7601103000, 7601106030, 7601106090, 7601203000, 7601206000, 7601209030,
     7601209045, 7601209060, 7601209075, 7601209080, 7601209085, 7601209095,
@@ -320,7 +332,7 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
     9506910030, 9506990510, 9506990520, 9506990530, 9506991500, 9506992000,
     9506992580, 9506992800, 9506995500, 9506996080, 9507302000, 9507304000,
     9507306000, 9507308000, 9507906000, 9603908050, 6603908100
-  ), 0, tariff)) %>% #ALUMINUM DERIVATIVES
+  ) & CTY_NAME != "CHINA", 0, tariff)) %>% #ALUMINUM DERIVATIVES
   mutate(tariff = if_else(I_COMMODITY %in% c(
     7206100000,7206900000,7207110000,7207120010,7207120050,7207190030,7207190090,7207200025,
     7207200045,7207200075,7207200090,7208101500,7208103000,7208106000,7208253000,7208256000,
@@ -425,25 +437,38 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
     9403200035,9403200040,9403200046,9403200048,9403200050,9403200075,9403200078,
     9403200082,9403200086,9403200090,9403992040,9403992080,9403994005,9403994010,
     9403994080,9406200000,9406900110,9406900120,9406900130,9406900150,9406900190
-  ), 0, tariff)) %>% #Steel Derivatives
+  ) & CTY_NAME != "CHINA", 0, tariff)) %>% #Steel Derivatives
+  mutate(tariff = if_else(I_COMMODITY_6 %in% c("732010", "830230", "840732", "840733", "840734", "850132", "850133", "850134", "850140",
+                                               "850151", "850152", "852721", "852729", "853720", "870822", # "853710" excluding control panels
+                                               "870829", "870830", "870850", "870870", "870880", "870891", "870894", "870895", "901510",
+                                               "902910") & CTY_NAME != "CHINA", 0.25, tariff)) %>% #Car Parts
+  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8707") & CTY_NAME != "CHINA", 0.25, tariff)) %>% #Car Parts 
+  mutate(tariff = if_else(I_COMMODITY %in% c("8507600010","8507600010") & CTY_NAME != "CHINA", 0.25, tariff)) %>% #Car Batteries
   mutate(tariff = if_else(I_COMMODITY_6 %in% c("732010", "830230", "840732", "840733", "840734", "850132", "850133", "850134", "850140",
                                                "850151", "850152", "852721", "852729", "853710", "853720", "870822",
                                                "870829", "870830", "870850", "870870", "870880", "870891", "870894", "870895", "901510",
-                                               "902910"), 0, tariff)) %>% #Car Parts
-  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8404"), 0, tariff)) %>% #Car Parts 
-  mutate(tariff = if_else(I_COMMODITY %in% c("8507600010","8507600010"), 0, tariff)) %>% #Car Batteries
+                                               "902910") & CTY_NAME %in% c("MEXICO","CANADA"), 0, tariff)) %>% #Car Parts
+  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8707") & CTY_NAME %in% c("MEXICO","CANADA"), 0, tariff)) %>% #Car Parts 
+  mutate(tariff = if_else(I_COMMODITY %in% c("8507600010","8507600010") & CTY_NAME %in% c("MEXICO","CANADA"), 0, tariff)) %>% #Car Batteries
+  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542") & CTY_NAME != "CHINA", 0, tariff)) %>% #April 11th Electronics Exemption
+  mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190") & CTY_NAME != "CHINA", 0, tariff)) %>% #April 11th Electronics Exemption
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995") & CTY_NAME != "CHINA", 0, tariff)) %>% #April 11th Electronics Exemption
+  
+  mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542") & CTY_NAME == "CHINA", .2, tariff)) %>% #April 11th Electronics Exemption
+  mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190") & CTY_NAME == "CHINA", .20, tariff)) %>% #April 11th Electronics Exemption
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995") & CTY_NAME != "CHINA", .2, tariff)) %>% #April 11th Electronics Exemption
+  
   #mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542"), 0, tariff)) %>% #April 11th Electronics Exemption
   #mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190"), 0, tariff)) %>% #April 11th Electronics Exemption
   #mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995"), 0, tariff)) %>% #April 11th Electronics Exemption
   #mutate(tariff = if_else(I_COMMODITY %in% c("8507600010","8507600010"), 0, tariff)) %>% #Car Batteries
-  mutate(tariff = if_else(CTY_NAME %in% c("CHINA","HONG KONG","MACAU"), tariff+.2, tariff)) %>% #Adding China 20% IEEPA Fentanyl Tariffs
   mutate(tariff_val = CON_VAL_YR*tariff) 
 
 HS4_LIST <- filter(US_COUNTRIES_HS4_IMPORTS_BULK, CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
   select(I_COMMODITY,I_COMMODITY_LDESC)
 
 AGGREGATE_TARIFFS <- AGG_TARIFF_ANALYSIS %>%
-  filter(CTY_NAME %in% c("CHINA", "HONG KONG","MACAU")) %>%
+  filter(!CTY_NAME %in% c("CHINA", "HONG KONG","MACAU")) %>%
   mutate(CON_VAL_YR = if_else(tariff == 0, 0, CON_VAL_YR)) %>%
   summarize(value = sum(CON_VAL_YR, na.rm = TRUE),tariff_val = sum(tariff_val, na.rm = TRUE)) %>%
   ungroup() %>%
@@ -457,7 +482,7 @@ AGG_TARIFF_BY_CATEGORY <- AGG_TARIFF_ANALYSIS %>%
   summarize(value = sum(CON_VAL_YR, na.rm = TRUE),tariff_val = sum(tariff_val, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(effective_tariff = tariff_val/value) %>%
-  transmute(I_COMMODITY = I_COMMODITY_4, value, tariff_val, effective_tariff, round_tariff = round(effective_tariff,2)) %>%
+  transmute(I_COMMODITY = as.numeric(I_COMMODITY_4), value, tariff_val, effective_tariff, round_tariff = round(effective_tariff,2)) %>%
   right_join(., HS4_LIST, by = "I_COMMODITY") %>%
   filter(I_COMMODITY <= 9800)
 
@@ -466,6 +491,8 @@ AGG_TARIFF_BY_COUNTRY <- AGG_TARIFF_ANALYSIS %>%
   group_by(CTY_NAME) %>%
   summarize(tariff = max(tariff,na.rm = TRUE), value = sum(value, na.rm = TRUE),tariff_val = sum(tariff_val, na.rm = TRUE), Total_Imports = sum(CON_VAL_YR, na.rm = TRUE)) %>%
   ungroup() %>%
+  mutate(tariff_val = if_else(tariff_val == "CANADA", tariff_val + 0.25 * 10000000000, tariff_val)) %>%#ADDING USMCA 25% TARIFF ESTIMATES
+  mutate(tariff_val = if_else(tariff_val == "MEXICO", tariff_val + 0.25 * 39000000000, tariff_val)) %>%#ADDING USMCA 25% TARIFF ESTIMATES
   mutate(effective_tariff = tariff_val/Total_Imports, round_tariff = round(effective_tariff,2)) %>%
   mutate(region = case_when(
     CTY_NAME %in% c("UNITED STATES", "CANADA", "MEXICO", "BRAZIL", "ARGENTINA", "CHILE", "COLOMBIA", "PERU", "URUGUAY", "PARAGUAY", "VENEZUELA", "ECUADOR", "BOLIVIA", "PANAMA", "COSTA RICA", "GUATEMALA", "HONDURAS", "EL SALVADOR", "NICARAGUA", "BELIZE", "JAMAICA", "TRINIDAD AND TOBAGO", "BARBADOS", "BAHAMAS", "GUYANA", "SURINAME", "HAITI", "DOMINICAN REPUBLIC", "CUBA",
@@ -481,12 +508,26 @@ AGG_TARIFF_BY_COUNTRY <- AGG_TARIFF_ANALYSIS %>%
     CTY_NAME %in% c("KAZAKHSTAN", "KYRGYZSTAN", "TAJIKISTAN", "TURKMENISTAN", "UZBEKISTAN") ~ "Middle East & North Africa",
     CTY_NAME %in% c("EGYPT", "SAUDI ARABIA", "IRAN", "IRAQ", "MOROCCO", "ALGERIA", "TUNISIA", "JORDAN", "LEBANON", "SYRIA", "UNITED ARAB EMIRATES", "QATAR", "OMAN", "BAHRAIN", "ISRAEL", "TURKEY", "KUWAIT", "YEMEN", "LIBYA", "GAZA STRIP ADMINISTERED BY ISRAEL", "WEST BANK ADMINISTERED BY ISRAEL", "VATICAN CITY") ~ "Middle East & North Africa",
     TRUE ~ "Other"
-  ))
+  )) %>%
+  mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "United Kingdom", "UK", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Democratic Republic Of The Congo", "Democratic Republic of the Congo", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Congo", "Republic of Congo", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Korea, South", "South Korea", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Korea, North", "North Korea", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Burma", "Myanmar", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Bosnia And Herzegovina", "Bosnia and Herzegovina", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Cote D'ivoire", "Ivory Coast", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Macedonia", "North Macedonia", CTY_NAME)) %>%
+  mutate(CTY_NAME = ifelse(CTY_NAME == "Falkland Islands (Islas Malvinas)", "Falkland Islands", CTY_NAME)) 
+
+
 
 AGG_TARIFF_BY_CATEGORY_SUMMARY <- AGG_TARIFF_BY_CATEGORY %>%
   arrange(desc(tariff_val)) %>%
   slice(1:15) %>%
-  mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Batteries","Toys","Phones","Video Game Consoles","Chairs & Seats","Electric Heaters/Dryers","Plastic Articles","Plastic Kitchenware","Audio Equipment","Computers","Transformers","Party Goods","Insulated Wire","Medical Instruments")) %>%
+  #mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Batteries","Toys","Phones","Video Game Consoles","Chairs & Seats","Electric Heaters/Dryers","Plastic Articles","Plastic Kitchenware","Audio Equipment","Computers","Transformers","Party Goods","Insulated Wire","Medical Instruments")) %>%
+  mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Phones","Vehicle Parts","Computers","Batteries","Pickup/Delivery Trucks","Toys/Puzzles/Etc","Rubber Tires","Medical Instruments","Misc Furniture","Seats & Chairs","Transformers","Insulated Wires","Unwrought Aluminum","Jets & Turbines")) %>%
   arrange(desc(value)) %>%
   mutate(I_COMMODITY_LDESC = paste0(as.character(I_COMMODITY_LDESC), ": ", round_tariff*100, "%")) %>%
   mutate(I_COMMODITY_LDESC = replace(I_COMMODITY_LDESC, 1, paste0(I_COMMODITY_LDESC[1], " Tariff"))) %>%
@@ -506,12 +547,14 @@ TARIFF_BY_CATEGORY_AGG_RAINBOW_GRAPH <- ggplot(data = AGG_TARIFF_BY_CATEGORY_SUM
             color = "white", 
             fontface = "bold") +
   xlab(NULL) +
-  ggtitle("Major Imports Hit By Trump's\nTariffs Through April 12th") +
+  ggtitle("Major Imports Hit By Trump's\nTariffs Through May 19th") +
   ylab("US Imports in Category, 2024") +
+  #scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,310), expand = c(0,0)) +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,310), expand = c(0,0)) +
   #labs(subtitle = "By % of US Imports") +
-  scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),limits = c(0,1.3),breaks = c(.25,.5,.75,1,1.25), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using Census Data. Note: Data by 4-Digit HS Code. Tariff Calculated as Weighted Avg of 2024 Import Mix", subtitle = "Trump's Tariffs Hit Cars, Electronics, and Plastic Imports Hard") +
+  #scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),limits = c(0,1.3),breaks = c(.25,.5,.75,1,1.25), expand = c(0,0)) +
+  scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),limits = c(0,.25),breaks = c(0,.05,.1,.15,.2,.25), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data. Note: Data by 4-Digit HS Code. Tariff Calculated as Weighted Avg of 2024 Import Mix", subtitle = "Trump's Tariffs Hit Cars, Electronics, and Battery Imports Hard") +
   theme_apricitas + theme(legend.position = c(.5,.4), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 16, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
   coord_flip()
 
@@ -538,4 +581,32 @@ TARIFF_BY_COUNTRY_RECIPROCAL_GRAPH <- ggplot(data = TARIFF_BY_COUNTRY, aes(x = t
   theme_apricitas + theme(legend.position = "right", plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"))
 
 ggsave(dpi = "retina",plot = TARIFF_BY_COUNTRY_RECIPROCAL_GRAPH, "Tariff By Country Reciprocal Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+
+AGG_TARIFF_MAP <- map_data("world") %>%
+  mutate(region = ifelse(region == "Western Sahara", "Morocco", region)) %>%
+  mutate(region = ifelse(region == "Palestine", "Israel", region)) %>% mutate("Palestine" = "Isreal") %>% #The US does not recognize Western Sahara or Palestine so they are treated as parts of Morocco and Israel for the purposes of tariffs
+  full_join(AGG_TARIFF_BY_COUNTRY,by = c("region"="CTY_NAME")) %>%
+  filter(long < 170 & long > -170) %>%
+  filter(region != "Antarctica")
+
+
+AGG_TARIFF_MAP_Graph <- AGG_TARIFF_MAP %>% 
+  ggplot(aes(fill = effective_tariff, map_id = region)) +
+  geom_map(map = AGG_TARIFF_MAP, linewidth = 1) +
+  expand_limits(x = AGG_TARIFF_MAP$long, y = AGG_TARIFF_MAP$lat) +
+  coord_map("mercator") +
+  theme_apricitas + 
+  ggtitle(paste("Trump's Tariff Hikes Through May 19th")) +
+  scale_y_continuous(limits = c(-50,75)) +
+  scale_x_continuous(limits = c(-180,180)) +
+  labs(caption = "Graph created by @JosephPolitano using Census data. NOTE: Accounts for Exemptions & Sector Specific Tariffs Like Car/Steel/etc", subtitle = "Trump Has Aggressively Raised Tariff Rates on Imports From Most of the World") +
+  labs(fill = NULL) +
+  scale_fill_gradientn(name= "Tariff Rate",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),breaks = c(0,.05,.1,.15,.2,.25), expand = c(0,0)) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0,0.1,-0.1,0.5), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = AGG_TARIFF_MAP_Graph, "Agg Tariff Map Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 

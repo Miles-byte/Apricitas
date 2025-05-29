@@ -167,7 +167,7 @@ Auto_Utilized_Capacity_Graph <- ggplot() + #plotting capacity utilization in Aut
   ylab("Industrial Capacity, 2017 = 100") +
   scale_y_continuous(limits = c(00,170), breaks = c(0,20,40,60,80,100,120,140,160), expand = c(0,0)) +
   ggtitle("Capacity Recovery") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Has Increased More Than 10% Since Early 2020") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data", subtitle = "American Automobile Industrial Capacity Has Increased More Than 18% Since Early 2020") +
   theme_apricitas + theme(legend.position = c(0.40,0.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = 0-(.3*170), ymax = 0) +
@@ -300,7 +300,7 @@ UNFILLED_ORDERS_Graph <- ggplot() + #plotting auto assemblies
   coord_cartesian(clip = "off")
 
 #QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
-DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2024Q4.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
+DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2025Q1.xlsx?sc_lang=en", sheet = "Page 12 Data") %>%
   slice(-(1:3)) %>%
   setnames(c("date","Mortgage","HELOC","Auto","Credit Card","Student Loan","Other","All","X")) %>%
   select(-Other,-All,-X) %>%
@@ -309,7 +309,7 @@ DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medial
   pivot_longer(cols = Mortgage:`Student Loan`)
 
 #QUARTER NUMBER NEEDS TO BE UPDATED EVERY TIME YOU RUN THE CHART
-NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2024Q4.xlsx?sc_lang=en", sheet = "Page 14 Data") %>%
+NEWLY_DELINQUENT_FRBNY_CONSUMER_CREDIT <- read.xlsx("https://www.newyorkfed.org/medialibrary/Interactives/householdcredit/data/xls/HHD_C_Report_2025Q1.xlsx?sc_lang=en", sheet = "Page 14 Data") %>%
   slice(-(1:4)) %>%
   select(1:8) %>%
   setnames(c("date","Auto","CC","Mortgage","HELOC","Student Loan","Other","All")) %>%

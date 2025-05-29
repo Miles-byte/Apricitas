@@ -1,5 +1,7 @@
-pacman::p_load(pacman,ggrepel,dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
-pacman::p_load(ntdr,purrr)
+pacman::p_load(ntdr,pacman,ggrepel,dots,ggridges,openxlsx,censusapi,nngeo,ggpubr,sf,tigris,maps,mapproj,usmap,fips,bea.R,janitor,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(purrr,curl,rlang)
+
+p_unload(ntdr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -11,10 +13,41 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 #https://www.bts.gov/national-transit-map
 #https://www.transit.dot.gov/ntd/ntd-data
 
+#MANUAL OPERATIONS FOR WHEN THE API IS BROKEN
+library(readxl)
+
+UPT_manual <- read_excel(
+  "C:/Users/Joseph/Documents/GitHub/Apricitas/Public Transit/UPT_MANUAL.xlsx"
+)
+
+monthly_cols <- names(UPT_manual)[grepl("^[0-9]{1,2}/[0-9]{4}$", names(UPT_manual))]
+
+UPT_manual_long <- UPT_manual |>
+  pivot_longer(
+    cols      = all_of(monthly_cols),
+    names_to  = "month",
+    values_to = "value"
+  ) |>
+  mutate(
+    month        = as.Date(parse_date_time(month, orders = "m/Y")),
+  )
+
+NTD_BULK <- UPT_manual_long %>%
+  mutate(modes_simplified = `3 Mode`) %>%
+  mutate(modes = Mode) %>%
+  mutate(agency = Agency) %>%
+  mutate(uza_name = `UZA Name`)
+
+
 NTD_BULK <- get_ntd(data_type = "adjusted",
                     ntd_variable = "UPT",
                     modes = "all",
                     cache = FALSE)
+
+#BULK DOWNLOAD BROKEN 
+#https://github.com/vgXhc/ntdr/issues/22
+#https://dev.socrata.com/foundry/datahub.transportation.gov/8bui-9xvu
+
 
 TOTAL_BULK <- NTD_BULK %>%
   group_by(month) %>%
@@ -288,7 +321,7 @@ SKYLINE_graph <- ggplot() +
   labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Honolulu's Skyline is America's Newest Heavy Rail Transit Network") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*2), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SKYLINE_graph, "Skyline Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -300,33 +333,33 @@ SOUND_TRANSIT_graph <- ggplot() +
   #annotate("vline", x = as.Date("2003-08-01"), xintercept = as.Date("2003-08-01"), color = "white", size = 1, linetype = "dashed") +
   #annotate("text", label = "Tacoma\nT-Line\nOpens", x = as.Date("2003-05-01"), y = 30, color = "white", size = 5, hjust = 1, lineheight = 0.8) +
   annotate("vline", x = as.Date("2009-07-01"), xintercept = as.Date("2009-07-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Link\n1-Line\nOpens", x = as.Date("2009-05-01"), y = 36, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Link\n1-Line\nOpens", x = as.Date("2009-05-01"), y = 40, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2016-03-01"), xintercept = as.Date("2016-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "University\n1-Line\nExtension", x = as.Date("2016-01-01"), y = 36, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "University\n1-Line\nExtension", x = as.Date("2016-01-01"), y = 40, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2016-09-01"), xintercept = as.Date("2016-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Angle Lake\n1-Line\nExtension", x = as.Date("2016-11-01"), y = 36, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Angle Lake\n1-Line\nExtension", x = as.Date("2016-11-01"), y = 40, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2021-10-01"), xintercept = as.Date("2021-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Northgate\n1-Line\nExtension", x = as.Date("2021-08-01"), y = 36, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Northgate\n1-Line\nExtension", x = as.Date("2021-08-01"), y = 40, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-04-01"), xintercept = as.Date("2024-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 36, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 40, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 36, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 40, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate(geom = "segment", x = as.Date("2025-05-01"), xend = as.Date("2025-05-01"), y = 0, yend = 35, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  annotate("text", label = "Redmond\n2-Line\nExtension", x = as.Date("2025-07-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "1 & 2\nLines\nConnected", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Redmond\n2-Line\nExtension", x = as.Date("2025-07-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2026-09-01"), xintercept = as.Date("2026-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Federal Way\n1-Line\nExtension", x = as.Date("2026-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,45), expand = c(0,0), breaks = c(0,10,20,30,40)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,50), expand = c(0,0), breaks = c(0,10,20,30,40,50)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Seattle Link Light Rail Ridership") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes T-Line and Link but not Sounder Commuter Rail",subtitle = "Seattle's Link is One of America's Fastest-Growing Rail Transit Systems") +
-  theme_apricitas + theme(legend.position = c(.1,.95), plot.title = element_text(size = 27)) +
+  theme_apricitas + theme(legend.position = c(.1,.94), plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*45), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*50), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SOUND_TRANSIT_graph, "Sound Transit Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -349,6 +382,8 @@ SOUND_TRANSIT_MONTHLY_graph <- ggplot() +
   annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 41, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 41, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate(geom = "segment", x = as.Date("2025-05-01"), xend = as.Date("2025-05-01"), y = 0, yend = 35, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  annotate("text", label = "Redmond\n2-Line\nExtension", x = as.Date("2025-07-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "1 & 2\nLines\nConnected", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
@@ -390,8 +425,8 @@ LA_METRO_graph <- ggplot() +
   annotate("text", label = "K\nLine\nOpens", x = as.Date("2022-08-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2023-06-01"), xintercept = as.Date("2023-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Regional\nConnector\nOpens (A/E)", x = as.Date("2023-08-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  # annotate(geom = "segment", x = as.Date("2024-12-01"), xend = as.Date("2024-12-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "K Line\nLAX\nExtension", x = as.Date("2025-02-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate(geom = "segment", x = as.Date("2025-06-01"), xend = as.Date("2025-06-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "K Line\nLAX\nExtension", x = as.Date("2025-08-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2025-01-01"), xend = as.Date("2025-02-01"), y = 0, yend = 95, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
   # annotate("text", label = "A Line\nPomona\nExtension", x = as.Date("2025-04-01"), y = 85, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
@@ -466,7 +501,7 @@ VALLEY_METRO_graph <- ggplot() +
   annotate("vline", x = as.Date("2024-01-01"), xintercept = as.Date("2024-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Northwest\nExtension\nPhase II", x = as.Date("2023-12-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Line 2\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  #annotate("text", label = "B-Line\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
@@ -736,6 +771,7 @@ ggsave(dpi = "retina",plot = INDYGO_BUS_graph, "INDYGO BRT Ridership.png", type 
 
 
 AGENCY_BULK <- NTD_BULK %>%
+  mutate(agency = gsub("MTA Bus Company","MTA New York City Transit", agency)) %>% #Adding outerborough buses to MTA ridership data
   #filter(modes_simplified == "Rail" & modes != "CR") %>%
   group_by(agency,month) %>%
   #drop_na() %>%
@@ -898,7 +934,7 @@ LARGE_REGIONS <- ggplot() +
               filter(uza_name %in% (REGION_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(2:7) %>%
+                                    slice(2:10) %>%
                                     pull(uza_name))), aes(x=month,y= year_roll/1000000,color = uza_name), size = 1.25)
 
 
@@ -915,12 +951,63 @@ REGION_Ridership <- ggplot() +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Public Transit Ridership by Region") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data") +
-  theme_apricitas + theme(legend.position = c(.80,.8), plot.title = element_text(size = 27)) +
+  theme_apricitas + theme(legend.position = c(.75,.8), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Ridership, All Modes\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*700), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = REGION_Ridership, "Region Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_LONG_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=filter(AGENCY_BULK, agency == "Chicago Transit Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="CTA (Chicago)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="BART (Bay Area)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="MBTA (Boston)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="WMATA (DC)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "MTA New York City Transit", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="MTA (NYC)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="LA Metro (LA)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2002-01-01")), aes(x=month,y= year_roll/year_roll[216],color="SEPTA (Philly)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Port Authority Trans-Hudson Corporation", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="PATH (NY/NJ)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="Muni (SF)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Metropolitan Atlanta Rapid Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MARTA (Atlanta)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1.4), expand = c(0,0), breaks = c(0,.25,.5,.75,1,1.25)) +
+  ylab("Percent of 2019 Ridership") +
+  ggtitle("Ridership Recovery, US 7 Largest Transit Agencies") +
+  labs(caption = "1st-7th Systems Selected Based on 2019 Ridership Rankings",subtitle = "LA Metro Has Led the Post-COVID Ridership Recovery") +
+  theme_apricitas + theme(legend.position = c(.6,.325), plot.title = element_text(size = 21)) +
+  scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*1.4), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_LONG_graph, "1st Seven Ridership Recovery Agency Long Percent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_SHORT_graph <- ggplot() + #plotting regular vs non-regular employment
+  geom_line(data=filter(AGENCY_BULK, agency == "Chicago Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="CTA (Chicago)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="BART (Bay Area)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MBTA (Boston)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="WMATA (DC)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "MTA New York City Transit", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MTA (NYC)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="LA Metro (LA)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_BULK, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="SEPTA (Philly)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Port Authority Trans-Hudson Corporation", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="PATH (NY/NJ)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "City and County of San Francisco", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="Muni (SF)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Metropolitan Atlanta Rapid Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/year_roll[72],color="MARTA (Atlanta)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1.4), expand = c(0,0), breaks = c(0,.25,.5,.75,1,1.25)) +
+  ylab("Percent of 2019 Ridership") +
+  ggtitle("Ridership Recovery, US 7 Largest Transit Agencies") +
+  labs(caption = "1st-7th Systems Selected Based on 2019 Ridership Rankings",subtitle = "LA Metro Has Led the Post-COVID Ridership Recovery") +
+  theme_apricitas + theme(legend.position = c(.4,.325), plot.title = element_text(size = 21)) +
+  scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.4), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_SHORT_graph, "1st Seven Ridership Recovery Agency Short Percent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 
 AGENCY_EX_CR_BULK <- NTD_BULK %>%
   filter(modes != "CR") %>%
@@ -1260,6 +1347,218 @@ BUS_RECOVERY_TOP_10_YOY_graph <- ggplot(data = BUS_RECOVERY_YOY_TOP_10, aes(x = 
   coord_flip()
 
 ggsave(dpi = "retina",plot = BUS_RECOVERY_TOP_10_YOY_graph, "Bus Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+REGION_RECOVERY <- REGION_BULK %>%
+  mutate(year = year(month), month = month(month)) %>%
+  group_by(year, month) %>%
+  ungroup() %>%
+  group_by(uza_name) %>%
+  mutate(recent_year = max(year),
+         recent_month = max(month[year == recent_year])) %>%
+  filter((year == recent_year & month <= recent_month) | (year == 2019 & month <= recent_month)) %>%
+  group_by(uza_name, year, recent_year) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(REGION_BULK$month))) %>%
+  pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
+  mutate(percentage_recovery = ((get(paste0("value_", recent_year))) / value_2019)) %>%
+  ungroup() %>%
+  arrange(desc(value_2019))
+
+
+REGION_RECOVERY <- REGION_RECOVERY %>%
+  slice(1:10) %>%
+  arrange(percentage_recovery) %>%
+  mutate(uza_name = case_when(
+    uza_name == "Atlanta, GA" ~ "Atlanta",
+    uza_name == "Chicago, IL--IN" ~ "Chicago",
+    uza_name == "San Francisco--Oakland, CA" ~ "San Francisco",
+    uza_name == "Boston, MA--NH" ~ "Boston",
+    uza_name == "Philadelphia, PA--NJ--DE--MD" ~ "Philadelphia",
+    uza_name == "Seattle--Tacoma, WA" ~ "Seattle",
+    uza_name == "Los Angeles--Long Beach--Anaheim, CA" ~ "Los Angeles",
+    uza_name == "Miami--Fort Lauderdale, FL" ~ "Miami",
+    uza_name == "Washington--Arlington, DC--VA--MD" ~ "Washington DC",
+    uza_name == "New York--Jersey City--Newark, NY--NJ" ~ "New York",
+    TRUE ~ uza_name
+  ))
+
+REGION_RECOVERY_TOP_10 <- REGION_RECOVERY %>%
+  mutate(uza_name = factor(uza_name, levels = REGION_RECOVERY %>% 
+                             pull(uza_name)))
+
+
+
+REGION_RECOVERY_TOP_10_graph <- ggplot(data = REGION_RECOVERY_TOP_10, aes(x = uza_name, y = percentage_recovery)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ylab("% of 2019 Ridership") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Metro Areas by Transit Use", sep = "")) +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = REGION_RECOVERY_TOP_10_graph, "Region Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+REGION_RECOVERY_YOY <- REGION_BULK %>%
+  mutate(year = year(month), month = month(month)) %>%
+  group_by(year, month) %>%
+  ungroup() %>%
+  group_by(uza_name) %>%
+  mutate(recent_year = max(year),
+         recent_month = max(month[year == recent_year])) %>%
+  filter((year == recent_year & month <= recent_month) | (year == recent_year-1 & month <= recent_month)) %>%
+  group_by(uza_name, year, recent_year) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(REGION_BULK$month))) %>%
+  pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
+  mutate(percentage_growth = ((get(paste0("value_", recent_year))) / get(paste0("value_", recent_year-1)))-1) %>%
+  ungroup() %>%
+  arrange(desc(get(paste0("value_", recent_year[1]-1))))
+
+REGION_RECOVERY_YOY <- REGION_RECOVERY_YOY %>%
+  slice(1:10) %>%
+  arrange(percentage_growth) %>%
+  mutate(uza_name = case_when(
+    uza_name == "Atlanta, GA" ~ "Atlanta",
+    uza_name == "Chicago, IL--IN" ~ "Chicago",
+    uza_name == "San Francisco--Oakland, CA" ~ "San Francisco",
+    uza_name == "Boston, MA--NH" ~ "Boston",
+    uza_name == "Philadelphia, PA--NJ--DE--MD" ~ "Philadelphia",
+    uza_name == "Seattle--Tacoma, WA" ~ "Seattle",
+    uza_name == "Los Angeles--Long Beach--Anaheim, CA" ~ "Los Angeles",
+    uza_name == "Miami--Fort Lauderdale, FL" ~ "Miami",
+    uza_name == "Washington--Arlington, DC--VA--MD" ~ "Washington DC",
+    uza_name == "New York--Jersey City--Newark, NY--NJ" ~ "New York",
+    uza_name == "San Diego, CA" ~ "San Diego",
+    TRUE ~ uza_name
+  ))
+
+REGION_RECOVERY_YOY_TOP_10 <- REGION_RECOVERY_YOY %>%
+  mutate(uza_name = factor(uza_name, levels = REGION_RECOVERY_YOY %>% 
+                             pull(uza_name)))
+
+REGION_RECOVERY_TOP_10_YOY_graph <- ggplot(data = REGION_RECOVERY_YOY_TOP_10, aes(x = uza_name, y = percentage_growth)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ylab("% Growth") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
+  ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Metro Areas by Transit Use", sep = "")) +
+  labs(caption = paste("Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = REGION_RECOVERY_TOP_10_YOY_graph, "Region Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+COMMUTER_RAIL_RECOVERY <- COMMUTER_RAIL_BULK %>%
+  mutate(year = year(month), month = month(month)) %>%
+  group_by(year, month) %>%
+  ungroup() %>%
+  group_by(agency) %>%
+  mutate(recent_year = max(year),
+         recent_month = max(month[year == recent_year])) %>%
+  filter((year == recent_year & month <= recent_month) | (year == 2019 & month <= recent_month)) %>%
+  group_by(agency, year, recent_year) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(REGION_BULK$month))) %>%
+  pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
+  mutate(percentage_recovery = ((get(paste0("value_", recent_year))) / value_2019)) %>%
+  ungroup() %>%
+  arrange(desc(value_2019))
+
+
+COMMUTER_RAIL_RECOVERY <- COMMUTER_RAIL_RECOVERY %>%
+  slice(1:10) %>%
+  arrange(percentage_recovery) %>%
+  mutate(agency = case_when(
+    agency == "Southern California Regional Rail Authority" ~ "Metrolink (LA)",
+    agency == "Maryland Transit Administration" ~ "MTA (Maryland)",
+    agency == "Northeast Illinois Regional Commuter Railroad Corporation" ~ "Metra (Chicago)",
+    agency == "Peninsula Corridor Joint Powers Board" ~ "Caltrain (Bay Area)",
+    agency == "Southeastern Pennsylvania Transportation Authority" ~ "SEPTA (Philly)",
+    agency == "New Jersey Transit Corporation" ~ "NJTransit (NJ)",
+    agency == "Metro-North Commuter Railroad Company, dba: MTA Metro-North Railroad" ~ "Metro-North (NY)",
+    agency == "MTA Long Island Rail Road" ~ "LIRR (NY)",
+    agency == "Massachusetts Bay Transportation Authority" ~ "MBTA (Boston)",
+    agency == "Denver Regional Transportation District" ~ "RTD (Denver)",
+    TRUE ~ agency
+  ))
+
+COMMUTER_RAIL_RECOVERY_TOP_10 <- COMMUTER_RAIL_RECOVERY %>%
+  mutate(agency = factor(agency, levels = COMMUTER_RAIL_RECOVERY %>% 
+                           pull(agency)))
+
+
+
+COMMUTER_RAIL_RECOVERY_TOP_10_graph <- ggplot(data = COMMUTER_RAIL_RECOVERY_TOP_10, aes(x = agency, y = percentage_recovery)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ylab("% of 2019 Ridership") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Commuter Rail Networks", sep = "")) +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = COMMUTER_RAIL_RECOVERY_TOP_10_graph, "Commuter Rail Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+COMMUTER_RAIL_RECOVERY_YOY <- COMMUTER_RAIL_BULK %>%
+  mutate(year = year(month), month = month(month)) %>%
+  group_by(year, month) %>%
+  ungroup() %>%
+  group_by(agency) %>%
+  mutate(recent_year = max(year),
+         recent_month = max(month[year == recent_year])) %>%
+  filter((year == recent_year & month <= recent_month) | (year == recent_year-1 & month <= recent_month)) %>%
+  group_by(agency, year, recent_year) %>%
+  summarise(value = sum(value, na.rm = TRUE)) %>%
+  filter(year >= 2019 & recent_year == year(max(REGION_BULK$month))) %>%
+  pivot_wider(names_from = year, values_from = value, names_prefix = "value_") %>%
+  mutate(percentage_growth = ((get(paste0("value_", recent_year))) / get(paste0("value_", recent_year-1)))-1) %>%
+  ungroup() %>%
+  arrange(desc(get(paste0("value_", recent_year[1]-1))))
+
+COMMUTER_RAIL_RECOVERY_YOY <- COMMUTER_RAIL_RECOVERY_YOY %>%
+  slice(1:10) %>%
+  arrange(percentage_growth) %>%
+  mutate(agency = case_when(
+    agency == "Southern California Regional Rail Authority" ~ "Metrolink (LA)",
+    agency == "Maryland Transit Administration" ~ "MTA (Maryland)",
+    agency == "Northeast Illinois Regional Commuter Railroad Corporation" ~ "Metra (Chicago)",
+    agency == "Peninsula Corridor Joint Powers Board" ~ "Caltrain (Bay Area)",
+    agency == "Southeastern Pennsylvania Transportation Authority" ~ "SEPTA (Philly)",
+    agency == "New Jersey Transit Corporation" ~ "NJTransit (NJ)",
+    agency == "Metro-North Commuter Railroad Company, dba: MTA Metro-North Railroad" ~ "Metro-North (NY)",
+    agency == "MTA Long Island Rail Road" ~ "LIRR (NY)",
+    agency == "Massachusetts Bay Transportation Authority" ~ "MBTA (Boston)",
+    agency == "Denver Regional Transportation District" ~ "RTD (Denver)",
+    agency == "South Florida Regional Transportation Authority" ~ "Tri-Rail (Miami)",
+    TRUE ~ agency
+  ))
+
+COMMUTER_RAIL_RECOVERY_YOY_TOP_10 <- COMMUTER_RAIL_RECOVERY_YOY %>%
+  mutate(agency = factor(agency, levels = COMMUTER_RAIL_RECOVERY_YOY %>% 
+                           pull(agency)))
+
+COMMUTER_RAIL_RECOVERY_TOP_10_YOY_graph <- ggplot(data = COMMUTER_RAIL_RECOVERY_YOY_TOP_10, aes(x = agency, y = percentage_growth)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ylab("% Growth") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
+  ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Commuter Rail Networks", sep = "")) +
+  labs(caption = paste("Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = COMMUTER_RAIL_RECOVERY_TOP_10_YOY_graph, "Commuter Rail Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 
 p_unload(all)  # Remove all add-ons

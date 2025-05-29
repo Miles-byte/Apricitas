@@ -2867,7 +2867,7 @@ states_solar_graph <- states_solar %>%
                   breaks = c(0,1000,2000,3000,4000,5000),
                   labels = c("0TWh","1TWh","2TWh","3TWh","4TWh","5TWh"),
                   guide = guide_legend(override.aes = list(fill = c("#FDE725FF"), color = c("#FDE725FF"),stroke = NA))) +
-  ggtitle("         Solar Generation by State: June 2024") +
+  ggtitle(paste0("         Solar Generation by State: ",format(states_solar$date[1], "%B %Y"))) +
   labs(caption = "Graph created by @JosephPolitano using EIA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +

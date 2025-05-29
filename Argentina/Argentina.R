@@ -15,7 +15,7 @@ read_excel_from_url <- function(url) {
 }
 
 #NEED TO CHANGE "12_24" NUMBERS FOR EACH NEW QUARTER
-SEAS_QUARTERLY_GDP_BULK <- read_excel_from_url("https://www.indec.gob.ar/ftp/cuadros/economia/sh_oferta_demanda_desest_12_24.xls")
+SEAS_QUARTERLY_GDP_BULK <- read_excel_from_url("https://www.indec.gob.ar/ftp/cuadros/economia/sh_oferta_demanda_desest_03_25.xls")
 
 SEAS_QUARTERLY_GDP <- SEAS_QUARTERLY_GDP_BULK %>%
   setNames(c("year","date","GDP","Imports","Private Consumption","Public Consumption","GFCF","Exports")) %>%
@@ -49,8 +49,8 @@ MONTHLY_ACTIVITY_INDICATOR <- MONTHLY_ACTIVITY_INDICATOR_BULK %>%
   select(-year) %>%
   #drop_na() %>%
   mutate(date = seq.Date(from = as.Date("2004-01-01"), by = "1 months", length.out = nrow(.))) %>%
-  mutate(across(where(is.character), ~ suppressWarnings(as.numeric(.)))) %>%
-  filter(date >= as.Date("2014-01-01"))
+  mutate(across(where(is.character), ~ suppressWarnings(as.numeric(.)))) #%>%
+  #filter(date >= as.Date("2014-01-01"))
 
 MONTHLY_ACTIVITY_INDICATOR_graph <- ggplot() + #plotting real battery shipments
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
@@ -66,6 +66,21 @@ MONTHLY_ACTIVITY_INDICATOR_graph <- ggplot() + #plotting real battery shipments
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MONTHLY_ACTIVITY_INDICATOR_graph, "Monthly Activity Indicator graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+MONTHLY_ACTIVITY_INDICATOR_LONG_graph <- ggplot() + #plotting real battery shipments
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data=filter(MONTHLY_ACTIVITY_INDICATOR, date >= as.Date("2002-01-01")), aes(x=date,y= Seasonally_Adjusted/Seasonally_Adjusted[71]*100,color="Argentina Monthly Real Economic Activity Indicator"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(70,130), expand = c(0,0)) +
+  ylab("Real GDP, Nov 2019 = 100") +
+  ggtitle("Argentine GDP Has Stagnated for Years") +
+  labs(caption = "Graph created by @JosephPolitano using INDEC Data",subtitle = "Argentina's GDP Has Seen Functionally Zero Growth Since the Early 2010s") +
+  theme_apricitas + theme(legend.position = c(.37,.935)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2004-01-01")-(.1861*(today()-as.Date("2004-01-01"))), xmax = as.Date("2004-01-01")-(0.049*(today()-as.Date("2004-01-01"))), ymin = 70-(.3*55), ymax = 70) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MONTHLY_ACTIVITY_INDICATOR_LONG_graph, "Monthly Activity Indicator Long graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all add-ons

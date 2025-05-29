@@ -125,7 +125,7 @@ RECIPROCAL_TARIFF_RATE_CAPS <- merge(US_IMPORTS_BULK,US_EXPORTS_BULK, by = "CTY_
   select(CTY_NAME, tariff)
 
 RECIPROCAL_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
-  filter(CTY_NAME == "ISRAEL") %>%
+  #filter(CTY_NAME == "UNITED KINGDOM") %>%
   #filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
   left_join(.,RECIPROCAL_TARIFF_RATE_CAPS, by = "CTY_NAME") %>%
@@ -483,8 +483,10 @@ HS4_LIST <- filter(US_COUNTRIES_HS4_IMPORTS_BULK, CTY_NAME == "TOTAL FOR ALL COU
   select(I_COMMODITY,I_COMMODITY_LDESC)
   
 AGGREGATE_TARIFFS <- RECIPROCAL_TARIFF_ANALYSIS %>%
-  filter(!(CTY_NAME %in% c("CHINA", "HONG KONG","MACAU"))) %>%
+  filter((CTY_NAME %in% EU_27)) %>%
+  #filter(!(CTY_NAME %in% c("CHINA", "HONG KONG","MACAU"))) %>%
   mutate(CON_VAL_YR = if_else(tariff == 0, 0, CON_VAL_YR)) %>%
+  filter(tariff > 0) %>%
   summarize(value = sum(CON_VAL_YR, na.rm = TRUE),tariff_val = sum(tariff_val, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(effective_tariff = tariff_val/value, round_tariff = round(effective_tariff,2))
