@@ -605,7 +605,7 @@ BLS_NFP_MSA_GRAD_2020_RAINBOW <- MSA_map_US %>%
   geom_sf(data = filter(states, !state_abbv %in% c("HI", "AK", "AS", "GU", "MP", "VI")), color = "grey20", fill = "grey50", lwd = 0.25) + # Black borders for states
   geom_sf(aes(fill = pct_growth_2020), color = "black", lwd = 0.5) +
   scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,0.05,0.1,0.15,0.2,0.25), expand = c(0,0)) +
-  ggtitle("  Change in Nonfarm Payrolls Since Jan 2020\n      50 Largest Metro Areas by Population") +
+  ggtitle("Change in Nonfarm Payrolls Since Jan 2020\n      50 Largest Metro Areas by Population") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +

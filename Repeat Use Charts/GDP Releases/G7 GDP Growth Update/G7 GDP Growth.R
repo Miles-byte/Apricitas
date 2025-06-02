@@ -57,6 +57,8 @@ ITA_BULK <- as.data.frame(readSDMX("https://esploradati.istat.it/SDMXWS/rest/dat
 
 ITA <- ITA_BULK %>%
   subset(VALUATION == "L_2020") %>%
+  subset(DATA_TYPE_AGGR == "B1GQ_B_W2_S1") %>%
+  subset(ADJUSTMENT == "Y") %>%
   mutate(PRELIMINARY = grepl("_1$", EDITION),
          EDITION_CLEAN = gsub("_1$", "", EDITION),
          EDITION_DATE = ymd(paste0(sub("M", "-", EDITION_CLEAN), "-01")),
@@ -69,7 +71,7 @@ ITA <- ITA_BULK %>%
   mutate(n = n()) %>%
   filter(EDITION_NUM == max(EDITION_NUM)) %>%
   ungroup() %>%
-  filter(ifelse(n > 1, PRELIMINARY, TRUE)) %>%
+  #filter(ifelse(n > 1, PRELIMINARY, TRUE)) %>%
   select(-n) %>%
   transmute(date = as.Date(as.yearqtr(obsTime, "%Y-Q%q")),value = obsValue/obsValue[7]*100)
 
@@ -234,7 +236,7 @@ JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
   mutate(value = value/value[7]*100)
 
 RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
-  geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
+  #geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +

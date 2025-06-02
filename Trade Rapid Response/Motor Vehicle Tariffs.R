@@ -1021,3 +1021,115 @@ TRADE_EXPOSURE_GDP_RAINBOW_CHART_CARS <- states %>%
 #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(trade_GDP_share*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
 
 ggsave(dpi = "retina",plot = TRADE_EXPOSURE_GDP_RAINBOW_CHART_CARS, "TRADE EXPOSURE GDP CARS STATE RAINBOW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+CANADA_MEXICO_VALUE_ADD_SHARE <- data.frame(name = c("Canada","Mexico"),values = c(.3345264406,.509))
+
+CANADA_MEXICO_VALUE_ADD_SHARE_GRAPH <- ggplot(data = CANADA_MEXICO_VALUE_ADD_SHARE, aes(x = name, y = values, fill = "Domestic Content Share in Vehicle Exports")) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA) +
+  xlab(NULL) +
+  ylab("Domestic Content, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  ggtitle("Domestic Content % in CA/MX Car Exports") +
+  labs(subtitle = "Mexican Car Exports are Roughly 1/2 Mexican, Canadian Car Exports are Roughly 1/3 Canadian", caption = "Graph created by @Josephpolitano using Statistics Canada & INEGI Data") +
+  scale_fill_manual(name= "Top Selling 2024 Models",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme_apricitas + theme(legend.position = "none", plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), plot.title = element_text(size = 27), axis.text.y = element_text(size = 15, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip()
+
+ggsave(dpi = "retina",plot = CANADA_MEXICO_VALUE_ADD_SHARE_GRAPH, "Canada Mexico Value Add Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
+  slice(-1) %>%
+  row_to_names(1) %>%
+  select(61:68) %>%
+  drop_na() %>%
+  `colnames<-`(c("Total","Food/Beverage/Tobacco","Chemical","Plastic/Rubber","Nonmetallic Mineral","Fabricated Metal","Computer/Electronic/Electrical","Transportation Equipment")) %>%
+  mutate_if(is.character,as.numeric) %>%
+  mutate(Other = Total-`Food/Beverage/Tobacco`-Chemical-`Plastic/Rubber`-`Nonmetallic Mineral`-`Fabricated Metal`-`Computer/Electronic/Electrical`-`Transportation Equipment`) %>%
+  select(-Total) %>%
+  .[order(nrow(.):1),] %>%
+  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.))) %>%
+  mutate_if(is.character,as.numeric) %>%
+  transmute(date, value = `Transportation Equipment`)
+
+PPI_INDUSTRIAL_BUILDING <- fredr("PCU236211236211")
+
+MFG_SPENDING_CATEGORIES <- merge(MFG_SPENDING_CATEGORIES,PPI_INDUSTRIAL_BUILDING, by = "date") %>%
+  transmute(date, value = value.x/(value.y/119.9))
+
+MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_line(data = filter(MFG_SPENDING_CATEGORIES, date>= as.Date("2005-01-01")), aes(x=date, y = value/1000, color = "Real Factory Construction\nVehicle, Airplane, & Other Transportation Equipment Manufacturing"), size = 2) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,15), breaks = c(0,5,10,15), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars, Annual Rate") +
+  ggtitle("US Transportation Factory Construction") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data deflated by PPI: New Industrial Building Construction",subtitle = "Transporation Equipment Factory Construction Has Increased but Remaine Below 2015 Highs") +
+  theme_apricitas + theme(legend.position = c(0.5,0.92), legend.key.size = unit(0.5,"cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*250), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MFG_SPENDING_CATEGORIES_GRAPH, "MFG Spending Categories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+FIXED_INVEST_STRUC_QUANTITY_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'FixedAssets',
+  'TableName' = 'FAAt308S',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2002, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_INVEST_STRUC_QUANTITY <- beaGet(FIXED_INVEST_STRUC_QUANTITY_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2002-01-01"), length.out = nrow(.), by = "1 year"))) %>%
+  clean_names() %>%
+  drop_na() 
+
+FIXED_INVEST_STRUC_NOMINAL_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'FixedAssets',
+  'TableName' = 'FAAt307S',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2002, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_INVEST_STRUC_NOMINAL <- beaGet(FIXED_INVEST_STRUC_NOMINAL_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2002-01-01"), length.out = nrow(.), by = "1 year"))) %>%
+  clean_names() %>%
+  drop_na()
+
+FIXED_INVEST_STRUC_QUANTITY <- FIXED_INVEST_STRUC_QUANTITY %>%
+  rename_with(~ gsub("^fa.{21}", "Q_", .), starts_with("fa")) %>%
+  select(date,Q_23_motor_vehicles_bodies_and_trailers_and_parts_fisher_quantity_index_level_0)
+
+FIXED_INVEST_STRUC_NOMINAL <- FIXED_INVEST_STRUC_NOMINAL %>%
+  rename_with(~ gsub("^fa.{21}", "N_", .), starts_with("fa")) %>%
+  select(date,N_23_motor_vehicles_bodies_and_trailers_and_parts_historical_cost_level_6)
+
+FIXED_INVEST_STRUC_REAL <- merge(FIXED_INVEST_STRUC_NOMINAL,FIXED_INVEST_STRUC_QUANTITY, by = "date") %>%
+  transmute(date,
+            motor_vehicles = Q_23_motor_vehicles_bodies_and_trailers_and_parts_fisher_quantity_index_level_0/100000*N_23_motor_vehicles_bodies_and_trailers_and_parts_historical_cost_level_6[16])
+
+REAL_CAR_FACTORY_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=filter(FIXED_INVEST_STRUC_REAL, date>= as.Date("2014-01-01")), aes(x=date,y= motor_vehicles,color= "Real Fixed Investment: Car Factories\n& Other Vehicle Manufacturing Structures"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,6), breaks = c(0,2,4,6,8), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars") +
+  ggtitle("US Investment in Car Factories") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Real Investment In Motor Vehicle Factories Was At Record Highs in 2023") +
+  theme_apricitas + theme(legend.position = c(.35,.89), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-720-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-720-as.Date("2014-01-01"))), ymin = 0-(.3*(6)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = REAL_CAR_FACTORY_GRAPH, "Real Car Factory Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
