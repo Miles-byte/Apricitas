@@ -177,14 +177,14 @@ CA_US_TECH <- merge(CA_TECH_TOTAL, US_TECH_TOTAL, by = "date") %>%
 write.csv(CA_US_TECH,"CA_TECH_SHARE.csv")
 
 CA_TECH_JOB_SHARE_graph <- ggplot() + #plotting permanent and temporary job losers
-  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= value, color= "Percent of All US Tech Jobs Located in California"), size = 1.25) +
+  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= value, color= "% of All US Tech Jobs Located in California"), size = 1.25) +
   xlab("Date") +
   ylab("Percent of US Tech Jobs") +
   annotate("text",label = "NOTE: Tech Includes Software Publishers, Computer Systems Design, Computing Infrastructure,\nData Processing, Web Hosting, Web Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2011-07-01"), y =.1485, color = "white", size = 4, alpha = 0.5) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(.15,.16,.17,.18,.19), limits = c(.145,.19), expand = c(0,0)) +
   ggtitle("Tech Jobs are Leaving California") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "California's Share of Total Tech-Sector Employment Has Fallen Significantly Since 2020") +
-  theme_apricitas + theme(legend.position = c(.32,.96)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.29,.96)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = .145-(.3*.045), ymax = .145) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

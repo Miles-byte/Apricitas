@@ -23,13 +23,16 @@ ADVANCED_IMPORTS <- ADVANCED_IMPORTS %>%
   mutate(cell_value = as.numeric(cell_value)) %>%
   mutate(time = as.Date(paste0(time,"-01")))
 
+ADVANCED_IMPORTS <- fredr("BOPGTB", observation_start = as.Date("2018-01-01"))
+
 ADVANCED_IMPORTS_Graph <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=ADVANCED_IMPORTS, aes(x=time,y= -cell_value*12/1000000,color= "US Goods Trade Deficit\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
+  #geom_line(data=ADVANCED_IMPORTS, aes(x=time,y= -cell_value*12/1000000,color= "US Goods Trade Deficit\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
+  geom_line(data=ADVANCED_IMPORTS, aes(x=date,y= -value*12/1000000,color= "US Goods Trade Deficit\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T", accuracy = 0.25),limits = c(0,2),breaks = c(0,0.25,0.5,0.75,1,1.25,1.5,1.75,2), expand = c(0,0)) +
   ylab("Dollars, Seasonally Adjusted Annual Rate") +
-  ggtitle("Imports Have Spiked Amid Tariff Fears") +
+  ggtitle("Imports Spiked Then Fell Amidst Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Consumers & Businesses Rushed to Buy Goods Before Trump's Tariffs Come In Place") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +

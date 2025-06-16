@@ -425,8 +425,8 @@ LA_METRO_graph <- ggplot() +
   annotate("text", label = "K\nLine\nOpens", x = as.Date("2022-08-01"), y = 130, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2023-06-01"), xintercept = as.Date("2023-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Regional\nConnector\nOpens (A/E)", x = as.Date("2023-08-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  # annotate(geom = "segment", x = as.Date("2025-06-01"), xend = as.Date("2025-06-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "K Line\nLAX\nExtension", x = as.Date("2025-08-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate(geom = "segment", x = as.Date("2025-06-01"), xend = as.Date("2025-06-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  annotate("text", label = "K/C Line\nLAX\nExtension", x = as.Date("2025-08-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2025-01-01"), xend = as.Date("2025-02-01"), y = 0, yend = 95, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
   # annotate("text", label = "A Line\nPomona\nExtension", x = as.Date("2025-04-01"), y = 85, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
@@ -500,8 +500,8 @@ VALLEY_METRO_graph <- ggplot() +
   annotate("text", label = "Tempe\nStreetcar\nOpens", x = as.Date("2022-03-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-01-01"), xintercept = as.Date("2024-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Northwest\nExtension\nPhase II", x = as.Date("2023-12-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "B-Line\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "B-Line\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
@@ -812,7 +812,7 @@ LARGE_AGENCIES <- ggplot() +
               filter(agency %in% (AGENCY_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(2:7) %>%
+                                    slice(1:7) %>%
                                     pull(agency))), aes(x=month,y= year_roll/1000000,color = agency), size = 1.25)
 
 
@@ -934,7 +934,7 @@ LARGE_REGIONS <- ggplot() +
               filter(uza_name %in% (REGION_BULK %>%
                                     filter(month == as.Date("2019-12-01")) %>%
                                     arrange(desc(year_roll)) %>%
-                                    slice(2:10) %>%
+                                    slice(1:10) %>%
                                     pull(uza_name))), aes(x=month,y= year_roll/1000000,color = uza_name), size = 1.25)
 
 
@@ -1068,7 +1068,7 @@ RAIL_RECOVERY_TOP_10_graph <- ggplot(data = RAIL_RECOVERY_TOP_10, aes(x = agency
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Urban Rail Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: Includes Heavy & Light Rail But Not Commuter Rail. Top 10 Selected Based on 2019 Ridership") +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = RAIL_RECOVERY_TOP_10_graph, "Rail Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1122,7 +1122,7 @@ RAIL_RECOVERY_TOP_10_YOY_graph <- ggplot(data = RAIL_RECOVERY_YOY_TOP_10, aes(x 
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Urban Rail Networks", sep = "")) +
   labs(caption = paste("Graph created by @JosephPolitano using FTA Data. NOTE: Includes Heavy & Light Rail But Not Commuter Rail. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = RAIL_RECOVERY_TOP_10_YOY_graph, "Rail Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1178,7 +1178,7 @@ AGENCY_RECOVERY_TOP_10_graph <- ggplot(data = AGENCY_RECOVERY_TOP_10, aes(x = ag
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Transit Agencies", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. NOTE: MTA Does Not Include LIRR or Metro-North. Top 10 Selected Based on 2019 Ridership") +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = AGENCY_RECOVERY_TOP_10_graph, "Agency Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1234,7 +1234,7 @@ AGENCY_RECOVERY_TOP_10_YOY_graph <- ggplot(data = AGENCY_RECOVERY_YOY_TOP_10, ae
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Transit Agencies", sep = "")) +
   labs(caption = paste("Graph created by @JosephPolitano using FTA Data. NOTE: MTA Does Not Include LIRR or Metro-North. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = AGENCY_RECOVERY_TOP_10_YOY_graph, "Agency Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1284,13 +1284,15 @@ BUS_RECOVERY_TOP_10 <- BUS_RECOVERY %>%
 
 BUS_RECOVERY_TOP_10_graph <- ggplot(data = BUS_RECOVERY_TOP_10, aes(x = agency, y = percentage_recovery)) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  annotate("hline", y = 1, yintercept = 1, color = "white", size = .5) +
+  
   geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
   xlab(NULL) +
   ylab("% of 2019 Ridership") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1.1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Bus Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = BUS_RECOVERY_TOP_10_graph, "Bus Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1343,7 +1345,7 @@ BUS_RECOVERY_TOP_10_YOY_graph <- ggplot(data = BUS_RECOVERY_YOY_TOP_10, aes(x = 
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Bus Networks", sep = "")) +
   labs(caption = paste("Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = BUS_RECOVERY_TOP_10_YOY_graph, "Bus Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1396,7 +1398,7 @@ REGION_RECOVERY_TOP_10_graph <- ggplot(data = REGION_RECOVERY_TOP_10, aes(x = uz
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Metro Areas by Transit Use", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = REGION_RECOVERY_TOP_10_graph, "Region Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1448,7 +1450,7 @@ REGION_RECOVERY_TOP_10_YOY_graph <- ggplot(data = REGION_RECOVERY_YOY_TOP_10, ae
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Metro Areas by Transit Use", sep = "")) +
   labs(caption = paste("Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = REGION_RECOVERY_TOP_10_YOY_graph, "Region Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1502,7 +1504,7 @@ COMMUTER_RAIL_RECOVERY_TOP_10_graph <- ggplot(data = COMMUTER_RAIL_RECOVERY_TOP_
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,1), expand = c(0,0)) +
   ggtitle(paste("Ridership Recovery, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs 2019\n10 Largest US Commuter Rail Networks", sep = "")) +
   labs(caption = "Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on 2019 Ridership") +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = COMMUTER_RAIL_RECOVERY_TOP_10_graph, "Commuter Rail Recovery Top 10 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1554,7 +1556,7 @@ COMMUTER_RAIL_RECOVERY_TOP_10_YOY_graph <- ggplot(data = COMMUTER_RAIL_RECOVERY_
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   ggtitle(paste("Ridership Growth, Jan-", month.abb[month(max(RAIL_BULK$month))]," ", year(max(RAIL_BULK$month)), " vs ",year(max(RAIL_BULK$month))-1,"\n10 Largest US Commuter Rail Networks", sep = "")) +
   labs(caption = paste("Graph created by @JosephPolitano using FTA Data. Top 10 Selected Based on",year(max(RAIL_BULK$month))-1 ,"Ridership")) +
-  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = COMMUTER_RAIL_RECOVERY_TOP_10_YOY_graph, "Commuter Rail Recovery Top 10 YOY Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

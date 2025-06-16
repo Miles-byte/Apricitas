@@ -97,7 +97,7 @@ DATA_CENTER_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
   geom_line(data=DATA_CENTER_CONSTRUCTION, aes(x=date,y= `Data center`/1000,color= "US Data Center Construction Spending,\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
   xlab("Date") +
   ylab("Spending, Billions") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(10,20,30), limits = c(0,ceiling(max(DATA_CENTER_CONSTRUCTION$`Data center`)/5000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(10,20,30,40,50,60,70), limits = c(0,ceiling(max(DATA_CENTER_CONSTRUCTION$`Data center`)/5000)*5), expand = c(0,0)) +
   ggtitle("Data Center Construction at Record Highs") +
   labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Data Center Construction Spending is Skyrocketing Amidst the AI Boom") +
   theme_apricitas + theme(legend.position = c(.52,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
