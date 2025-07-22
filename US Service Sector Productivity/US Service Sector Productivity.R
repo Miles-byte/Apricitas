@@ -48,11 +48,11 @@ US_OVERALL_LABOR_PRODUCTIVITY <- ggplot() +
   annotate(geom = "segment", x = as.Date("2015-01-01"), xend = as.Date("2019-10-01"), y = 100, yend = OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45]*100, color = "#00A99D",linetype = "dashed", size = 1) +
   annotate("text", label = paste0("Q1 2015-Q4 2019:\n+",round(((OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45])^(4 /(64-45)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
   annotate(geom = "segment", x = as.Date("2019-10-01"), xend = max(OVERALL_PRODUCTIVITY$date), y = OVERALL_PRODUCTIVITY$value[64]/OVERALL_PRODUCTIVITY$value[45]*100, yend = OVERALL_PRODUCTIVITY$value[nrow(OVERALL_PRODUCTIVITY)]/OVERALL_PRODUCTIVITY$value[45]*100, color = "#EE6055",linetype = "dashed", size = 1) +
-  annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(OVERALL_PRODUCTIVITY$date))), " ", lubridate::year(max(as.Date(OVERALL_PRODUCTIVITY$date)))),"\n+",round(((OVERALL_PRODUCTIVITY$value[nrow(OVERALL_PRODUCTIVITY)]/OVERALL_PRODUCTIVITY$value[64])^(4 /(nrow(OVERALL_PRODUCTIVITY)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-02-01"), y = 116, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(OVERALL_PRODUCTIVITY$date))), " ", lubridate::year(max(as.Date(OVERALL_PRODUCTIVITY$date)))),"\n+",round(((OVERALL_PRODUCTIVITY$value[nrow(OVERALL_PRODUCTIVITY)]/OVERALL_PRODUCTIVITY$value[64])^(4 /(nrow(OVERALL_PRODUCTIVITY)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-02-01"), y = 119, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
   annotate("text", label = "Productivity Spikes\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-12-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   annotate("text", label = "Productivity Stalls/Falls\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2020-12-01"), hjust = 0.5, y = 116, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,117.5), breaks = c(95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,120), breaks = c(95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index Q1 2015 = 100") +
   ggtitle("US Labor Productivity") +
   labs(caption = "Graph created by @JosephPolitano using BLS data.",subtitle = "Cumulative US Labor Productivity Growth Has Matched Pre-COVID Levels Since 2020") +

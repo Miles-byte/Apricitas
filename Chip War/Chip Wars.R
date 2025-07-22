@@ -1000,13 +1000,13 @@ ggsave(dpi = "retina",plot = CHINA_IND_PRO_CHIP, "China Ind Pro Chip Graph.png",
 CHINA_IND_PRO_CHIP_2016 <- ggplot() + #plotting Chinese Semiconductor Production
   geom_line(data= filter(IND_PRO_CN, date >= as.Date("2015-12-01")), aes(x=date,y=`Output of Integrated Circuits, Current Period`/1.4855295,color= "China, Industrial Production of Semiconductors\n(Number of Units, Indexed)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,300), breaks = c(0,100,200,300,400), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(0,350), breaks = c(0,100,200,300,400), expand = c(0,0)) +
   ylab("Index, Dec 2017 = 100") +
   ggtitle("Chinese Chip Production") +
   labs(caption = "Graph created by @JosephPolitano using NBSS Data",subtitle = "Chinese Chip Production Fell Significantly in 2022 But Has Since Rebounded to Record Highs") +
   theme_apricitas + theme(legend.position = c(.415,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-12-01")-(.1861*(max(IND_PRO_CN$date)-as.Date("2015-12-01"))), xmax = as.Date("2015-12-01")-(0.049*(max(IND_PRO_CN$date)-as.Date("2015-12-01"))), ymin = 0-(.3*300), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-12-01")-(.1861*(max(IND_PRO_CN$date)-as.Date("2015-12-01"))), xmax = as.Date("2015-12-01")-(0.049*(max(IND_PRO_CN$date)-as.Date("2015-12-01"))), ymin = 0-(.3*350), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CHINA_IND_PRO_CHIP_2016, "China Ind Pro Chip 2016 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

@@ -63,7 +63,7 @@ US_COMPUTER_NET_IMPORTS_Graph <- ggplot() + #plotting integrated circuits export
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_DPU/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_ADP_PARTS/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,10,20,30,40,50,60,80,100,120), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("US Computer Net Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. Large Computers are HS Code 847150, Parts & Accessories are HS Code 847330",subtitle = "US Imports of Large Computers & Parts/Accessories Has Been Skyrocketing") +
@@ -177,15 +177,15 @@ QFR_Data <- getCensus(
 QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data= filter(QFR_Data, date >= as.Date("2015-01-01")), aes(x=date,y= (Publish_Info_Increase+Other_Info_Increase+Broadcast_Info_Increase)/1000, color= "Increase in Net Property, Plant, & Equipment, Year-on-Year\nInformation Technology Sector"), size = 1.25) +
-  annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2018-03-01"), y =10, color = "white", size = 4, alpha = 0.5, lineheight = 0.8) +
+  annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2018-09-01"), y =14, color = "white", size = 4, alpha = 0.5, lineheight = 0.8) +
   xlab("Date") +
   ylab("Dollar Growth, Year-on-year") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100,120,140), limits = c(0,140), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100,120,140,160,180), limits = c(0,160), expand = c(0,0)) +
   ggtitle("Information Tech Sector Investment") +
   labs(caption = "Graph created by @JosephPolitano using Census QFR data", subtitle = "Information Technology Sector Physical Investment Has Boomed Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.40,.85), legend.key.height = unit(1,"cm")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*140), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*160), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = QFR_Data_Total_Increase_graph, "QFR Invest Total Increase Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

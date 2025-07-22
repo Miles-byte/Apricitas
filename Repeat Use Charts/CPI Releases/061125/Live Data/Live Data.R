@@ -460,6 +460,7 @@ CPIPCT_NONDURABLES <- bls_api("CUUR0000SAN", startyear = 2017, endyear = 2025, c
 
 
 CPIPCT_GOODS_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=CPIPCT_DURABLES, aes(x=date,y= value,color= "Nondurables"), size = 1.25) +
   geom_line(data=CPIPCT_NONDURABLES, aes(x=date,y= value,color= "Durables"), size = 1.25) +
   geom_line(data=CPIPCT_COMMODITIES, aes(x=date,y= value,color= "All Goods"), size = 2.25) +

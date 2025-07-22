@@ -39,13 +39,13 @@ GROSS_TARIFF_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=GROSS_TRADE_BULK, aes(x=time,y= CAL_DUT_MO*12/1000000000,color= "US Tariffs Collected\nNot Seasonally Adjusted Annual Rate"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,250),breaks = c(0,25,50,75,100,125,150,175,200,225,250), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,300),breaks = c(0,25,50,75,100,125,150,175,200,225,250,275,300), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Americans are Paying Billions in Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(250)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(300)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GROSS_TARIFF_GRAPH, "Gross Tariffs NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -88,19 +88,19 @@ GROSS_IMPORTS_CHINA <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
   annotate("vline", x = as.Date("2025-02-01"), xintercept = as.Date("2025-02-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "10%\nTariff\nAll\nGoods", x = as.Date("2025-01-25"), y = 625, color = "white", size = 3, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "10%\nTariff\nAll\nGoods", x = as.Date("2025-01-25"), y = 625, color = "white", size = 2.6, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2025-03-01"), xintercept = as.Date("2025-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "10%\nTariff\nAll\nGoods", x = as.Date("2025-02-26"), y = 625, color = "white", size = 3, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "10%\nTariff\nAll\nGoods", x = as.Date("2025-02-26"), y = 625, color = "white", size = 2.6, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2025-04-01"), xintercept = as.Date("2025-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "125%\nTariff\nMost\nGoods", x = as.Date("2025-03-28"), y = 625, color = "white", size = 3, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  #annotate("text", label = "Target\nField\nExtension", x = as.Date("2009-09-01"), y = 27.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2014-06-01"), xintercept = as.Date("2014-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "125%\nTariff\nMost\nGoods", x = as.Date("2025-03-28"), y = 625, color = "white", size = 2.6, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "115%\nPaused\nMost\nGoods", x = as.Date("2025-04-28"), y = 625, color = "white", size = 2.6, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-05-01"), xintercept = as.Date("2025-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Green\nLine\nOpens", x = as.Date("2014-04-01"), y = 27.5, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   geom_line(data=filter(CN_MX_CA_IMPORTS, time > as.Date("2023-12-01")), aes(x=time,y= CHINA*12/1000000000,color= "US Imports From China, Monthly Annualized"), size = 1.25) + 
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,700),breaks = c(0,100,200,300,400,500,600,700), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US Imports From China Are Sinking") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 40% From January to April") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 55% From January to April") +
   theme_apricitas + theme(legend.position = c(.35,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(600)), ymax = 0) +
@@ -283,6 +283,48 @@ COMPUTER_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = COMPUTER_IMPORTS_GRAPH, "Computer Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+LAPTOP_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "CTY_CODE","I_COMMODITY","CTY_NAME","CAL_DUT_MO"),
+  time = paste("from 2017 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "847130",
+)
+
+LAPTOP_IMPORTS <- LAPTOP_IMPORTS_BULK %>%
+  group_by(time, CTY_NAME) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  mutate(CTY_NAME = if_else(CTY_NAME %in% c("MEXICO","CHINA","HONG KONG","MACAU","VIETNAM","TAIWAN"), CTY_NAME, "ALL OTHER COUNTRIES")) %>%
+  mutate(CTY_NAME = if_else(CTY_NAME %in% c("HONG KONG","MACAU","CHINA"), "CHINA", CTY_NAME)) %>%
+  group_by(time, CTY_NAME) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  ungroup() %>%
+  mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = CON_VAL_MO) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  filter(time >= as.Date("2024-01-01"))
+
+
+LAPTOP_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=LAPTOP_IMPORTS, aes(x=time,y= `All Other Countries`*12/1000000000,color= "All Other Countries"), size = 1.25) + 
+  geom_line(data=LAPTOP_IMPORTS, aes(x=time,y= China*12/1000000000,color= "China"), size = 1.25) + 
+  geom_line(data=LAPTOP_IMPORTS, aes(x=time,y= Mexico*12/1000000000,color= "Mexico"), size = 1.25) + 
+  geom_line(data=LAPTOP_IMPORTS, aes(x=time,y= Taiwan*12/1000000000,color= "Taiwan"), size = 1.25) + 
+  geom_line(data=LAPTOP_IMPORTS, aes(x=time,y= Vietnam*12/1000000000,color= "Vietnam"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,100),breaks = c(0,25,50,75,100), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("Laptop Imports Shifted Amidst Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data. Gold Defined as HS Code 847130",subtitle = "Laptop Imports Shifted From China to Taiwan Amidst Higher Tariffs") +
+  theme_apricitas + theme(legend.position = c(.35,.75)) +
+  scale_color_manual(name = "US Laptop Imports, Billions, Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Mexico","Taiwan","China","Vietnam","All Other Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(100)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LAPTOP_IMPORTS_GRAPH, "Laptop Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 PHONE_IMPORTS_BULK <- getCensus(

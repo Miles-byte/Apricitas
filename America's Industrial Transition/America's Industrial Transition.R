@@ -234,7 +234,7 @@ REGIONAL_MFG_SPENDING_GRAPH <- ggplot() +
     size = 5, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
-    color = "white",
+    color = "black",
     #segment.color = 'white',
     fontface = "bold",
     lineheight = 0.75,
@@ -426,7 +426,7 @@ ELECTRIC_SPENDING_Graph <- ggplot() + #plotting net tightening data
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,25,50,75,100,125,150,175,200), limits = c(0,ceiling(max(ELECTRIC_SPENDING$`Electric`/25000))*25), expand = c(0,0)) +
   ggtitle("Electric Power Construction at Record Highs") +
   labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Spending on Construction of Power Plants & Electricity Distribution Systems is at a Record High") +
-  theme_apricitas + theme(legend.position = c(.52,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
+  theme_apricitas + theme(legend.position = c(.42,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*(ceiling(max(ELECTRIC_SPENDING$`Electric`/25000))*25)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

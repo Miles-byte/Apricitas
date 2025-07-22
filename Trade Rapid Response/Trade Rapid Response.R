@@ -8,7 +8,7 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
-Countries <- c("CHINA")
+Countries <- c("INDONESIA")
 #List Countries
 US_COUNTRIES_HS4_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
@@ -20,7 +20,7 @@ US_COUNTRIES_HS4_IMPORTS_BULK <- getCensus(
   #CTY_CODE = "0201", #TOTAL
   CTY_NAME = "TOTAL FOR ALL COUNTRIES",
   CTY_NAME = Countries[1],
-  CTY_NAME = Countries[2],
+  #CTY_NAME = Countries[2],
   #CTY_NAME = Countries[3],
   #CTY_NAME = Countries[4],
   #CTY_NAME = Countries[5],
@@ -50,19 +50,19 @@ TOP_IMPORT_SHARES_TOTAL <- US_COUNTRIES_HS4_IMPORTS_BULK %>%
   ungroup() %>%
   merge(.,TOP_IMPORT_LEVELS_TOTAL,by = "I_COMMODITY") %>%
   transmute(I_COMMODITY, I_COMMODITY_LDESC = I_COMMODITY_LDESC.x,CON_VAL_YR = CON_VAL_YR.y,CON_VAL_SHARE = CON_VAL_YR.y/CON_VAL_YR.x) %>%
-  filter(CON_VAL_YR >= 2000000000) %>%
+  filter(CON_VAL_YR >= 500000000) %>%
   filter(I_COMMODITY != "2716") %>% #excluding electricity
   filter(I_COMMODITY != "9801") %>% #excluding repairs
   arrange(desc(CON_VAL_SHARE))
 
 TOP_IMPORT_LEVELS_TOTAL_TOP5 <- TOP_IMPORT_LEVELS_TOTAL %>%
   slice(1:5) %>%
-  mutate(I_COMMODITY_LDESC = c("Crude Oil","Phones","Computers","Cars/SUVs/Minivans","Vehicle Parts")) %>%
+  mutate(I_COMMODITY_LDESC = c("Crude Oil","Refined Petroleum Products","Coffee","Aircraft","Semifinished Iron/Steel")) %>%
   mutate(I_COMMODITY_LDESC = factor(I_COMMODITY_LDESC, levels = rev(I_COMMODITY_LDESC)))
 
 TOP_IMPORT_SHARES_TOTAL_TOP5 <- TOP_IMPORT_SHARES_TOTAL %>%
   slice(1:5) %>%
-  mutate(I_COMMODITY_LDESC = c("Canola Oil","Particle Board","Holiday/Party Supplies","Potash Fertilizers","Ethylene Polymers")) %>%
+  mutate(I_COMMODITY_LDESC = c("Semifinished Iron/Steel","Pig Iron","Chemical Woodpulp","Fruit/Nut Juices","Coffee")) %>%
   mutate(I_COMMODITY_LDESC = factor(I_COMMODITY_LDESC, levels = rev(I_COMMODITY_LDESC)))
 
 
@@ -193,7 +193,7 @@ US_COUNTRIES_TOTAL_IMPORTS_BREAKDOWN <- US_COUNTRIES_TOTAL_IMPORTS %>%
   select(CON_VAL_YR,CTY_NAME) %>%
   #mutate(CON_VAL_YR = ifelse(row_number() == 1, CON_VAL_YR - sum(CON_VAL_YR[-1]), CON_VAL_YR)) %>%
   arrange(desc(CON_VAL_YR)) %>%
-  filter(!CTY_NAME %in% c("AUSTRALIA AND OCEANIA","AFRICA","CENTRAL AMERICA","AUSTRALIA & OCEANIA","SOUTH AMERICA","NORTH AMERICA","PACIFIC RIM COUNTRIES","CAFTA-DR","NAFTA","TWENTY LATIN AMERICAN REPUBLICS","OECD","NATO","LAFTA","EURO AREA","APEC","ASEAN","CACM","EUROPE","ASIA")) %>%
+  filter(!CTY_NAME %in% c("AUSTRALIA AND OCEANIA","AFRICA","CENTRAL AMERICA","AUSTRALIA & OCEANIA","SOUTH AMERICA","NORTH AMERICA","PACIFIC RIM COUNTRIES","CAFTA-DR","USMCA (NAFTA)","NAFTA","TWENTY LATIN AMERICAN REPUBLICS","OECD","NATO","LAFTA","EURO AREA","APEC","ASEAN","CACM","EUROPE","ASIA")) %>%
   #filter(!CTY_NAME %in% c("EUROPEAN UNION")) %>%
   mutate(CON_VAL_YR = CON_VAL_YR / first(CON_VAL_YR)) %>%
   mutate(CTY_NAME = case_when(CTY_NAME == "CHINA" ~ "China",
