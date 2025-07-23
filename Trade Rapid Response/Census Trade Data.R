@@ -1421,3 +1421,41 @@ CAR_EXPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   coord_cartesian(clip = "off") + theme(strip.text = element_text(size = 15, color = "white", face = "bold"))
 
 ggsave(dpi = "retina",plot = CAR_EXPORTS_GRAPH, "Car Exports Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+GROSS_IMPORTS_BULK_RP <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "CTY_CODE","I_COMMODITY","CTY_NAME","CAL_DUT_MO","RP"),
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  I_COMMODITY = "-",
+)
+
+PERCENT_TARIFFED <- GROSS_IMPORTS_BULK_RP %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
+  filter(RP != "-") %>%
+  mutate(Tariffed = CAL_DUT_MO >0) %>%
+  group_by(time, Tariffed) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO), CAL_DUT_MO = sum(CAL_DUT_MO)) %>%
+  select(-CAL_DUT_MO) %>%
+  pivot_wider(names_from = Tariffed, values_from = CON_VAL_MO) %>%
+  ungroup() %>%
+  transmute(date = as.Date(paste0(time,"-01")), Tariffed = `TRUE`, Not_Tariffed = `FALSE`) %>%
+  mutate(pct_tariffed = Tariffed/(Tariffed+Not_Tariffed))
+  
+
+PERCENT_TARIFFED_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=PERCENT_TARIFFED, aes(x=date,y= Tariffed/(Tariffed+Not_Tariffed),color= "Percent of US Imports with Tariffs"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,1),breaks = c(0,.25,.5,.75,1), expand = c(0,0)) +
+  ylab("Percent of Total Imports, Dollar Value") +
+  ggtitle("Most US Imports are Still Tariff-Free") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Although Trump Has Dramatically Increased Tariff Rates, Most Imports Remain Unaffected") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name = NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(1)), ymax = 0) +
+  coord_cartesian(clip = "off") + theme(strip.text = element_text(size = 15, color = "white", face = "bold"))
+
+ggsave(dpi = "retina",plot = PERCENT_TARIFFED_GRAPH, "Percent Tariffed Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+

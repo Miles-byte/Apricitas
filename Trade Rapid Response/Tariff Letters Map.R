@@ -25,7 +25,8 @@ LETTERS_DATA <- list(
   Serbia = 0.35,
   Cambodia = 0.36,
   Thailand = 0.36,
-  Philippines = 0.20,
+  #Philippines = 0.20,
+  Philippines = 0.19,
   Brunei = 0.25,
   Moldova = 0.25,
   Algeria = 0.30,
@@ -84,7 +85,7 @@ TARIFF_LETTERS_MAP_Graph <- TARIFF_MAP %>%
   expand_limits(x = TARIFF_MAP$long, y = TARIFF_MAP$lat) +
   coord_map("mercator") +
   theme_apricitas + 
-  ggtitle(paste("Trump's New Tariff Letters (As of 7/15 3EDT)")) +
+  ggtitle(paste("Trump's New Tariff Letters (As of 7/22 2EDT)")) +
   scale_y_continuous(limits = c(-50,75)) +
   scale_x_continuous(limits = c(-180,180)) +
   labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Trump Is Aggressively Raising Tariff Rates on Imports From Most of the World") +
