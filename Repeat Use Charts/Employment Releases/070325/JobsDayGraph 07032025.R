@@ -14,13 +14,6 @@ Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = format(Sys.Date(
 Childcare=Childcare[order(nrow(Childcare):1),]
 Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2024-05-01"), "months")
 
-OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-OwnIllnessNoWork=OwnIllnessNoWork[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessNoWork$date <- seq(as.Date("2018-01-01"), as.Date("2023-07-01"), "months")
-
-OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-OwnIllnessPartTime=OwnIllnessPartTime[order(nrow(OwnIllnessNoWork):1),]
-OwnIllnessPartTime$date <- seq(as.Date("2018-01-01"), as.Date("2023-07-01"), "months")
 
 PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
 Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
@@ -28,10 +21,6 @@ Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), 
 EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
 EPOP55Plus=EPOP55Plus[order(nrow(EPOP55Plus):1),]
 EPOP55Plus$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
-
-UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-UnpaidAbsences=UnpaidAbsences[order(nrow(UnpaidAbsences):1),]
-UnpaidAbsences$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
@@ -80,13 +69,6 @@ ELEV <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),rea
 CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpSadj
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-DISCOURAGED <- bls_api("LNS15026645", startyear = 2019) %>% #discouraged workers
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-
-MARGINALLYATTACHED <- bls_api("LNS15026642", startyear = 2019) %>% #discouraged workers
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-
-WAREHOUSE <- fredr(series_id = "CES4349300001",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 #note: this section is only for when FRED does not update, and the dates must be changed each month
 #EPopBLS <- bls_api("LNS12300060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) #pulling most recent data from BLS API for EPOP
@@ -110,20 +92,11 @@ PWD <- fredr(series_id = "LNU02374597",observation_start = as.Date("2019-01-01")
 PerformingArts <- fredr(series_id = "CES7071100001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 MotionPictures <- fredr(series_id = "CES5051200001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 
-LessThanHS <- fredr(series_id = "LNS14027659",observation_start = as.Date("1992-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 
-UNRATEWhite <- fredr(series_id = "LNS14000003",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
-UNRATEBlack <- fredr(series_id = "LNS14000006",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
-UNRATEHispanic <- fredr(series_id = "LNS14000009",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
-UNRATEAsian <- fredr(series_id = "LNU04032183",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
 
-UNRATETeens <- fredr(series_id = "LNS14000012",observation_start = as.Date("1945-01-01"),realtime_start = NULL, realtime_end = NULL) 
 Total_Quits <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("2019-01-01")) #downloading quits data
 Total_Quits18 <- fredr(series_id = c("JTSQUL"), observation_start = as.Date("2018-01-01")) #downloading quits data
 
-UNLEVEL <- fredr(series_id = c("UNEMPLOY"), observation_start = as.Date("2019-01-01")) #unemployment data
-NILFWJN <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2019-01-01")) #NILF want jobs now
-NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
 
 
 
@@ -341,6 +314,14 @@ NILFUnemploy_Graph <- ggplot() + #plotting total quits
 
 ggsave(dpi = "retina",plot = NILFUnemploy_Graph, "Not In Labor Force vs Unemployment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+#NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
+NILFWJN_2002 <- bls_api("LNS15026639", startyear = 2002, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
+
 NILF_Graph <- ggplot() + #plotting total quits
   geom_line(data=NILFWJN_2002, aes(x=date,y= value/1000,color= "Not in Labor Force, Want a Job Now"), size = 1.25)+ 
   xlab("Date") +
@@ -353,6 +334,17 @@ NILF_Graph <- ggplot() + #plotting total quits
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2002-01-01")-(.1861*(today()-as.Date("2002-01-01"))), xmax = as.Date("2002-01-01")-(0.049*(today()-as.Date("2002-01-01"))), ymin = 0-(.3*10), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+#WAREHOUSE <- fredr(series_id = "CES4349300001",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+WAREHOUSE <- bls_api("CES4349300001", startyear = 2017, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  #rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
 WAREHOUSE_Graph <- ggplot() + #plotting total quits
   geom_line(data=WAREHOUSE, aes(x=date,y= value/1000,color= "All Employees, Warehousing and Storage"), size = 1.25)+ 
   xlab("Date") +
@@ -360,23 +352,35 @@ WAREHOUSE_Graph <- ggplot() + #plotting total quits
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(0.5,1,1.5,2), limits = c(0.5,2), expand = c(0,0)) +
   ggtitle("Total Fulfillment") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Warehousing Employment Growth Has Stalled This Year") +
-  theme_apricitas + theme(legend.position = c(.40,.87)) +
+  theme_apricitas + theme(legend.position = c(.40,.17)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0.5-(.3*1.5), ymax = 0.5) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+DISCOURAGED <- bls_api("LNS15026645", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+MARGINALLYATTACHED <- bls_api("LNS15026642", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
 MARGINAL_DISCOURAGED_GRAPH <- ggplot() + #plotting total quits
-  geom_line(data=MARGINALLYATTACHED, aes(x=date,y= value/1000,color= "NILF, Marginally Attached"), size = 1.25)+ 
-  geom_line(data=DISCOURAGED, aes(x=date,y= value/1000,color= "NILF, Marginally Attached, Discouraged Workers"), size = 1.25)+ 
+  geom_line(data=MARGINALLYATTACHED, aes(x=date,y= value/1000,color= "Not in Labor Force, Marginally Attached"), size = 1.25)+ 
+  geom_line(data=DISCOURAGED, aes(x=date,y= value/1000,color= "Not in Labor Force, Marginally Attached, Discouraged Workers"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of People") +
   scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(0,1,2,3), limits = c(0,3), expand = c(0,0)) +
   ggtitle("Workers in Waiting") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of Discouraged and Marginally Attached Workers is Near Pre-Pandemic Levels") +
-  theme_apricitas + theme(legend.position = c(.60,.92)) +
+  theme_apricitas + theme(legend.position = c(.40,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*3), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 Total_Quits_Graph <- ggplot() + #plotting total quits
   geom_line(data=Total_Quits, aes(x=date,y= value/1000,color= "Quits, Total Nonfarm"), size = 1.25)+ 
@@ -404,6 +408,21 @@ Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*5), ymax = 0) +
   coord_cartesian(clip = "off")
 
+#UNRATEWhite <- fredr(series_id = "LNS14000003",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
+#UNRATEBlack <- fredr(series_id = "LNS14000006",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
+#UNRATEHispanic <- fredr(series_id = "LNS14000009",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
+#UNRATEAsian <- fredr(series_id = "LNU04032183",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) 
+
+UNRATEWhite <- bls_api("LNS14000003", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+UNRATEBlack <- bls_api("LNS14000006", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+UNRATEHispanic <- bls_api("LNS14000009", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+UNRATEAsian <- bls_api("LNU04032183", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
 Race_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=UNRATEWhite, aes(x=date,y= value/100,color= "Unemployment Rate - White"), size = 1.25)+ 
   geom_line(data=UNRATEBlack, aes(x=date,y= value/100,color= "Unemployment Rate - Black or African American"), size = 1.25)+ 
@@ -416,8 +435,17 @@ Race_Graph <- ggplot() + #plotting u1 unemployment rate
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Racial Unemployment Gap is Closing, but Remains High") +
   theme_apricitas + theme(legend.position = c(.75,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Unemployment Rate - White","Unemployment Rate - Asian","Unemployment Rate - Hispanic or Latino","Unemployment Rate - Black or African American")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 0-(.3*.22), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.22), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#UNRATETeens <- fredr(series_id = "LNS14000012",observation_start = as.Date("1945-01-01"),realtime_start = NULL, realtime_end = NULL) 
+
+#DO 1945 START DATE
+
+UNRATETeens <- bls_api("LNS14000012", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 Teens_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=UNRATETeens, aes(x=date,y= value/100,color= "Unemployment Rate - 16-19 Yrs"), size = 1.25)+ 
@@ -431,6 +459,13 @@ Teens_Graph <- ggplot() + #plotting u1 unemployment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1948-01-01")-(.1861*27060), xmax = as.Date("1948-01-01")-(0.049*27060), ymin = 0.0-(.3*0.35), ymax = 0.0) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#LessThanHS <- fredr(series_id = "LNS14027659",observation_start = as.Date("1992-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+
+LessThanHS <- bls_api("LNS14027659", startyear = 2019) %>% #discouraged workers
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 LessThanHS_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=LessThanHS, aes(x=date,y= value/100,color= "Unemployment Rate - Less Than a High School Diploma, 25 Yrs. & Over"), size = 1.25)+ 
   xlab("Date") +
@@ -443,6 +478,15 @@ LessThanHS_Graph <- ggplot() + #plotting u1 unemployment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*10989), xmax = as.Date("1992-01-01")-(0.049*10989), ymin = 0.0-(.3*0.225), ymax = 0.0) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018) %>% #LessthanHS
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 OwnIllness_Graph <- ggplot() + #plotting the number of people out due to illnesses
   geom_line(data=OwnIllnessNoWork, aes(x=date,y= value/1000,color= "Employed But Not At Work, Own Illness"), size = 1.25)+ 
   geom_line(data=OwnIllnessPartTime, aes(x=date,y= value/1000,color= "Work Part-time, Usually Work Full Time, Own Illness"), size = 1.25)+ 
@@ -453,8 +497,15 @@ OwnIllness_Graph <- ggplot() + #plotting the number of people out due to illness
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Number of People Out Sick From Work Has Fallen Dramatically") +
   theme_apricitas + theme(legend.position = c(.34,.9)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*2000), xmax = as.Date("2018-01-01")-(0.049*2000), ymin = 0-(.3*4.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*4.5), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = OwnIllness_Graph, "OwnIllness.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 
 UnpaidAbsences_Graph <- ggplot() + #plotting the number of people out due to illnesses
   geom_line(data=UnpaidAbsences, aes(x=date,y= value/1000,color= "Wage and Salary Workers with Unpaid Absences"), size = 1.25)+ 
@@ -465,8 +516,12 @@ UnpaidAbsences_Graph <- ggplot() + #plotting the number of people out due to ill
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Some Unpaid Absences-Which Spiked in January-Represent Misclassified Unemployed Workers") +
   theme_apricitas + theme(legend.position = c(.42,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1295), ymin = 0-(.3*7), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*7), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UnpaidAbsences_Graph, "Unpaid Absences.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 #DATE SECTION MUST BE UPDATED EACH MONTH
 PandemicLostWork_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
   geom_line(data=PandemicLostWork, aes(x=date,y= value/1000,color= "Unable to Work, Employer Closed or Lost Business Due to the Pandemic"), size = 1.25)+ 
@@ -493,6 +548,8 @@ PandemicTelework_Graph <- ggplot() + #plotting weekly initial claims for 2014-20
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*365), xmax = as.Date("2021-01-01")-(0.049*365), ymin = 0-(.3*40), ymax = 0) +
   coord_cartesian(clip = "off")
+
+#ADD TELEWORK CHART
 
 EPop55Plus_Graph <- ggplot() + #plotting Emplyoment-population ratio
   geom_line(data=EPOP55Plus, aes(x=date,y= value/100,color= "55 yrs and Over Employment-Population Ratio"), size = 1.25)+ 
@@ -3485,15 +3542,10 @@ ggsave(dpi = "retina",plot = ICNSA19_Graph, "ICNSA19.png", type = "cairo-png", w
 ggsave(dpi = "retina",plot = Industry_Layoffs_Graph, "Industry Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Layoffs_Graph, "Total Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EPOP_SA_NSA_Graph, "EPOP NSA SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = OwnIllness_Graph, "OwnIllness.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PandemicLostWork_Graph, "Lost Work.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PandemicTelework_Graph, "Telework.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = EPop55Plus_Graph, "Epop 55.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = UnpaidAbsences_Graph, "Unpaid Absences.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job Loss.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -3502,11 +3554,8 @@ ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs
 ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = MARGINAL_DISCOURAGED_GRAPH, "Marginal Discouraged.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png",width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
