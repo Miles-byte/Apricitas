@@ -21,14 +21,16 @@ WASHING_MACHINE_PRICES_GRAPH <- ggplot() + #plotting Wage Growth
   geom_line(data=Laundry_Equip_Prices, aes(x=date,y= value/value[49]*100,color= "US Washer/Dryer Prices"), size = 1.25) +
   annotate("vline", x = as.Date("2018-01-01"), xintercept = as.Date("2018-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("vline", x = as.Date("2023-02-01"), xintercept = as.Date("2023-02-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-02-01"), xintercept = as.Date("2025-02-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Washer\nTariffs\nImposed", x = as.Date("2017-11-01"), hjust = 1, y = 110, color = "white", size = 4, alpha = 0.75, lineheight = 0.8) +
   annotate("text", label = "Washer\nTariffs\nExpire", x = as.Date("2023-04-01"), y = 135, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = 'Washer &\nDryer\nTariffs\nImposed', x = as.Date("2025-04-01"), y = 133, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(70,140), breaks = c(70,80,90,100,110,120,130,140), expand = c(0,0)) +
   ylab("Index, Jan 2017 = 100") +
   ggtitle("The Effect of Washing Machine Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using BLS CPI Data",subtitle = "Laundry Machine Prices Spiked as Tariffs Were Implemented and Fell as They Expired") +
-  theme_apricitas + theme(legend.position = c(.25,.90)) +
+  theme_apricitas + theme(legend.position = c(.2,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-01-01")-(.1861*(today()-as.Date("2013-01-01"))), xmax = as.Date("2013-01-01")-(0.049*(today()-as.Date("2013-01-01"))), ymin = 70-(.3*70), ymax = 70) +
   coord_cartesian(clip = "off")

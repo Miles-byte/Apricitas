@@ -1,4 +1,31 @@
-,category,Lowest.Income,Second.Quintile,Third.Quintile,Fourth.Quintile,Highest.Income
-1,"Groceries, Alcohol, & Tobacco",0.266031785,0.132173014,0.099795814,0.077324764,0.051596365
-3,Nondurable Goods incl. Gasoline,0.199740276,0.122695158,0.095817194,0.077869911,0.053112651
-2,Durable Goods,0.158122565,0.096575663,0.103158875,0.092655821,0.081362951
+"","category","name","value"
+"1","Groceries, Alcohol, & Tobacco","Lowest
+Income",0.266031785
+"2","Groceries, Alcohol, & Tobacco","Second
+Quintile",0.132173014
+"3","Groceries, Alcohol, & Tobacco","Third
+Quintile",0.099795814
+"4","Groceries, Alcohol, & Tobacco","Fourth
+Quintile",0.077324764
+"5","Groceries, Alcohol, & Tobacco","Highest
+Income",0.051596365
+"6","Durable Goods","Lowest
+Income",0.158122565
+"7","Durable Goods","Second
+Quintile",0.096575663
+"8","Durable Goods","Third
+Quintile",0.103158875
+"9","Durable Goods","Fourth
+Quintile",0.092655821
+"10","Durable Goods","Highest
+Income",0.081362951
+"11","Nondurable Goods incl. Gasoline","Lowest
+Income",0.199740276
+"12","Nondurable Goods incl. Gasoline","Second
+Quintile",0.122695158
+"13","Nondurable Goods incl. Gasoline","Third
+Quintile",0.095817194
+"14","Nondurable Goods incl. Gasoline","Fourth
+Quintile",0.077869911
+"15","Nondurable Goods incl. Gasoline","Highest
+Income",0.053112651

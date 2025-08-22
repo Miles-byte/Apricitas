@@ -10,17 +10,10 @@ apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 
-Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-Childcare=Childcare[order(nrow(Childcare):1),]
-Childcare$date <- seq(as.Date("2018-01-01"), as.Date("2024-05-01"), "months")
 
 
 PandemicLostWork <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48839,40368,31281,24225,19385,15070,14805,15819,14755,13348,11391,9378,7907,6209,5150,5647,5032,3830,3640,3101,6043,4201))
 Telework <- data.frame(date = seq(as.Date("2020-05-01"), as.Date("2022-02-01"), "months"), value = c(48703,44644,38194,35800,33501,31954,32737,35501,34484,33839,31553,27643,25168,22004,20271,20562,20348,18052,17553,17358,23938,20399))
-
-EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-EPOP55Plus=EPOP55Plus[order(nrow(EPOP55Plus):1),]
-EPOP55Plus$date <- seq(as.Date("2018-01-01"), as.Date("2023-03-01"), "months")
 
 Initial_Claims_NSA_14 <- fredr(series_id = "ICNSA",observation_start = as.Date("2014-06-01"), observation_end = as.Date("2019-06-01"), realtime_end = NULL) #weekly initial claims data
 Initial_Claims_NSA_19 <- fredr(series_id = "ICNSA",observation_start = as.Date("2020-01-01"),  realtime_end = NULL) #weekly initial claims data
@@ -35,14 +28,6 @@ Layoffs_RETAIL$date <- seq(as.Date("2017-01-01"), as.Date("2021-10-01"), "months
 
 Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
-
-EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-EPOP_L_SA=EPOP_L_SA[order(nrow(EPOP_L_SA):1),]
-EPOP_L_SA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
-
-EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY"))
-EPOP_L_NSA=EPOP_L_NSA[order(nrow(EPOP_L_NSA):1),]
-EPOP_L_NSA$date <- seq(as.Date("2018-01-01"), as.Date("2021-12-01"), "months")
 
 #have to split black epop into two separate dataframes because BLS API only allows 10 years of data at a time
 Black_Epop1 <- bls_api("LNU02300066", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
@@ -74,23 +59,10 @@ CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpSadj
 #EPopBLS <- bls_api("LNS12300060", startyear = 2018, endyear = 2022, Sys.getenv("BLS_KEY")) #pulling most recent data from BLS API for EPOP
 #EPop[nrow(EPop) + 1,] = list(as.Date("2021-12-01"),"X", EPopBLS$value[1], as.Date("2021-12-01"),as.Date("2021-10-01")) #adding new row with most recent data
 
-LAH <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Leisure and Hospitality Data
-U1RATE <- fredr(series_id = "U1RATE",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #u1Rate Extended Unemployment Data
-LGOVED <- fredr(series_id = "CES9093161101",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
 PARTTIME <- fredr(series_id = "LNS12032194",observation_start = as.Date("2000-01-01"),realtime_start = NULL, realtime_end = NULL) #Part Time For Economic Reasons Level
-TRNSPT <- fredr(series_id = "CES4300000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Transportation and Warehousing, All Employees
-FOODSERV <- fredr(series_id = "CES7072000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
-NURSING <- fredr(series_id = "CES6562310001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
 
 FOOD_EMP <- fredr(series_id = "CES7072200001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Food Service and Drinking, All Employees
 FOOD_SALES <- fredr(series_id = "MRTSSM722USS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Retail Sales: Food Service and Drinking
-
-ARTS <- fredr(series_id = "CES7071000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Arts,Entertainment, and Recreation, All Employees
-COURIERS <- fredr(series_id = "CES4349200001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
-PWD <- fredr(series_id = "LNU02374597",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
-
-PerformingArts <- fredr(series_id = "CES7071100001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
-MotionPictures <- fredr(series_id = "CES5051200001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
 
 
 
@@ -190,6 +162,8 @@ Black_White_Employment_Graph <- ggplot() + #plotting black-white unemployment gr
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = 0-(.3*.125), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 Black_White_Epop_graph <- ggplot() + #plotting black-white unemployment graph
   geom_line(data=Black_White_Epop, aes(x=date,y= Black/100,color= "Black/African-American"), size = 1.25)+ 
   geom_line(data=Black_White_Epop, aes(x=date,y= White/100,color= "White"), size = 1.25)+ 
@@ -205,6 +179,8 @@ Black_White_Epop_graph <- ggplot() + #plotting black-white unemployment graph
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*10410), xmax = as.Date("1994-01-01")-(0.049*10410), ymin = .64-(.3*.21), ymax = .64) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
   annotate(geom = "hline", y = 0.751, yintercept = .753, color = "#FFE98F", linetype = "dashed", size = 1.25) +
   annotate(geom = "text", label = "Women's Employment Rates are at a Record High", x = as.Date("2007-06-01"), y = 0.76, color ="#FFE98F", size = 5) +
@@ -219,6 +195,8 @@ Male_Female_Epop <- ggplot() + #plotting black-white unemployment graph
   scale_color_manual(name= "Prime Age (25-54) Employment Population Ratio",breaks = c("Women","Men"),values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1990-01-01")-(.1861*(today()-as.Date("1990-01-01"))), xmax = as.Date("1990-01-01")-(0.049*(today()-as.Date("1990-01-01"))), ymin = .63-(.3*.27), ymax = .63) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png",width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 EPOP_FEMALE_GRAPH <- ggplot() + #plotting black-white unemployment graph
   annotate(geom = "hline", y = EPOP_FEMALE$value[nrow(EPOP_FEMALE)]/100, yintercept = EPOP_FEMALE$value[nrow(EPOP_FEMALE)]/100, color = "#FFE98F", linetype = "dashed", size = 1.25) +
@@ -239,8 +217,20 @@ ggsave(dpi = "retina",plot = EPOP_FEMALE_GRAPH, "EPOP FEMALE Graph.png", type = 
 
 
 
-PERMJOBLOSERS <- fredr(series_id = c("LNS13026638"), observation_start = as.Date("2000-01-01")) #permanent job losers
-LAYOFFJOBLOSERS <- fredr(series_id = c("LNS13023653"), observation_start = as.Date("2000-01-01")) #temporary job losers
+#PERMJOBLOSERS <- fredr(series_id = c("LNS13026638"), observation_start = as.Date("2000-01-01")) #permanent job losers
+#LAYOFFJOBLOSERS <- fredr(series_id = c("LNS13023653"), observation_start = as.Date("2000-01-01")) #temporary job losers
+
+PERMJOBLOSERS <- bls_api("LNS13026638", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS13026638", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
+LAYOFFJOBLOSERS <- bls_api("LNS13023653", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS13023653", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
 
 PERM_TEMP_JOBLOSS_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data=PERMJOBLOSERS, aes(x=date,y= value/1000,color= "Permanent Job Losers"), size = 1.25)+ 
@@ -252,13 +242,26 @@ PERM_TEMP_JOBLOSS_Graph <- ggplot() + #plotting permanent and temporary job lose
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Policymakers Helped End a 2001-Size Jump in Permanent Job Losses") +
   theme_apricitas + theme(legend.position = c(.40,.87)) +
   scale_color_manual(name= "Unemployment Level",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*8158), xmax = as.Date("2000-01-01")-(0.049*8158), ymin = 0-(.3*20), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*20), ymax = 0) +
   coord_cartesian(clip = "off")
 
-UNRATE <- fredr(series_id = c("UNRATE"), observation_start = as.Date("1950-01-01")) #unemployment rate
+ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job Loss.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+#UNRATE <- fredr(series_id = c("UNRATE"), observation_start = as.Date("1950-01-01")) #unemployment rate
+
+
+UNRATE_1950 <- bls_api("LNS14000000", startyear = 1950, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS14000000", startyear = 1970, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(., bls_api("LNS14000000", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(., bls_api("LNS14000000", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
 
 UNRATE_Graph <- ggplot() + #plotting u1 unemployment rate
-  geom_line(data=UNRATE, aes(x=date,y= value/100,color= "Unemployment Rate"), size = 1.25)+ 
+  geom_line(data=UNRATE_1950, aes(x=date,y= value/100,color= "Unemployment Rate"), size = 1.25) + 
   xlab("Date") +
   ylab("%") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.15),breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
@@ -268,6 +271,9 @@ UNRATE_Graph <- ggplot() + #plotting u1 unemployment rate
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1950-01-01")-(.1861*26420), xmax = as.Date("1950-01-01")-(0.049*26420), ymin = 0-(.3*.15), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 Flows_to_Employment_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=Flows_to_Employment, aes(x=date,y= Unemployment/(Unemployment +`Not in Labor Force` + Marginal),color= "Unemployment"), size = 1.25)+ 
@@ -444,6 +450,7 @@ ggsave(dpi = "retina",plot = Race_Graph, "Race.png", type = "cairo-png", width =
 
 #DO 1945 START DATE
 
+
 UNRATETeens <- bls_api("LNS14000012", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
@@ -475,10 +482,32 @@ LessThanHS_Graph <- ggplot() + #plotting u1 unemployment rate
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Unemployment for Workers Without A High School Diploma is at Record Lows") +
   theme_apricitas + theme(legend.position = c(.45,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*10989), xmax = as.Date("1992-01-01")-(0.049*10989), ymin = 0.0-(.3*0.225), ymax = 0.0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*.225), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+LessThanHS_1992 <- bls_api("LNS14027659", startyear = 1992, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS14027659", startyear = 2012, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
+LessThanHS1992_Graph <- ggplot() + #plotting u1 unemployment rate
+  geom_line(data=LessThanHS_1992, aes(x=date,y= value/100,color= "Unemployment Rate - Less Than a High School Diploma, 25 Yrs. & Over"), size = 1.25)+ 
+  xlab("Date") +
+  ylab("%") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.225), expand = c(0,0)) +
+  ggtitle("Back in Action") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Unemployment for Workers Without A High School Diploma is at Record Lows") +
+  theme_apricitas + theme(legend.position = c(.45,.87)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*(today()-as.Date("1992-01-01"))), xmax = as.Date("1992-01-01")-(0.049*(today()-as.Date("1992-01-01"))), ymin = 0-(.3*.225), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LessThanHS_1992, "Less than HS 1992.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018) %>% #LessthanHS
@@ -551,54 +580,47 @@ PandemicTelework_Graph <- ggplot() + #plotting weekly initial claims for 2014-20
 
 #ADD TELEWORK CHART
 
+EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
 EPop55Plus_Graph <- ggplot() + #plotting Emplyoment-population ratio
   geom_line(data=EPOP55Plus, aes(x=date,y= value/100,color= "55 yrs and Over Employment-Population Ratio"), size = 1.25)+ 
   xlab("Date") +
-  ylab("Prime Age (25-54) Employment-Population Ratio, %") +
+  ylab("55yrs & Over Employment-Population Ratio, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.33,.4), expand = c(0,0)) +
   ggtitle("Methodological Mixup", subtitle = "Old Age Employment Is Higher, But the January Jump is Driven by Population Adjustments") +
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   theme_apricitas + theme(legend.position = c(.68,.97)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1295), ymin = .33-(.3*0.07), ymax = .33) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = .33-(.3*.07), ymax = .33) +
   coord_cartesian(clip = "off")
 
-ICNSA14_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
-  geom_line(data=PeformingArts, aes(x=date,y= value/1000,color= "Weekly Initial Unemployment Insurance Claims, NSA"), size = 1.25)+ 
-  xlab("Date") +
-  ylab("Initial Claims") +
-  scale_y_continuous(labels = scales::number_format(suffix = "k"), limits = c(0,600), expand = c(0,0)) +
-  ggtitle("Seasonal Layoffs") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Unemployment Claims Usually Surge at the End of the Holiday Season") +
-  theme_apricitas + theme(legend.position = c(.52,.9)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-06-01")-(.1861*2000), xmax = as.Date("2014-06-01")-(0.049*2000), ymin = 0-(.3*600), ymax = 0) +
-  coord_cartesian(clip = "off")
+ggsave(dpi = "retina",plot = EPop55Plus_Graph, "Epop 55.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+PerformingArts <- fredr(series_id = "CES7071100001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+MotionPictures <- fredr(series_id = "CES5051200001",observation_start = as.Date("2018-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+
+PerformingArts <- bls_api("CES7071100001", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+MotionPictures <- bls_api("CES5051200001", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 Pictures_Performing_Graph <- ggplot() + #plotting spectator sports vs motion pictures
-  geom_line(data=PerformingArts, aes(x=date,y= value/5.142,color= "All Employees, Performing Arts and Spectator Sports"), size = 1.25)+ 
-  geom_line(data=MotionPictures, aes(x=date,y= value/4.333,color= "All Employees, Motion Picture and Sound Recording Industries"), size = 1.25)+ 
+  geom_line(data=PerformingArts, aes(x=date,y= value/value[66]*100,color= "All Employees, Performing Arts and Spectator Sports"), size = 1.25)+ 
+  geom_line(data=MotionPictures, aes(x=date,y= value/value[66]*100,color= "All Employees, Motion Picture and Sound Recording Industries"), size = 1.25)+ 
   xlab("Date") +
   ylab("Index, Jan 2020 = 100") +
-  scale_y_continuous(labels = scales::number_format(), limits = c(40,120), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(), limits = c(40,140), expand = c(0,0)) +
   ggtitle("Broadway and Hollywood") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Media Employment has Recovered, While in-person Performing Arts Employment Struggles") +
   theme_apricitas + theme(legend.position = c(.42,.9)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1295), ymin = 40-(.3*80), ymax = 40) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 40-(.3*100), ymax = 40) +
   coord_cartesian(clip = "off")
 
-ICNSA19_Graph <- ggplot() + #plotting weekly initial claims for 2014-2019
-  geom_line(data=Initial_Claims_NSA_19, aes(x=date,y= value/1000000,color= "Weekly Initial Unemployment Insurance Claims, NSA"), size = 1.25)+ 
-  xlab("Date") +
-  ylab("Initial Claims") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), limits = c(0,6.5), expand = c(0,0)) +
-  ggtitle("Pandemic Unemployment") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "COVID Trends Have Overpowered Normal Seasonal Variance") +
-  theme_apricitas + theme(legend.position = c(.52,.9)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*720), xmax = as.Date("2020-01-01")-(0.049*720), ymin = 0-(.3*6.5), ymax = 0) +
-  coord_cartesian(clip = "off")
+ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 Industry_Layoffs_Graph <- ggplot() + #plotting layoffs and discharges by industry
   geom_line(data=Layoffs_RETAIL, aes(x=date,y= value,color= "Retail Trade"), size = 1.25)+ 
@@ -613,6 +635,10 @@ Industry_Layoffs_Graph <- ggplot() + #plotting layoffs and discharges by industr
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*1460), xmax = as.Date("2017-01-01")-(0.049*1460), ymin = 0-(.3*550), ymax = 0) +
   coord_cartesian(clip = "off")
 
+
+Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 Childcare_Graph <- ggplot() + #plotting Emplyoment-population ratio
   geom_line(data=Childcare, aes(x=date,y= value,color= "Employed But Not At Work, Childcare Problems"), size = 1.25)+ 
   xlab("Date") +
@@ -624,6 +650,8 @@ Childcare_Graph <- ggplot() + #plotting Emplyoment-population ratio
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*120), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Childcare_Graph, "Childcare.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 Total_Layoffs_Graph <- ggplot() + #plotting total discharges
   geom_line(data=Total_Layoffs, aes(x=date,y= value/1000,color= "Layoffs and Discharges, Total Nonfarm"), size = 1.25)+ 
@@ -638,18 +666,27 @@ Total_Layoffs_Graph <- ggplot() + #plotting total discharges
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1395), ymin = 0-(.3*3), ymax = 0) +
   coord_cartesian(clip = "off")
 
+EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 EPOP_SA_NSA_Graph <- ggplot() + #plotting total discharges
   geom_line(data=EPOP_L_NSA, aes(x=date,y= value/1000,color= "Prime Age (25-54) Employment-Population Level, NSA"), size = 1.25)+ 
   geom_line(data=EPOP_L_SA, aes(x=date,y= value/1000,color= "Prime Age (25-54) Employment-Population Level, SA"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(85,90,95,100,105), limits = c(85,107), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 1), breaks = c(85,90,95,100,105,110), limits = c(85,110), expand = c(0,0)) +
   ggtitle("Reason for the Season") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Seasonally Adjusted Employment Levels are About 700k Below Non-Seasonally Adjusted Levels") +
-  theme_apricitas + theme(legend.position = c(.55,.92)) +
+  theme_apricitas + theme(legend.position = c(.45,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*1295), xmax = as.Date("2018-01-01")-(0.049*1395), ymin = 85-(.3*22), ymax = 85) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 85-(.3*25), ymax = 85) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EPOP_SA_NSA_Graph, "EPOP NSA SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 #EPop <- fredr(series_id = "LNS12300060",observation_start = as.Date("1990-01-01"),realtime_start = NULL, realtime_end = NULL) #prime age epop data
 
@@ -682,6 +719,11 @@ EPop_Graph <- ggplot() + #plotting Emplyoment-population ratio
 
 ggsave(dpi = "retina",plot = EPop_Graph, "EPopUSA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+#LAH <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Leisure and Hospitality Data
+
+LAH <- bls_api("CES7000000001", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 LAH_Graph <- ggplot() + #plotting leisure and hospitality employment
   geom_line(data=LAH, aes(x=date,y= value/1000,color= "All Employees, Leisure and Hospitality"), size = 1.25)+ 
   xlab("Date") +
@@ -693,6 +735,14 @@ LAH_Graph <- ggplot() + #plotting leisure and hospitality employment
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 8-(.3*10), ymax = 8) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+U1RATE <- fredr(series_id = "U1RATE",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #u1Rate Extended Unemployment Data
+
+U1RATE <- bls_api("LNS13025670", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 
 U1RATE_Graph <- ggplot() + #plotting u1 unemployment rate
   geom_line(data=U1RATE, aes(x=date,y= value/100,color= "Unemployed 15 Weeks and Over, % of Labor Force"), size = 1.25)+ 
@@ -706,6 +756,15 @@ U1RATE_Graph <- ggplot() + #plotting u1 unemployment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 0-(.3*0.055), ymax = 0) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+PARTTIME <- bls_api("LNS12032194", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("LNS12032194", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
+
 PARTTIME_Graph <- ggplot() + #plotting employed part time for economic reasons 
   geom_line(data=PARTTIME, aes(x=date,y= value/1000,color= "Employed Part-time for Economic Reasons"), size = 1.25)+ 
   xlab("Date") +
@@ -715,8 +774,15 @@ PARTTIME_Graph <- ggplot() + #plotting employed part time for economic reasons
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Underemployed Population is Decreasing") +
   theme_apricitas + theme(legend.position = c(.60,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*7200), xmax = as.Date("2000-01-01")-(0.049*7200), ymin = 0-(.3*12.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*12.5), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PARTTIME_Graph, "Part Time for Economic Reasons.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#LGOVED <- fredr(series_id = "CES9093161101",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Local Government Education Data
+
+LGOVED <- bls_api("CES9093161101", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 LGOVED_Graph <- ggplot() + #plotting local government education employment
   geom_line(data=LGOVED, aes(x=date,y= value/1000,color= "All Employees, Local Government Education"), size = 1.25)+ 
@@ -726,10 +792,17 @@ LGOVED_Graph <- ggplot() + #plotting local government education employment
   #scale_x_date(limits = c(as.Date("1990-01-01"),as.Date("2021-10-01"))) +
   ggtitle("Back to School?") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Local Government Education Employment Still Lags") +
-  theme_apricitas + theme(legend.position = c(.65,.85)) +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 7-(.3*1.5), ymax = 7) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LGOVED_Graph, "LGOVED.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#FOODSERV <- fredr(series_id = "CES7072000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
+
+FOODSERV <- bls_api("CES7072000001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOODSERV_Graph <- ggplot() + #plotting food service and accommodation employment
   geom_line(data=FOODSERV, aes(x=date,y= value/1000,color= "All Employees, Accommodation and Food Services"), size = 1.25)+ 
@@ -740,20 +813,34 @@ FOODSERV_Graph <- ggplot() + #plotting food service and accommodation employment
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Food Service Employment is Stagnating") +
   theme_apricitas + theme(legend.position = c(.65,.97)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 7-(.3*8.5), ymax = 7) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 7.5-(.3*7.5), ymax = 7.5) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FOODSERV_Graph, "FOODSERV.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+TRNSPT <- fredr(series_id = "CES4300000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Transportation and Warehousing, All Employees
+
+TRNSPT <- bls_api("CES4300000001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 TRNSPT_Graph <- ggplot() + #plotting transportation and warehousing
   geom_line(data=TRNSPT, aes(x=date,y= value/1000,color= "All Employees, Transportation and Warehousing"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(5,5.5,6), limits = c(5,6.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.5), breaks = c(5,5.5,6,6.5,7), limits = c(5,7), expand = c(0,0)) +
   ggtitle("The Goods Boom") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in Transportation and Warehousing has Increased as Americans Buy More Goods") +
   theme_apricitas + theme(legend.position = c(.55,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 5-(.3*1.5), ymax = 5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 5-(.3*2), ymax = 5) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TRNSPT_Graph, "Transport.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#NURSING <- fredr(series_id = "CES6562310001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Accomodation and Food Service, All Employees
+
+NURSING <- bls_api("CES6562310001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 Nursing_Graph <- ggplot() + #plotting transportation and warehousing
   geom_line(data=NURSING, aes(x=date,y= value/1000,color= "All Employees, Nursing Care Facilities"), size = 1.25)+ 
@@ -764,8 +851,11 @@ Nursing_Graph <- ggplot() + #plotting transportation and warehousing
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Passing of Many Nursing Home Residents Has Reduced Employment in the Sector") +
   theme_apricitas + theme(legend.position = c(.65,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 1.3-(.3*0.4), ymax = 1.3) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.3-(.3*0.4), ymax = 1.3) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Nursing_Graph, "Nursing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 FOODSERV_REVENUE_Graph <- ggplot() + #plotting food service and drinking places employment against retail sales
   geom_line(data=FOOD_EMP, aes(x=date,y= value/120.12,color= "All Employees, Food Services and Drinking Places"), size = 1.25)+ 
@@ -780,41 +870,64 @@ FOODSERV_REVENUE_Graph <- ggplot() + #plotting food service and drinking places 
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 45-(.3*80), ymax = 45) +
   coord_cartesian(clip = "off")
 
+#ARTS <- fredr(series_id = "CES7071000001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Arts,Entertainment, and Recreation, All Employees
+
+ARTS <- bls_api("CES7071000001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+
 ARTS_Graph <- ggplot() + #plotting arts employment
   geom_line(data=ARTS, aes(x=date,y= value/1000,color= "All Employees, Arts, Entertainment, and Recreation"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(1.5,2,2.5), limits = c(1.1,2.75), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(1,1.5,2,2.5,3), limits = c(1,3), expand = c(0,0)) +
   ggtitle("Hey, the Big Artiste...") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment in the Arts is Rebounding, but Still Remains Below Pre-Pandemic Highs") +
   theme_apricitas + theme(legend.position = c(.6,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = 1.1-(.3*1.65), ymax = 1.1) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1-(.3*2), ymax = 1) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ARTS_Graph, "Arts.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+#COURIERS <- fredr(series_id = "CES4349200001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+
+COURIERS <- bls_api("CES4349200001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 Couriers_Graph <- ggplot() + #plotting couriers and messengers employment
   geom_line(data=COURIERS, aes(x=date,y= value/1000,color= "All Employees, Couriers and Messengers"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(.8,.9,1,1.1), limits = c(.75,1.15), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(.8,.9,1,1.1,1.2), limits = c(.75,1.25), expand = c(0,0)) +
   ggtitle("Premium Rush") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment for Couriers, Which Includes Food Delivery and Short-Haul Trucking, is Booming") +
   theme_apricitas + theme(legend.position = c(.6,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*1011), xmax = as.Date("2019-01-01")-(0.049*1011), ymin = .75-(.3*.4), ymax = .75) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = .75-(.3*.5), ymax = .75) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = Couriers_Graph, "Couriers.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+#PWD <- fredr(series_id = "LNU02374597",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Couriers and Messengers, All Employees
+
+PWD <- bls_api("LNU02374597", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 PWD_Graph <- ggplot() + #plotting employment of people with disabilities
   geom_line(data=PWD, aes(x=date,y= value/100,color= "Employment-Population Ratio - With a Disability, 16 Years and Over"), size = 1.25)+ 
   xlab("Date") +
   ylab("Employment-Population Ratio, Percent") +
-  scale_y_continuous(labels = scales::percent_format(), breaks = c(.15,.175,.20,.25), limits = c(.15,.25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(), breaks = c(.15,.175,.20,.225,.25), limits = c(.15,.25), expand = c(0,0)) +
   ggtitle("Employment Rate, People With Disabilities") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment Rates for People With Disabilities are Up") +
   theme_apricitas + theme(legend.position = c(.45,.92)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today() - as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today() - as.Date("2019-01-01"))), ymin = .15-(.3*.1), ymax = .15) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PWD_Graph, "People With Disabilities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 Employment_Index_Graph <- ggplot() + #indexed employment rate
   geom_line(data = PAYEMS, aes(x=date, y = value/1521.28, color = "Nonfarm Payrolls (Establishment Survey)"), size = 1.25) + 
@@ -842,30 +955,32 @@ Employment_Graph <- ggplot() + #CPS with NFP adjusted concepts
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 120-(.3*40), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ECI_WAG <- bls_api("CIS2020000000000I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2022-10-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), length = nrow(.), by = "quarter")))
 
-ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = 2022, calculations = TRUE, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+ECI_WAG_EX_INC <- bls_api("CIU2020000000710I", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(annualpct = (value-dplyr::lead(value, 4))/dplyr::lead(value, 4)) %>%
   mutate(qoqpctann = ((1+(value-dplyr::lead(value, 1))/dplyr::lead(value, 1))^4)-1) %>%
   .[nrow(.):1,] %>%
-  mutate(date =(seq(as.Date("2006-01-01"), as.Date("2022-09-01"), by = "quarter")))
+  mutate(date =(seq(as.Date("2006-01-01"), length = nrow(.), by = "quarter")))
 
 ECI_WAG_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
-  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
   geom_line(data=ECI_WAG, aes(x=date,y= qoqpctann ,color= "Quarter-on-Quarter Percent Growth, Annualized"), size = 1.25) +
+  geom_line(data=ECI_WAG, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,0.07), breaks = c(0,0.03,0.06), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("Core Wage Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "ECI, Private Industry Wages and Salaries Growth Was in Line With Expectations") +
-  theme_apricitas + theme(legend.position = c(.50,.80)) +
+  theme_apricitas + theme(legend.position = c(.40,.80)) +
   scale_color_manual(name= "ECI Private Sector Wages and Salaries",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   geom_line(data=ECI_WAG_EX_INC, aes(x=date,y= annualpct ,color= "Annualized Percent Growth"), size = 1.25) +
@@ -879,6 +994,9 @@ ECI_WAG_Ex_Inc_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   scale_color_manual(name= "ECI Private Sector Wages and Salaries Excluding Incentive Paid",values = c("#FFE98F","#00A99D","#FFE98F","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*0.07), ymax = 0) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 GLI_BEA <- fredr(series_id = "A132RC1",observation_start = as.Date("2018-01-01")) #downloading "Compensation of Employees, Received" data from Fred to calculate Gross Labor Income
 ECIPRIVWAG <- fredr(series_id = "ECIWAG",observation_start = as.Date("2017-10-01")) %>%
@@ -915,7 +1033,13 @@ GLI_Graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 #all employees residential building
-RESIDENTIAL_BUILDING <- fredr(series_id = "CES2023610001",observation_start = as.Date("1998-01-01"),realtime_start = NULL, realtime_end = NULL)
+#RESIDENTIAL_BUILDING <- fredr(series_id = "CES2023610001",observation_start = as.Date("1998-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+RESIDENTIAL_BUILDING <- bls_api("CES2023610001", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  rbind(., bls_api("CES2023610001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  select(date, value)
 
 RESIDENTIAL_BUILDING_Graph <- ggplot() + #plotting local government education employment
   geom_line(data=RESIDENTIAL_BUILDING, aes(x=date,y= value/1000,color= "All Employees, Residential Building"), size = 1.25)+ 
@@ -929,6 +1053,8 @@ RESIDENTIAL_BUILDING_Graph <- ggplot() + #plotting local government education em
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1998-10-01")-(.1861*(today()-as.Date("1998-10-01"))), xmax = as.Date("1998-10-01")-(0.049*(today()-as.Date("1998-01-01"))), ymin = 0.5-(.3*0.6), ymax = 0.5) +
   coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RESIDENTIAL_BUILDING_Graph, "Residential Building Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 UNRATE1 <- bls_api("LNS13000000", startyear = 1995, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
@@ -1008,34 +1134,93 @@ UNDEREMPLOY_Graph <- ggplot(data = UNDEREMPLOY, aes(x = date, y = value, fill = 
 ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
+EMPLOY_TRADE_TRANSP_UTIL <- bls_api("CEU4000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Trade, Transportation, and Utilities") %>%
+  drop_na()
+
+EMPLOY_PROF_BUSINESS_SERVICES <- bls_api("CEU6000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Professional and Business Services") %>%
+  drop_na()
+
+EMPLOY_EDU_HEALTH_SERVICES <- bls_api("CEU6500000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Private Education and Health Services") %>%
+  drop_na()
+
+EMPLOY_LEISURE_HOSPITALITY <- bls_api("CEU7000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Leisure and Hospitality") %>%
+  drop_na()
+
+EMPLOY_GOODS <- bls_api("CEU0600000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Goods-Producing") %>%
+  drop_na()
+
+EMPLOY_GOVT <- bls_api("CEU9000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Government") %>%
+  drop_na()
+
+EMPLOY_OTHER_SERVICES <- rbind(bls_api("CES5000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")),
+                                   bls_api("CES5500000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")),
+                                   bls_api("CES8000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date,seriesID,value) %>%
+  pivot_wider(names_from = seriesID) %>%
+  transmute(date, value = CES5000000001 + CES5500000001 + CES8000000001, series_id = "Other Services Incl. Finance & Info") %>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
 #Yoy Change in Employment
-EMPLOY_TRADE_TRANSP_UTIL <- fredr(series_id = "USTPU",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Trade, Transportation, and Utilities")
-EMPLOY_PROF_BUSINESS_SERVICES <- fredr(series_id = "USPBS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Professional and Business Services")
-EMPLOY_EDU_HEALTH_SERVICES <- fredr(series_id = "USEHS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Education and Health Services")
-EMPLOY_LEISURE_HOSPITALITY <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Leisure and Hospitality") 
-EMPLOY_GOODS <- fredr(series_id = "USGOOD",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Goods-Producing")
-EMPLOY_GOVT <- fredr(series_id = "USGOVT",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
-  select(date, value, series_id) %>%
-  mutate(series_id = "Government")
-EMPLOY_OTHER_SERVICES <- rbind(fredr(series_id = "USINFO",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
-                               fredr(series_id = "USFIRE",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
-                               fredr(series_id = "USSERV",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1")) %>%
-                        select(date,series_id,value) %>%
-                        pivot_wider(names_from = series_id) %>%
-                        transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info")
+# EMPLOY_TRADE_TRANSP_UTIL <- fredr(series_id = "USTPU",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Trade, Transportation, and Utilities")
+# EMPLOY_PROF_BUSINESS_SERVICES <- fredr(series_id = "USPBS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Professional and Business Services")
+# EMPLOY_EDU_HEALTH_SERVICES <- fredr(series_id = "USEHS",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Private Education and Health Services")
+# EMPLOY_LEISURE_HOSPITALITY <- fredr(series_id = "USLAH",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Leisure and Hospitality")
+# EMPLOY_GOODS <- fredr(series_id = "USGOOD",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Goods-Producing")
+# EMPLOY_GOVT <- fredr(series_id = "USGOVT",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1") %>%
+#   select(date, value, series_id) %>%
+#   mutate(series_id = "Government")
+# EMPLOY_OTHER_SERVICES <- rbind(fredr(series_id = "USINFO",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
+#                                fredr(series_id = "USFIRE",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1"),
+#                                fredr(series_id = "USSERV",observation_start = as.Date("2019-01-01"), realtime_end = NULL, units = "ch1")) %>%
+#                         select(date,series_id,value) %>%
+#                         pivot_wider(names_from = series_id) %>%
+#                         transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info")
 
 EMPLOY_GROWTH_YOY <- rbind(EMPLOY_TRADE_TRANSP_UTIL,EMPLOY_PROF_BUSINESS_SERVICES,EMPLOY_EDU_HEALTH_SERVICES,EMPLOY_LEISURE_HOSPITALITY,EMPLOY_GOODS,EMPLOY_GOVT,EMPLOY_OTHER_SERVICES) %>%
-  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
   
 EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -1046,7 +1231,7 @@ EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = va
   ggtitle("The Shape of Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Job Growth is Broad-Based, With All Major Industries Posting Gains") +
   theme_apricitas + theme(legend.position = c(.825,.30)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
   theme(legend.text = element_text(size = 13, color = "white")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -20-(.3*35.5), ymax = -20.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
@@ -1148,7 +1333,7 @@ EMPLOY_GROWTH_IND_graph <- ggplot(data = EMPLOY_GROWTH_IND, aes(x = date, y = va
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Millions of Jobs") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,7.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5,10), limits = c(-22,10), expand = c(0,0)) +
   ggtitle("The Shape of Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "There are Now 7M More Jobs Than Pre-Pandemic—and All Sectors Have Fully Recovered") +
   theme_apricitas + theme(legend.position = c(.725,.325)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
@@ -1194,38 +1379,46 @@ CES_CPS_QCEW_Graph <- ggplot() +
 ggsave(dpi = "retina",plot = CES_CPS_QCEW_Graph, "CES CPS QCEW Comparison.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 #truck and warehouse employment
-TRUCK_EMPLOY <- fredr(series_id = "CES4348400001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
-WAREHOUSE_EMPLOY <- fredr(series_id = "CES4349300001",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+TRUCK_EMPLOY <- bls_api("CES4348400001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+WAREHOUSE_EMPLOY <- bls_api("CES4349300001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
 
 TRUCK_WAREHOUSE_GRAPH <- ggplot() + #plotting local government education employment
-  geom_line(data=TRUCK_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Truck Transportation"), size = 1.25)+ 
-  geom_line(data=WAREHOUSE_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Warehousing and Storage"), size = 1.25)+ 
+  geom_line(data=TRUCK_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Truck Transportation"), size = 1.25) + 
+  geom_line(data=WAREHOUSE_EMPLOY, aes(x=date,y= value/1000,color= "All Employees, Warehousing and Storage"), size = 1.25) + 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8), limits = c(1.1,1.8), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(1.2,1.4,1.6,1.8,2), limits = c(1.1,2.1), expand = c(0,0)) +
   ggtitle("The Transport Taper") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Warehousing Employment is Falling and Trucking Employment is Stagnating") +
-  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  theme_apricitas + theme(legend.position = c(.26,.93)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.1-(.3*0.7), ymax = 1.1) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.1-(.3*1), ymax = 1.1) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TRUCK_WAREHOUSE_GRAPH, "Truck Warehouse Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 #temp help services employment
-EMPLOY_TEMP_HELP_SERVICES <- fredr(series_id = "TEMPHELPS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+#EMPLOY_TEMP_HELP_SERVICES <- fredr(series_id = "TEMPHELPS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL)
+
+EMPLOY_TEMP_HELP_SERVICES <- bls_api("CES6056132001", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 EMPLOY_TEMP_HELP_SERVICES_GRAPH <- ggplot() + #plotting local government education employment
   geom_line(data=EMPLOY_TEMP_HELP_SERVICES, aes(x=date,y= value/1000,color= "All Employees, Temporary Help Services"), size = 1.25)+ 
   xlab("Date") +
   ylab("Millions of Employees") +
-  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(2,2.5,3), limits = c(1.9,3.25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "M", accuracy = 0.1), breaks = c(2,2.2,2.4,2.6,2.8,3,3.2,3.4), limits = c(1.9,3.4), expand = c(0,0)) +
   ggtitle("Temporary Trouble") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Temporary Help Services Employment, an Important Leading Indicator, is Slightly Dropping") +
-  theme_apricitas + theme(legend.position = c(.30,.85)) +
+  theme_apricitas + theme(legend.position = c(.30,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.9-(.3*1.35), ymax = 1.9) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 1.9-(.3*1.5), ymax = 1.9) +
   coord_cartesian(clip = "off")
 
+ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 GLI_BLS_YOY <- fredr(series_id = "CES0500000017",observation_start = as.Date("2018-01-01"), units = "pc1")
@@ -1672,12 +1865,12 @@ HOUSING_RELATED_EMPLOYMENT_IND_graph <- ggplot(data = HOUSING_RELATED_EMPLOYMENT
   geom_bar(stat = "identity", position = "stack", color = NA) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "k"), breaks = c(-1000,-750,-500,-250,0,250,500,750), limits = c(-1100,750), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "k"), breaks = c(-1000,-750,-500,-250,0,250,500,750,1000), limits = c(-1100,1000), expand = c(0,0)) +
   ggtitle("The Shape of Housing Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Housing Related Employment Has Stalled—Importantly in Credit, Construction, and Contractors") +
   theme_apricitas + theme(legend.position = c(.625,.25), legend.spacing.y = unit(0, 'cm'), legend.key.width = unit(0.45, 'cm'), legend.key.height = unit(0.35, "cm"),legend.text = (element_text(size = 13)), legend.title=element_text(size=14)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Housing-Related Employment, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Residential Specialty Trade Contractors","Architectural, Engineering, and Interior Design Services","Residential Construction","Property Managers, Real Estate Agents, Appraisers, Lessors, & Related","Housing Related Manufacturing, Mining, and Logging","Housing Related Creditors and Loan Brokers","Housing Related Retailers and Wholesalers")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1100-(.3*1850), ymax = -1100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -1100-(.3*2100), ymax = -1100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = HOUSING_RELATED_EMPLOYMENT_IND_graph, "Housing Related Employment Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1787,1531 +1980,6 @@ NGLI_Growth_QTR_Graph <- ggplot(GLI_BLS_QTR, aes(fill="Quarterly Gross Labor Inc
 
 ggsave(dpi = "retina",plot = NGLI_Growth_QTR_Graph, "NGLI Growth Quarter.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-# AL <- fredr(series_id = "ALNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Alabama")
-# AK <- fredr(series_id = "AKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Alaska")
-# AZ <- fredr(series_id = "AZNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Arizona")
-# AR <- fredr(series_id = "ARNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Arkansas")
-# CA <- fredr(series_id = "CANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "California")
-# CO <- fredr(series_id = "CONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Colorado")
-# CT <- fredr(series_id = "CTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Connecticut")
-# DE <- fredr(series_id = "DENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Delaware")
-# DC <- fredr(series_id = "DCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "District of Columbia")
-# FL <- fredr(series_id = "FLNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Florida")
-# GA <- fredr(series_id = "GANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Georgia")
-# HI <- fredr(series_id = "HINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Hawaii")
-# ID <- fredr(series_id = "IDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Idaho")
-# IL <- fredr(series_id = "ILNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Illinois")
-# IN <- fredr(series_id = "INNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Indiana")
-# IA <- fredr(series_id = "IANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Iowa")
-# KS <- fredr(series_id = "KSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Kansas")
-# KY <- fredr(series_id = "KYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Kentucky")
-# LA <- fredr(series_id = "LANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Louisiana")
-# ME <- fredr(series_id = "MENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Maine")
-# MD <- fredr(series_id = "MDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Maryland")
-# MA <- fredr(series_id = "MANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Massachusetts")
-# MI <- fredr(series_id = "MINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Michigan")
-# MN <- fredr(series_id = "MNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Minnesota")
-# MS <- fredr(series_id = "MSNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Mississippi")
-# MO <- fredr(series_id = "MONA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Missouri")
-# MT <- fredr(series_id = "MTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Montana")
-# NE <- fredr(series_id = "NENA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Nebraska")
-# NV <- fredr(series_id = "NVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Nevada")
-# NH <- fredr(series_id = "NHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Hampshire")
-# NJ <- fredr(series_id = "NJNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Jersey")
-# NM <- fredr(series_id = "NMNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Mexico")
-# NY <- fredr(series_id = "NYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New York")
-# NC <- fredr(series_id = "NCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "North Carolina")
-# ND <- fredr(series_id = "NDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "North Dakota")
-# OH <- fredr(series_id = "OHNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Ohio")
-# OK <- fredr(series_id = "OKNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Oklahoma")
-# OR <- fredr(series_id = "ORNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Oregon")
-# PA <- fredr(series_id = "PANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Pennsylvania")
-# RI <- fredr(series_id = "RINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Rhode Island")
-# SC <- fredr(series_id = "SCNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "South Carolina")
-# SD <- fredr(series_id = "SDNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "South Dakota")
-# TN <- fredr(series_id = "TNNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Tennessee")
-# TX <- fredr(series_id = "TXNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Texas")
-# UT <- fredr(series_id = "UTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Utah")
-# VT <- fredr(series_id = "VTNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Vermont")
-# VA <- fredr(series_id = "VANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Virginia")
-# WA <- fredr(series_id = "WANA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Washington")
-# WV <- fredr(series_id = "WVNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "West Virginia")
-# WI <- fredr(series_id = "WINA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Wisconsin")
-# WY <- fredr(series_id = "WYNA",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Wyoming")
-# PR <- fredr(series_id = "SMS72000000000000001",observation_start = as.Date("2020-01-01")) %>%
-#   mutate(series_id = "PR") %>%
-#   mutate(name = "Puerto Rico")
-# VI <- fredr(series_id = "SMS78000000000000001",observation_start = as.Date("2020-01-01")) %>%
-#   mutate(series_id = "VI") %>%
-#   mutate(name = "Virgin Islands")
-
-AL <- bls_api("SMS01000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Alabama")
-AK <- bls_api("SMS02000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Alaska")
-AZ <- bls_api("SMS04000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Arizona")
-AR <- bls_api("SMS05000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Arkansas")
-CA <- bls_api("SMS06000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "California")
-CO <- bls_api("SMS08000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Colorado")
-CT <- bls_api("SMS09000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Connecticut")
-DE <- bls_api("SMS10000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Delaware")
-DC <- bls_api("SMS11000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "District of Columbia")
-FL <- bls_api("SMS12000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Florida")
-GA <- bls_api("SMS13000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Georgia")
-HI <- bls_api("SMS15000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Hawaii")
-ID <- bls_api("SMS16000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Idaho")
-IL <- bls_api("SMS17000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Illinois")
-IN <- bls_api("SMS18000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Indiana")
-IA <- bls_api("SMS19000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Iowa")
-KS <- bls_api("SMS20000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Kansas")
-KY <- bls_api("SMS21000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Kentucky")
-LA <- bls_api("SMS22000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Louisiana")
-ME <- bls_api("SMS23000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Maine")
-MD <- bls_api("SMS24000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Maryland")
-MA <- bls_api("SMS25000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Massachusetts")
-MI <- bls_api("SMS26000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Michigan")
-MN <- bls_api("SMS27000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Minnesota")
-MS <- bls_api("SMS28000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Mississippi")
-MO <- bls_api("SMS29000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Missouri")
-MT <- bls_api("SMS30000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Montana")
-NE <- bls_api("SMS31000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Nebraska")
-NV <- bls_api("SMS32000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Nevada")
-NH <- bls_api("SMS33000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Hampshire")
-NJ <- bls_api("SMS34000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Jersey")
-NM <- bls_api("SMS35000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Mexico")
-NY <- bls_api("SMS36000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New York")
-NC <- bls_api("SMS37000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "North Carolina")
-ND <- bls_api("SMS38000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "North Dakota")
-OH <- bls_api("SMS39000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Ohio")
-OK <- bls_api("SMS40000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Oklahoma")
-OR <- bls_api("SMS41000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Oregon")
-PA <- bls_api("SMS42000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Pennsylvania")
-RI <- bls_api("SMS44000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Rhode Island")
-SC <- bls_api("SMS45000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "South Carolina")
-SD <- bls_api("SMS46000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "South Dakota")
-TN <- bls_api("SMS47000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Tennessee")
-TX <- bls_api("SMS48000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Texas")
-UT <- bls_api("SMS49000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Utah")
-VT <- bls_api("SMS50000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Vermont")
-VA <- bls_api("SMS51000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Virginia")
-WA <- bls_api("SMS53000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Washington")
-WV <- bls_api("SMS54000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "West Virginia")
-WI <- bls_api("SMS55000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Wisconsin")
-WY <- bls_api("SMS56000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Wyoming")
-
-
-PR <- bls_api("SMS72000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Puerto Rico")
-VI <- bls_api("SMS78000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Virgin Islands")
-
-
-
-JOB_GROWTH <- rbind(AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME, MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI, SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY, PR, VI) %>%
-  #select(date, value, name, series_id) %>%
-  select(date, value, name, seriesID) %>%
-  arrange(name, date) %>%
-  group_by(name) %>%
-  mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
-  mutate(Growth = ((value - first(value)) / first(value))) %>%
-  mutate(Yoy_Growth = (value-lag(value,12))/lag(value,12)) %>%
-  filter(date == max(date))
-
-devtools::install_github("UrbanInstitute/urbnmapr")
-library(urbnmapr)
-
-states_job_growth <- get_urbn_map("territories_states", sf = TRUE) %>%
-  st_as_sf()
-
-states_job_growth <- states_job_growth %>%
-  mutate(name = state_name)
-
-states_job_growth <- left_join(states_job_growth, JOB_GROWTH, by = "name") %>%
-  drop_na() %>%
-  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.015, 0.03, 0.045, 0.06, Inf), labels = c("<0", "0-0.015", "0.015-0.03", "0.03-0.045", "0.045-0.06","0.06+")))
-
-states_territories_centroids <- get_urbn_map("territories_states", sf = TRUE) %>%
-  filter(state_fips != 69 & state_fips != 60 & state_fips != 66) %>% #ex guam, northern mariana islansa, and American Samoa
-  st_as_sf() %>% 
-  st_centroid() %>% 
-  st_coordinates() %>% 
-  as.data.frame() %>% 
-  rename(long = X, lat = Y) %>% 
-  bind_cols(states_job_growth, .) %>%
-  st_centroid()
-
-states_territories_labls <- get_urbn_labels(map = "territories") %>%
-  left_join(states_job_growth, by = "state_abbv") %>%
-  select(-geometry) %>%
-  st_as_sf(., coords = c("long", "lat"), crs = 4326)
-
-JOB_GROWTH_STATE <- states_job_growth  %>%
-  ggplot(aes(fill = Growth_bucket)) +
-  geom_sf(color = NA) +
-  geom_sf(data = states_job_growth, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
-  scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AED581", "#00A99D","#3083DC"),
-                    na.value = "grey50", 
-                    guide = "legend", 
-                    labels = c("<0%", "0-1.5%", "1.5-3%", "3-4.5%", "4.5-6%","6%+")) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("NH")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 380000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("VT")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 150000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 100000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 50000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -125000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -130000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -390000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -590000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("HI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("PR")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("VI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_text(data = filter(states_territories_labls, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  ggtitle("    Change in Nonfarm Payrolls Since Jan 2020") +
-  theme(plot.title = element_text(size = 24)) +
-  labs(caption = "Graph created by @JosephPolitano using BLS data") +
-  labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
-
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE, "Job Growth By State Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-states_territories_centroids <- states_territories_centroids %>%
-  mutate(Growth_bucket = case_when(
-    Growth < 0 ~ 0,
-    Growth > 0.15 ~ 0.15,
-    TRUE ~ Growth
-  ))
-
-states_territories_labls <- states_territories_labls %>%
-  mutate(Growth_bucket = case_when(
-    Growth < 0 ~ 0,
-    Growth > 0.15 ~ 0.15,
-    TRUE ~ Growth
-  ))
-
-JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
-  mutate(Growth_bucket = case_when(
-    Growth < 0 ~ 0,
-    Growth > 0.15 ~ 0.15,
-    TRUE ~ Growth
-  )) %>%
-  ggplot(aes(fill = Growth_bucket)) +
-  geom_sf(color = NA) +
-  geom_sf(color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
-  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(0,.15), label = c("<0%","5%","10%","15%+"),breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("NH")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 380000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("VT")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 150000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 100000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 50000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -125000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -130000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -390000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -590000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("HI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("PR")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids, state_abbv %in% c("VI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
-    size = 3, 
-    color = "black",
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_text(data = filter(states_territories_labls, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  ggtitle("    Change in Nonfarm Payrolls Since Jan 2020") +
-  theme(plot.title = element_text(size = 24)) +
-  labs(caption = "Graph created by @JosephPolitano using BLS data") +
-  labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
-
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_GRADIENT_RAINBOW, "Job Growth By State Map Gradient Rainbow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-# AL_NSA <- fredr(series_id = "ALNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Alabama")
-# AK_NSA <- fredr(series_id = "AKNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Alaska")
-# AZ_NSA <- fredr(series_id = "AZNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Arizona")
-# AR_NSA <- fredr(series_id = "ARNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Arkansas")
-# CA_NSA <- fredr(series_id = "CANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "California")
-# CO_NSA <- fredr(series_id = "CONAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Colorado")
-# CT_NSA <- fredr(series_id = "CTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Connecticut")
-# DE_NSA <- fredr(series_id = "DENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Delaware")
-# DC_NSA <- fredr(series_id = "DCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "District of Columbia")
-# FL_NSA <- fredr(series_id = "FLNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Florida")
-# GA_NSA <- fredr(series_id = "GANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Georgia")
-# HI_NSA <- fredr(series_id = "HINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Hawaii")
-# ID_NSA <- fredr(series_id = "IDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Idaho")
-# IL_NSA <- fredr(series_id = "ILNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Illinois")
-# IN_NSA <- fredr(series_id = "INNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Indiana")
-# IA_NSA <- fredr(series_id = "IANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Iowa")
-# KS_NSA <- fredr(series_id = "KSNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Kansas")
-# KY_NSA <- fredr(series_id = "KYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Kentucky")
-# LA_NSA <- fredr(series_id = "LANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Louisiana")
-# ME_NSA <- fredr(series_id = "MENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Maine")
-# MD_NSA <- fredr(series_id = "MDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Maryland")
-# MA_NSA <- fredr(series_id = "MANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Massachusetts")
-# MI_NSA <- fredr(series_id = "MINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Michigan")
-# MN_NSA <- fredr(series_id = "MNNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Minnesota")
-# MS_NSA <- fredr(series_id = "MSNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Mississippi")
-# MO_NSA <- fredr(series_id = "MONAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Missouri")
-# MT_NSA <- fredr(series_id = "MTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Montana")
-# NE_NSA <- fredr(series_id = "NENAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Nebraska")
-# NV_NSA <- fredr(series_id = "NVNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Nevada")
-# NH_NSA <- fredr(series_id = "NHNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Hampshire")
-# NJ_NSA <- fredr(series_id = "NJNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Jersey")
-# NM_NSA <- fredr(series_id = "NMNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New Mexico")
-# NY_NSA <- fredr(series_id = "NYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "New York")
-# NC_NSA <- fredr(series_id = "NCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "North Carolina")
-# ND_NSA <- fredr(series_id = "NDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "North Dakota")
-# OH_NSA <- fredr(series_id = "OHNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Ohio")
-# OK_NSA <- fredr(series_id = "OKNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Oklahoma")
-# OR_NSA <- fredr(series_id = "ORNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Oregon")
-# PA_NSA <- fredr(series_id = "PANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Pennsylvania")
-# RI_NSA <- fredr(series_id = "RINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Rhode Island")
-# SC_NSA <- fredr(series_id = "SCNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "South Carolina")
-# SD_NSA <- fredr(series_id = "SDNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "South Dakota")
-# TN_NSA <- fredr(series_id = "TNNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Tennessee")
-# TX_NSA <- fredr(series_id = "TXNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Texas")
-# UT_NSA <- fredr(series_id = "UTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Utah")
-# VT_NSA <- fredr(series_id = "VTNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Vermont")
-# VA_NSA <- fredr(series_id = "VANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Virginia")
-# WA_NSA <- fredr(series_id = "WANAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Washington")
-# WV_NSA <- fredr(series_id = "WVNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "West Virginia")
-# WI_NSA <- fredr(series_id = "WINAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Wisconsin")
-# WY_NSA <- fredr(series_id = "WYNAN",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-#   mutate(name = "Wyoming")
-# PR_NSA <- fredr(series_id = "SMU72000000000000001",observation_start = as.Date("2020-01-01")) %>%
-#   mutate(series_id = "PR") %>%
-#   mutate(name = "Puerto Rico")
-# VI_NSA <- fredr(series_id = "SMU78000000000000001",observation_start = as.Date("2020-01-01")) %>%
-#   mutate(series_id = "VI") %>%
-#   mutate(name = "Virgin Islands")
-
-AL_NSA <- bls_api("SMU01000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Alabama")
-AK_NSA <- bls_api("SMU02000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Alaska")
-AZ_NSA <- bls_api("SMU04000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Arizona")
-AR_NSA <- bls_api("SMU05000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Arkansas")
-CA_NSA <- bls_api("SMU06000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "California")
-CO_NSA <- bls_api("SMU08000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Colorado")
-CT_NSA <- bls_api("SMU09000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Connecticut")
-DE_NSA <- bls_api("SMU10000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Delaware")
-DC_NSA <- bls_api("SMU11000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "District of Columbia")
-FL_NSA <- bls_api("SMU12000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Florida")
-GA_NSA <- bls_api("SMU13000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Georgia")
-HI_NSA <- bls_api("SMU15000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Hawaii")
-ID_NSA <- bls_api("SMU16000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Idaho")
-IL_NSA <- bls_api("SMU17000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Illinois")
-IN_NSA <- bls_api("SMU18000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Indiana")
-IA_NSA <- bls_api("SMU19000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Iowa")
-KS_NSA <- bls_api("SMU20000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Kansas")
-KY_NSA <- bls_api("SMU21000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Kentucky")
-LA_NSA <- bls_api("SMU22000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Louisiana")
-ME_NSA <- bls_api("SMU23000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Maine")
-MD_NSA <- bls_api("SMU24000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Maryland")
-MA_NSA <- bls_api("SMU25000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Massachusetts")
-MI_NSA <- bls_api("SMU26000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Michigan")
-MN_NSA <- bls_api("SMU27000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Minnesota")
-MS_NSA <- bls_api("SMU28000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Mississippi")
-MO_NSA <- bls_api("SMU29000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Missouri")
-MT_NSA <- bls_api("SMU30000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Montana")
-NE_NSA <- bls_api("SMU31000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Nebraska")
-NV_NSA <- bls_api("SMU32000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Nevada")
-NH_NSA <- bls_api("SMU33000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Hampshire")
-NJ_NSA <- bls_api("SMU34000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Jersey")
-NM_NSA <- bls_api("SMU35000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New Mexico")
-NY_NSA <- bls_api("SMU36000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "New York")
-NC_NSA <- bls_api("SMU37000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "North Carolina")
-ND_NSA <- bls_api("SMU38000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "North Dakota")
-OH_NSA <- bls_api("SMU39000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Ohio")
-OK_NSA <- bls_api("SMU40000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Oklahoma")
-OR_NSA <- bls_api("SMU41000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Oregon")
-PA_NSA <- bls_api("SMU42000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Pennsylvania")
-RI_NSA <- bls_api("SMU44000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Rhode Island")
-SC_NSA <- bls_api("SMU45000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "South Carolina")
-SD_NSA <- bls_api("SMU46000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "South Dakota")
-TN_NSA <- bls_api("SMU47000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Tennessee")
-TX_NSA <- bls_api("SMU48000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Texas")
-UT_NSA <- bls_api("SMU49000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Utah")
-VT_NSA <- bls_api("SMU50000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Vermont")
-VA_NSA <- bls_api("SMU51000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Virginia")
-WA_NSA <- bls_api("SMU53000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Washington")
-WV_NSA <- bls_api("SMU54000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "West Virginia")
-WI_NSA <- bls_api("SMU55000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Wisconsin")
-WY_NSA <- bls_api("SMU56000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Wyoming")
-
-
-PR_NSA <- bls_api("SMU72000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Puerto Rico")
-VI_NSA <- bls_api("SMU78000000000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  arrange(date) %>%
-  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
-  mutate(name = "Virgin Islands")
-
-
-
-JOB_GROWTH_NSA <- rbind(AL_NSA, AK_NSA, AZ_NSA, AR_NSA, CA_NSA, CO_NSA, CT_NSA, DE_NSA, DC_NSA, FL_NSA, GA_NSA, HI_NSA, ID_NSA, IL_NSA, IN_NSA, IA_NSA, KS_NSA, KY_NSA, LA_NSA, ME_NSA, MD_NSA, MA_NSA, MI_NSA, MN_NSA, MS_NSA, MO_NSA, MT_NSA, NE_NSA, NV_NSA, NH_NSA, NJ_NSA, NM_NSA, NY_NSA, NC_NSA, ND_NSA, OH_NSA, OK_NSA, OR_NSA, PA_NSA, RI_NSA, SC_NSA, SD_NSA, TN_NSA, TX_NSA, UT_NSA, VT_NSA, VA_NSA, WA_NSA, WV_NSA, WI_NSA, WY_NSA, PR_NSA, VI_NSA) %>%
-  select(date, value, name, seriesID) %>%
-  arrange(name, date) %>%
-  group_by(name) %>%
-  mutate(CAGR = (value / first(value)) ^ (1 / ((row_number() - 1) / 12)) - 1) %>%
-  mutate(Growth = ((value - first(value)) / first(value))) %>%
-  mutate(Yoy_Growth = (value-lag(value,12))/lag(value,12)) %>%
-  filter(date == max(date))
-
-states_job_growth_NSA <- get_urbn_map("territories_states", sf = TRUE) %>%
-  st_as_sf()
-
-states_job_growth_NSA <- states_job_growth_NSA %>%
-  mutate(name = state_name)
-
-states_job_growth_NSA <- left_join(states_job_growth_NSA, JOB_GROWTH_NSA, by = "name") %>%
-  drop_na() %>%
-  mutate(Growth_bucket = cut(Growth, breaks = c(-Inf, 0, 0.015, 0.03, 0.045, 0.06, Inf), labels = c("<0", "0-0.015", "0.015-0.03", "0.03-0.045", "0.045-0.06","0.06+")))
-
-states_territories_centroids_NSA <- get_urbn_map("territories_states", sf = TRUE) %>%
-  filter(state_fips != 69 & state_fips != 60 & state_fips != 66) %>% #ex guam, northern mariana islansa, and American Samoa
-  st_as_sf() %>% 
-  st_centroid() %>% 
-  st_coordinates() %>% 
-  as.data.frame() %>% 
-  rename(long = X, lat = Y) %>% 
-  bind_cols(states_job_growth_NSA, .) %>%
-  st_centroid()
-
-states_territories_labls_NSA <- get_urbn_labels(map = "territories") %>%
-  left_join(states_job_growth_NSA, by = "state_abbv") %>%
-  select(-geometry) %>%
-  st_as_sf(., coords = c("long", "lat"), crs = 4326)
-
-JOB_GROWTH_STATE_YOY <- states_job_growth_NSA  %>%
-  ggplot(aes(fill = Yoy_Growth)) +
-  geom_sf(color = NA) +
-  geom_sf(data = states_job_growth_NSA, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
-  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1)) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NH")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 380000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VT")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 150000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 100000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 50000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -125000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -130000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -390000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -590000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("HI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("PR")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_text(data = filter(states_territories_labls_NSA, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  ggtitle(paste("Change in Nonfarm Payrolls,",format(ymd(states_job_growth_NSA$date[1]) %m-% months(12), "%b %Y"), "to", format(ymd(states_job_growth_NSA$date[1]), "%b %Y"))) +
-  labs(caption = "Graph created by @JosephPolitano using BLS data") +
-  labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
-  theme(plot.title = element_text(size = 26))
-
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY, "Job Growth By State Yoy Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-JOB_GROWTH_STATE_YOY_RAINBOW <- states_job_growth_NSA  %>%
-  ggplot(aes(fill = Yoy_Growth)) +
-  geom_sf(color = NA) +
-  geom_sf(data = states_job_growth_NSA, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
-  #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
-  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NH")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 380000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VT")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 150000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"),color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 100000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 50000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -125000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -130000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -390000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -590000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("HI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("PR")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_label(
-    data = filter(states_territories_centroids_NSA, state_abbv %in% c("VI")), 
-    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
-    hjust = 0.5,
-    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
-    #segment.color = 'white',
-    fontface = "bold",
-    lineheight = 0.75,
-    show.legend = FALSE
-  ) +
-  geom_text(data = filter(states_territories_labls_NSA, !state_abbv %in% c("VI","PR","HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","LA","KY","WV","MP","AS","GU","FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 3, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("FL","IN","TN")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.5, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  geom_text(data = filter(states_territories_labls_NSA, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), size = 2.25, check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  ggtitle(paste("Change in Nonfarm Payrolls,",format(ymd(states_job_growth_NSA$date[1]) %m-% months(12), "%b %Y"), "to", format(ymd(states_job_growth_NSA$date[1]), "%b %Y"))) +
-  labs(caption = "Graph created by @JosephPolitano using BLS data") +
-  labs(fill = NULL) +
-  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
-  theme(plot.title = element_text(size = 26))
-
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_YOY_RAINBOW, "Job Growth By State Yoy Map Rainbow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-
-PAYEMS_2020 <- fredr(series_id = "PAYEMS",observation_start = as.Date("2020-01-01"),realtime_start = NULL, realtime_end = NULL)%>%
-  mutate(name = "Rest of America")
-
-TX_FL_US_PAYEMS <- rbind(FL,TX,PAYEMS_2020) %>%
-  select(date, value, name) %>%
-  group_by(name) %>%
-  mutate(value = (value - first(value))) %>%
-  pivot_wider() %>%
-  mutate(`Rest of America` = `Rest of America`-Texas-Florida) %>%
-  drop_na() %>%
-  pivot_longer(cols = Florida:`Rest of America`) %>%
-  mutate(name = factor(name, levels = rev(c("Texas", "Florida", "Rest of America"))))
-  
-TX_FL_US_PAYEMS_graph <- ggplot(data = TX_FL_US_PAYEMS, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_bar(stat = "identity", position = "stack", color = NA) +
-  xlab("Date") +
-  ylab("Change Since Jan 2020, Millions of Jobs") +
-  scale_y_continuous(labels = scales::comma_format(accuracy = 1, suffix = "M"), breaks = c(-20,-15,-10,-5,0,5), limits = c(-22,5), expand = c(0,0)) +
-  ggtitle("The State of US Job Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Texas and Florida Have Created the Most New Jobs Since the Pandemic") +
-  theme_apricitas + theme(legend.position = c(.625,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= "Nonfarm Payrolls, Change Since Jan 2020",values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Texas","Florida","Rest of America")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -22-(.3*27), ymax = -22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = TX_FL_US_PAYEMS_graph, "TX FL Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-#Adding Puerto Rico
-  
-JOB_GROWTH <- JOB_GROWTH %>%
-  mutate(series_id = gsub("NA","",series_id)) %>%
-  .[order(.$Growth), ] %>%
-  mutate(series_id = factor(series_id, levels = .$series_id))
-
-JOB_GROWTH_STATE_BAR_GRAPH <- ggplot(data = JOB_GROWTH, aes(x = series_id, y = Growth, fill = "Nonfarm Payrolls Growth Since Jan 2020")) +
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +#plotting Deposits, Insured and Uninsured
-  geom_bar(stat = "identity", position = "dodge", color = NA) +
-  xlab("State") +
-  ylab("Percent") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,0.05,0.10), limits = c(-.12,.11), expand = c(0,0)) +
-  ggtitle("Job Growth By State/Territory") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data", subtitle = "Most States Have Now Seen Payrolls Fully Recover From the Pandemic") +
-  theme_apricitas + theme(legend.position = c(.67,.25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  theme(axis.text.x = element_text(size = 7))
-
-ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_BAR_GRAPH, "Growth State Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 # PAYEMS_MONTHLY <- fredr(series_id = "PAYEMS", observation_start = as.Date("2020-10-01"), units = "chg") %>%
 #   mutate(THREEMMA = c(0,0, rollmean(value, k = 3))) %>%
@@ -3524,42 +2192,19 @@ ggsave(dpi = "retina",plot = ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph, "Atlanta Fe
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EMPLOY_TEMP_HELP_SERVICES_GRAPH, "Employ Temp Help Services.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PARTTIME_Graph, "Part Time for Economic Reasons.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = LGOVED_Graph, "LGOVED.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = FOODSERV_Graph, "FOODSERV.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Nursing_Graph, "Nursing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = FOODSERV_REVENUE_Graph, "Food Service.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = ARTS_Graph, "Arts.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Couriers_Graph, "Couriers.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PWD_Graph, "People With Disabilities.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = TRNSPT_Graph, "Transport.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Childcare_Graph, "Childcare.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ICNSA14_Graph, "ICNSA14.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = ICNSA19_Graph, "ICNSA19.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Industry_Layoffs_Graph, "Industry Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Layoffs_Graph, "Total Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EPOP_SA_NSA_Graph, "EPOP NSA SA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PandemicLostWork_Graph, "Lost Work.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = PandemicTelework_Graph, "Telework.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = EPop55Plus_Graph, "Epop 55.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Pictures_Performing_Graph, "Pictures Performing.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job Loss.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = UNRATE_Graph, "UNRATE graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Flows_to_Employment_Graph, "Flows to Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Graph, "Total Quits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 ggsave(dpi = "retina",plot = Total_Quits_Layoffs_Graph, "Total Quits and Layoffs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Black_White_Employment_Graph, "Black White Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = Black_White_Epop_graph, "Black White Epop.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
-ggsave(dpi = "retina",plot = Male_Female_Epop, "Male Female Epop.png", type = "cairo-png",width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-ggsave(dpi = "retina",plot = ECI_WAG_Graph, "ECI WAG.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = ECI_WAG_Ex_Inc_Graph, "ECI WAG ex Inc.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 ggsave(dpi = "retina",plot = GLI_Graph, "GLI Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-ggsave(dpi = "retina",plot = RESIDENTIAL_BUILDING_Graph, "Residential Building Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 

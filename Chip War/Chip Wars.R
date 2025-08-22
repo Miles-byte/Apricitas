@@ -975,6 +975,7 @@ IND_PRO_BULK <- statscnQueryData('A02092Q',dbcode='hgyd',lang = "en", rowcode = 
 IND_PRO_BULK <- statscnQueryLastN(700, lang = "en") 
 
 IND_PRO_CN <- IND_PRO_BULK %>%
+  { `rownames<-`(., gsub("\\.", "", rownames(.))) } %>%
   mutate(date = as.Date(as.yearmon(rownames(.)))) %>%
   subset(date >= as.Date("1992-01-01")) %>%
   subset(.,`Output of Integrated Circuits, Current Period` != 0) %>%

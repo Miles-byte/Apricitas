@@ -256,7 +256,7 @@ CONVERGENCE_DATA <- GDP_PER_CAPITA_PPP_BULK_LONG %>%
 CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
   filter(country == "United States") %>%
   group_by(country) %>%
-  mutate(US_GDP = GDP/lag(GDP,4)) %>%
+  mutate(US_GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   select(date,US_GDP) %>%
   drop_na()
@@ -264,7 +264,7 @@ CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_GROWTH_RAW_AVG <- CONVERGENCE_DATA %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -273,7 +273,7 @@ CONVERGENCE_DATA_GROWTH_RAW_AVG <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_GROWTH_WEIGHTED_AVG <- CONVERGENCE_DATA %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -293,7 +293,7 @@ CONVERGENCE_FINAL_graph <- ggplot() +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.85)) +
-  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow/Middle Income Countries\nRelative to the US\n4-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
+  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow/Middle Income Countries\nRelative to the US\n5-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1980-01-01")-(.1861*(today()-as.Date("1980-01-01"))), xmax = as.Date("1980-01-01")-(0.049*(today()-as.Date("1980-01-01"))), ymin = 0-(.3*(.75)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -333,7 +333,7 @@ CONVERGENCE_DATA_LOW_INCOME <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
   filter(country == "United States") %>%
   group_by(country) %>%
-  mutate(US_GDP = GDP/lag(GDP,4)) %>%
+  mutate(US_GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   select(date,US_GDP) %>%
   drop_na()
@@ -341,7 +341,7 @@ CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_LOW_INCOME_GROWTH_RAW_AVG <- CONVERGENCE_DATA_LOW_INCOME %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -350,7 +350,7 @@ CONVERGENCE_DATA_LOW_INCOME_GROWTH_RAW_AVG <- CONVERGENCE_DATA_LOW_INCOME %>%
 CONVERGENCE_DATA_LOW_INCOME_GROWTH_WEIGHTED_AVG <- CONVERGENCE_DATA_LOW_INCOME %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -367,12 +367,12 @@ CONVERGENCE_LOW_INCOME_FINAL_graph <- ggplot() +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
   ylab("Growth, Relative to the US, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.30), breaks = c(-.1,0,0.1,0.2,0.3), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.15,.30), breaks = c(-.1,0,0.1,0.2,0.3), expand = c(0,0)) +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.85)) +
-  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow-Income Countries\nRelative to the US\n4-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.1-(.3*(.4)), ymax = -0.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow-Income Countries\nRelative to the US\n5-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.15-(.3*(.4)), ymax = -0.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONVERGENCE_LOW_INCOME_FINAL_graph, "Convergence Low-Income Final Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -412,7 +412,7 @@ CONVERGENCE_DATA_MIDDLE_INCOME <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
   filter(country == "United States") %>%
   group_by(country) %>%
-  mutate(US_GDP = GDP/lag(GDP,4)) %>%
+  mutate(US_GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   select(date,US_GDP) %>%
   drop_na()
@@ -420,7 +420,7 @@ CONVERGENCE_DATA_GROWTH_US <- CONVERGENCE_DATA %>%
 CONVERGENCE_DATA_MIDDLE_INCOME_GROWTH_RAW_AVG <- CONVERGENCE_DATA_MIDDLE_INCOME %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -429,7 +429,7 @@ CONVERGENCE_DATA_MIDDLE_INCOME_GROWTH_RAW_AVG <- CONVERGENCE_DATA_MIDDLE_INCOME 
 CONVERGENCE_DATA_MIDDLE_INCOME_GROWTH_WEIGHTED_AVG <- CONVERGENCE_DATA_MIDDLE_INCOME %>%
   filter(country != "United States") %>%
   group_by(country) %>%
-  mutate(GDP = GDP/lag(GDP,4)) %>%
+  mutate(GDP = GDP/lag(GDP,5)) %>%
   ungroup() %>%
   drop_na() %>%
   group_by(date) %>%
@@ -445,12 +445,12 @@ CONVERGENCE_MIDDLE_INCOME_FINAL_graph <- ggplot() +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
   ylab("Growth, Relative to the US, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.30), breaks = c(-.1,0,0.1,0.2,0.3), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.40), breaks = c(-.1,0,0.1,0.2,0.3,0.4), expand = c(0,0)) +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.85)) +
-  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow-Income Countries\nRelative to the US\n4-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.1-(.3*(.4)), ymax = -0.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nMiddle-Income Countries\nRelative to the US\n5-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.1-(.3*(.5)), ymax = -0.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONVERGENCE_MIDDLE_INCOME_FINAL_graph, "Convergence Middle-Income Final Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -462,12 +462,12 @@ CONVERGENCE_MIDDLE_LOW_INCOME_FINAL_graph <- ggplot() +
   geom_line(data=filter(CONVERGENCE_LOW_INCOME_FINAL_DATA, date >= as.Date("1980-01-01")), aes(x=date,y= weighted_avg_GDP-US_GDP, color="Low-Income Countries"), size = 1.25) +
   xlab("Date") +
   ylab("Growth, Relative to the US, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.35), breaks = c(-.1,0,0.1,0.2,0.3), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.35), breaks = c(-.15,0,0.1,0.2,0.3), expand = c(0,0)) +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data. NOTE: Growth is Population-Weighted", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.82), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nRelative to the US\n4-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Middle-Income Countries","Low-Income Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.1-(.3*(.45)), ymax = -0.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.15-(.3*(.45)), ymax = -0.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONVERGENCE_MIDDLE_LOW_INCOME_FINAL_graph, "Convergence Middle and Low Income Final Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

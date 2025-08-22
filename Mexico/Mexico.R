@@ -486,7 +486,7 @@ CONSUMER_SENTIMENT_Graph <- ggplot() +
   geom_line(data = HOUSEHOLD_BETTER_LAST_12M, aes(x = date, y = values, color = "My Household is Better Off Than 12M Ago"), size = 1.25) +
   geom_line(data = COUNTRY_BETTER_LAST_12M, aes(x = date, y = values, color = "The Country is Better Off Than 12M Ago"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(20,60), breaks = c(25,40,50,60), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), limits = c(20,60), breaks = c(20,30,40,50,60), expand = c(0,0)) +
   ylab("Balance, Above 50 is Positive") +
   ggtitle("Mexican Consumer Confidence") +
   labs(caption = "Graph created by @JosephPolitano using Bank of Mexico data",subtitle = "Mexican Households Are Increasingly Optimistic About the Direction of Their Country & Economy") +
@@ -519,20 +519,20 @@ REAL_AUTO_VALUE_ADD_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = REAL_AUTO_VALUE_ADD_Graph, "Real Auto Value Add Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
-flash_zip_url <- "https://en.www.inegi.org.mx/contenidos/programas/pibo/2018/datosabiertos/eopibt_trimestral_csv.zip"
+flash_zip_url <- "https://en.www.inegi.org.mx/contenidos/programas/pibo/2018/datosabiertos/conjunto_de_datos_eopibt_trimestral_csv.zip"
 flash_zip_file <- "eopibt_trimestral_csv.zip"
 flash_extract_dir <- "inegi_data"
 
 # Download and unzip the file
-download.file(zip_url, zip_file, mode = "wb")
-unzip(zip_file, exdir = extract_dir)
+download.file(flash_zip_url, flash_zip_file, mode = "wb")
+unzip(flash_zip_file, exdir = flash_extract_dir)
 
 # List files in extracted folder
-flash_data_dir <- file.path(extract_dir, "conjunto_de_datos")
-flash_files <- list.files(data_dir, full.names = TRUE)
+flash_data_dir <- file.path(flash_extract_dir, "conjunto_de_datos")
+flash_files <- list.files(flash_data_dir, full.names = TRUE)
 
 # Read a specific CSV (adjust the filename as needed)
-flash_gdp_annual <- read_csv(files[3])  # Change index to match the desired file
+flash_gdp_annual <- read_csv(flash_files[3])  # Change index to match the desired file
 
 flash_gdp_annual <- as.data.frame(flash_gdp_annual) %>%
   t() %>%

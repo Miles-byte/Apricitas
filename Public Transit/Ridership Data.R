@@ -309,8 +309,8 @@ SKYLINE_graph <- ggplot() +
   geom_line(data=filter(RAIL_BULK, agency == "City and County of Honolulu", month >= as.Date("2023-01-01")), aes(x=month,y= value*12/1000000,color="Honolulu Skyline Ridership\n(Monthly, Annualized)"), size = 1.25) +
   annotate("text", label = "Skyline\nOpens", x = as.Date("2023-05-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2023-06-01"), xintercept = as.Date("2023-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Kahauiki\nExtension", x = as.Date("2025-05-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Kahauiki\nExtension", x = as.Date("2025-09-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-10-01"), xintercept = as.Date("2025-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Ka‘ākaukukui\nExtension", x = as.Date("2031-05-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2031-06-01"), xintercept = as.Date("2031-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
@@ -427,8 +427,8 @@ LA_METRO_graph <- ggplot() +
   annotate("text", label = "Regional\nConnector\nOpens (A/E)", x = as.Date("2023-08-01"), y = 130, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   annotate(geom = "segment", x = as.Date("2025-06-01"), xend = as.Date("2025-06-01"), y = 0, yend = 115, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
   annotate("text", label = "K/C Line\nLAX\nExtension", x = as.Date("2025-08-01"), y = 105, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  # annotate(geom = "segment", x = as.Date("2025-01-01"), xend = as.Date("2025-02-01"), y = 0, yend = 95, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
-  # annotate("text", label = "A Line\nPomona\nExtension", x = as.Date("2025-04-01"), y = 85, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate(geom = "segment", x = as.Date("2025-09-01"), xend = as.Date("2025-09-01"), y = 0, yend = 95, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "A Line\nPomona\nExtension", x = as.Date("2025-11-01"), y = 85, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
   # annotate("text", label = "D Line\nPhase-1\nExtension", x = as.Date("2026-02-01"), y = 100, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   # annotate(geom = "segment", x = as.Date("2027-12-01"), xend = as.Date("2027-12-01"), y = 0, yend = 105, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
@@ -1036,6 +1036,32 @@ FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_SHORT_graph <- ggplot() + #plotting regula
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_SHORT_graph, "1st Seven Ridership Recovery Agency Short Percent.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+AGENCY_YOY_LINE_GROWTH <- AGENCY_BULK %>%
+  group_by(agency) %>%
+  mutate(yoy = value/lag(value,12)-1)
+
+LA_METRO_YOY_RIDERSHIP_GROWTH <- ggplot() + #plotting regular vs non-regular employment
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Chicago Transit Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="CTA (Chicago)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="BART (Bay Area)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MBTA (Boston)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="WMATA (DC)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "MTA New York City Transit", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MTA (NYC)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2022-06-01")), aes(x=month,y= yoy,color="Year-on-Year Ridership Growth,\nLA Metro (Bus & Rail)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="SEPTA (Philly)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.10,.20), expand = c(0,0), breaks = c(-.1,0,.1,.2)) +
+  ylab("Year-on-Year Ridership Growth") +
+  ggtitle("LA Metro Ridership Growth") +
+  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "LA Metro Ridership Shrunk in June") +
+  theme_apricitas + theme(legend.position = c(.6,.825)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-06-01")-(.1861*(today()-as.Date("2022-06-01"))), xmax = as.Date("2022-06-01")-(0.049*(today()-as.Date("2022-06-01"))), ymin = -.10-(.3*.3), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = LA_METRO_YOY_RIDERSHIP_GROWTH, "LA METRO YOY RIDERSHIP GROWTH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 

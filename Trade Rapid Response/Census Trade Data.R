@@ -35,6 +35,7 @@ ggsave(dpi = "retina",plot = NET_IMPORTS_Graph, "Net Imports NSA Graph.png", typ
 
 #ADD NET IMPORTS SA GRAPH
 
+
 GROSS_TARIFF_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=GROSS_TRADE_BULK, aes(x=time,y= CAL_DUT_MO*12/1000000000,color= "US Tariffs Collected\nNot Seasonally Adjusted Annual Rate"), size = 1.25) + 
@@ -49,6 +50,34 @@ GROSS_TARIFF_GRAPH <- ggplot() + #plotting integrated circuits exports
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GROSS_TARIFF_GRAPH, "Gross Tariffs NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+GROSS_IMPORTS_BULK_CON <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "CTY_CODE","I_COMMODITY","CTY_NAME","CAL_DUT_MO"),
+  time = paste("from 2017 to", format(Sys.Date(), "%Y")),
+  CTY_NAME = "TOTAL FOR ALL COUNTRIES",
+  I_COMMODITY = "-",
+)
+
+GROSS_IMPORTS_BULK_CON <- GROSS_IMPORTS_BULK_CON %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  mutate(tariff_rate = CAL_DUT_MO/CON_VAL_MO)
+
+GROSS_TARIFF_PCT_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=GROSS_IMPORTS_BULK_CON, aes(x=time,y= CAL_DUT_MO/CON_VAL_MO,color= "US Average Effective Tariff Rate\n(Tariffs Collected as a % of Imports)"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("US Tariff Rates are Rapidly Rising") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
+  theme_apricitas + theme(legend.position = c(.35,.89)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = GROSS_TARIFF_PCT_GRAPH, "Gross Tariffs PCT NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 CN_MX_CA_IMPORTS_BULK <- getCensus(
@@ -100,7 +129,7 @@ GROSS_IMPORTS_CHINA <- ggplot() + #plotting integrated circuits exports
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,700),breaks = c(0,100,200,300,400,500,600,700), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US Imports From China Are Sinking") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 55% From January to April") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 59% From January to June") +
   theme_apricitas + theme(legend.position = c(.35,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(600)), ymax = 0) +
@@ -172,7 +201,7 @@ TARIFF_BREAKDOWN_CA_MX_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=MX_CA_RP_IMPORTS_RP, aes(x=time,y= CON_VAL_MO*12/1000000000,color= tariff), size = 1.25) + 
   facet_wrap(~CTY_NAME) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,300),breaks = c(50,100,150,200,250,300), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,500),breaks = c(100,200,300,400,500), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Breaking Down North American Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +

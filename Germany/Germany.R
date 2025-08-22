@@ -9,6 +9,9 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 #save_credentials(db='de', user="DE647235M8", password="PleaseWork23")
 test_login(genesis=c(db='de'))
 
+#https://github.com/CorrelAid/restatis
+#MUST NOW USE RESTATIS DATABASE
+
 #Attempts using the Restatis Key
 #usethis::edit_r_environ()
 

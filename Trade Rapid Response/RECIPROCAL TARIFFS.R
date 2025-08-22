@@ -126,13 +126,19 @@ RECIPROCAL_TARIFF_RATE_CAPS <- merge(US_IMPORTS_BULK,US_EXPORTS_BULK, by = "CTY_
 
 RECIPROCAL_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
   #filter(CTY_NAME == "UNITED KINGDOM") %>%
-  #filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
+  #filter(!CTY_NAME %in% c("EUROPEAN UNION")) %>% #Turn this one off if making letter analysis
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
   left_join(.,RECIPROCAL_TARIFF_RATE_CAPS, by = "CTY_NAME") %>%
   select(-COMM_LVL,-COMM_LVL_1,-CTY_CODE,-time) %>%
+  mutate(I_COMMODITY = as.character(I_COMMODITY)) %>%
+  mutate(I_COMMODITY = if_else(nchar(I_COMMODITY) == 9, paste0("0", I_COMMODITY), I_COMMODITY)) %>%
   mutate(I_COMMODITY_8 = substr(I_COMMODITY, 1, 8)) %>%
   mutate(I_COMMODITY_6 = substr(I_COMMODITY, 1, 6)) %>%
   mutate(I_COMMODITY_4 = substr(I_COMMODITY, 1, 4)) %>%
+  # mutate(I_COMMODITY_8 = substr(I_COMMODITY, 1, 8)) %>%
+  # mutate(I_COMMODITY_6 = substr(I_COMMODITY, 1, 6)) %>%
+  # mutate(I_COMMODITY_4 = substr(I_COMMODITY, 1, 4)) %>%
   mutate(tariff = if_else(I_COMMODITY %in% c("4009120020", "4009220020", "4009320020", "4009420020", "4013100010", 
                                              "4013100020", "4016996010", "8409911040", "8409991040", "8413919010", 
                                              "8414308030", "8414596540", "8431100090", "8482105044", "8482105048", 
@@ -483,7 +489,7 @@ HS4_LIST <- filter(US_COUNTRIES_HS4_IMPORTS_BULK, CTY_NAME == "TOTAL FOR ALL COU
   select(I_COMMODITY,I_COMMODITY_LDESC)
   
 AGGREGATE_TARIFFS <- RECIPROCAL_TARIFF_ANALYSIS %>%
-  filter((CTY_NAME %in% EU_27)) %>%
+  #filter((CTY_NAME %in% EU_27)) %>%
   #filter(!(CTY_NAME %in% c("CHINA", "HONG KONG","MACAU"))) %>%
   mutate(CON_VAL_YR = if_else(tariff == 0, 0, CON_VAL_YR)) %>%
   filter(tariff > 0) %>%

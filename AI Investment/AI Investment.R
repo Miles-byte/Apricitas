@@ -74,6 +74,24 @@ US_COMPUTER_NET_IMPORTS_Graph <- ggplot() + #plotting integrated circuits export
 
 ggsave(dpi = "retina",plot = US_COMPUTER_NET_IMPORTS_Graph, "US Computer Net Imports.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+
+US_COMPUTER_NET_IMPORTS_Monthly_Graph <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= DPU*12/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
+  geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= ADP_PARTS*12/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("US Computer Net Imports") +
+  labs(caption = "Graph created by @JosephPolitano using Census data. Large Computers are HS Code 847150, Parts & Accessories are HS Code 847330",subtitle = "US Imports of Large Computers & Parts/Accessories Has Been Skyrocketing") +
+  theme_apricitas + theme(legend.position = c(.25,.89)) +
+  scale_color_manual(name= "Imports, Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Large Computers (excl. Laptops)","Computer Parts & Accessories")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -5-(.3*(ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5+5)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_COMPUTER_NET_IMPORTS_Monthly_Graph, "US Computer Net Imports Monthly.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 DATA_CENTER_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
   drop_na() %>%
   row_to_names(1) %>%
@@ -402,12 +420,12 @@ US_TAIWAN_ADP_NET_IMPORTS_graph <- ggplot() + #plotting permanent and temporary 
   geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max(US_ADP_PARTS_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max(US_ADP_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5), expand = c(0,0)) +
   ggtitle("US Imports of Taiwanese Computers") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports from Taiwan") +
   theme_apricitas + theme(legend.position = c(.40,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "US Net Imports from Taiwan\nSolid = Rolling 12M Total, Dashed = Monthly, Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Computer Parts & Accessories","Large Computers","GPUs/CPUs/TPUs")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max(US_ADP_PARTS_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5)+1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max(US_ADP_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5)+1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_TAIWAN_ADP_NET_IMPORTS_graph, "US Taiwan ADP Net Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -464,13 +482,13 @@ US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
 
 ggsave(dpi = "retina",plot = US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH, "US Computer Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-REGIONAL_DATA_CENTER_DATA_2023 <- read.xlsx("https://www.census.gov/construction/c30/xlsx/region.xlsx", sheet = "2023") %>%
+REGIONAL_DATA_CENTER_DATA_2024 <- read.xlsx("https://www.census.gov/construction/c30/xlsx/region.xlsx", sheet = "2024") %>%
   drop_na() %>%
   setNames(c("Category","Total","Northeast","Midwest","South","West")) %>%
   mutate(Category = str_squish(Category)) %>%
   filter(Category == "Data center") %>%
   select(-Category) %>%
-  pivot_longer(Total:West, values_to = "value_2023")
+  pivot_longer(Total:West, values_to = "value_2024")
 
 REGIONAL_DATA_CENTER_DATA_2019 <- read.xlsx("https://www.census.gov/construction/c30/xlsx/region.xlsx", sheet = "2019")  %>%
   drop_na() %>%
@@ -480,9 +498,9 @@ REGIONAL_DATA_CENTER_DATA_2019 <- read.xlsx("https://www.census.gov/construction
   select(-Category) %>%
   pivot_longer(Total:West, values_to = "value_2019")
 
-REGIONAL_DATA_CENTER_DATA <- merge(REGIONAL_DATA_CENTER_DATA_2023,REGIONAL_DATA_CENTER_DATA_2019, by = "name") %>%
+REGIONAL_DATA_CENTER_DATA <- merge(REGIONAL_DATA_CENTER_DATA_2024,REGIONAL_DATA_CENTER_DATA_2019, by = "name") %>%
   mutate(across(where(is.character) & !all_of("name"), ~ as.numeric(.)/1000)) %>%
-  mutate(value_change = value_2023-value_2019)
+  mutate(value_change = value_2024-value_2019)
   
 REGIONS_MAP <- tigris::regions(class = "sf") %>%
   left_join(.,REGIONAL_DATA_CENTER_DATA, by = c("NAME" = "name"))
@@ -520,7 +538,7 @@ REGION_MAP <- states %>%
 REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() + 
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in")) +
   geom_sf(data = REGION_MAP, 
-          aes(fill = value_2023), 
+          aes(fill = value_2024), 
           color = 'grey25') +
   geom_sf(data = states, 
           fill = NA, 
@@ -529,7 +547,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
           color = 'black', 
           fill = NA,
           lwd = 1.25) +
-  scale_fill_viridis_c(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,2,4,6,8), limits = c(0,8), expand = c(0,0)) +
+  scale_fill_viridis_c(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,5,10,15), limits = c(0,16), expand = c(0,0)) +
   # scale_fill_gradient(low = "#00A99D",
   #                      high = "#FFE98F",
   #                      space = "Lab",
@@ -542,7 +560,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
   coord_sf(crs = 5070) +
   geom_text(
     data = filter(REGION_MAP, REGION == 1), 
-    aes(x = 1800000, y = 2600000, label = paste0("$", sprintf("%.1f", round(value_2023, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
+    aes(x = 1800000, y = 2600000, label = paste0("$", sprintf("%.1f", round(value_2024, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
     size = 6, 
     hjust = 0.5,
     color = "white",
@@ -554,7 +572,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
   ) +
   geom_text(
     data = filter(REGION_MAP, REGION == 2), 
-    aes(x = 300000, y = 2000000, label = paste0("$", sprintf("%.1f", round(value_2023, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
+    aes(x = 300000, y = 2000000, label = paste0("$", sprintf("%.1f", round(value_2024, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
     size = 6, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
@@ -566,7 +584,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
   ) +
   geom_text(
     data = filter(REGION_MAP, REGION == 3), 
-    aes(x = 800000, y = 1300000, label = paste0("$", sprintf("%.1f", round(value_2023, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
+    aes(x = 600000, y = 1200000, label = paste0("$", sprintf("%.1f", round(value_2024, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
     size = 6, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
@@ -578,7 +596,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
   ) +
   geom_text(
     data = filter(REGION_MAP, REGION == 4), 
-    aes(x = -1500000, y = 2200000, label = paste0("$", sprintf("%.1f", round(value_2023, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
+    aes(x = -1500000, y = 2200000, label = paste0("$", sprintf("%.1f", round(value_2024, 1)), "B","\n+$",sprintf("%.1f", round(value_change, 1)),"B Since 2019")), 
     size = 6, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
@@ -588,7 +606,7 @@ REGIONAL_DATA_CENTER_SPENDING_GRAPH <- ggplot() +
     lineheight = 0.75,
     show.legend = FALSE
   ) +
-  ggtitle("   Data Center Construction by Region, 2023") +
+  ggtitle("   Data Center Construction by Region, 2024") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using US Census Construction data") +
   labs(fill = NULL) +

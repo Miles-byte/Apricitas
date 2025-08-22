@@ -177,11 +177,11 @@ ggsave(dpi = "retina",plot = EU_GDP_CAGR_SHP_GRAPH, "EU GDP Graph.png", type = "
 INSEE_dataset_list = get_dataset_list()
 
 FRANCE_GDP_INSEE_list_selected <-
-  get_idbank_list("CNT-2014-PIB-EQB-RF") %>% # Gross domestic product balance
+  get_idbank_list("CNT-2020-PIB-EQB-RF") %>% # Gross domestic product balance
   filter(OPERATION_label_en == "GDP - Gross domestic product") %>%
   filter(FREQ == "T") %>% #quarter
   add_insee_title() %>% #add titles
-  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO")#GDP
+  filter(cleFlow == "T.CNT-EQUILIBRE_PIB.SO.PIB.SO.VALEUR_ABSOLUE.FE.L.EUROS.CVS-CJO.FALSE")#GDP
 
 FRANCE_GDP_INSEE <- FRANCE_GDP_INSEE_list_selected %>%
   pull(idbank) %>%
@@ -218,12 +218,14 @@ SPAIN_DIR <- fromJSON("https://servicios.ine.es/wstempus/js/EN/OPERACIONES_DISPO
 SPAIN_PUB_LIST <- get_publications(lang = "en", det = 2)
 SPAIN_TEST_GDP_TABLES <- get_tables(code = "237",lang = "en")
 SPAIN_GDP_TABLE <- get_series(30679, resource = "table", lang = "en")
-SPAIN_GDP_INE <- get_series("CNTR4851", resource = "data", nlast = 500, lang = "en") %>%
+SPAIN_GDP_INE <- get_series("CNTR4851", resource = "data", nlast = 700, lang = "es") %>%
   .$Data %>%
   transmute(date = seq.Date(from = as.Date("1995-01-01"), by = "3 months", length.out = nrow(.)), value = Valor) %>%
   subset(date >= as.Date("2018-01-01")) %>%
   mutate(value = value/value[7]*100)
   
+get_series("CNTR4851")
+
 EU_MAIN_GDP <- ggplot() +
   geom_line(data = SPAIN_GDP_INE, aes(x=date, y = value, color = "Spain"), size = 1.25) + 
   geom_line(data = ITALY_GDP_ISTAT, aes(x=date, y = value, color = "Italy"), size = 1.25) + 
