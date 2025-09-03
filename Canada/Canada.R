@@ -96,7 +96,7 @@ CANADA_LEAVE_JOB <- statcan_data("14-10-0125-01", "eng")
 CANADA_LEAVE_JOB <- CANADA_LEAVE_JOB %>%
   subset(REF_DATE >= as.Date("2018-01-01")) %>%
   subset(Characteristics == "Total, unemployed and not in the labour force") %>%
-  subset(Sex == "Both sexes") %>%
+  subset(Gender == "Total - Gender") %>%
   subset(`Age group` == "15 years and over") %>%
   subset(GEO == "Canada") %>%
   select(REF_DATE, Reason, VALUE) %>%
@@ -383,10 +383,10 @@ CAN_TRADE_GRAPH <- ggplot(GOODS_TRADE_US_NONUS, aes(fill=name, x=REF_DATE, y=val
   geom_line(data = GOODS_TRADE_TOTAL, aes(x=Date, y = VALUE/1000, color = "Total"), size = 1.25) +
   xlab("Date") +
   ylab("Billions of Canadian Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-20,0,20,40), limits = c(-30,40), expand = c(0,0)) +
-  ggtitle("Canadian Commodity Check") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-20,0,20,40), limits = c(-40,40), expand = c(0,0)) +
+  ggtitle("Canadian Goods Trade") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "A Surge in Net Exports to the US Has Brought Canada's Goods Trade Balance Positive") +
-  theme_apricitas + theme(legend.position = c(.62,.82), legend.spacing.y = unit(-0.2, "cm"), legend.title = element_text(vjust = unit(+0.4,"cm"))) +
+  theme_apricitas + theme(legend.position = c(.62,.82)) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   scale_fill_manual(name= "Goods Trade Balance, Canada",values = c("#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("United States","All Other Countries")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -30-(.3*70), ymax = -30) +
@@ -453,11 +453,61 @@ CANADIAN_MORTGAGE_RATES_GRAPH <- ggplot() +
 ggsave(dpi = "retina",plot = CANADIAN_MORTGAGE_RATES_GRAPH, "Canadian Mortgage Rates Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+CANADA_GDP_BULK <- statcan_data("36-10-0104-01", "eng")
+
+CANADA_GDP_CONTRIB <- CANADA_GDP_BULK %>%
+  subset(REF_DATE >= as.Date("2022-01-01")) %>%
+  subset(Prices == "Contributions to percent change, annualized") %>%
+  filter(Estimates %in% c(
+    "Final consumption expenditure",
+    "General governments final consumption expenditure",
+    "Gross fixed capital formation",
+    "General governments gross fixed capital formation",
+    "Investment in inventories",
+    "Exports of goods and services",
+    "Less: imports of goods and services",
+    "Statistical discrepancy"
+  )) %>%
+  select(REF_DATE,Estimates,VALUE) %>%
+  pivot_wider(names_from = "Estimates", values_from = "VALUE") %>%
+  transmute(date = REF_DATE,
+            Consumption = `Final consumption expenditure`-`General governments final consumption expenditure`,
+            Investment = `Gross fixed capital formation`-`General governments gross fixed capital formation`,
+            Inventories = `Investment in inventories`,
+            `Net Exports` = `Exports of goods and services`-`Less: imports of goods and services`,
+            Government = `General governments final consumption expenditure` + `General governments gross fixed capital formation`
+  ) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Consumption","Investment","Inventories","Net Exports","Government")))
+
+
+CANADA_RGDPQuarterly <- CANADA_GDP_BULK %>%
+  subset(REF_DATE >= as.Date("2022-01-01")) %>%
+  subset(Prices == "Contributions to percent change, annualized") %>%
+  subset(Estimates == "Gross domestic product at market prices") %>%
+  transmute(date = REF_DATE, value = VALUE)
+
+GDPContribCANADA_Graph <- ggplot(CANADA_GDP_CONTRIB, aes(fill=name, x=date, y=value/100)) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_point(data = CANADA_RGDPQuarterly, aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
+  guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.1,0.1), breaks = c(-0.1,-0.05,0,0.05,0.1), expand = c(0,0)) +
+  ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
+  ggtitle("Contributions to Canadian Real GDP Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = NULL) +
+  theme_apricitas + theme(legend.position = "right") +
+  #scale_color_manual(name = NULL, values = "black") +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#3083DC","#EE6055","#A7ACD9","black"), breaks = c("Consumption","Investment","Inventories","Net Exports","Government")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-12-01")-(.1861*(today()-as.Date("2021-12-01"))), xmax = as.Date("2021-12-01")-(0.049*(today()-as.Date("2021-12-01"))), ymin = -0.1-(.3*0.2), ymax = -0.1) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = GDPContribCANADA_Graph, "GDP Contributions Canada.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 p_unload(all)  # Remove all packages using the package manager
-
-
-
-
 
 # Clear console
 cat("\014")  # ctrl+L

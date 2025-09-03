@@ -1684,6 +1684,43 @@ PCE_PRICE_INDEX_Graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = PCE_PRICE_INDEX_Graph, "PCE Price Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+PCEPI_DETAIL_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U20404',
+  'Frequency' = 'M',
+  'Year' = paste(seq(from = 2015, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+PCEPI_DETAIL_MONTHLY <- beaGet(PCEPI_DETAIL_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2015-01-01"), length.out = nrow(.), by = "1 month"))) %>%
+  clean_names() %>%
+  mutate(across(where(is.numeric),~ .x / lag(.x, 12) - 1)) %>%
+  filter(date >= as.Date("2016-01-01")) %>%
+  select(date, u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0)
+
+PCE_PRICE_INDEX_Graph <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=PCEPI_DETAIL_MONTHLY, aes(x=date,y= u20404_dgdsrg_2_goods_fisher_price_index_level_0, color= "Goods"), size = 1.25) +
+  geom_line(data=PCEPI_DETAIL_MONTHLY, aes(x=date,y= u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0, color= "Goods ex Food & Energy"), size = 1.25) +
+  geom_line(data=PCEPI_DETAIL_MONTHLY, aes(x=date,y= u20404_ddurrg_3_durable_goods_fisher_price_index_level_0, color= "Durable Goods"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.04,-0.02,0,0.02,0.04,0.06,0.08,0.10,0.12), limits = c(-0.04,.12), expand = c(0,0)) +
+  ylab("Percent Growth, Year on Year") +
+  ggtitle("Tariffs Cause a Rebound in Goods Inflation") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Goods Inflation Is Rebounding From 2024 Lows as Tariffs Raise the Price of Manufactured Imports") +
+  theme_apricitas + theme(legend.position = c(.34,.79)) +
+  scale_color_manual(name= "PCE Price Increases, Year-on-Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Goods","Goods ex Food & Energy","Durable Goods")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(.1861*(today()-as.Date("2016-01-01")))), ymin = -0.04-(.3*0.16), ymax = -0.04) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_PRICE_INDEX_Graph, "PCE Price Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+
 FIXED_NOMINAL_STRUCTURE_INVEST_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -1748,14 +1785,14 @@ US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
   geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6/1000, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
   #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/5000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/50000)*50), expand = c(0,0)) +
   ylab("Billions of 2017 Dollars") +
   ggtitle("US Computer Investment At Record Highs") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "US Computer Investment Has Grown Significantly Since 2020, Breaking Years of Stagnation") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Computer Investment Has Grown Significantly Since the AI Boom, Breaking Years of Stagnation") +
   theme_apricitas + theme(legend.position = c(.3,.8)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   theme(plot.title = element_text(size = 26.5)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*(ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/5000)*5)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*(ceiling(max(FIXED_EQUIP_INVEST_REAL$u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6)/50000)*50)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH, "US Computer Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -1809,6 +1846,25 @@ REAL_IMPORTS_GDP_Category_Graph <- ggplot() + #indexed employment rate
 ggsave(dpi = "retina",plot = REAL_IMPORTS_GDP_Category_Graph, "Real Imports Category GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+REAL_IMPORTS_COMPUTER_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = REAL_IMPORTS_EXPORTS_GDP, aes(x=date, y = (t40206b_b852rx_119_computers_peripherals_and_parts_chained_dollars_level_6)/1000, color = "Real Imports of Computers & Related Parts/Peripherals"), size = 1.25) + 
+  #geom_line(data = REAL_IMPORTS_EXPORTS_GDP, aes(x=date, y = t40206b_b850rx_26_computers_peripherals_and_parts_chained_dollars_level_6/1000, color = "Real Exports of Computers & Related Parts/Peripherals"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_b852rx_119_computers_peripherals_and_parts_chained_dollars_level_6)/100000)*100), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars, Seasonally Adjusted Annualized Rate") +
+  ggtitle("Computer Imports are Surging Amid the AI Boom") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Imports of Computers Have Surged to Record Highs as Companies Rush to Build US Data Centers") +
+  theme_apricitas + theme(legend.position = c(.4,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 1.5-(.3*(ceiling(max(REAL_IMPORTS_EXPORTS_GDP$t40206b_b852rx_119_computers_peripherals_and_parts_chained_dollars_level_6)/100000)*100)-1.5), ymax = 1.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = REAL_IMPORTS_COMPUTER_Graph, "Real Imports Computer Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 CHANGE_IN_INVENTORIES_GDP_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -1837,7 +1893,7 @@ CHANGE_IN_INVENTORIES_GDP_GRAPH <- ggplot() + #indexed employment rate
   theme(plot.title = element_text(size = 26.5)) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -40-(.3*140), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = -40-(.3*((ceiling(max(CHANGE_IN_INVENTORIES_GDP$u50705bu1_c4222_56_drugs_and_druggists_sundries_wholesalers_current_dollars_level_6)/50000)*50)+40)), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  coord_cartesian(clip = "off")
+  coord_cartesian(clip = "off") 
 
 ggsave(dpi = "retina",plot = CHANGE_IN_INVENTORIES_GDP_GRAPH, "Change in Inventories GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 

@@ -122,7 +122,8 @@ ggsave(dpi = "retina",plot = NOMINAL_INDUSTRIAL_COMMERCIAL_SPENDING_Graph, "Nomi
 
 MEXICO_GDP <- getSerieDataFrame(getSeriesData(series = "SR17622"), "SR17622") %>%
   filter(date >= as.Date("2017-01-01")) %>%
-  mutate(value = value/value[11]*100)
+  mutate(value = value/value[11]*100) %>%
+  mutate(growth = value/lag(value,1))
   
 MEXICO_GVA_MANUFACTURING <- getSerieDataFrame(getSeriesData(series = "SR17628"), "SR17628") %>%
   filter(date >= as.Date("2017-01-01")) %>%

@@ -54,7 +54,7 @@ ggsave(dpi = "retina",plot = GDP_PER_CAPITA_LEVEL_FILTERED_graph, "Real GDP Per 
 
 WORLD_MAP <- ne_countries(scale = "medium", returnclass = "sf") %>%
   st_transform('EPSG:3395') %>%
-  transmute(name = iso_a3) %>%
+  transmute(name = iso_a3_eh) %>%
   full_join(.,GDP_PER_CAPITA_PPP_GROWTH_MINUS_US, by = "name") %>%
   mutate(value_bucket = cut(value, breaks = c(-Inf,-0.06,-0.02,0.02,0.06, Inf), labels = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More")))
   
@@ -62,7 +62,7 @@ WORLD_MAP <- ne_countries(scale = "medium", returnclass = "sf") %>%
 WORLD_MAP_GRAPH <- ggplot() +
   geom_sf(data = WORLD_MAP, aes(fill = value_bucket), color = NA) +
   #coord_sf("mercator", lims_method = "geometry_bbox") +
-  scale_fill_manual(name= "GDP Per Capita,\nPPP-Adjusted\n2019-23 Growth\nRelative to the US", breaks = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More"), values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")) +
+  scale_fill_manual(name= "GDP Per Capita,\nPPP-Adjusted\n2019-24 Growth\nRelative to the US", breaks = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More"), values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")) +
   ggtitle("   Post-COVID GDP/Capita Growth,\n   Relative to the United States") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-13000000, 18500000)) +

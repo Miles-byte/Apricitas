@@ -2618,6 +2618,59 @@ TX_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+RESIDENTIAL_SALES <- eia1_series("ELEC.SALES.US-RES.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Residential", sales) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(sales,12))) %>%
+  mutate(yoy_growth = sales/lag(sales,12)-1)
+
+COMMERCIAL_SALES <- eia1_series("ELEC.SALES.US-COM.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Residential", sales) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(sales,12))) %>%
+  mutate(yoy_growth = sales/lag(sales,12)-1)
+
+INDUSTRIAL_SALES <- eia1_series("ELEC.SALES.US-IND.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Residential", sales) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(sales,12))) %>%
+  mutate(yoy_growth = sales/lag(sales,12)-1)
+
+RES_IND_COM_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(INDUSTRIAL_SALES, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000-rollmean[61]/1000,color= "Industrial"), size = 1.25) +
+  geom_line(data= filter(RESIDENTIAL_SALES, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000-rollmean[61]/1000,color= "Residential"), size = 1.25) +
+  geom_line(data= filter(COMMERCIAL_SALES, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean/1000-rollmean[61]/1000,color= "Commercial"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(-7.5,10), expand = c(0,0)) +
+  ylab("Change Since 2019") +
+  ggtitle("Change in Electricity Sales Since 2019") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "The Commercial Sector—Including Data Centers—is the Largest Contributor to Electricity Growth") +
+  theme_apricitas + theme(legend.position = c(.2,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Change Since 2019\nRolling 12M Total",values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = -7.5-(.3*17.5), ymax = -7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RES_IND_COM_GRAPH, "RES IND COM Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+RES_IND_COM_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  #geom_line(data= INDUSTRIAL_SALES, aes(x=date,y=yoy_growth,color= "Industrial"), size = 1.25) +
+  geom_line(data= COMMERCIAL_SALES, aes(x=date,y=yoy_growth,color= "Commercial"), size = 1.25) +
+  geom_line(data= RESIDENTIAL_SALES, aes(x=date,y=yoy_growth,color= "Residential"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0, 1), expand = c(0,0)) +
+  ylab("Percent, Rolling 12M Average") +
+  ggtitle("Texas' Changing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Clean Energy Now Makes Up A Larger Share of Texas' Grid") +
+  theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-01-01")-(.1861*(today()-as.Date("2011-01-01"))), xmax = as.Date("2011-01-01")-(0.049*((today()-as.Date("2011-01-01")))), ymin = 0-(.3*1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 US_BATTERY_CAPACITY_GROWTH_STEO <- eia1_series("STEO.BAEPCGW_US.Q") %>%
   transmute(period = yq(period), category = "Battery", value = value-lead(value)) %>%
   mutate(period = as.Date(ifelse(quarter(period) %in% 1:2, 
