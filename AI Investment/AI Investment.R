@@ -420,7 +420,7 @@ US_TAIWAN_ADP_NET_IMPORTS_graph <- ggplot() + #plotting permanent and temporary 
   geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max(US_ADP_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80,90,100,110,120,130,140), limits = c(-1,ceiling(max(US_ADP_NET_EXPORTS_COUNTRY$TAIWAN.x*12)/5000000000)*5), expand = c(0,0)) +
   ggtitle("US Imports of Taiwanese Computers") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports from Taiwan") +
   theme_apricitas + theme(legend.position = c(.40,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +

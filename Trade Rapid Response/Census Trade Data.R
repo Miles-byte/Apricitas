@@ -71,7 +71,7 @@ GROSS_TARIFF_PCT_GRAPH <- ggplot() + #plotting integrated circuits exports
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US Tariff Rates are Rapidly Rising") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Imports") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05)), ymax = 0) +
@@ -128,8 +128,8 @@ GROSS_IMPORTS_CHINA <- ggplot() + #plotting integrated circuits exports
   geom_line(data=filter(CN_MX_CA_IMPORTS, time > as.Date("2023-12-01")), aes(x=time,y= CHINA*12/1000000000,color= "US Imports From China, Monthly Annualized"), size = 1.25) + 
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,700),breaks = c(0,100,200,300,400,500,600,700), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
-  ggtitle("US Imports From China Are Sinking") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 59% From January to June") +
+  ggtitle("US Imports From China Have Fallen") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Imports From China Have Fallen More Than 42% From January to July") +
   theme_apricitas + theme(legend.position = c(.35,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(600)), ymax = 0) +
@@ -144,13 +144,13 @@ GROSS_TARIFF_MX_CA_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=filter(CN_MX_CA_TARIFFS, time >= as.Date("2023-12-01")), aes(x=time,y= MEXICO*12/1000000000,color= "Mexico"), size = 1.25) + 
   geom_line(data=filter(CN_MX_CA_TARIFFS, time >= as.Date("2023-12-01")), aes(x=time,y= CANADA*12/1000000000,color= "Canada"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,25),breaks = c(0,5,10,15,20,25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,30),breaks = c(0,5,10,15,20,25,30), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Americans are Paying Billions in Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
   theme_apricitas + theme(legend.position = c(.35,.85)) +
   scale_color_manual(name= "US Tariffs Collected on Imports From Country\nNot Seasonally Adjusted Annual Rate",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(125)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-12-01")-(.1861*(today()-as.Date("2023-12-01"))), xmax = as.Date("2023-12-01")-(0.049*(today()-as.Date("2023-12-01"))), ymin = 0-(.3*(30)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GROSS_TARIFF_MX_CA_GRAPH, "Gross Tariffs MX CA NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -302,13 +302,13 @@ COMPUTER_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=COMPUTER_IMPORTS, aes(x=time,y= Taiwan*12/1000000000,color= "Taiwan"), size = 1.25) + 
   geom_line(data=COMPUTER_IMPORTS, aes(x=time,y= Vietnam*12/1000000000,color= "Vietnam"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,100),breaks = c(0,25,50,75,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,125),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Computer Imports Shifted Amidst Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data. Gold Defined as HS Code 8471",subtitle = "Overall US Computer Imports to Hit Record Highs Even as Imports From China Collapsed") +
   theme_apricitas + theme(legend.position = c(.35,.75)) +
   scale_color_manual(name = "US Computer Imports, Billions, Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Mexico","Taiwan","China","Vietnam","All Other Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(100)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(125)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = COMPUTER_IMPORTS_GRAPH, "Computer Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
