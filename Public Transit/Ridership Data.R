@@ -1055,7 +1055,7 @@ LA_METRO_YOY_RIDERSHIP_GROWTH <- ggplot() + #plotting regular vs non-regular emp
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.10,.20), expand = c(0,0), breaks = c(-.1,0,.1,.2)) +
   ylab("Year-on-Year Ridership Growth") +
   ggtitle("LA Metro Ridership Growth") +
-  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "LA Metro Ridership Shrunk in June") +
+  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "LA Metro Ridership Shrunk in June & July") +
   theme_apricitas + theme(legend.position = c(.6,.825)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-06-01")-(.1861*(today()-as.Date("2022-06-01"))), xmax = as.Date("2022-06-01")-(0.049*(today()-as.Date("2022-06-01"))), ymin = -.10-(.3*.3), ymax = -.10) +
