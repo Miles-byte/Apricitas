@@ -194,7 +194,7 @@ EU_GDP_YOY_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
   mutate(geo = iso_a2_eh)
 
 EU_GDP_YOY_SHP <- full_join(EU_GDP_YOY_SHP, EU_GDP_YOY, by = "geo") %>%
-  select(geometry, yoy, geo, name) %>%
+  select(geometry, yoy, geo, name, time) %>%
   mutate(label = yoy) %>%
   mutate(yoy = case_when(
     yoy > 0.05 ~ 0.05,
@@ -219,16 +219,12 @@ EU_GDP_CENTROIDS <- ne_countries(scale = "medium", returnclass = "sf") %>%
   mutate(long = if_else(geo == "FI", long + 50000, long)) %>%
   mutate(lat = if_else(geo == "SE", lat - 250000, lat)) %>%
   mutate(long = if_else(geo == "SE", long - 50000, long)) %>%
-  
   mutate(lat = if_else(geo == "IT", lat + 280000, lat)) %>%
   mutate(long = if_else(geo == "IT", long - 150000, long)) %>%
-  
   mutate(long = if_else(geo == "DE", long - 50000, long)) %>%
   mutate(long = if_else(geo == "AT", long + 25000, long)) %>%
-  
   mutate(lat = if_else(geo == "HU", lat - 25000, lat)) %>%
   mutate(long = if_else(geo == "HU", long - 50000, long)) %>%
-  
   st_as_sf(coords = c("long","lat"), crs = 3035) %>%
   st_centroid()
 
@@ -237,7 +233,8 @@ EU_BROAD_GDP_YOY_SHP_GRAPH <- ggplot(data = EU_GDP_YOY_SHP, aes(fill = yoy)) +
   geom_sf(color = NA) +
   geom_sf(color = "black", fill = NA, lwd = 0.35) + # Black borders for states
   scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"), label = c("-5%+","-4%","-3%","-2%","-1%","0%","1%","2%","3%","4%","5%+"),breaks = c(-0.05,-0.04,-0.03,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
-  ggtitle("EU Year-on-Year Real GDP Growth: Q2 2025") +
+  #ggtitle("EU Year-on-Year Real GDP Growth: Q2 2025") +
+  ggtitle(paste0("EU Real GDP Growth, Year-on-Year: ", "Q", quarter(EU_GDP_YOY_SHP$time[10]), " ", year(EU_GDP_YOY_SHP$time[10]))) +
   scale_x_continuous(limits = c(1600000, 7150000)) +
   scale_y_continuous(limits = c(1300000, 5300000)) +
   theme(plot.title = element_text(size = 24)) +
@@ -430,6 +427,263 @@ EU_BROAD_GDP_YOY_SHP_GRAPH <- ggplot(data = EU_GDP_YOY_SHP, aes(fill = yoy)) +
 
 
 ggsave(dpi = "retina",plot = EU_BROAD_GDP_YOY_SHP_GRAPH, "EU GDP Yoy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EU_GDP_2019 <- EU_GDP %>%
+  subset(unit == "CLV20_MEUR" & s_adj == "SCA" & na_item == "B1GQ") %>%
+  transmute(geo, time = TIME_PERIOD, values) %>%
+  subset(time >= as.Date("2019-07-01")) %>%
+  arrange(geo, time) %>%
+  group_by(geo) %>%
+  mutate(yoy = values/values[1]-1) %>%
+  ungroup() %>%
+  filter(time == max(time)) %>%
+  mutate(geo = gsub("EL","GR",geo)) %>%
+  filter(geo %in% c("AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"))
+
+EU_GDP_2019_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  subset(., continent == "Europe" | sovereignt %in% c("Turkey","Cyprus","Malta")) %>%
+  mutate(iso_a2 = ifelse(sovereignt == "Kosovo", "XK", iso_a2)) %>%
+  st_transform(., crs = 3035) %>%
+  st_as_sf() %>%
+  mutate(geo = iso_a2_eh)
+
+EU_GDP_2019_SHP <- full_join(EU_GDP_2019_SHP, EU_GDP_2019, by = "geo") %>%
+  select(geometry, yoy, geo, name) %>%
+  mutate(label = yoy) %>%
+  mutate(yoy = case_when(
+    yoy > 0.25 ~ 0.25,
+    yoy < -0.05 ~ -0.05,
+    TRUE ~ yoy
+  )) %>%
+  st_as_sf()
+
+EU_GDP_CENTROIDS_2019 <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  subset(., continent == "Europe" | sovereignt %in% c("Turkey","Cyprus","Malta")) %>%
+  mutate(iso_a2 = ifelse(sovereignt == "Kosovo", "XK", iso_a2)) %>%
+  st_transform(., crs = 3035) %>%
+  st_as_sf() %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(EU_GDP_2019_SHP %>% st_drop_geometry(), .) %>%
+  mutate(lat = if_else(geo == "FR", lat + 350000, lat)) %>%
+  mutate(long = if_else(geo == "FR", long + 850000, long)) %>%
+  mutate(lat = if_else(geo == "FI", lat - 150000, lat)) %>%
+  mutate(long = if_else(geo == "FI", long + 50000, long)) %>%
+  mutate(lat = if_else(geo == "SE", lat - 250000, lat)) %>%
+  mutate(long = if_else(geo == "SE", long - 50000, long)) %>%
+  
+  mutate(lat = if_else(geo == "IT", lat + 280000, lat)) %>%
+  mutate(long = if_else(geo == "IT", long - 150000, long)) %>%
+  
+  mutate(long = if_else(geo == "DE", long - 50000, long)) %>%
+  mutate(long = if_else(geo == "AT", long + 25000, long)) %>%
+  
+  mutate(lat = if_else(geo == "HU", lat - 25000, lat)) %>%
+  mutate(long = if_else(geo == "HU", long - 50000, long)) %>%
+  
+  st_as_sf(coords = c("long","lat"), crs = 3035) %>%
+  st_centroid()
+
+
+EU_BROAD_GDP_2019_SHP_GRAPH <- ggplot(data = EU_GDP_2019_SHP, aes(fill = yoy)) +
+  geom_sf(color = NA) +
+  geom_sf(color = "black", fill = NA, lwd = 0.35) + # Black borders for states
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"), label = c("-5%+","0%","5%","10%","15%","20%","25%+"),breaks = c(-0.05,0,0.05,0.1,0.15,0.2,0.25), expand = c(0,0)) +
+  ggtitle("    EU Real GDP Growth Since Q3 2019") +
+  scale_x_continuous(limits = c(1600000, 7150000)) +
+  scale_y_continuous(limits = c(1300000, 5300000)) +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Eurostat data") +
+  labs(fill = NULL) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("SI")), 
+    aes(x = 4700000, y = st_coordinates(geometry)[,2]-230000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("HR")), 
+    aes(x = 4700000, y = st_coordinates(geometry)[,2]-360000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("DK")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+450000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("NL")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+620000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("BE")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+560000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("LU")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+430000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("EE")), 
+    aes(x = 5250000, y = st_coordinates(geometry)[,2]+30000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("LV")), 
+    aes(x = 5250000, y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("LT")), 
+    aes(x = 5250000, y = st_coordinates(geometry)[,2]-60000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("CY")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("GR")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 100000,nudge_x = 400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("MT")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -100000,nudge_x = 0, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("PT")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = -300000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("IE")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 0,nudge_x = -400000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("SK")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    size = 3, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 200000,nudge_x = 500000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(EU_GDP_CENTROIDS_2019, !geo %in% c("AD","IS","UA","RS","TR","MD","AX","CH","SM","VA","ME","AL","MK","BA","JE","IM","FO","GB","BB","LI","MC","GG","XK","NO","IE","LU","NE","EE","LT","NL","BE","DK","BY","LV","MT","GR","CY","SI","SK","HR","BG","CZ","HU","AT","PT")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(EU_GDP_CENTROIDS_2019, geo %in% c("BG","CZ","HU","AT")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  theme(plot.title.position = "panel") + theme(plot.title = element_text(hjust = 0, margin = margin(l = -20))) +
+  theme_apricitas + theme(legend.position = c(0.1,.65), panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, -0.2, 0, -1.5), "in"), legend.key = element_blank(),axis.title.x = element_blank(), axis.title.y = element_blank())
+
+
+ggsave(dpi = "retina",plot = EU_BROAD_GDP_2019_SHP_GRAPH, "EU GDP 2019 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 INSEE_dataset_list = get_dataset_list()
