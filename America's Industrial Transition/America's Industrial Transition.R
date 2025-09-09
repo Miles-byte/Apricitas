@@ -433,6 +433,32 @@ ELECTRIC_SPENDING_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = ELECTRIC_SPENDING_Graph, "ELECTRIC SPENDING GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+ELECTRIC_POWER_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xlsx/totsatime.xlsx") %>%
+  drop_na() %>%
+  row_to_names(1) %>%
+  select(`Private\n_x000D_Power`,`Public\n_x000D_Power`) %>%
+  `colnames<-`(c("Private","Public")) %>%
+  mutate_if(is.character,as.numeric) %>%
+  .[order(nrow(.):1),] %>%
+  drop_na() %>%
+  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.))) %>%
+  mutate_if(is.character,as.numeric) %>%
+  pivot_longer(-date) %>%
+  subset(date >= as.Date("2018-01-01"))
+
+ELECTRIC_POWER_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = ELECTRIC_POWER_SPENDING_CATEGORIES, aes(x = date, y = value/1000, fill = name), color = NA, width = 32, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,200), breaks = c(0,50,100,150,200), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US Power Construction Spending") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "US Power Sector Construction Has Stagnated Since Early-2024, Despite Accelerating Demand") +
+  theme_apricitas + theme(legend.position = c(0.15,0.85), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*250), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = ELECTRIC_POWER_SPENDING_CATEGORIES_GRAPH, "Electric Power Spending Categories.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 p_unload(all)  # Remove all packages using the package manager

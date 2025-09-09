@@ -1258,7 +1258,7 @@ FIXED_IP_INVEST_GROWTH_GRAPH <- ggplot() + #growth in IP investment
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.025,0.175), breaks = c(0,0.05,0.1,0.15), expand = c(0,0)) +
   ylab("Percent Growth, Year on Year") +
   ggtitle("Real IP Investment, Year-on-Year Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Software and R&D Surged During the Pandemic—But is Cooling Significantly Now") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Software is Rebounding Amidst the AI Boom") +
   theme_apricitas + theme(legend.position = c(.225,.925)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Software","Research and Development")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -.025-(.3*.2), ymax = -.025) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
