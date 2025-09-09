@@ -437,7 +437,7 @@ Race_Graph <- ggplot() + #plotting u1 unemployment rate
   xlab("Date") +
   ylab("%") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.22), expand = c(0,0)) +
-  ggtitle("Unemployment Rates by Race") +
+  ggtitle("Unemployment Rates by Race/Ethnicity") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Black Unemployment Rate Has Risen Significantly Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.75,.87)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("Unemployment Rate - White","Unemployment Rate - Asian","Unemployment Rate - Hispanic or Latino","Unemployment Rate - Black or African American")) +
