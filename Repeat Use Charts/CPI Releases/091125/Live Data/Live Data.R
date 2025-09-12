@@ -96,12 +96,17 @@ CPIPCT_NONDURABLES <- bls_api("CUUR0000SAN", startyear = 2017, endyear = 2025, c
   mutate(value = (value-lead(value,12))/lead(value,12))  %>%
   subset(date >= as.Date("2019-01-01")) #cpi rent data
 
+CPIPCT_GOODSEXFE <- bls_api("CUUR0000SACL1E", startyear = 2017, endyear = 2025, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = (value-lead(value,12))/lead(value,12))  %>%
+  subset(date >= as.Date("2019-01-01")) #cpi rent data
 
 CPIPCT_GOODS_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=CPIPCT_GOODSEXFE, aes(x=date,y= value,color= "Excluding Food & Energy"), size = 1.25) +
   geom_line(data=CPIPCT_DURABLES, aes(x=date,y= value,color= "Nondurables"), size = 1.25) +
   geom_line(data=CPIPCT_NONDURABLES, aes(x=date,y= value,color= "Durables"), size = 1.25) +
-  geom_line(data=CPIPCT_COMMODITIES, aes(x=date,y= value,color= "All Goods"), size = 2.25) +
+  geom_line(data=CPIPCT_COMMODITIES, aes(x=date,y= value,color= "All Goods"), size = 1.25) +
   # annotate("vline", x= as.Date("2022-08-01"), xintercept= as.Date("2022-08-01"), color = "white", size = 1.25, linetype = "dashed") +
   # annotate("text",label = "Inflation Reduction Act Signed", x= as.Date("2021-09-01"), y = 0.0075, color = "white", size = 5.5) +
   xlab("Date") +
@@ -109,8 +114,8 @@ CPIPCT_GOODS_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   ylab("Percent Change From Year Ago") +
   ggtitle("The Goods Inflation Situation") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "Goods Inflation is Rebounding Amidst the Trade War") +
-  theme_apricitas + theme(legend.position = c(.20,.50)) +
-  scale_color_manual(name= "CPI Growth, Year-on-Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Goods","Durables","Nondurables")) +
+  theme_apricitas + theme(legend.position = c(.18,.75)) +
+  scale_color_manual(name= "CPI Growth, Year-on-Year",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("All Goods","Durables","Nondurables","Excluding Food & Energy")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.05-(.3*0.25), ymax = -0.05) +
   coord_cartesian(clip = "off")
 
@@ -162,6 +167,29 @@ CPI_COFFEE_INDEX_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CPI_COFFEE_INDEX_Graph, "CPI COFFEE Index.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BANANA_PRICES <- bls_api("CUUR0000SEFK02", startyear = 2016, endyear = 2025, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(value = (value-lead(value,12))/lead(value,12))  %>%
+  subset(date >= as.Date("2019-01-01")) #cpi rent data
+
+
+CPI_BANANA_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=BANANA_PRICES, aes(x=date,y= value,color= "CPI: Banana Prices,\nYear-on-Year Growth"), size = 1.25) +
+  # annotate("vline", x= as.Date("2022-08-01"), xintercept= as.Date("2022-08-01"), color = "white", size = 1.25, linetype = "dashed") +
+  # annotate("text",label = "Inflation Reduction Act Signed", x= as.Date("2021-09-01"), y = 0.0075, color = "white", size = 5.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,0.10), breaks = c(-0.05,0,0.05,0.1,0.15,0.2), expand = c(0,0)) +
+  ylab("Percent Change From Year Ago") +
+  ggtitle("US Banana Price Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Banana Prices are Up ",round(BANANA_PRICES$value[1]*100),"% Over the Last Year")) +
+  theme_apricitas + theme(legend.position = c(.20,.70)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.05-(.3*0.15), ymax = -0.05) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_BANANA_Graph, "CPI BANANA.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 
