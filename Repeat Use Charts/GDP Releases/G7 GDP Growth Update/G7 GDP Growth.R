@@ -178,7 +178,7 @@ SPA_GDP <- EU_GDP_BULK %>%
   mutate(value = value/value[7]*100)
 
 SPA_POP <- EU_POP_BULK %>%
-  filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  filter(s_adj == "SCA", geo == "ES", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
   transmute(date = TIME_PERIOD, value = values)
 
 SPA_PER_CAPITA <- merge(SPA_POP,SPA_GDP, by = "date") %>%
@@ -236,7 +236,7 @@ JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
   mutate(value = value/value[7]*100)
 
 RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
-  #geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
+  geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
   #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
