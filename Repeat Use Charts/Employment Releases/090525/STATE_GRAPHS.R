@@ -2318,7 +2318,7 @@ VI_MANU_NSA <- bls_api("SMU78000003000000001", startyear = 2020, registrationKey
 
 
 
-MANU_JOB_GROWTH_NSA <- rbind(AL_NSA, AK_NSA, AZ_NSA, AR_NSA, CA_NSA, CO_NSA, CT_NSA, DE_NSA, DC_NSA, FL_NSA, GA_NSA, HI_NSA, ID_NSA, IL_NSA, IN_NSA, IA_NSA, KS_NSA, KY_NSA, LA_NSA, ME_NSA, MD_NSA, MA_NSA, MI_NSA, MN_NSA, MS_NSA, MO_NSA, MT_NSA, NE_NSA, NV_NSA, NH_NSA, NJ_NSA, NM_NSA, NY_NSA, NC_NSA, ND_NSA, OH_NSA, OK_NSA, OR_NSA, PA_NSA, RI_NSA, SC_NSA, SD_NSA, TN_NSA, TX_NSA, UT_NSA, VT_NSA, VA_NSA, WA_NSA, WV_NSA, WI_NSA, WY_NSA, PR_NSA, VI_NSA) %>%
+MANU_JOB_GROWTH_NSA <- rbind(AL_MANU_NSA, AK_MANU_NSA, AZ_MANU_NSA, AR_MANU_NSA, CA_MANU_NSA, CO_MANU_NSA, CT_MANU_NSA, DE_MANU_NSA, DC_MANU_NSA, FL_MANU_NSA, GA_MANU_NSA, HI_MANU_NSA, ID_MANU_NSA, IL_MANU_NSA, IN_MANU_NSA, IA_MANU_NSA, KS_MANU_NSA, KY_MANU_NSA, LA_MANU_NSA, ME_MANU_NSA, MD_MANU_NSA, MA_MANU_NSA, MI_MANU_NSA, MN_MANU_NSA, MS_MANU_NSA, MO_MANU_NSA, MT_MANU_NSA, NE_MANU_NSA, NV_MANU_NSA, NH_MANU_NSA, NJ_MANU_NSA, NM_MANU_NSA, NY_MANU_NSA, NC_MANU_NSA, ND_MANU_NSA, OH_MANU_NSA, OK_MANU_NSA, OR_MANU_NSA, PA_MANU_NSA, RI_MANU_NSA, SC_MANU_NSA, SD_MANU_NSA, TN_MANU_NSA, TX_MANU_NSA, UT_MANU_NSA, VT_MANU_NSA, VA_MANU_NSA, WA_MANU_NSA, WV_MANU_NSA, WI_MANU_NSA, WY_MANU_NSA, PR_MANU_NSA, VI_MANU_NSA) %>%
   select(date, value, name, seriesID) %>%
   arrange(name, date) %>%
   group_by(name) %>%
@@ -2360,7 +2360,8 @@ MANU_JOB_GROWTH_STATE_YOY_RAINBOW <- states_job_growth_NSA  %>%
   geom_sf(color = NA) +
   geom_sf(data = states_job_growth_NSA, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
   #scale_fill_manual(values = c("#EE6055","#F5B041","#FFE98F","#AFEEEE","#AED581", "#00A99D","#3083DC"), #Commenting out old color scheme
-  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(-0.06,0.06),label = scales::percent_format(accuracy = 1),breaks = c(-0.06,-0.04,-0.02,0,0.02,0.04,0.06), expand = c(0,0)) +
+  #scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(-0.06,0.06),label = scales::percent_format(accuracy = 1),breaks = c(-0.06,-0.04,-0.02,0,0.02,0.04,0.06), expand = c(0,0)) +
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1), expand = c(0,0)) +
   geom_label(
     data = filter(states_territories_centroids_NSA, state_abbv %in% c("NH")), 
     aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Yoy_Growth >= 0, " ", ""), sprintf("%.1f", round(Yoy_Growth * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
@@ -2501,7 +2502,7 @@ MANU_JOB_GROWTH_STATE_YOY_RAINBOW <- states_job_growth_NSA  %>%
   labs(caption = "Graph created by @JosephPolitano using BLS data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
-  theme(plot.title = element_text(size = 25.5))
+  theme(plot.title = element_text(size = 25))
 
 ggsave(dpi = "retina",plot = MANU_JOB_GROWTH_STATE_YOY_RAINBOW, "Manufacturing Job Growth By State Yoy Map Rainbow.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 

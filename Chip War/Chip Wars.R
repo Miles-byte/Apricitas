@@ -1348,13 +1348,13 @@ US_IND_PRO_CAP_ADJUSTED_GRAPH <- ggplot() + #plotting US Semiconductor Indpro
   geom_line(data=US_IND_PRO, aes(x=date,y= value/value[25]*100,color= "Industrial Production, Semiconductors and Other Electronic Components (NAICS = 3344)"), size = 1.25) +
   geom_line(data=US_IND_CAP, aes(x=date,y= value/US_IND_PRO$value[25]*100,color= "Industrial Capacity, Semiconductors and Other Electronic Components (NAICS = 3344)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,200), breaks = c(75,100,125,150,175,200), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(75,210), breaks = c(75,100,125,150,175,200), expand = c(0,0)) +
   ylab("Index, Jan 2018 = 100") +
   ggtitle("US Semiconductor Production & Capacity") +
   labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "US Semiconductor Production and Capacity are at Record Highs") +
   theme_apricitas + theme(legend.position = c(.52,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 75-(.3*125), ymax = 75) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 75-(.3*135), ymax = 75) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_IND_PRO_CAP_ADJUSTED_GRAPH, "IND PRO CAP ADJUSTED Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

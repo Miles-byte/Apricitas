@@ -450,6 +450,215 @@ US_TAIWAN_ADP_NET_IMPORTS_ROLLED_graph <- ggplot() + #plotting permanent and tem
 
 ggsave(dpi = "retina",plot = US_TAIWAN_ADP_NET_IMPORTS_ROLLED_graph, "US Taiwan ADP Net Imports Rolled Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+COMPUTER_IMPORTS_TOTAL_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "8471", #ADP
+  I_COMMODITY = "847130", #ADP
+)
+
+COMPUTER_X_LAPTOP_IMPORTS <- COMPUTER_IMPORTS_TOTAL_BULK %>%
+  filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  group_by(time,I_COMMODITY) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>%
+  transmute(date = as.Date(paste0(time,"-01")),
+            imports = `8471`-`847130`,
+            total = `8471`)
+
+COMPUTER_PARTS_TOTAL_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "8473", #Parts
+)
+
+COMPUTER_PARTS_IMPORTS <- COMPUTER_PARTS_TOTAL_BULK %>%
+  filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
+  group_by(time,I_COMMODITY) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>%
+  transmute(date = as.Date(paste0(time,"-01")),imports = `8473`)
+
+US_CHIP_TOTAL_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("MONTH", "YEAR", "CON_VAL_MO", "I_COMMODITY", "CTY_CODE", "CTY_NAME"), 
+  #DF = 1, #excluding reexport
+  time = paste("from 2013 to", format(Sys.Date(), "%Y")),
+  I_COMMODITY = "854231", #Digital Processing Units
+  #E_COMMODITY = "847180", #Automated Data Processing Units
+  #E_COMMODITY = "847330", #Parts and Accessories of ADP Units
+  #E_COMMODITY = "854231", #logic chips
+  #E_COMMODITY = "854232", #memory chips
+) 
+
+US_CHIP_IMPORTS <- US_CHIP_TOTAL_BULK %>%
+  filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  group_by(time,I_COMMODITY) %>%
+  summarise(GEN_VAL_MO = sum(GEN_VAL_MO)) %>%
+  ungroup() %>%
+  pivot_wider(names_from = I_COMMODITY, values_from = GEN_VAL_MO) %>%
+  transmute(date = as.Date(paste0(time,"-01")),imports = `854231`)
+
+
+US_LARGE_COMPUTER_IMPORTS_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(COMPUTER_X_LAPTOP_IMPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= imports*12/1000000000, color= "Large Computers"), size = 1.25) +
+  geom_line(data= filter(COMPUTER_PARTS_IMPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= imports*12/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
+  #geom_line(data= filter(US_CHIP_IMPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= imports*12/1000000000, color= "Semiconductors"), size = 1.25) +
+  xlab("Date") +
+  ylab("Net Imports, Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350,400), limits = c(0,ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/5000000000)*5), expand = c(0,0)) +
+  ggtitle("Computer Imports Surge Amid the AI Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Census Trade data. Large Computers = HS8471 ex Laptops, Computer Parts = HS8473", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports") +
+  theme_apricitas + theme(legend.position = c(.40,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= "US Imports, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Large Computers","Computer Parts & Accessories","GPUs/CPUs/TPUs")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/5000000000)*5)+1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+
+ggsave(dpi = "retina",plot = US_LARGE_COMPUTER_IMPORTS_graph, "US Large Computer Imports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+COMPUTER_IMPORTS_TOTAL_BREAKDOWN <- COMPUTER_IMPORTS_TOTAL_BULK %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO),
+         CTY_NAME = case_when(
+           CTY_NAME %in% c("TAIWAN") ~ "Taiwan",
+           CTY_NAME %in% c("MEXICO") ~ "Mexico",
+           CTY_NAME %in% c("VIETNAM") ~ "Vietnam",
+           CTY_NAME %in% c("CHINA") ~ "China",
+           CTY_NAME %in% c("HONG KONG") ~ "China",
+           CTY_NAME %in% c("MACAU") ~ "China",
+           CTY_NAME %in% c("THAILAND") ~ "Thailand",
+           CTY_NAME %in% c("MALAYSIA") ~ "Malaysia",
+           CTY_NAME %in% c("KOREA, SOUTH") ~ "South Korea",
+           CTY_NAME %in% c("TOTAL FOR ALL COUNTRIES") ~ "Total",
+           TRUE ~ "Other"
+         )) %>%
+  filter(CTY_NAME != "Other") %>%
+  group_by(time, I_COMMODITY, CTY_NAME) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE), .groups = "drop") %>%
+  ungroup() %>% pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>% transmute(date = as.Date(paste0(time,"-01")), CTY_NAME, imports = `8471`-`847130`) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = imports) %>%
+  filter(date >= as.Date("2021-01-01")) %>%
+  mutate(Other = Total - Taiwan - Mexico - Vietnam - China - Thailand - Malaysia - `South Korea`) %>%
+  select(-Total)
+
+COMPUTER_PARTS_IMPORTS_TOTAL_BREAKDOWN <- COMPUTER_PARTS_TOTAL_BULK %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO),
+         CTY_NAME = case_when(
+           CTY_NAME %in% c("TAIWAN") ~ "Taiwan",
+           CTY_NAME %in% c("MEXICO") ~ "Mexico",
+           CTY_NAME %in% c("VIETNAM") ~ "Vietnam",
+           CTY_NAME %in% c("CHINA") ~ "China",
+           CTY_NAME %in% c("HONG KONG") ~ "China",
+           CTY_NAME %in% c("MACAU") ~ "China",
+           CTY_NAME %in% c("THAILAND") ~ "Thailand",
+           CTY_NAME %in% c("MALAYSIA") ~ "Malaysia",
+           CTY_NAME %in% c("KOREA, SOUTH") ~ "South Korea",
+           CTY_NAME %in% c("TOTAL FOR ALL COUNTRIES") ~ "Total",
+           TRUE ~ "Other"
+         )) %>%
+  filter(CTY_NAME != "Other") %>%
+  group_by(time, I_COMMODITY, CTY_NAME) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE), .groups = "drop") %>%
+  ungroup() %>% pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>% transmute(date = as.Date(paste0(time,"-01")), CTY_NAME, imports = `8473`) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = imports) %>%
+  filter(date >= as.Date("2021-01-01")) %>%
+  mutate(Other = Total - Taiwan - Mexico - Vietnam - China - Thailand - Malaysia - `South Korea`) %>%
+  select(-Total)
+
+CHIP_IMPORTS_TOTAL_BREAKDOWN <- US_CHIP_TOTAL_BULK %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO),
+         CTY_NAME = case_when(
+           CTY_NAME %in% c("TAIWAN") ~ "Taiwan",
+           CTY_NAME %in% c("MEXICO") ~ "Mexico",
+           CTY_NAME %in% c("VIETNAM") ~ "Vietnam",
+           CTY_NAME %in% c("CHINA") ~ "China",
+           CTY_NAME %in% c("HONG KONG") ~ "China",
+           CTY_NAME %in% c("MACAU") ~ "China",
+           CTY_NAME %in% c("THAILAND") ~ "Thailand",
+           CTY_NAME %in% c("MALAYSIA") ~ "Malaysia",
+           CTY_NAME %in% c("KOREA, SOUTH") ~ "South Korea",
+           CTY_NAME %in% c("TOTAL FOR ALL COUNTRIES") ~ "Total",
+           TRUE ~ "Other"
+         )) %>%
+  filter(CTY_NAME != "Other") %>%
+  group_by(time, I_COMMODITY, CTY_NAME) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE), .groups = "drop") %>%
+  ungroup() %>% pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>% transmute(date = as.Date(paste0(time,"-01")), CTY_NAME, imports = `854231`) %>%
+  pivot_wider(names_from = CTY_NAME, values_from = imports) %>%
+  filter(date >= as.Date("2021-01-01")) %>%
+  mutate(Other = Total - Taiwan - Mexico - Vietnam - China - Thailand - Malaysia - `South Korea`) %>%
+  select(-Total)
+
+AI_IMPORTS_BREAKDOWN <- merge(COMPUTER_IMPORTS_TOTAL_BREAKDOWN,COMPUTER_PARTS_IMPORTS_TOTAL_BREAKDOWN, by = "date") %>%
+  merge(.,CHIP_IMPORTS_TOTAL_BREAKDOWN, by = "date") %>%
+  transmute(date,
+            Taiwan = Taiwan.x + Taiwan.y + Taiwan,
+            Mexico = Mexico.x + Mexico.y + Mexico,
+            Vietnam = Vietnam.x + Vietnam.y + Vietnam,
+            China = China.x + China.y + China,
+            Thailand = Thailand.x + Thailand.y + Thailand,
+            Malaysia = Thailand.x + Thailand.y + Thailand,
+            `South Korea` = `South Korea.x` + `South Korea.y` + `South Korea`,
+            Other = Other.x + Other.y + Other)
+
+
+AI_RELATED_IMPORTS <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= `Other`*12/1000000000,color= "All Other Countries"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= China*12/1000000000,color= "China"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Mexico*12/1000000000,color= "Mexico"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Taiwan*12/1000000000,color= "Taiwan"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Vietnam*12/1000000000,color= "Vietnam"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Thailand*12/1000000000,color= "Thailand"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Malaysia*12/1000000000,color= "Malaysia"), size = 1.25) + 
+  geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= `South Korea`*12/1000000000,color= "South Korea"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,175),breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("US AI-Related Computer & Parts Imports") +
+  labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers) - 847130 (laptops) + 8473 (parts) + 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan and Mexico") +
+  theme_apricitas + theme(legend.position = c(.45,.60)) +
+  scale_color_manual(name = "AI-Related Computer & Parts Imports, Billions, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Taiwan","Mexico","Malaysia","Vietnam","Thailand","South Korea","China","All Other Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(175)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AI_RELATED_IMPORTS, "AI Related Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+TAIWAN_IMPORTS_BREAKDOWN <- merge(COMPUTER_IMPORTS_TOTAL_BREAKDOWN,COMPUTER_PARTS_IMPORTS_TOTAL_BREAKDOWN, by = "date") %>%
+  merge(.,CHIP_IMPORTS_TOTAL_BREAKDOWN, by = "date") %>%
+  transmute(date,`Large Computers` = Taiwan.x, `Computer Parts` = Taiwan.y, `GPUs` = Taiwan)
+
+AI_RELATED_IMPORTS_TAIWAN <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `Large Computers`*12/1000000000,color= "Large Computers"), size = 1.25) + 
+  geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `Computer Parts`*12/1000000000,color= "Computer Parts"), size = 1.25) + 
+  geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `GPUs`*12/1000000000,color= "GPUs"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,125),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("US AI-Related Imports From Taiwan") +
+  labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers), 847130 (laptops), 8473 (parts), 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan") +
+  theme_apricitas + theme(legend.position = c(.45,.60)) +
+  scale_color_manual(name = "AI-Related Computer & Parts Imports, Billions, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Large Computers","Computer Parts","GPUs")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(125)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AI_RELATED_IMPORTS_TAIWAN, "AI Related Imports Taiwan Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 FIXED_EQUIP_INVEST_SPECS_REAL <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
