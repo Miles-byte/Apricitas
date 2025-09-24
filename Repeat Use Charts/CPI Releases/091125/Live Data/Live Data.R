@@ -217,6 +217,29 @@ CPI_ELECTRICITY_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
 ggsave(dpi = "retina",plot = CPI_ELECTRICITY_Graph, "CPI ELECTRICITY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+ELECTRICITY_PRICES_INDEX <- bls_api("CUSR0000SEHF01", startyear = 2016, endyear = 2025, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  subset(date >= as.Date("2019-01-01")) %>%
+  arrange(rev(desc((date)))) %>%
+  mutate(value = value/value[13]-1)
+
+CPI_ELECTRICITY_INDEX_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data=ELECTRICITY_PRICES_INDEX, aes(x=date,y= value,color= "CPI: Electicity Prices,\nChange Since Jan 2020"), size = 1.25) +
+  # annotate("vline", x= as.Date("2022-08-01"), xintercept= as.Date("2022-08-01"), color = "white", size = 1.25, linetype = "dashed") +
+  # annotate("text",label = "Inflation Reduction Act Signed", x= as.Date("2021-09-01"), y = 0.0075, color = "white", size = 5.5) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.10,0.40), breaks = c(-.1,0,0.1,0.2,0.3,0.4), expand = c(0,0)) +
+  ylab("Percent Change Since Jan 2020") +
+  ggtitle("US Electricity Prices, Growth Since 2020") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Electricity Prices are Up ",round(ELECTRICITY_PRICES_INDEX$value[nrow(ELECTRICITY_PRICES_INDEX)]*100),"% Since January 2020")) +
+  theme_apricitas + theme(legend.position = c(.20,.50)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -.10-(.3*0.5), ymax = -0.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_ELECTRICITY_INDEX_Graph, "CPI ELECTRICITY INDEX.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 USED_CAR_PRICES <- bls_api("CUUR0000SETA02", startyear = 2016, endyear = 2025, calculations = TRUE, Sys.getenv("BLS_KEY"))%>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%

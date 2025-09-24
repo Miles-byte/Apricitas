@@ -262,6 +262,10 @@ JOLTS_HIRE <- rbind(AL_JOLTS_HIRE, AK_JOLTS_HIRE, AZ_JOLTS_HIRE, AR_JOLTS_HIRE, 
   select(date, value, name, seriesID) %>%
   filter(date == max(date))
 
+devtools::install_github("UrbanInstitute/urbnmapr")
+library(urbnmapr)
+
+
 states_JOLTS_HIRE <- get_urbn_map("territories_states", sf = TRUE) %>%
   st_as_sf()
 

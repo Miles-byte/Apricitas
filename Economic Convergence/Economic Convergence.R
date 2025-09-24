@@ -462,12 +462,12 @@ CONVERGENCE_MIDDLE_LOW_INCOME_FINAL_graph <- ggplot() +
   geom_line(data=filter(CONVERGENCE_LOW_INCOME_FINAL_DATA, date >= as.Date("1980-01-01")), aes(x=date,y= weighted_avg_GDP-US_GDP, color="Low-Income Countries"), size = 1.25) +
   xlab("Date") +
   ylab("Growth, Relative to the US, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.35), breaks = c(-.15,0,0.1,0.2,0.3), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.15,0.5), breaks = c(-.1,0,0.1,0.2,0.3,0.4,0.5), expand = c(0,0)) +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data. NOTE: Growth is Population-Weighted", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.82), plot.title = element_text(size = 27)) +
-  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nRelative to the US\n4-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Middle-Income Countries","Low-Income Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1994-01-01")-(.1861*(today()-as.Date("1994-01-01"))), xmax = as.Date("1994-01-01")-(0.049*(today()-as.Date("1994-01-01"))), ymin = -.15-(.3*(.45)), ymax = -0.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nRelative to the US\n5-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Middle-Income Countries","Low-Income Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = -.15-(.3*(.65)), ymax = -0.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONVERGENCE_MIDDLE_LOW_INCOME_FINAL_graph, "Convergence Middle and Low Income Final Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

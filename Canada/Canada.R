@@ -507,6 +507,170 @@ GDPContribCANADA_Graph <- ggplot(CANADA_GDP_CONTRIB, aes(fill=name, x=date, y=va
 ggsave(dpi = "retina",plot = GDPContribCANADA_Graph, "GDP Contributions Canada.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
+CANADA_CONS_INVESTMENT_BULK <- statcan_data("34-10-0293-01", "eng") 
+
+CANADA_CONS_INVESTMENT <- CANADA_CONS_INVESTMENT_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(`Type of work` == "Types of work, total") %>%
+  filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  filter(`Type of structure` %in% c("Single dwelling building total", "Multiple dwelling building total", "Total non-residential")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Type of structure`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+CANADIAN_CONS_INVESTMENT_GRAPH <- ggplot() +
+  geom_line(data=CANADA_CONS_INVESTMENT, aes(x=date,y= `Total non-residential`/1000000000, color= "Nonresidential"), size = 1.25) +
+  geom_line(data=CANADA_CONS_INVESTMENT, aes(x=date,y= `Single dwelling building total`/1000000000, color= "Single-Family Housing"), size = 1.25) +
+  geom_line(data=CANADA_CONS_INVESTMENT, aes(x=date,y= `Multiple dwelling building total`/1000000000, color= "Multi-Family Housing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,11), expand = c(0,0)) +
+  ylab("Billions of 2017 Canadian Dollars, Monthly") +
+  ggtitle("Canadian Real Construction Investment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Overall Canadian Construction Continues to Hold Steady, With Multifamily Rising") +
+  theme_apricitas + theme(legend.position = c(.25,.25)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Multi-Family Housing","Single-Family Housing","Nonresidential")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*11), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CANADIAN_CONS_INVESTMENT_GRAPH, "Canadian Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CANADA_CONS_INVESTMENT_NEW <- CANADA_CONS_INVESTMENT_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(`Type of work` == "New construction") %>%
+  filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  filter(`Type of structure` %in% c("Single", "Multiple dwelling building total")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Type of structure`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+CANADIAN_CONS_INVESTMENT_GRAPH <- ggplot() +
+  geom_line(data=CANADA_CONS_INVESTMENT_NEW, aes(x=date,y= `Single`/1000000000, color= "New Single-Family Housing"), size = 1.25) +
+  geom_line(data=CANADA_CONS_INVESTMENT_NEW, aes(x=date,y= `Multiple dwelling building total`/1000000000, color= "New Multi-Family Housing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,6), expand = c(0,0)) +
+  ylab("Billions of 2017 Canadian Dollars, Monthly") +
+  ggtitle("Canadian Real Construction Investment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canadian Construction of Multifamily Housing Has Risen Significantly Over the Last 7 Years") +
+  theme_apricitas + theme(legend.position = c(.25,.25)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("New Multi-Family Housing","New Single-Family Housing","Nonresidential")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*6), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CANADIAN_CONS_INVESTMENT_GRAPH, "Canadian Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+NEW_BRUNSWICK_CONS_INVESTMENT_NEW <- CANADA_CONS_INVESTMENT_BULK %>%
+  filter(GEO == "New Brunswick") %>%
+  filter(`Type of work` == "New construction") %>%
+  filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  filter(`Type of structure` %in% c("Single", "Multiple dwelling building total")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Type of structure`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH <- ggplot() +
+  geom_line(data=NEW_BRUNSWICK_CONS_INVESTMENT_NEW, aes(x=date,y= `Single`/1000000, color= "New Single-Family Housing"), size = 1.25) +
+  geom_line(data=NEW_BRUNSWICK_CONS_INVESTMENT_NEW, aes(x=date,y= `Multiple dwelling building total`/1000000, color= "New Multi-Family Housing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "M"), limits = c(0,1500), expand = c(0,0)) +
+  ylab("Billions of 2017 Canadian Dollars, Monthly") +
+  ggtitle("Quebec Real Construction Investment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Quebec Construction of Multifamily Housing Has Held Steady Over the Last 7 Years") +
+  theme_apricitas + theme(legend.position = c(.25,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("New Multi-Family Housing","New Single-Family Housing","Nonresidential")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*150), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH, "New Brunswick Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CANADA_TOURISM_ARRIVALS_BULK <- statcan_data("24-10-0054-01", "eng") 
+
+
+CANADA_TOURISM_ARRIVALS <- CANADA_TOURISM_ARRIVALS_BULK %>%
+  filter(`Traveller characteristics` %in% c("United States of America residents entering Canada", "Canadian residents returning from the United States of America","Canadian residents returning from countries other than the United States of America")) %>%
+  filter(`Traveller type` == "Travellers") %>%
+  filter(GEO == "Canada") %>%
+  #filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  #filter(`Type of structure` %in% c("Single", "Multiple dwelling building total")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Traveller characteristics`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+
+CANADA_TOURISM_ARRIVALS_GRAPH <- ggplot() +
+  geom_line(data=CANADA_TOURISM_ARRIVALS, aes(x=date,y= `United States of America residents entering Canada`/1000000, color= "US Visitors to Canada"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS, aes(x=date,y= `Canadian residents returning from the United States of America`/1000000, color= "Canadian Visitors to the US"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS, aes(x=date,y= `Canadian residents returning from countries other than the United States of America`/1000000, color= "Canadian Visitors to other countries"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), limits = c(0,4), expand = c(0,0)) +
+  ylab("Tourists, Monthly, Seasonally adjusted") +
+  ggtitle("Canadian Tourists are Avoiding the US") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Canadian vists counted from returns data",subtitle = "Tourist Visits from Canada to the US Are Down Significantly Since Trump's Election") +
+  theme_apricitas + theme(legend.position = c(.65,.95)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Canadian Visitors to the US","US Visitors to Canada","Canadian Visitors to other countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*4), ymax = 0) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = CANADA_TOURISM_ARRIVALS_GRAPH, "Canadian Tourism Arrivals Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CANADA_TOURISM_ARRIVALS_TYPE <- CANADA_TOURISM_ARRIVALS_BULK %>%
+  filter(`Traveller characteristics` == "Canadian residents returning from the United States of America") %>%
+  #filter(`Traveller type` == "Travellers") %>%
+  filter(GEO == "Canada") %>%
+  #filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  #filter(`Type of structure` %in% c("Single", "Multiple dwelling building total")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Traveller type`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+CANADA_TOURISM_TRAVELLER_TYPE_GRAPH <- ggplot() +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_TYPE, aes(x=date,y= `Excursionists (same-day)`/1000000, color= "Excursionists (same-day)"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_TYPE, aes(x=date,y= `Tourists (overnight)`/1000000, color= "Tourists (overnight)"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), limits = c(0,2.5), expand = c(0,0)) +
+  ylab("Tourists, Monthly, Seasonally adjusted") +
+  ggtitle("Canadian Visits to the US by Type") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Canadian vists counted from returns data",subtitle = "Canadians are taking fewer trips, both long and short, to the US") +
+  theme_apricitas + theme(legend.position = c(.65,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Excursionists (same-day)","Tourists (overnight)")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*2.5), ymax = 0) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = CANADA_TOURISM_TRAVELLER_TYPE_GRAPH, "Canadian Tourism Arrivals Type Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CANADA_TOURISM_ARRIVALS_PROVINCE <- CANADA_TOURISM_ARRIVALS_BULK %>%
+  filter(`Traveller characteristics` == "Canadian residents returning from the United States of America") %>%
+  filter(`Traveller type` == "Travellers") %>%
+  filter(GEO != "Canada") %>%
+  #filter(`Investment Value` == "Seasonally adjusted - constant") %>%
+  #filter(`Type of structure` %in% c("Single", "Multiple dwelling building total")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = GEO) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider() %>%
+  mutate(across(where(is.numeric), ~ . / .[82] -1 )) %>%
+  filter(date >= as.Date("2023-01-01"))
+
+CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH <- ggplot() +
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_PROVINCE, aes(x=date,y= Ontario, color= "Ontario"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_PROVINCE, aes(x=date,y= `British Columbia`, color= "British Columbia"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_PROVINCE, aes(x=date,y= Quebec, color= "Quebec"), size = 1.25) +
+  geom_line(data=CANADA_TOURISM_ARRIVALS_PROVINCE, aes(x=date,y= Alberta, color= "Alberta"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.50,.25), expand = c(0,0)) +
+  ylab("Tourists, Monthly, Seasonally adjusted") +
+  ggtitle("Canadian Visits to the US by Province") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Canadian vists counted from returns data",subtitle = "Canadians are taking fewer trips, both long and short, to the US") +
+  theme_apricitas + theme(legend.position = c(.5,.25)) +
+  scale_color_manual(name= "Percent Change Since October 2024" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Alberta","Ontario","British Columbia","Quebec")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -0.5-(.3*0.75), ymax = -0.5) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH, "Canadian Tourism Arrivals Province Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
 p_unload(all)  # Remove all packages using the package manager
 
 # Clear console
