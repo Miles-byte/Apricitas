@@ -232,9 +232,9 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
   geom_label_repel(
-    data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("NH","VT","MA")), 
-    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0 & GROWTH <= .1, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    data = filter(BEA_GDP_STATE_BINS_LABELS, state_abbv %in% c("NH","VT","MA")),
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0 & GROWTH <= .1, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")),
+    size = 3.5,
     color = "black",
     segment.color = NA,
     hjust = 0.5,
@@ -255,7 +255,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("RI")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
@@ -267,7 +267,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("CT")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -125000, # adjust these values as needed
@@ -279,7 +279,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("NJ")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -130000, # adjust these values as needed
@@ -290,8 +290,8 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   ) +
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -200000, # adjust these values as needed
@@ -303,7 +303,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("MD")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -390000, # adjust these values as needed
@@ -315,7 +315,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("DC")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "   ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -590000, # adjust these values as needed
@@ -327,7 +327,7 @@ BEA_GDP_STATE_GRADIENT_RAW_RAINBOW <- states %>%
   geom_label(
     data = filter(states_centroids, state_abbv %in% c("HI")), 
     aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, " ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
-    size = 3, 
+    size = 3.5, 
     color = "black",
     hjust = 0.5,
     nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
@@ -389,7 +389,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   ggplot(aes(fill = GROWTH_YOY)) +
   geom_sf(color = NA) +
   geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65) + # Black borders for states
-  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1), breaks = c(-0.03,-0.02,-.01,.0,.01,.02,.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1), expand = c(0,0)) +
+  scale_fill_viridis_c(labels = scales::percent_format(accuracy = 0.5), breaks = c(-0.03,-0.025,-0.02,-.01,.0,0.005,.01,0.015,.02,0.025,.03,0.035,0.04,0.045,0.05,0.06,0.07,0.08,0.09,0.1), expand = c(0,0)) +
   ggtitle(paste0("     Real GDP Growth, Year-on-Year—", "Q", quarter(states$date[1]), " ", year(states$date[1]))) +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -397,7 +397,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label_repel(
     data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("NH","VT","MA")), 
     aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3,
+    size = 3.5,
     segment.color = NA,
     hjust = 0.5,
     direction = "y",
@@ -417,7 +417,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("RI")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
     #segment.color = 'white',
@@ -428,7 +428,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("CT")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -125000, # adjust these values as needed
     #segment.color = 'white',
@@ -439,7 +439,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("NJ")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -130000, # adjust these values as needed
     #segment.color = 'white',
@@ -450,7 +450,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("DE")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -200000, # adjust these values as needed
     #segment.color = 'white',
@@ -461,7 +461,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("MD")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -390000, # adjust these values as needed
     #segment.color = 'white',
@@ -472,7 +472,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("DC")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -590000, # adjust these values as needed
     #segment.color = 'white',
@@ -483,7 +483,7 @@ BEA_GDP_STATE_YOY_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("HI")), 
     aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
     #segment.color = 'white',
@@ -508,7 +508,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_sf(color = NA) +
   geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65) + # Black borders for states
   #scale_fill_viridis_c(labels = scales::percent_format(accuracy = 1), breaks = c(-0.03,-0.02,-.01,.0,.01,.02,.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1), expand = c(0,0)) +
-  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-.1,-0.08,-0.06,-0.04,-0.02,0,0.02,0.04,0.06,0.08,0.1,0.12), expand = c(0,0)) +
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-.1,-0.08,-0.06,-0.04,-0.02,-0.01,0,0.01,0.02,0.03,0.04,0.05,0.06,0.08,0.1,0.12), expand = c(0,0)) +
   ggtitle(paste0("     Real GDP Growth, Year-on-Year—", "Q", quarter(states$date[1]), " ", year(states$date[1]))) +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
@@ -516,7 +516,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label_repel(
     data = filter(BEA_GDP_STATE_LABELS_YOY, state_abbv %in% c("NH","VT","MA")), 
     aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3,
+    size = 3.5,
     segment.color = NA,
     hjust = 0.5,
     direction = "y",
@@ -536,7 +536,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("RI")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = 50000, # adjust these values as needed
     #segment.color = 'white',
@@ -547,7 +547,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("CT")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -125000, # adjust these values as needed
     #segment.color = 'white',
@@ -558,7 +558,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("NJ")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -130000, # adjust these values as needed
     #segment.color = 'white',
@@ -569,7 +569,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("DE")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -200000, # adjust these values as needed
     #segment.color = 'white',
@@ -580,7 +580,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("MD")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -390000, # adjust these values as needed
     #segment.color = 'white',
@@ -591,7 +591,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("DC")), 
     aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -590000, # adjust these values as needed
     #segment.color = 'white',
@@ -602,7 +602,7 @@ BEA_GDP_STATE_YOY_RAINBOW_GRAPH <- states %>%
   geom_label(
     data = filter(states_centroids_YOY, state_abbv %in% c("HI")), 
     aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH_YOY >= 0, " ", ""), sprintf("%.1f", round(GROWTH_YOY * 100, 1)), "%"), color = after_scale(prismatic::best_contrast(fill, c("white", "black")))), 
-    size = 3, 
+    size = 3.5, 
     hjust = 0.5,
     nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
     #segment.color = 'white',
@@ -630,7 +630,7 @@ BEA_PCE_PC_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
   "Method" = "GetData", # Method
   "datasetname" = "Regional", # Specify dataset
-  "TableName" = "SARPI", # Specify table within the dataset
+  "TableName" = "SARPP", # Specify table within the dataset
   "Frequency" = "A", # Specify the line code
   "LineCode" = 4, # Specify the line code
   "GeoFips" = "STATE", # Specify the geographical level
@@ -638,7 +638,7 @@ BEA_PCE_PC_SPECS <- list(
 )
 
 BEA_PCE_PC_STATE <- beaGet(BEA_PCE_PC_SPECS, iTableStyle = FALSE, asWide = TRUE) %>%
-  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPI-4")) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPP-4")) %>%
   rename_with(~str_replace(., " Constant", "")) %>%
   select(-`United States`, -TimePeriod) %>%
   mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "1 year"))) %>%

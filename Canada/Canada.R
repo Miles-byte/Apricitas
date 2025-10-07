@@ -669,6 +669,60 @@ CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH, "Canadian Tourism Arrivals Province Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+CAN_GDP_MONTHLY_BULK <- statcan_data("36-10-0434-01", "eng")
+
+CAN_GDP_MONTHLY <- CAN_GDP_MONTHLY_BULK %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted at annual rates") %>%
+  filter(`Prices` == "Chained (2017) dollars") %>%
+  select(REF_DATE,`North American Industry Classification System (NAICS)`, VALUE) %>%
+  pivot_wider(names_from = `North American Industry Classification System (NAICS)`, values_from = VALUE)
+
+CAN_GDP_MONTHLY_GRAPH <- ggplot() +
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=filter(CAN_GDP_MONTHLY, REF_DATE >= as.Date("2022-01-01")), aes(x=REF_DATE,y= `All industries [T001]`/1000000, color= "Canadian Monthly Real GDP"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.01, suffix = "T"), limits = c(2.15,2.3), expand = c(0,0)) +
+  ylab("Trillions of Chained 2017 Canadian Dollars") +
+  ggtitle("Canadian Real GDP") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canada's Economy Has Been Flat Overall in 2025") +
+  theme_apricitas + theme(legend.position = c(.25,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 2.15-(.3*0.15), ymax = 2.15) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_GRAPH, "Canada GDP Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAN_GDP_MONTHLY_MANU_GRAPH <- ggplot() +
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=filter(CAN_GDP_MONTHLY, REF_DATE >= as.Date("2018-01-01")), aes(x=REF_DATE,y= `Manufacturing [31-33]`/1000, color= "Canadian Manufacturing, Real Value Added"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(150,230), expand = c(0,0)) +
+  ylab("Billions of Chained 2017 Canadian Dollars") +
+  ggtitle("Canadian Manufacturing Output is Falling") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canadian Manufacturing Output Continues Declining Admist Tariffs & General Economic Weakness") +
+  theme_apricitas + theme(legend.position = c(.4,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 150-(.3*75), ymax = 150) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_MANU_GRAPH, "Canada GDP Monthly Manu Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_GDP_MONTHLY_CARS_GRAPH <- ggplot() +
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=filter(CAN_GDP_MONTHLY, REF_DATE >= as.Date("2018-01-01")), aes(x=REF_DATE,y= `Motor vehicles and parts manufacturing [336Y]`/1000, color= "Canadian Motor Vehicle & Parts Manufacturing, Real Value Added"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,25), expand = c(0,0)) +
+  ylab("Billions of Chained 2017 Canadian Dollars") +
+  ggtitle("Canadian Car Output Amid US Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canadian Car Industry Output Continues Struggling Amidst 25% Tariffs on US Vehilces Imposed by the US") +
+  theme_apricitas + theme(legend.position = c(.5,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_CARS_GRAPH, "Canada GDP Monthly Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

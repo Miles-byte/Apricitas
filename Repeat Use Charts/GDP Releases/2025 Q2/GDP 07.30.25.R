@@ -1700,7 +1700,7 @@ PCEPI_DETAIL_MONTHLY <- beaGet(PCEPI_DETAIL_SPECS, iTableStyle = FALSE) %>%
   clean_names() %>%
   mutate(across(where(is.numeric),~ .x / lag(.x, 12) - 1)) %>%
   filter(date >= as.Date("2016-01-01")) %>%
-  select(date, u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0)
+  select(date,u20404_dgdsrg_2_goods_fisher_price_index_level_0,u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0,u20404_ddurrg_3_durable_goods_fisher_price_index_level_0)
 
 PCE_PRICE_INDEX_Graph <- ggplot() +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
