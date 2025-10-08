@@ -226,6 +226,12 @@ ND_COM_ELEC <- eia1_series("ELEC.SALES.ND-COM.M") %>%
   mutate(rollsum = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(value,12))) %>%
   mutate(value = (value*12)/rollsum[228]*100, rollsum = rollsum/rollsum[228]*100)
 
+OR_COM_ELEC <- eia1_series("ELEC.SALES.OR-COM.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = sales) %>%
+  arrange(date) %>%
+  mutate(rollsum = c(0,0,0,0,0,0,0,0,0,0,0,rollsum(value,12))) %>%
+  mutate(value = (value*12)/rollsum[228]*100, rollsum = rollsum/rollsum[228]*100)
+
 US_COM_ELEC <- eia1_series("ELEC.SALES.US-COM.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = sales) %>%
   arrange(date) %>%
@@ -235,7 +241,7 @@ US_COM_ELEC <- eia1_series("ELEC.SALES.US-COM.M") %>%
 COM_ELEC_Graph <- ggplot() + #plotting permanent and temporary job losers
   #geom_line(data= filter(US_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= value, color= "US"), size = 0.75, alpha = 0.75, linetype = "dashed") +
   #geom_line(data= filter(VA_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= value, color= "Virginia"), size = 0.75, alpha = 0.75, linetype = "dashed") +
-  #geom_line(data= filter(TX_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= value, color= "Texas"), size = 0.75, alpha = 0.75, linetype = "dashed") +
+  geom_line(data= filter(OR_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "Oregon"), size = 1.25) +
   geom_line(data= filter(VA_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "Virginia"), size = 1.25) +
   geom_line(data= filter(TX_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "Texas"), size = 1.25) +
   geom_line(data= filter(ND_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "North Dakota"), size = 1.25) +
@@ -244,9 +250,9 @@ COM_ELEC_Graph <- ggplot() + #plotting permanent and temporary job losers
   ylab("Sales to Commerical Power Users, 2019 = 100") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130,140,150,160,170,180,190,200), limits = c(80,175), expand = c(0,0)) +
   ggtitle("Electricity Sales to Commercial Users\n(Including Data Centers & Crypto Mining)") +
-  labs(caption = "Graph created by @JosephPolitano using EIA Electricity data", subtitle = "Data Center and Miner Power Demand Has Mattered in Key Markets Like ND, VA, and TX") +
-  theme_apricitas + theme(legend.position = c(.25,.76)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_color_manual(name= "Electricity Sales to Commercial Users\nRolling 12M Total, Indexed, 2019 = 100",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("US","North Dakota","Virginia","Texas"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25)))) +
+  labs(caption = "Graph created by @JosephPolitano using EIA Electricity data", subtitle = "Data Center and Miner Power Demand Has Mattered in Key Markets Like ND, OR, VA, & TX") +
+  theme_apricitas + theme(legend.position = c(.25,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= "Electricity Sales to Commercial Users\nRolling 12M Total, Indexed, 2019 = 100",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("US","North Dakota","Oregon","Virginia","Texas"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25,1.25)))) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*95), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
@@ -500,11 +506,11 @@ US_CHIP_TOTAL_BULK <- getCensus(
 
 US_CHIP_IMPORTS <- US_CHIP_TOTAL_BULK %>%
   filter(CTY_NAME == "TOTAL FOR ALL COUNTRIES") %>%
-  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO)) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
   group_by(time,I_COMMODITY) %>%
-  summarise(GEN_VAL_MO = sum(GEN_VAL_MO)) %>%
+  summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
   ungroup() %>%
-  pivot_wider(names_from = I_COMMODITY, values_from = GEN_VAL_MO) %>%
+  pivot_wider(names_from = I_COMMODITY, values_from = CON_VAL_MO) %>%
   transmute(date = as.Date(paste0(time,"-01")),imports = `854231`)
 
 

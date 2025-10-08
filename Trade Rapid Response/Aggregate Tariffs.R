@@ -81,10 +81,149 @@ AGG_RECIPROCAL_TARIFF_RATE_CAPS <- merge(US_IMPORTS_BULK,US_EXPORTS_BULK, by = "
   #mutate(tariff = 0) %>%
   select(CTY_NAME, tariff)
 
+LETTERS_DATA <- list(
+  #Afghanistan = 0.30,
+  Afghanistan = 0.15,
+  Japan = 0.15,
+  `KOREA, SOUTH` = 0.15,
+  #Malaysia = 0.25,
+  Malaysia = 0.19,
+  Kazakhstan = 0.25,
+  `South Africa` = 0.30,
+  Laos = 0.40,
+  Myanmar = 0.40,
+  Tunisia = 0.25,
+  `Bosnia and Herzegovina` = 0.30,
+  #Indonesia = 0.32,
+  Indonesia = 0.19,
+  Vietnam = 0.20,
+  #Bangladesh = 0.35,
+  Bangladesh = 0.20,
+  Serbia = 0.35,
+  #Cambodia = 0.36,
+  Cambodia = 0.19,
+  #Thailand = 0.36,
+  Thailand = 0.19,
+  #Philippines = 0.20,
+  Philippines = 0.19,
+  Brunei = 0.25,
+  Moldova = 0.25,
+  Algeria = 0.30,
+  #Iraq = 0.30,
+  Iraq = 0.35,
+  Libya = 0.30,
+  #`Sri Lanka` = 0.30,
+  `Sri Lanka` = 0.20,
+  Brazil = 0.50,
+  # Portugal = 0.30,
+  # Spain = 0.30,
+  # France = 0.30,
+  # Ireland = 0.30,
+  # Belgium = 0.30,
+  # Netherlands = 0.30,
+  # Germany = 0.30,
+  # Italy = 0.30,
+  # Czechia = 0.30,
+  # `Czech Republic` = 0.30,
+  # Austria = 0.30,
+  # Slovenia = 0.30,
+  # Croatia = 0.30,
+  # Hungary = 0.30,
+  # Romania = 0.30,
+  # Slovakia = 0.30,
+  # Poland = 0.30,
+  # Bulgaria = 0.30,
+  # Greece = 0.30,
+  # Cyprus = 0.30,
+  # Malta = 0.30,
+  # Denmark = 0.30,
+  # Sweden = 0.30,
+  # Finland = 0.30,
+  # Estonia = 0.30,
+  # Latvia = 0.30,
+  # Lithuania = 0.30,
+  # Luxembourg = 0.30,
+  Portugal = 0.15,
+  Spain = 0.15,
+  France = 0.15,
+  Ireland = 0.15,
+  Belgium = 0.15,
+  Netherlands = 0.15,
+  Germany = 0.15,
+  Italy = 0.15,
+  #Czechia = 0.15,
+  `Czech Republic` = 0.15,
+  Austria = 0.15,
+  Slovenia = 0.15,
+  Croatia = 0.15,
+  Hungary = 0.15,
+  Romania = 0.15,
+  Slovakia = 0.15,
+  Poland = 0.15,
+  Bulgaria = 0.15,
+  Greece = 0.15,
+  Cyprus = 0.15,
+  Malta = 0.15,
+  Denmark = 0.15,
+  Sweden = 0.15,
+  Finland = 0.15,
+  Estonia = 0.15,
+  Latvia = 0.15,
+  Lithuania = 0.15,
+  Luxembourg = 0.15,
+  #`European Union` = 0.15,
+  `UNITED KINGDOM` = 0.10,
+  India = 0.5,
+  Angola = 0.15,
+  Bolivia = 0.15,
+  Botswana = 0.15,
+  Cameroon = 0.15,
+  Chad = 0.15,
+  `Costa Rica` = 0.15,
+  `Ivory Coast` = 0.15,
+  `Democratic Republic of the Congo` = 0.15,
+  `Falkland Islands` = 0.10,
+  `North Macedonia` = 0.15,
+  `Papua New Guinea` = 0.15,
+  Taiwan = 0.20,
+  `Trinidad and Tobago` = 0.15,
+  Ecuador = 0.15,
+  `Equatorial Guinea` = 0.15,
+  Fiji = 0.15,
+  Ghana = 0.15,
+  Guyana = 0.15,
+  Iceland = 0.15,
+  Israel = 0.15,
+  Jordan = 0.15,
+  Liechtenstein = 0.15,
+  Madagascar = 0.15,
+  Malawi = 0.15,
+  Mauritius = 0.15,
+  Mozambique = 0.15,
+  Namibia = 0.15,
+  Nauru = 0.15,
+  `New Zealand` = 0.15,
+  Nicaragua = 0.18,
+  Nigeria = 0.15,
+  Norway = 0.15,
+  Pakistan = 0.19,
+  Switzerland = 0.39,
+  Syria = 0.41,
+  Turkey = 0.15,
+  Uganda = 0.15,
+  Vanuatu = 0.15,
+  Venezuela = 0.15,
+  Zambia = 0.15,
+  Zimbabwe = 0.15,
+  Lesotho = 0.15,
+  Greenland = 0.15
+) %>%
+  enframe(name = "region", value = "tariff") %>%
+  mutate(tariff = unlist(tariff)) %>%
+  mutate(CTY_NAME = str_to_upper(region))
 
+#Adding Letters Data
 
-
-#UPDATE FOR USMCA PART EXCLUSION!
 AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CON_VAL_YR = as.numeric(CON_VAL_YR)) %>%
@@ -456,8 +595,30 @@ AGG_TARIFF_ANALYSIS <- US_COUNTRIES_HS10_IMPORTS_BULK %>%
   
   mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542") & CTY_NAME == "CHINA", .2, tariff)) %>% #April 11th Electronics Exemption
   mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190") & CTY_NAME == "CHINA", .20, tariff)) %>% #April 11th Electronics Exemption
-  mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995") & CTY_NAME != "CHINA", .2, tariff)) %>% #April 11th Electronics Exemption
-  
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995") & CTY_NAME == "CHINA", .2, tariff)) %>% #April 11th Electronics Exemption
+  mutate(tariff = if_else(I_COMMODITY_8 %in% c(
+    "74061000", "74062000","74071015", "74071030", "74071050",
+    "74072115", "74072130", "74072150", "74072170", "74072190",
+    "74072916", "74072934", "74072938", "74072940", "74072950",
+    "74081130", "74081160", "74081900","74082100", "74082210", 
+    "74082250", "74082910", "74082950","74091110", "74091150",
+    "74091910", "74091950", "74091990","74092100", "74092900",
+    "74093110", "74093150", "74093190","74093910", "74093950",
+    "74093990","74094000", "74099010", "74099050", "74099090",
+    "74101100", "74101200", "74102130", "74102160", "74102200",
+    "74111010", "74111050", "74112110", "74112150", "74112200",
+    "74112910", "74112950","74121000", "74122000","74130010", 
+    "74130050", "74130090","74151000", "74152100", "74152900",
+    "74153305", "74153310", "74153380", "74153900","74181000",
+    "74182010", "74182050","74192000", "74198003", "74198006",
+    "74198009", "74198015","74198016", "74198017", "74198030",
+    "74198050","85444210", "85444220", "85444290", "85444910"
+  ), .5, tariff)) %>% #Copper Tariffs
+  left_join(LETTERS_DATA %>%
+              select(CTY_NAME, tariff_ref = tariff),
+            by = "CTY_NAME") %>%
+  mutate(tariff = if_else(tariff <= 0.15 & is.na(tariff_ref) == FALSE & tariff >= .10, tariff_ref, tariff)) %>%
+  select(-tariff_ref) %>%
   #mutate(tariff = if_else(I_COMMODITY_4 %in% c("8471","8486","8524","8542"), 0, tariff)) %>% #April 11th Electronics Exemption
   #mutate(tariff = if_else(I_COMMODITY_6 %in% c("847330","851713","851762","852351","852852","854110","854121","854129","854130","854151","854159","854190"), 0, tariff)) %>% #April 11th Electronics Exemption
   #mutate(tariff = if_else(I_COMMODITY_8 %in% c("85414910","85414970","85414980","85414995"), 0, tariff)) %>% #April 11th Electronics Exemption
@@ -525,15 +686,20 @@ AGG_TARIFF_BY_COUNTRY <- AGG_TARIFF_ANALYSIS %>%
 
 AGG_TARIFF_BY_CATEGORY_SUMMARY <- AGG_TARIFF_BY_CATEGORY %>%
   arrange(desc(tariff_val)) %>%
+  filter(I_COMMODITY %in% c(8507,8544,8504,8541,8411,8501,8536,8537,7408)) %>%
   slice(1:15) %>%
   #mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Batteries","Toys","Phones","Video Game Consoles","Chairs & Seats","Electric Heaters/Dryers","Plastic Articles","Plastic Kitchenware","Audio Equipment","Computers","Transformers","Party Goods","Insulated Wire","Medical Instruments")) %>%
-  mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Phones","Vehicle Parts","Computers","Batteries","Pickup/Delivery Trucks","Toys/Puzzles/Etc","Rubber Tires","Medical Instruments","Misc Furniture","Seats & Chairs","Transformers","Insulated Wires","Unwrought Aluminum","Jets & Turbines")) %>%
+  #mutate(I_COMMODITY_LDESC = c("Cars/SUVs/Minivans","Phones","Vehicle Parts","Computers","Batteries","Pickup/Delivery Trucks","Toys/Puzzles/Etc","Rubber Tires","Medical Instruments","Misc Furniture","Seats & Chairs","Transformers","Insulated Wires","Unwrought Aluminum","Jets & Turbines")) %>%
+  mutate(I_COMMODITY_LDESC = c("Batteries","Insulated Wire & Fiber Optics","Transformers","Solar Panels","Gas Turbines & Jets","Electrical Motors & Generators","Electrical Switches","Electrical Boards & Panels","Copper Wire")) %>%
   arrange(desc(value)) %>%
   mutate(I_COMMODITY_LDESC = paste0(as.character(I_COMMODITY_LDESC), ": ", round_tariff*100, "%")) %>%
   mutate(I_COMMODITY_LDESC = replace(I_COMMODITY_LDESC, 1, paste0(I_COMMODITY_LDESC[1], " Tariff"))) %>%
   mutate(I_COMMODITY_LDESC1 = sub(":.*", "", I_COMMODITY_LDESC)) %>%
-  mutate(I_COMMODITY_LDESC1 = factor(I_COMMODITY_LDESC1, levels = rev(I_COMMODITY_LDESC1)))
-
+  mutate(I_COMMODITY_LDESC1 = factor(I_COMMODITY_LDESC1, levels = rev(I_COMMODITY_LDESC1))) %>%
+  mutate(round_tariff = case_when(
+    round_tariff > 0.25 ~ 0.25,
+    TRUE ~ round_tariff
+  ))
 
 
 TARIFF_BY_CATEGORY_AGG_RAINBOW_GRAPH <- ggplot(data = AGG_TARIFF_BY_CATEGORY_SUMMARY, aes(x = I_COMMODITY_LDESC1, y = value/1000000000, fill = round_tariff)) +
@@ -547,16 +713,17 @@ TARIFF_BY_CATEGORY_AGG_RAINBOW_GRAPH <- ggplot(data = AGG_TARIFF_BY_CATEGORY_SUM
             color = "white", 
             fontface = "bold") +
   xlab(NULL) +
-  ggtitle("Major Imports Hit By Trump's\nTariffs Through May 19th") +
+  ggtitle("  Major Electrical Equipment Imports\n  Hit By Trump's Tariffs Through October 5th") +
   ylab("US Imports in Category, 2024") +
   #scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,310), expand = c(0,0)) +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,310), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,50), expand = c(0,0)) +
   #labs(subtitle = "By % of US Imports") +
   #scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),limits = c(0,1.3),breaks = c(.25,.5,.75,1,1.25), expand = c(0,0)) +
-  scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),limits = c(0,.25),breaks = c(0,.05,.1,.15,.2,.25), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using Census Data. Note: Data by 4-Digit HS Code. Tariff Calculated as Weighted Avg of 2024 Import Mix", subtitle = "Trump's Tariffs Hit Cars, Electronics, and Battery Imports Hard") +
-  theme_apricitas + theme(legend.position = c(.5,.4), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 16, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
-  coord_flip()
+  scale_fill_gradientn(name= "Tariff Rate, 2024 Import Mix",colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = c("0%","5%","10%","15%","20%","25%+"),limits = c(0,.25),breaks = c(0,.05,.1,.15,.2,.25), expand = c(0,0)) +
+  labs(caption = "Graph created by @JosephPolitano using Census Data. Note: Data by 4-Digit HS Code. Tariff Calculated as Weighted Avg of 2024 Import Mix", subtitle = "    Trump's Tariffs are Hitting Electrical Equipment Imports Particularly Hard") +
+  theme_apricitas + theme(legend.position = c(.75,.3), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 16, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
+  coord_flip() +
+  theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = TARIFF_BY_CATEGORY_AGG_RAINBOW_GRAPH, "Tariff By Category Aggregate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 

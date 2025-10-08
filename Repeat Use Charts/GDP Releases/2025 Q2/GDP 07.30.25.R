@@ -1798,6 +1798,49 @@ US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
 ggsave(dpi = "retina",plot = US_COMPUTER_FIXED_EQUIP_INVEST_GRAPH, "US Computer Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+US_DATA_CENTER_FIXED_STRUCTURE_INVEST_GRAPH <- ggplot() + #indexed employment rate
+  geom_line(data = filter(FIXED_RESI_INVEST, date >= as.Date("2020-01-01")), aes(x=date, y = u50406_lb001282_5_data_centers_chained_dollars_level_6/1000, color = "Real Private Fixed Investment,\nData Centers"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,ceiling(max(na.omit(FIXED_RESI_INVEST$u50406_lb001282_5_data_centers_chained_dollars_level_6))/10000)*10), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars") +
+  ggtitle("US Data Center Investment At Record Highs") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Data Center Investment Has Grown Significantly Since the AI Boom") +
+  theme_apricitas + theme(legend.position = c(.3,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*(ceiling(max(na.omit(FIXED_RESI_INVEST$u50406_lb001282_5_data_centers_chained_dollars_level_6))/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_DATA_CENTER_FIXED_STRUCTURE_INVEST_GRAPH, "US Data Center Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+US_COMPUTER_VS_NON_FIXED_INVEST_2024_GRAPH <- ggplot() + #indexed employment rate
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = filter(FIXED_EQUIP_INVEST_REAL, date >= as.Date("2024-01-01")), aes(x=date, y = u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6/u50506_b935rx_4_computers_and_peripheral_equipment_chained_dollars_level_6[1]-1, color = "Computers and Peripheral Equipment"), size = 1.25) + 
+  geom_line(data = filter(FIXED_RESI_INVEST, date >= as.Date("2024-01-01")), aes(x=date, y = u50406_lb001282_5_data_centers_chained_dollars_level_6/u50406_lb001282_5_data_centers_chained_dollars_level_6[1]-1, color = "Data Centers"), size = 1.25) + 
+  geom_line(data = filter(FIXED_EQUIP_INVEST_REAL, date >= as.Date("2024-01-01")), aes(x=date, y = u50506_a680rx_12_industrial_equipment_chained_dollars_level_6/u50506_a680rx_12_industrial_equipment_chained_dollars_level_6[1]-1, color = "Industrial Equipment"), size = 1.25) + 
+  geom_line(data = filter(FIXED_RESI_INVEST, date >= as.Date("2024-01-01")), aes(x=date, y = u50406_a012rx_39_residential_chained_dollars_level_6/u50406_a012rx_39_residential_chained_dollars_level_6[1]-1, color = "Residential Structures"), size = 1.25) + 
+  geom_line(data = filter(FIXED_RESI_INVEST, date >= as.Date("2024-01-01")), aes(x=date, y = u50406_b009rx_2_nonresidential_chained_dollars_level_6/u50406_b009rx_2_nonresidential_chained_dollars_level_6[1]-1, color = "Nonresidential Structures"), size = 1.25) + 
+  #geom_line(data = FIXED_EQUIP_INVEST_REAL, aes(x=date, y = computers_and_peripheral_yoy-1, color = "Real Private Fixed Investment,\nComputers and Peripheral Equipment"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.10,.6), expand = c(0,0)) +
+  ylab("Change Since Q1 2024") +
+  ggtitle("Real Fixed Investment, Growth Since Q1 2024") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Computer Investment Has Grown Significantly Since the AI Boom, But Others Are Struggling") +
+  theme_apricitas + theme(legend.position = c(.3,.8)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  theme(plot.title = element_text(size = 26.5)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-120-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-120-as.Date("2024-01-01"))), ymin = -.1-(0.3*.7), ymax = -0.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = US_COMPUTER_VS_NON_FIXED_INVEST_2024_GRAPH, "US Computer vs Non Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
 REAL_IMPORTS_EXPORTS_GDP_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
