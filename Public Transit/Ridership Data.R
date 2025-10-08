@@ -516,6 +516,40 @@ VALLEY_METRO_graph <- ggplot() +
 
 ggsave(dpi = "retina",plot = VALLEY_METRO_graph, "Valley Metro Rail Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
+VALLEY_METRO_MONTH_graph <- ggplot() + 
+  geom_line(data=filter(RAIL_BULK, agency == "Valley Metro Rail, Inc.", month >= as.Date("2008-01-01")), aes(x=month,y= year_roll/1000000,color="Valley Metro Ridership"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Valley Metro Rail, Inc.", month >= as.Date("2008-01-01")), aes(x=month,y= value*12/1000000,color="Valley Metro Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  annotate(geom = "segment", x = as.Date("2008-12-01"), xend = as.Date("2008-12-01"), y = 0, yend = 15, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  annotate("text", label = "Metro\nRail\nOpens", x = as.Date("2008-10-01"), y = 10, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2015-08-01"), xintercept = as.Date("2015-08-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Central\nMesa\nExtension", x = as.Date("2015-06-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2016-03-01"), xintercept = as.Date("2016-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Northwest\nExtension\nPhase I", x = as.Date("2016-5-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2019-05-01"), xintercept = as.Date("2019-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Gilbert\nRoad\nExtension", x = as.Date("2019-07-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2022-05-01"), xintercept = as.Date("2022-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Tempe\nStreetcar\nOpens", x = as.Date("2022-03-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2024-01-01"), xintercept = as.Date("2024-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Northwest\nExtension\nPhase II", x = as.Date("2023-12-01"), y = 20, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "B-Line\n(South PHX)\nOpens", x = as.Date("2025-08-01"), y = 20, color = "white", size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  theme_apricitas + theme(legend.position = c(.775,.75)) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,25), expand = c(0,0), breaks = c(0,5,10,15,20,25)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Valley Metro Rail (Phoenix) Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail and Streetcar Lines",subtitle = "Phoenix Light Rail is Currently Undergoing Significant Expansion Projects") +
+  theme_apricitas + theme(legend.position = c(.18,.875), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2008-01-01")-(.1861*(today()-as.Date("2008-01-01"))), xmax = as.Date("2008-01-01")-(0.049*(today()-as.Date("2008-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = VALLEY_METRO_MONTH_graph, "Valley Metro Rail Monthly Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+
 METRO_TRANSIT_graph <- ggplot() + 
   geom_line(data=filter(RAIL_BULK, agency == "Metro Transit", month >= as.Date("2003-01-01")), aes(x=month,y= year_roll/1000000,color="Ridership,\nRolling 12M"), size = 1.25) +
   annotate("vline", x = as.Date("2004-06-01"), xintercept = as.Date("2004-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
@@ -1048,6 +1082,8 @@ LA_METRO_YOY_RIDERSHIP_GROWTH <- ggplot() + #plotting regular vs non-regular emp
   #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MBTA (Boston)"), size = 1.25) +
   #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="WMATA (DC)"), size = 1.25) +
   #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "MTA New York City Transit", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MTA (NYC)"), size = 1.25) +
+  annotate("text", label = "CA National Guard\nFederalized", x = as.Date("2025-04-15"), y = .10, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-05-01"), xintercept = as.Date("2025-05-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2022-06-01")), aes(x=month,y= yoy,color="Year-on-Year Ridership Growth,\nLA Metro (Bus & Rail)"), size = 1.25) +
   #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="SEPTA (Philly)"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
@@ -1055,13 +1091,35 @@ LA_METRO_YOY_RIDERSHIP_GROWTH <- ggplot() + #plotting regular vs non-regular emp
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.10,.20), expand = c(0,0), breaks = c(-.1,0,.1,.2)) +
   ylab("Year-on-Year Ridership Growth") +
   ggtitle("LA Metro Ridership Growth") +
-  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "LA Metro Ridership Shrunk in June & July") +
+  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "LA Metro Ridership Shrunk in June, July, & August") +
   theme_apricitas + theme(legend.position = c(.6,.825)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-06-01")-(.1861*(today()-as.Date("2022-06-01"))), xmax = as.Date("2022-06-01")-(0.049*(today()-as.Date("2022-06-01"))), ymin = -.10-(.3*.3), ymax = -.10) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = LA_METRO_YOY_RIDERSHIP_GROWTH, "LA METRO YOY RIDERSHIP GROWTH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+SEPTA_YOY_RIDERSHIP_GROWTH <- ggplot() + #plotting regular vs non-regular employment
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Chicago Transit Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="CTA (Chicago)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "San Francisco Bay Area Rapid Transit District", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="BART (Bay Area)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Massachusetts Bay Transportation Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MBTA (Boston)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Washington Metropolitan Area Transit Authority", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="WMATA (DC)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "MTA New York City Transit", month >= as.Date("2022-01-01")), aes(x=month,y= yoy,color="MTA (NYC)"), size = 1.25) +
+  #geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Los Angeles County Metropolitan Transportation Authority", month >= as.Date("2022-06-01")), aes(x=month,y= yoy,color="Year-on-Year Ridership Growth,\nLA Metro (Bus & Rail)"), size = 1.25) +
+  geom_line(data=filter(AGENCY_YOY_LINE_GROWTH, agency == "Southeastern Pennsylvania Transportation Authority", month >= as.Date("2023-02-01")), aes(x=month,y= yoy,color="Year-on-Year Ridership Growth,\nSEPTA (Bus, Metro, Trolley, & Regional Rail)"), size = 1.25) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-.15,.275), expand = c(0,0), breaks = c(-.1,0,.1,.2)) +
+  ylab("Year-on-Year Ridership Growth") +
+  ggtitle("SEPTA Ridership Growth") +
+  labs(caption = "Graph Created by @Josephpolitano Using FTA NTD Data",subtitle = "SEPTA Ridership Shrunk in August") +
+  theme_apricitas + theme(legend.position = c(.3,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-06-01")-(.1861*(today()-as.Date("2022-06-01"))), xmax = as.Date("2022-06-01")-(0.049*(today()-as.Date("2022-06-01"))), ymin = -.10-(.3*.3), ymax = -.10) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = SEPTA_YOY_RIDERSHIP_GROWTH, "SEPTA YOY RIDERSHIP GROWTH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 
