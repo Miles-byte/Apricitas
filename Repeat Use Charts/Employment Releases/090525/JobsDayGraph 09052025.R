@@ -1551,9 +1551,9 @@ DATA_PROCESSING_YOY <- bls_api("CEU5051800001", startyear = 2010, registrationKe
   mutate(value = (value-lag(value,12))) %>%
   drop_na()
 
-SOFTWARE_PUBLISHERS_YOY <- bls_api("CES5051320001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #software employment
+SOFTWARE_PUBLISHERS_YOY <- bls_api("CEU5051320001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #software employment
   select(-latest) %>%
-  rbind(bls_api("CES5051320001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(bls_api("CEU5051320001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Software Publishers") %>%
@@ -1561,9 +1561,9 @@ SOFTWARE_PUBLISHERS_YOY <- bls_api("CES5051320001", startyear = 2010, registrati
   mutate(value = (value-lag(value,12))) %>%
   drop_na()
 
-SEARCH_PORTALS_YOY <- bls_api("CES5051929001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
+SEARCH_PORTALS_YOY <- bls_api("CEU5051929001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   select(-latest) %>%
-  rbind(bls_api("CES5051929001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(bls_api("CEU5051929001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Web Search Portals and All Other Information Services") %>%
@@ -1571,9 +1571,9 @@ SEARCH_PORTALS_YOY <- bls_api("CES5051929001", startyear = 2010, registrationKey
   mutate(value = (value-lag(value,12))) %>%
   drop_na()
 
-MEDIA_SOCIAL_YOY <- bls_api("CES5051620001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
+MEDIA_SOCIAL_YOY <- bls_api("CEU5051620001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   select(-latest) %>%
-  rbind(bls_api("CES5051620001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(bls_api("CEU5051620001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Streaming Services, Social Networks, & Related") %>%
@@ -1581,9 +1581,9 @@ MEDIA_SOCIAL_YOY <- bls_api("CES5051620001", startyear = 2010, registrationKey =
   mutate(value = (value-lag(value,12))) %>%
   drop_na()
 
-CUSTOM_COMPUTER_PROG_YOY <- bls_api("CES6054151101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
+CUSTOM_COMPUTER_PROG_YOY <- bls_api("CEU6054151101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   select(-latest) %>%
-  rbind(bls_api("CES6054151101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(bls_api("CEU6054151101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Custom Computer Programming Services") %>%
@@ -1591,9 +1591,9 @@ CUSTOM_COMPUTER_PROG_YOY <- bls_api("CES6054151101", startyear = 2010, registrat
   mutate(value = (value-lag(value,12))) %>%
   drop_na()
 
-COMPUTER_SYSTEM_DESIGN_YOY <- bls_api("CES6054151201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
+COMPUTER_SYSTEM_DESIGN_YOY <- bls_api("CEU6054151201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   select(-latest) %>%
-  rbind(bls_api("CES6054151201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  rbind(bls_api("CEU6054151201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Computer Systems Design Services") %>%
@@ -1611,10 +1611,10 @@ TECH_EMPLOY_GROWTH_YOYSUM <- TECH_EMPLOY_GROWTH_YOY %>%
   summarise(sum_value = sum(value, na.rm = TRUE)) %>%
   mutate(series_id = "Sum YoY Growth")
 
-TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, date >= as.Date("2017-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, date >= as.Date("2016-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
-  geom_line(data = filter(TECH_EMPLOY_GROWTH_YOYSUM, date>= as.Date("2017-01-01")), aes(x=date, y = sum_value, color = "Total Tech Employment Growth"), size = 2) +
+  geom_line(data = filter(TECH_EMPLOY_GROWTH_YOYSUM, date>= as.Date("2016-01-01")), aes(x=date, y = sum_value, color = "Total Tech Employment Growth"), size = 2) +
   xlab("Date") +
   ylab("Year-on-Year Change, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-100,0,100,200,300,400,500,600), limits = c(-100,420), expand = c(0,0)) +
@@ -1624,7 +1624,7 @@ TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, dat
   scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13), plot.title = element_text(size = 26)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = -100-(.3*520), ymax = -100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = -100-(.3*520), ymax = -100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TECH_EMPLOY_GROWTH_YOY_graph, "Tech Employ Growth YOY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -2584,6 +2584,41 @@ FED_EMP_IND_2025_Graph <- ggplot() +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = FED_EMP_IND_2025_Graph, "Fed Employment Indexed Jan 2025.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+UNLEVEL_FOREIGN_BORN <- bls_api("LNU03073395", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+LFLEVEL_FOREIGN_BORN <- bls_api("LNU01073395", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+UNRATE_FOREIGN_BORN <- merge(UNLEVEL_FOREIGN_BORN,LFLEVEL_FOREIGN_BORN, by = "date") %>%
+  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(0,0,0,0,0,0,0,0,0,0,0,roll_mean(UNRATE,12)))
+
+UNLEVEL_NATIVE_BORN <- bls_api("LNU03073413", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+LFLEVEL_NATIVE_BORN <- bls_api("LNU01073413", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+UNRATE_NATIVE_BORN <- merge(UNLEVEL_NATIVE_BORN,LFLEVEL_NATIVE_BORN, by = "date") %>%
+  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(0,0,0,0,0,0,0,0,0,0,0,roll_mean(UNRATE,12)))
+
+
+UNRATE_TOTAL_FOREIGN_BORN_Graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=filter(UNRATE_FOREIGN_BORN, date >= as.Date("2023-01-01")), aes(x=date,y= UNRATE,color= "Foreign-Born"), linetype = "dashed", size = 0.75, alpha = 0.5) +
+  geom_line(data=filter(UNRATE_NATIVE_BORN, date >= as.Date("2023-01-01")), aes(x=date,y= UNRATE,color= "Native-Born"), linetype = "dashed", size = 0.75, alpha = 0.5) +
+  geom_line(data=filter(UNRATE_FOREIGN_BORN, date >= as.Date("2023-01-01")), aes(x=date,y= ROLLUNRATE,color= "Foreign-Born"), size = 1.25) +
+  geom_line(data=filter(UNRATE_NATIVE_BORN, date >= as.Date("2023-01-01")), aes(x=date,y= ROLLUNRATE,color= "Native-Born"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.03,0.05), breaks = c(0,0.01,0.02,0.03,0.04,0.05), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Unemployment by Immigration Status") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Unemployment Rates for Native-Born Workers Are Inching Up Even Amidst Trump's  Crackdown") +
+  theme_apricitas + theme(legend.position = c(.2,.82)) +
+  scale_color_manual(name="Solid = 12M Moving Average,\nDashed = Monthly, NSA",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Native-Born","Foreign-Born")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0.03-(.3*.02), ymax = 0.03) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UNRATE_TOTAL_FOREIGN_BORN_Graph, "UNRATE Total Foreign Born Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 QUITS_Q <- fredr(series_id = "JTSQUL",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q", aggregation_method = "sum")

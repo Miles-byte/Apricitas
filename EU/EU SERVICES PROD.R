@@ -14,8 +14,8 @@ test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.get
 save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
 
 
-EU_SERVICES_PROD_BULK <- get_eurostat("sts_sepr_m",legacy_bulk_download = FALSE)
-
+EU_SERVICES_PROD_BULK <- get_eurostat("sts_sepr_m",legacy_bulk_download = FALSE, cache = FALSE)
+?get_eurostat
 EU_SERVICES_PROD_MAP <- EU_SERVICES_PROD_BULK %>%
   subset(unit == "PCH_SM" & nace_r2 == "G-N_X_K") %>%
   transmute(geo, time = TIME_PERIOD, values) %>%

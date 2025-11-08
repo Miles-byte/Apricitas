@@ -583,7 +583,7 @@ ggsave(dpi = "retina",plot = EU_YOUTHUNRATE_GRAPH, "EU YOUTH UNRATE Graph.png", 
 EU_YOUTHUNRATE_LINE <- EU_UNRATE_BULK %>%
   subset(age == "Y_LT25" & s_adj == "SA" & unit == "PC_ACT" & sex == "T") %>%
   transmute(geo, time = TIME_PERIOD, values) %>%
-  #subset(time >= as.Date("2013-01-01")) %>%
+  subset(time >= as.Date("2013-01-01")) %>%
   filter(geo %in% c("EU27_2020","EA20")) %>%
   pivot_wider(names_from = geo, values_from = values)
 

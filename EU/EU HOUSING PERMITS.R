@@ -100,7 +100,7 @@ EU_PERMITS_PC_GRAPH <- ggplot(data = EU_PERMITS_PC_SHP, aes(fill = values)) +
   geom_sf(color = "black", fill = NA, lwd = 0.35) + # Black borders for states
   scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"), label = c("0","2","4","6","8+"), breaks = c(0,2,4,6,8), expand = c(0,0)) +
   #ggtitle("EU Year-on-Year Real GDP Growth: Q2 2025") +
-  ggtitle(paste0("EU Housing Permits Per 1k People: Q",
+  ggtitle(paste0("EU Housing Permits Per 1k People, Annualized: Q",
                  quarter(EU_PERMITS_PC_SHP$time[10]),
                  " ", year(EU_PERMITS_PC_SHP$time[10])))+
   scale_x_continuous(limits = c(1600000, 7150000)) +

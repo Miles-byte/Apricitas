@@ -163,21 +163,25 @@ write.csv(CA_US_SOFTWARE_PUBLISHERS,"CA_SOFTWARE_PUBLISHERS.csv")
 CA_TECH_TOTAL <- rbind(CA_DATA_PROCESSING, CA_SOFTWARE_PUBLISHERS, CA_SEARCH_PORTALS, CA_MEDIA_SOCIAL, CA_COMPUTER_SYSTEM_DESIGN) %>%
   group_by(date) %>%
   filter(n()>4) %>%
-  summarise(CA = sum(value, na.rm = TRUE))
+  summarise(CA = sum(value, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(CA_yoy_raw = CA - lag(CA,12))
 
 US_TECH_TOTAL <- rbind(US_DATA_PROCESSING, US_SOFTWARE_PUBLISHERS, US_SEARCH_PORTALS, US_MEDIA_SOCIAL, US_COMPUTER_SYSTEM_DESIGN) %>%
   group_by(date) %>%
   filter(n()>4) %>%
-  summarise(US = sum(value, na.rm = TRUE))
+  summarise(US = sum(value, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(US_yoy_raw = US - lag(US,12))
 
 CA_US_TECH <- merge(CA_TECH_TOTAL, US_TECH_TOTAL, by = "date") %>%
-  transmute(date, value = CA/US) %>%
-  group_by(date)
+  mutate(date, CA_Share = CA/US, US_X_CA_yoy_raw = US_yoy_raw-CA_yoy_raw) %>%
+  mutate(CA_yoy_pct = (CA-lag(CA,12))/lag(CA), US_yoy_pct  = (US - lag(US,12))/lag(CA), US_X_CA_yoy_pct = ((US-CA)-(lag(US,12)-lag(CA,12)))/(lag(US,12)-lag(CA,12)))
  
 write.csv(CA_US_TECH,"CA_TECH_SHARE.csv")
 
 CA_TECH_JOB_SHARE_graph <- ggplot() + #plotting permanent and temporary job losers
-  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= value, color= "% of All US Tech Jobs Located in California"), size = 1.25) +
+  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= CA_Share, color= "% of All US Tech Jobs Located in California"), size = 1.25) +
   xlab("Date") +
   ylab("Percent of US Tech Jobs") +
   annotate("text",label = "NOTE: Tech Includes Software Publishers, Computer Systems Design, Computing Infrastructure,\nData Processing, Web Hosting, Web Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2011-07-01"), y =.1485, color = "white", size = 4, alpha = 0.5) +
@@ -190,6 +194,25 @@ CA_TECH_JOB_SHARE_graph <- ggplot() + #plotting permanent and temporary job lose
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CA_TECH_JOB_SHARE_graph, "CA Tech Job Share.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CA_US_JOB_GROWTH_YOY_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= CA_yoy_pct, color= "California"), size = 1.25) +
+  geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= US_X_CA_yoy_pct, color= "US Ex-California"), size = 1.25) +
+  xlab("Date") +
+  ylab("Percent of US Tech Jobs") +
+  annotate("text",label = "NOTE: Tech Includes Software Publishers, Computer Systems Design, Computing Infrastructure,\nData Processing, Web Hosting, Web Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2011-07-01"), y =.1485, color = "white", size = 4, alpha = 0.5) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,0.05,0.1), limits = c(-.075,.125), expand = c(0,0)) +
+  ggtitle("Tech Employment Growth, Year-on-Year, %") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Tech Employment Growth Has Fallen Dramatically Since 2022, Especially in California") +
+  theme_apricitas + theme(legend.position = c(.2,.94)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = -0.075-(.3*.2), ymax = -0.075) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CA_US_JOB_GROWTH_YOY_graph, "CA Tech Job Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 SF_INFO <- bls_api("SMU06418605000000001", startyear = 2009, registrationKey = "BLS_KEY") %>% #software employment
   #rbind(bls_api("SMU06418605000000001", startyear = 2020, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
@@ -243,15 +266,15 @@ SF_SJ_INFO_GROWTH_Graph <- ggplot() + #plotting permanent and temporary job lose
 ggsave(dpi = "retina",plot = SF_SJ_INFO_GROWTH_Graph, "SF SJ Info Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-RGDP_CA <- fredr(series_id = "CARQGSP", observation_start = as.Date("2019-01-01"), units = "pc1") %>%
-  mutate(category = "Real GDP", state = "California")
-RGDP_US <- fredr(series_id = "GDPC1", observation_start = as.Date("2019-01-01"), units = "pc1") %>%
-  mutate(category = "Real GDP", state = "United States")
+RGDP_CA <- fredr(series_id = "CARQGSP", observation_start = as.Date("2016-01-01"), units = "pc1") %>%
+  mutate(category = "Real GDP Growth", state = "California")
+RGDP_US <- fredr(series_id = "GDPC1", observation_start = as.Date("2016-01-01"), units = "pc1") %>%
+  mutate(category = "Real GDP Growth", state = "United States")
 
-INFO_GDP_CA <- fredr("CAINFORQGSP", observation_start = as.Date("2019-01-01"), units = "pc1") %>%
-  mutate(category = "Real Information Value Added", state = "California")
-INFO_GDP_US <- fredr("RVAI", observation_start = as.Date("2019-01-01"), units = "pc1") %>%
-  mutate(category = "Real Information Value Added", state = "United States")
+INFO_GDP_CA <- fredr("CAINFORQGSP", observation_start = as.Date("2016-01-01"), units = "pc1") %>%
+  mutate(category = "Real Information Value Added Growth", state = "California")
+INFO_GDP_US <- fredr("RVAI", observation_start = as.Date("2016-01-01"), units = "pc1") %>%
+  mutate(category = "Real Information Value Added Growth", state = "United States")
 
 INFO_RGDP_CA_US_RBIND <- rbind(RGDP_CA,RGDP_US,INFO_GDP_CA,INFO_GDP_US)
   
@@ -262,14 +285,14 @@ CALIFORNIA_GDP_INFO_FACET_Graph <- ggplot(INFO_RGDP_CA_US_RBIND, aes(x = date, y
   facet_wrap(~ category) +
   xlab("Date") +
   ylab("Real Growth, Year-over-Year") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.10,0,.10,.20), limits = c(-.10,.25), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.10,0,.10,.20), limits = c(-.10,.2), expand = c(0,0)) +
   ggtitle("California and the Tech-cession") +
   labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "California GDP Growth Turned Negative in 2022, Led by A Drop in Information") +
   theme_apricitas + theme(legend.position = "right", legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("United States","California")) +
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.10-(.3*.35), ymax = -0.10) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
-  theme(plot.margin = margin(t = 5, r = 5, b = 5, l = 5, unit = "mm"))
+  theme(plot.margin = margin(t = 5, r = 5, b = 5, l = 5, unit = "mm")) + theme(strip.text = element_text(color = "white", size = "13"))
 
 
 ggsave(dpi = "retina",plot = CALIFORNIA_GDP_INFO_FACET_Graph, "CALIFORNIA GDP Info Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -398,31 +421,36 @@ CA_DATA_PROCESSING_IND <- bls_api("SMU06000005051800001", startyear = 2020, regi
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Computing Infrastructure, Data Processing, Web Hosting, & Related") %>%
-  mutate(value = (value-value[nrow(.)]))
+  arrange(rev(desc(date))) %>%
+  mutate(value = (value-value[1]))
 
 CA_SOFTWARE_PUBLISHERS_IND <- bls_api("SMU06000005051320001", startyear = 2020, registrationKey = "BLS_KEY") %>% #software employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Software Publishers") %>%
-  mutate(value = (value-value[nrow(.)]))
+  arrange(rev(desc(date))) %>%
+  mutate(value = (value-value[1]))
 
 CA_SEARCH_PORTALS_IND <- bls_api("SMU06000005051900001", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Web Search Portals, Libraries, & Related") %>%
-  mutate(value = (value-value[nrow(.)]))
+  arrange(rev(desc(date))) %>%
+  mutate(value = (value-value[1]))
 
 CA_MEDIA_SOCIAL_IND <- bls_api("SMU06000005051620001", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Streaming Services, Social Networks, & Related") %>%
-  mutate(value = (value-value[nrow(.)]))
+  arrange(rev(desc(date))) %>%
+  mutate(value = (value-value[1]))
 
 CA_COMPUTER_SYSTEM_DESIGN_IND <- bls_api("SMU06000006054150001", startyear = 2020, registrationKey = "BLS_KEY") %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   mutate(series_id = "Computer Systems Design, Custom Programming, & Related") %>%
-  mutate(value = (value-value[nrow(.)]))
+  arrange(rev(desc(date))) %>%
+  mutate(value = (value-value[1]))
 
 CA_TECH_EMPLOY_GROWTH_IND <- rbind(CA_DATA_PROCESSING_IND,CA_MEDIA_SOCIAL_IND,CA_SEARCH_PORTALS_IND,CA_SOFTWARE_PUBLISHERS_IND,CA_COMPUTER_SYSTEM_DESIGN_IND) %>%
   group_by(date) %>%
@@ -432,12 +460,13 @@ CA_TECH_EMPLOY_GROWTH_IND <- rbind(CA_DATA_PROCESSING_IND,CA_MEDIA_SOCIAL_IND,CA
 CA_TECH_EMPLOY_GROWTH_INDSUM <- CA_TECH_EMPLOY_GROWTH_IND %>%
   group_by(date) %>%
   summarise(sum_value = sum(value, na.rm = TRUE)) %>%
-  mutate(series_id = "Total Tech Sector Employment")
+  mutate(series_id = "Total Tech Sector Employment") %>%
+  mutate(yoy = sum_value-lag(sum_value,12))
 
-CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = CA_TECH_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = filter(CA_TECH_EMPLOY_GROWTH_IND, date >= as.Date("2020-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "stack", color = NA) +
-  geom_line(data = CA_TECH_EMPLOY_GROWTH_INDSUM, aes(x=date, y = sum_value, color = "Total Tech Sector Employment"), size = 2) +
+  geom_line(data = filter(CA_TECH_EMPLOY_GROWTH_INDSUM, date >= as.Date("2020-01-01")), aes(x=date, y = sum_value, color = "Total Tech Sector Employment"), size = 2) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs, NSA") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-50,-25,0,25,50,75,100,125), limits = c(-35,125), expand = c(0,0)) +
@@ -453,6 +482,7 @@ CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = CA_TECH_EMPLOY_GROWTH_IND, aes(
 
 ggsave(dpi = "retina",plot = CA_TECH_EMPLOY_GROWTH_IND_graph, "CA Tech Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+
 Census_API_List <- listCensusApis()
 
 metadata <- listCensusMetadata("timeseries/eits/qtax")
@@ -461,7 +491,7 @@ QTAX_Data <- getCensus(
   name = "timeseries/eits/qtax",
   #region = "CA",
   vars = c("CELL_VALUE","CATEGORY_CODE","SEASONALLY_ADJ","DATA_TYPE_CODE"),
-  time = paste("from 2016 to", format(Sys.Date(), "%Y")),
+  time = paste("from 2012 to", format(Sys.Date(), "%Y")),
   region = "state:06",
   DATA_TYPE_CODE = "T40",
   DATA_TYPE_CODE = "T41"
@@ -473,18 +503,18 @@ QTAX_Data <- getCensus(
   mutate(roll_indiv = c(0,0,0,rollmean(indiv,4)), roll_corp = c(0,0,0,rollmean(corp,k = 4)))
 
 CA_TAX_Graph <- ggplot() + #plotting permanent and temporary job losers
-  geom_line(data= filter(QTAX_Data,date>=as.Date("2017-01-01")), aes(x=date,y= indiv*4/1000, color= "Individual Income Taxes (incl. Capital Gains)"), size = 0.75, linetype = "dashed") +
-  geom_line(data= filter(QTAX_Data,date>=as.Date("2017-01-01")), aes(x=date,y= roll_indiv*4/1000, color= "Individual Income Taxes (incl. Capital Gains)"), size = 1.25) +
-  geom_line(data= filter(QTAX_Data,date>=as.Date("2017-01-01")), aes(x=date,y= corp*4/1000, color= "Corporate Net Income Taxes"), size = 0.75, linetype = "dashed") +
-  geom_line(data= filter(QTAX_Data,date>=as.Date("2017-01-01")), aes(x=date,y= roll_corp*4/1000, color= "Corporate Net Income Taxes"), size = 1.25) +
+  geom_line(data= filter(QTAX_Data,date>=as.Date("2014-01-01")), aes(x=date,y= indiv*4/1000, color= "Individual Income Taxes (incl. Capital Gains)"), size = 0.75, linetype = "dashed") +
+  geom_line(data= filter(QTAX_Data,date>=as.Date("2014-01-01")), aes(x=date,y= roll_indiv*4/1000, color= "Individual Income Taxes (incl. Capital Gains)"), size = 1.25) +
+  geom_line(data= filter(QTAX_Data,date>=as.Date("2014-01-01")), aes(x=date,y= corp*4/1000, color= "Corporate Net Income Taxes"), size = 0.75, linetype = "dashed") +
+  geom_line(data= filter(QTAX_Data,date>=as.Date("2014-01-01")), aes(x=date,y= roll_corp*4/1000, color= "Corporate Net Income Taxes"), size = 1.25) +
   xlab("Date") +
   ylab("Dollars, Billions") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,200), breaks = c(0,25,50,75,100,125,150,175,200), expand = c(0,0)) +
   ggtitle("California State Tax Receipts") +
-  labs(caption = "Graph created by @JosephPolitano using Census QTAX data", subtitle = "CA State Tax Revenue Has Contracted Since the Tech-cession of 2022") +
+  labs(caption = "Graph created by @JosephPolitano using Census QTAX data", subtitle = "CA State Tax Revenue Has Rebounded From the Tech-cession of 2022") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Dashed = Quarterly, Annualized Solid = 4Q Rolling Average",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")),breaks = c("Individual Income Taxes (incl. Capital Gains)","Corporate Net Income Taxes")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*200), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*200), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CA_TAX_Graph, "CA Tax Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")

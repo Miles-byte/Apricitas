@@ -150,7 +150,7 @@ EU_BROAD_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
 #   st_transform(., crs = 3035) %>%
 #   st_as_sf() 
 
-EU_BROAD_GDP_CAGR_SHP <- inner_join(EU_GDP_CAGR, EU_SHP, by = "geo") %>%
+EU_BROAD_GDP_CAGR_SHP <- inner_join(EU_GDP_CAGR, EU_BROAD_SHP, by = "geo") %>%
   select(geometry, CAGR) %>%
   mutate(CAGR_bucket = cut(CAGR, breaks = c(-Inf, 0, 0.01, 0.02, 0.03, Inf), labels = c("<0", "0-0.01", "0.01-0.02", "0.02-0.03", "0.03+"))) %>%
   st_as_sf()
@@ -185,6 +185,20 @@ EU_GDP_YOY <- EU_GDP %>%
   filter(time == max(time)) %>%
   mutate(geo = gsub("EL","GR",geo)) %>%
   filter(geo %in% c("AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"))
+
+#FOR FLASH GDP ESTIMATES
+# EU_GDP_YOY <- EU_GDP %>%
+#   subset(unit == "CLV_PCH_SM" & s_adj == "SCA" & na_item == "B1GQ") %>%
+#   transmute(geo, time = TIME_PERIOD, values) %>%
+#   subset(time >= as.Date("2019-07-01")) %>%
+#   arrange(geo, time) %>%
+#   group_by(geo) %>%
+#   mutate(yoy = values/100) %>%
+#   ungroup() %>%
+#   filter(time == max(time)) %>%
+#   mutate(geo = gsub("EL","GR",geo)) %>%
+#   filter(geo %in% c("AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"))
+
 
 EU_GDP_YOY_SHP <- ne_countries(scale = "medium", returnclass = "sf") %>%
   subset(., continent == "Europe" | sovereignt %in% c("Turkey","Cyprus","Malta")) %>%
@@ -226,7 +240,8 @@ EU_GDP_CENTROIDS <- ne_countries(scale = "medium", returnclass = "sf") %>%
   mutate(lat = if_else(geo == "HU", lat - 25000, lat)) %>%
   mutate(long = if_else(geo == "HU", long - 50000, long)) %>%
   st_as_sf(coords = c("long","lat"), crs = 3035) %>%
-  st_centroid()
+  st_centroid() %>%
+  drop_na()
 
 
 EU_BROAD_GDP_YOY_SHP_GRAPH <- ggplot(data = EU_GDP_YOY_SHP, aes(fill = yoy)) +

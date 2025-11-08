@@ -14,7 +14,7 @@ test_login(genesis=c(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.get
 save_credentials(db='de', user=Sys.getenv("DESTATIS_USER"), password=Sys.getenv("DESTATIS_PASSWORD"))
 
 
-EU_MARKET_PROD_BULK <- get_eurostat("sts_tot_prod_m",legacy_bulk_download = FALSE)
+EU_MARKET_PROD_BULK <- get_eurostat("sts_tot_prod_m",legacy_bulk_download = FALSE, cache = FALSE)
 
 EU_MARKET_PROD_MAP <- EU_MARKET_PROD_BULK %>%
   subset(unit == "PCH_SM") %>%

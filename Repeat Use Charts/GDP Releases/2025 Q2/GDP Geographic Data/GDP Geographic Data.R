@@ -1736,6 +1736,183 @@ MANU_SHARE_GDP_MAP_GRAPH <- STATES_MANU_SHARE_MAP  %>%
 ggsave(dpi = "retina",plot = MANU_SHARE_GDP_MAP_GRAPH, "Manufacturing Share of State GDP.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
+BEA_GDP_INFO_CONTRIB_SPECS <- list(
+  "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
+  "Method" = "GetData", # Method
+  "datasetname" = "Regional", # Specify dataset
+  "TableName" = "SQGDP11", # Specify table within the dataset
+  "Frequency" = "Q", # Specify the line code
+  "LineCode" = "45", # Specify the line code
+  "GeoFips" = "STATE", # Specify the geographical level
+  "Year" =  paste(seq(from = 2019, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ",") # Specify the year
+)
+
+test <- beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
+test <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","SAGDP11")
+
+
+BEA_GDP_INFO_CONTRIB <- beaGet(BEA_GDP_INFO_CONTRIB_SPECS, iTableStyle = FALSE) %>%
+  rename_with(~ dplyr::coalesce(stringr::str_extract(., "(?<=\\s)[A-Za-z][A-Za-z ]*(?=\\sPercent(?:age)? (?:change|points)\\b)"),.)) %>%
+  select(-`Rocky Mountain`,-`Far West`,-`Rocky Mountain`,-`Southwest`,-`Southeast`,-`Plains`,-`Great Lakes`,-`Mideast`,-`New England`,-`TimePeriod`) %>%
+  mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  pivot_longer(-date, names_to = "state_name", values_to = "Info_Contrib") %>%
+  mutate(Info_Contrib = Info_Contrib/100) %>%
+  arrange(state_name, date) %>%
+  group_by(state_name) %>%
+  filter(date == max(date))
+
+states_GDP_INFO_CONTRIB<- get_urbn_map("states", sf = TRUE) %>%
+  st_as_sf()
+
+states_GDP_INFO_CONTRIB <- states_GDP_INFO_CONTRIB %>%
+  mutate(states = state_name)
+
+
+states_GDP_INFO_CONTRIB <- left_join(states_GDP_INFO_CONTRIB, BEA_GDP_INFO_CONTRIB, by = "state_name")
+
+
+BEA_GDP_INFO_CONTRIB_LABELS <- get_urbn_labels(map = "states") %>%
+  left_join(states_GDP_INFO_CONTRIB, by = "state_abbv") %>%
+  select(-geometry) %>%
+  st_as_sf(., coords = c("long", "lat"), crs = 4326)
+
+states_centroids <- states_GDP_INFO_CONTRIB %>% 
+  st_centroid() %>% 
+  st_coordinates() %>% 
+  as.data.frame() %>% 
+  rename(long = X, lat = Y) %>% 
+  bind_cols(states_GDP_INFO_CONTRIB, .) %>%
+  st_centroid()
+
+
+BEA_STATE_INFO_CONTRIB_GRADIENT_RAW_RAINBOW <- states_GDP_INFO_CONTRIB %>%
+  ggplot(aes(fill = Info_Contrib)) +
+  geom_sf(color = NA) +
+  geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65) + # Black borders for states
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 0.5),breaks = c(-0.01,-0.005,0,0.005,0.01,0.015,0.02,0.025,0.03), expand = c(0,0)) +
+  ggtitle("  Information Sector Contribution to GDP Growth, Q2 2025") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data") +
+  labs(fill = NULL) +
+  geom_label_repel(
+    data = filter(BEA_GDP_INFO_CONTRIB_LABELS, state_abbv %in% c("VT","NH","MA")),
+    aes(x = 1600000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0 & Info_Contrib <= .1, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")),
+    size = 3.5,
+    color = "black",
+    segment.color = NA,
+    hjust = 0.5,
+    direction = "y",
+    nudge_y = 4000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    box.padding = 0.75,  # Increase box padding
+    point.padding = 0.5,
+    max.overlaps = 5,
+    force = 4,
+    force_pull = 1,
+    max.iter = 2000000000,
+    max.time = 30,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("RI")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = 50000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("CT")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -125000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("NJ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib* 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -130000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("DE")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib* 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("MD")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib* 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -390000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("DC")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib* 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -590000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(states_centroids, state_abbv %in% c("HI")), 
+    aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib* 100 , 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(data = filter(BEA_GDP_INFO_CONTRIB_LABELS, !state_abbv %in% c("HI","VT","RI","CT","MA","NJ","NH","DC","DE","MD","FL","LA","KY","WV","TN","IN","ME","SC","MS")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_INFO_CONTRIB_LABELS, state_abbv %in% c("FL","TN","IN","ME","SC","MS")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_INFO_CONTRIB_LABELS, state_abbv %in% c("LA","KY")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  geom_text(data = filter(BEA_GDP_INFO_CONTRIB_LABELS, state_abbv %in% c("WV")), aes(x = st_coordinates(geometry)[,1]-25000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Info_Contrib >= 0, " ", ""), sprintf("%.1f", round(Info_Contrib * 100 , 1)), "%")), size = 2.25, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
+  #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(Info_Contrib*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 23))
+
+#geom_text(data = BEA_GDP_INFO_CONTRIB_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(Info_Contrib,1),"%")), size = 3, color = "white", check_overlap = TRUE)
+#geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(Info_Contrib*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
+
+ggsave(dpi = "retina",plot = BEA_STATE_INFO_CONTRIB_GRADIENT_RAW_RAINBOW, "BEA STATE INFO GRADIENT RAINBOW.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
 devtools::install_github("UrbanInstitute/urbnmapr")
 library(urbnmapr)
 

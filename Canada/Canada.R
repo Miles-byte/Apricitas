@@ -1,4 +1,4 @@
-pacman::p_load(canadianmaps,statcanR,cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(rnaturalearth,rnaturalearthdata,ggpubr,canadianmaps,statcanR,cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -628,7 +628,7 @@ CANADA_TOURISM_TRAVELLER_TYPE_GRAPH <- ggplot() +
   geom_line(data=CANADA_TOURISM_ARRIVALS_TYPE, aes(x=date,y= `Excursionists (same-day)`/1000000, color= "Excursionists (same-day)"), size = 1.25) +
   geom_line(data=CANADA_TOURISM_ARRIVALS_TYPE, aes(x=date,y= `Tourists (overnight)`/1000000, color= "Tourists (overnight)"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), limits = c(0,2.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), limits = c(0,2.5), expand = c(0,0)) +
   ylab("Tourists, Monthly, Seasonally adjusted") +
   ggtitle("Canadian Visits to the US by Type") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Canadian vists counted from returns data",subtitle = "Canadians are taking fewer trips, both long and short, to the US") +
@@ -723,6 +723,147 @@ CAN_GDP_MONTHLY_CARS_GRAPH <- ggplot() +
   theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_CARS_GRAPH, "Canada GDP Monthly Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
+LFS_BULK <- statcan_data("14-10-0287-03", "eng")
+
+LABORFORCE <- LFS_BULK %>%
+  filter(GEO == "Canada" & Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "15 years and over" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Labour force") %>%
+  transmute(date = REF_DATE, value = VALUE)
+
+EMPLEVEL <- LFS_BULK %>%
+  filter(GEO == "Canada" & Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "15 years and over" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Employment") %>%
+  transmute(date = REF_DATE, value = VALUE) 
+
+UNRATE <- LFS_BULK %>%
+  filter(GEO == "Canada" & Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "15 years and over" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Unemployment") %>%
+  transmute(date = REF_DATE, value = VALUE) %>%
+  merge(., LABORFORCE, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+POP2554 <- LFS_BULK %>%
+  filter(GEO == "Canada" & Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "25 to 54 years" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Population") %>%
+  transmute(date = REF_DATE, value = VALUE)
+
+
+PRIMEEPOP <- LFS_BULK %>%
+  filter(GEO == "Canada" & Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "25 to 54 years" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Employment") %>%
+  transmute(date = REF_DATE, value = VALUE) %>%
+  merge(., POP2554, by = "date") %>%
+  transmute(date, value = value.x/value.y)
+
+
+
+UNRATE_Graph <- ggplot() +
+  geom_line(data= filter(UNRATE, date >= as.Date("2021-01-01")), aes(x=date,y= value, color = "layoffs"), size = 1.25) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.10), breaks = c(0,.02,.04,0.06,0.08,0.1), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Unemployment Rate") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 13, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,1,0.15,0.4),"cm")) #reducing plot margins makes the ggarrange look better
+
+EPOP_Graph <- ggplot() +
+  geom_line(data= filter(PRIMEEPOP, date >= as.Date("2021-01-01")), aes(x=date,y= value, color = "EPOP"), size = 1.25) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.80,0.86), breaks = c(0.80,0.82,0.84,.86), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Prime Age (25-54) Employment Rate") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 13, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,1,0.15,0.4),"cm")) #reducing plot margins makes the ggarrange look better
+
+EMPLEVEL_Graph <- ggplot() +
+  geom_line(data= filter(EMPLEVEL, date >= as.Date("2021-01-01")), aes(x=date,y= value/1000, color = "layoffs"), size = 1.25) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(18,21.5), breaks = c(18,19,20,21), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Employment Level") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 13, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,1,0.15,0.15),"cm")) #reducing plot margins makes the ggarrange look better
+
+EMPGROWTH <- EMPLEVEL %>%
+  mutate(value = value-lag(value,1))
+
+
+EMPGROWTH_Graph <- ggplot(filter(EMPGROWTH, date >= as.Date("2021-01-01")), aes(x = date, y = value)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_bar(stat = "identity", fill = "#FFE98F", color = NA, show.legend = FALSE) +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::comma_format(suffix = "k"),limits = c(-100,275), breaks = c(-100,0,100,200), expand = c(0,0)) +
+  ylab(NULL) +
+  ggtitle("Employment Growth, Monthly") +
+  #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
+  theme_apricitas + theme(legend.position = "bottom", plot.title = element_text(size = 13, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32" ),  plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) + #adding manual background to get ggarrange to work
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#3083DC","#9A348E","#A7ACD9","#F5B041")) +
+  #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin=unit(c(0.15,1,0.15,-0.28),"cm")) #reducing plot margins makes the ggarrange look better
+
+
+tgrob <- text_grob(expression(bold("                                   Canadian Jobs Data")),size = 29, color = "white") 
+# Draw the text
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0,0,0,0, "cm")) + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin=unit(c(-.15,-.15,-0.15,-.15),"cm"))  
+blank <- ""
+blankgrob <- text_grob(blank,size = 20)
+plot_blank <- as_ggplot(blankgrob) + theme(plot.margin = margin(0,0,0,0, "cm"))
+JOBS_ARRANGE_TITLE_GRAPH <- ggarrange(plot_0,plot_blank,UNRATE_Graph, EMPGROWTH_Graph, EPOP_Graph, EMPLEVEL_Graph ,  ncol = 2, nrow = 3, heights = c(5,20,20), widths = 10, common.legend = TRUE, legend = "none") + bgcolor("#252A32") + border("#252A32")
+
+ggsave(dpi = "retina",plot = JOBS_ARRANGE_TITLE_GRAPH, "Jobs Data Update Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+UNRATE_PROVINCE_DATA <- LFS_BULK %>%
+  filter(Gender == "Total - Gender" & `Data type` == "Seasonally adjusted" & `Age group` == "15 years and over" & Statistics == "Estimate") %>%
+  filter(`Labour force characteristics` == "Unemployment rate") %>%
+  transmute(date = REF_DATE, value = VALUE/100, province = GEO) %>%
+  filter(date == max(date)) %>%
+  arrange(desc(value))
+
+
+UNRATE_PROVINCE_DATA_MAP <- ne_states(country = "canada", returnclass = "sf") %>%
+  select(province = name_en, geometry) %>%
+  left_join(UNRATE_PROVINCE_DATA, by = "province")
+
+CANADA_UMEPLOYMENT_MAP <- ggplot(UNRATE_PROVINCE_DATA_MAP) + 
+  #coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") +
+  #coord_sf(crs = "+proj=lcc +lat_1=49 +lat_2=77 +lon_0=-91.52 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") +
+  geom_prov(data = UNRATE_PROVINCE_DATA_MAP, fill = "value", colour = "black", size = 0.1) +
+  scale_fill_gradientn(colors = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC")),label = scales::percent_format(accuracy = 1),breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,.10,.11,.12,.13,.14,.15), expand = c(0,0)) +
+  ggtitle(paste0("Canada, Unemployment % by Province ", format(UNRATE_PROVINCE_DATA$date[1], "%b %Y"))) +
+  coord_sf(crs = 3347, xlim = c(3000000, 9000000), ylim = c(200000, 3500000)) +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(t = 0.15, r = 0, b= 0,l = 0.15), "in"), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 27))
+#geom_text(data = TRADE_EXPOSURE_GDP_STATE_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(trade_GDP_share,1),"%")), size = 3, color = "white", check_overlap = TRUE)
+#geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(trade_GDP_share*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
+
+ggsave(dpi = "retina",plot = CANADA_UMEPLOYMENT_MAP, "Canada Unemployment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+
 
 
 p_unload(all)  # Remove all packages using the package manager

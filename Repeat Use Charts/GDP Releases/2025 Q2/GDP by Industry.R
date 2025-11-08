@@ -25,7 +25,7 @@ GDPbyIndustry_BULK_specs <- list(
   'TableID' = 'ALL',
   'Industry' = 'ALL',
   'Frequency' = 'Q',
-  'Year' = paste(seq(from = 2017, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'Year' = paste(seq(from = 1997, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
@@ -106,8 +106,8 @@ RVAbyIndustry <- GDPbyIndustry_BULK %>%
   pivot_wider(names_from = IndustryDescription, values_from = DataValue)
 
 
-RVAbyIndustry_GRAPH <- ggplot() + #indexed fixed investment
-  geom_line(data = RVAbyIndustry, aes(x=date, y = Manufacturing/1000, color = "US Real Value Added by Industry: Manufacturing"), size = 1.25) + 
+RVAbyIndustry_Manu_GRAPH <- ggplot() + #indexed fixed investment
+  geom_line(data = filter(RVAbyIndustry, date >= as.Date("2017-01-01")), aes(x=date, y = Manufacturing/1000, color = "US Real Value Added by Industry: Manufacturing"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "T"), limits = c(1.9,2.5), breaks = c(1.9,2,2.1,2.2,2.3,2.4,2.5), expand = c(0,0)) +
   ylab("Real Value Added, 2017 Dollars") +
@@ -118,4 +118,22 @@ RVAbyIndustry_GRAPH <- ggplot() + #indexed fixed investment
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 1.9-(.3*0.6), ymax = 1.9) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = RVAbyIndustry_GRAPH, "RVA by Industry Manufacturing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = RVAbyIndustry_Manu_GRAPH, "RVA by Industry Manufacturing Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+RVAbyIndustry_Tech_GRAPH <- ggplot() + #indexed fixed investment
+  geom_line(data = RVAbyIndustry, aes(x=date, y = `Publishing industries, except internet (includes software)`, color = "Publishing (incl. Software)"), size = 1.25) + 
+  geom_line(data = RVAbyIndustry, aes(x=date, y = `Data processing, internet publishing, and other information services`, color = "Computing Infrastructure, Data Processing, & Other Information"), size = 1.25) + 
+  geom_line(data = RVAbyIndustry, aes(x=date, y = `Computer systems design and related services`, color = "Computer Systems Design"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,800), breaks = c(0,200,400,600,800), expand = c(0,0)) +
+  ylab("Real Value Added, 2017 Dollars") +
+  ggtitle("US Real Tech Sector Output") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real US Tech Sector Output Continues to Climb Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(.4,.85)) +
+  scale_color_manual(name= "Real Value Added, 2017 Dollars",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2005-01-01")-(.1861*(today()-as.Date("2005-01-01"))), xmax = as.Date("2005-01-01")-(0.049*(today()-as.Date("2005-01-01"))), ymin = 0-(.3*800), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RVAbyIndustry_Tech_GRAPH, "RVA by Industry Tech Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
