@@ -844,7 +844,7 @@ UNRATE_PROVINCE_DATA_MAP <- ne_states(country = "canada", returnclass = "sf") %>
   select(province = name_en, geometry) %>%
   left_join(UNRATE_PROVINCE_DATA, by = "province")
 
-CANADA_UMEPLOYMENT_MAP <- ggplot(UNRATE_PROVINCE_DATA_MAP) + 
+CANADA_UNEPLOYMENT_MAP <- ggplot(UNRATE_PROVINCE_DATA_MAP) + 
   #coord_sf(crs = "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") +
   #coord_sf(crs = "+proj=lcc +lat_1=49 +lat_2=77 +lon_0=-91.52 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") +
   geom_prov(data = UNRATE_PROVINCE_DATA_MAP, fill = "value", colour = "black", size = 0.1) +
@@ -859,11 +859,385 @@ CANADA_UMEPLOYMENT_MAP <- ggplot(UNRATE_PROVINCE_DATA_MAP) +
 #geom_text(data = TRADE_EXPOSURE_GDP_STATE_LABELS, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(state_abbv,"\n",round(trade_GDP_share,1),"%")), size = 3, color = "white", check_overlap = TRUE)
 #geom_text(aes(x = x, y = y, label = paste0(state_abbv, "\n",round(trade_GDP_share*100,1),"%")), size = 3, check_overlap = TRUE, color = "white")# Add state labels
 
-ggsave(dpi = "retina",plot = CANADA_UMEPLOYMENT_MAP, "Canada Unemployment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CANADA_UNEPLOYMENT_MAP, "Canada Unemployment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+PROVINCE_GDP_BULK <- statcan_data("36-10-0222-01", "eng")
+
+PROVINCE_GDP_YOY <- PROVINCE_GDP_BULK %>%
+  filter(Estimates == "Gross domestic product at market prices") %>%
+  filter(Prices == "Chained (2017) dollars") %>%
+  select(REF_DATE, GEO, VALUE) %>%
+  pivot_wider(names_from = GEO, values_from = VALUE) %>%
+  mutate(across(where(is.numeric), ~ .x / lag(.x) - 1)) %>%
+  filter(REF_DATE == max(REF_DATE)) %>%
+  pivot_longer(cols = -REF_DATE) %>%
+  transmute(province = name, value)
 
 
+GDP_PROVINCE_YOY_DATA_MAP <- ne_states(country = "canada", returnclass = "sf") %>%
+  select(province = name_en, geometry) %>%
+  left_join(PROVINCE_GDP_YOY, by = "province") %>%
+  mutate(province_abbrev = c("BC","AB","SK","MB","ON","QC","NB","YT","NU","NL","NS","NT","PE"))
+
+CANADA_GDP_PROVINCE_YOY_DATA_MAP_GRAPH <- GDP_PROVINCE_YOY_DATA_MAP  %>%
+  ggplot(aes(fill = value)) +
+  geom_sf(color = NA) +
+  geom_sf(aes(fill = value), colour = "black", size = 0.1) +
+  ggtitle("Canada, 2024 RGDP Growth by Province/Territory") +
+  coord_sf(crs = 3347, xlim = c(2700000, 9300000), ylim = c(900000, 5000000)) +
+  theme(plot.title = element_text(size = 24)) +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data") +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("NL")), 
+    aes(x = 9500000, 2700000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("PE")), 
+    aes(x = 9500000, 2430000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("NS")), 
+    aes(x = 9500000, 2160000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("NB")), 
+    aes(x = 9500000, 1890000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("YT")), 
+    aes(x = 3500000, 4500000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("NT")), 
+    aes(x = 3500000, 4230000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("NU")), 
+    aes(x = 3500000, 3960000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("BC")), 
+    aes(x = 4400000, 2400000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("AB")), 
+    aes(x = 5000000, 2300000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("SK")), 
+    aes(x = 5500000, 2200000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("MB")), 
+    aes(x = 6000000, 2300000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("ON")), 
+    aes(x = 6700000, 1800000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_YOY_DATA_MAP, province_abbrev %in% c("QC")), 
+    aes(x = 7600000, 1700000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-0.02,0,0.02,0.04,0.06,0.08,0.1), expand = c(0,0)) +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(t = 0.15, r = 0, b= 0,l = 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 27))
+  
+ggsave(dpi = "retina",plot = CANADA_GDP_PROVINCE_YOY_DATA_MAP_GRAPH, "Canada GDP Province Yoy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+PROVINCE_GDP_2019 <- PROVINCE_GDP_BULK %>%
+  filter(Estimates == "Gross domestic product at market prices") %>%
+  filter(Prices == "Chained (2017) dollars") %>%
+  select(REF_DATE, GEO, VALUE) %>%
+  pivot_wider(names_from = GEO, values_from = VALUE) %>%
+  mutate(across(where(is.numeric), ~ .x / .x[39] - 1)) %>%
+  filter(REF_DATE == max(REF_DATE)) %>%
+  pivot_longer(cols = -REF_DATE) %>%
+  transmute(province = name, value)
+
+
+GDP_PROVINCE_2019_DATA_MAP <- ne_states(country = "canada", returnclass = "sf") %>%
+  select(province = name_en, geometry) %>%
+  left_join(PROVINCE_GDP_2019, by = "province") %>%
+  mutate(province_abbrev = c("BC","AB","SK","MB","ON","QC","NB","YT","NU","NL","NS","NT","PE"))
+
+
+GDP_PROVINCE_2019_DATA_MAP_GRAPH <- GDP_PROVINCE_2019_DATA_MAP  %>%
+  ggplot(aes(fill = value)) +
+  geom_sf(color = NA) +
+  geom_sf(aes(fill = value), colour = "black", size = 0.1) +
+  ggtitle("Canada, 2019-2024 RGDP Growth by Province/Territory") +
+  coord_sf(crs = 3347, xlim = c(2700000, 9300000), ylim = c(900000, 5000000)) +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data") +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("NL")), 
+    aes(x = 9500000, 2700000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, "   ", "  "), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("PE")), 
+    aes(x = 9500000, 2430000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("NS")), 
+    aes(x = 9500000, 2160000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("NB")), 
+    aes(x = 9500000, 1890000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, "   ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("YT")), 
+    aes(x = 3500000, 4500000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("NT")), 
+    aes(x = 3500000, 4230000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", "  "), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_label(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("NU")), 
+    aes(x = 3500000, 3960000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("BC")), 
+    aes(x = 4400000, 2400000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("AB")), 
+    aes(x = 5000000, 2300000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("SK")), 
+    aes(x = 5500000, 2200000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("MB")), 
+    aes(x = 6000000, 2300000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("ON")), 
+    aes(x = 6700000, 1800000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  geom_text(
+    data = filter(GDP_PROVINCE_2019_DATA_MAP, province_abbrev %in% c("QC")), 
+    aes(x = 7600000, 1700000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    size = 3.5, 
+    color = "black",
+    hjust = 0.5,
+    nudge_y = -75000,nudge_x = -200000, # adjust these values as needed
+    #segment.color = 'white',
+    fontface = "bold",
+    lineheight = 0.75,
+    show.legend = FALSE
+  ) +
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-0.05,0,0.05,0.1,0.15,0.2,0.25), expand = c(0,0)) +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(t = 0.15, r = 0, b= 0,l = 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 24.5))
+
+ggsave(dpi = "retina",plot = GDP_PROVINCE_2019_DATA_MAP_GRAPH, "Canada GDP Province 2019 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

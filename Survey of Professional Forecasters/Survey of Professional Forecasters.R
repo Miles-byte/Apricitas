@@ -47,6 +47,7 @@ GDP_GROWTH_GRAPH <- ggplot() + #plotting GDP Forecast Growth
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
   geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2025-07-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q3 2025"), size = 1.25) +
   geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2025-10-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q4 2025"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2026-01-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q1 2026"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0,0.025), expand = c(0,0)) +
   ylab("Percent Growth, Seasonally Adjusted Annual Rate") +
@@ -98,6 +99,7 @@ GDP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q3 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q4 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=REAL_GDP, aes(x=date,y= value/1000, color= "Real GDP"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 0.1, suffix = "T"), limits = c(22,25), expand = c(0,0)) +
@@ -105,10 +107,10 @@ GDP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   ggtitle("US Real GDP & Forecasts") +
   labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Increased GDP Projections, But they Remain Below Pre-Trade-War Levels") +
   theme_apricitas + theme(legend.position = c(.25,.75)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Real GDP","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Real GDP","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 22-(.3*3), ymax = 22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
-  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25))))
+  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25, 1.25))))
 
 ggsave(dpi = "retina",plot = GDP_LEVELS_GRAPH, "GDP Levels Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -153,6 +155,7 @@ UNEMP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/100, color= "Q1 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/100, color= "Q2 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/100, color= "Q3 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/100, color= "Q4 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=UNRATE, aes(x=date,y= value/100, color= "Unemployment Rate"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0.03,0.05), expand = c(0,0)) +
@@ -160,10 +163,10 @@ UNEMP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   ggtitle("US Unemployment Rate & Forecasts") +
   labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered Unemployment Projections, But they Remain Above Q1 2025 Levels") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Unemployment Rate","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Unemployment Rate","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 0.03-(.3*0.02), ymax = 0.03) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
-  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25))))
+  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25,1.25))))
 
 ggsave(dpi = "retina",plot = UNEMP_LEVELS_GRAPH, "UNEMP Levels Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
@@ -209,17 +212,18 @@ EMP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q3 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q4 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=EMP, aes(x=date,y= value/1000, color= "Payroll Employment"), size = 2.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.1), limits = c(154,165), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1), limits = c(154,162.5), expand = c(0,0)) +
   ylab("Nonfarm Payrolls") +
   ggtitle("US Payroll Employment & Forecasts") +
-  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered Employment Projections, But they Remain Above Q1 2025 Levels") +
+  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered US Employment Projections Continually This Year") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Payroll Employment","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 154-(.3*11), ymax = 154) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Payroll Employment","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 154-(.3*8.5), ymax = 154) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
-  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25))))
+  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25, 1.25))))
 
 ggsave(dpi = "retina",plot = EMP_LEVELS_GRAPH, "EMP Levels Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 

@@ -13,9 +13,9 @@ MULTIPLE_JOBHOLDERS <- fredr(series_id = "LNS12026619",observation_start = as.Da
 SELF_EMPLOYED <- fredr(series_id = "LNS12027714",observation_start = as.Date("2018-01-01")) #downloading Self Employed data
 AGRICULTURAL <- fredr(series_id = "LNS12034560",observation_start = as.Date("2018-01-01")) #downloading Agricultural Workers
 
-PAYEMS <- fredr(series_id = "PAYEMS",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
+PAYEMS <- fredr(series_id = "PAYEMS",observation_start = as.Date("2015-01-01"),realtime_start = NULL, realtime_end = NULL) #Nonfarm Payrolls
 ELEV <- fredr(series_id = "CE16OV",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Employment Levels
-CPSADJ <- bls_api("LNS16000000", startyear = 2019) %>% #headline cpiadj
+CPSADJ <- bls_api("LNS16000000", startyear = 2015, registrationKey =  Sys.getenv("BLS_KEY")) %>% #headline cpiadj
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 MULTIPLE_32022 <- fredr(series_id = "LNS12026619",observation_start = as.Date("2022-04-01"), units = "chg")%>%
@@ -134,16 +134,16 @@ AGRICULTURAL_Graph <- ggplot() + #plotting permanent and temporary job losers
 EMPLOYMENT_Graph <- ggplot() + #CPS with NFP adjusted concepts
   geom_line(data = PAYEMS, aes(x=date, y = value/1000, color = "Nonfarm Payrolls"), size = 1.25) + 
   geom_line(data = CPSADJ, aes(x=date, y = value/1000, color = "Household Survey Adjusted to Nonfarm Payrolls Concepts"), size = 1.25) + 
-  annotate(geom = "vline", x = as.Date("2022-03-01"), xintercept = as.Date("2022-03-01"), color = "white", linetype = "dashed", size = 1.25) +
-  annotate(geom = "text", label = "March 2022", x = as.Date("2021-12-01"), y = 135, color ="white", size = 4) +
+  #annotate(geom = "vline", x = as.Date("2022-03-01"), xintercept = as.Date("2022-03-01"), color = "white", linetype = "dashed", size = 1.25) +
+  #annotate(geom = "text", label = "March 2022", x = as.Date("2021-12-01"), y = 135, color ="white", size = 4) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "M"),limits = c(120,160), breaks = c(120,130,140,150,160), expand = c(0,0)) +
   ylab("Payrolls/Employees, Millions") +
-  ggtitle("Labor Market Mystery Hour") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Gap Persists Even When Household Survey Data is Adjusted to Payrolls Concepts") +
-  theme_apricitas + theme(legend.position = c(.45,.92)) +
-  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = 120-(.3*40), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  ggtitle("US Job Measures Have Diverged") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "The Household and Establishment Surveys Have Diverged Over the Last Few Years") +
+  theme_apricitas + theme(legend.position = c(.36,.92)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D"), breaks = c("Nonfarm Payrolls","Household Survey Adjusted to Nonfarm Payrolls Concepts")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 120-(.3*40), ymax = 120) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 EMPLOYMENT_INDEX_Graph <- ggplot() + #indexed employment rate
@@ -213,7 +213,7 @@ Immigrant_Arrivals_Graph <- ggplot() + #CPS with NFP adjusted concepts
 ggsave(dpi = "retina",plot = MULTIPLE_JOBHOLDERS_Graph, "Multiple Jobholders.png", type = "cairo-png",) #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = SELF_EMPLOYED_Graph, "Self Employed.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = AGRICULTURAL_Graph, "Agricultural.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
-ggsave(dpi = "retina",plot = EMPLOYMENT_Graph, "Employment.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+ggsave(dpi = "retina",plot = EMPLOYMENT_Graph, "Employment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = EMPLOYMENT_INDEX_Graph, "Employment Indexed.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = PAYEMS_ELEV_CPSADJ_32022_Graph, "Payems Elev CPSADJ.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 ggsave(dpi = "retina",plot = TOTAL_DISCREPANCY_32022_Graph, "Total Discrepancy.png", type = "cairo-png") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

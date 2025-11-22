@@ -1,4 +1,4 @@
-pacman::p_load(sf,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(roll,sf,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
@@ -54,7 +54,7 @@ LFLEVEL_FOREIGN_BORN <- bls_api("LNU01073395", startyear = 2019, registrationKey
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 UNRATE_FOREIGN_BORN <- merge(UNLEVEL_FOREIGN_BORN,LFLEVEL_FOREIGN_BORN, by = "date") %>%
-  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(0,0,0,0,0,0,0,0,0,0,0,roll_mean(UNRATE,12)))
+  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(roll_mean(UNRATE,12)))
 
 UNLEVEL_NATIVE_BORN <- bls_api("LNU03073413", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
@@ -62,7 +62,7 @@ LFLEVEL_NATIVE_BORN <- bls_api("LNU01073413", startyear = 2019, registrationKey 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 UNRATE_NATIVE_BORN <- merge(UNLEVEL_NATIVE_BORN,LFLEVEL_NATIVE_BORN, by = "date") %>%
-  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(0,0,0,0,0,0,0,0,0,0,0,roll_mean(UNRATE,12)))
+  transmute(date, UNLEVEL = value.x, LFLEVEL = value.y, UNRATE = UNLEVEL/LFLEVEL, ROLLUNRATE = c(roll_mean(UNRATE,12)))
 
 
 UNRATE_TOTAL_FOREIGN_BORN_Graph <- ggplot() + #plotting Wage Growth
@@ -170,6 +170,7 @@ POPLEVEL_NATIVE_16_54 <- rbind(POPLEVEL_NATIVE_16_24,POPLEVEL_NATIVE_25_34,POPLE
 TOTAL_NATIVE_BORN_POP_DATA <- ggplot() + #plotting Wage Growth
   #geom_line(data=filter(POPLEVEL_NATIVE_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= value/1000,color= "Official Native-Born Population Level, BLS"), size = 1.25) +
   geom_line(data=filter(POPLEVEL_NATIVE_16_54, date >= as.Date("2016-01-01")), aes(x=date,y= value/1000,color= "Official Native-Born Population Level, Age 16 to 54\nBLS data from Current Population Survey"), size = 1.25) +
+  annotate("text", label = "NOTE: DATA IS INACCURATE\nONLY SHOWN FOR\nDEMONSTRATION PURPOSES", x = as.Date("2016-01-01"), y = 137, color = "#EE6055", size = 5, hjust = 0, alpha = 0.75,lineheight = 0.8) +
   xlab("Date") +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(99.5,103.5), breaks = c(100,101,102,103), expand = c(0,0)) +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(212.5,227.5), breaks = c(210,215,220,225,230), expand = c(0,0)) +
@@ -248,11 +249,11 @@ FOREIGN_SHARE_HISPANIC_Graph <- ggplot() + #plotting Wage Growth
   xlab("Date") +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(99.5,103.5), breaks = c(100,101,102,103), expand = c(0,0)) +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(212.5,227.5), breaks = c(210,215,220,225,230), expand = c(0,0)) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.43,.48), breaks = c(.43,.44,.45,.46,.47,.48,.49,.50), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.42,.48), breaks = c(.42,.43,.44,.45,.46,.47,.48,.49,.50), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Hispanics are Less Likely to ID as Immigrants") +
   labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Since Trump's Inauguration, Hispanic CPS Respondents are Less Likely to Say They're Immigrants") +
-  theme_apricitas + theme(legend.position = c(.4,.9)) +
+  theme_apricitas + theme(legend.position = c(.4,.93)) +
   scale_color_manual(name=NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 134-(.3*6), ymax = 134) +
   coord_cartesian(clip = "off") +
@@ -266,7 +267,7 @@ POP_FOREIGN_BORN <- bls_api("LNU00073395", startyear = 2025, registrationKey = S
 TOTAL_FOREIGN_BORN_POPULATION_Graph <- ggplot() + #plotting Foreign Population
   geom_line(data=POP_FOREIGN_BORN, aes(x=date,y= value/1000,color= "Foreign-born Population, 2025\nBLS data from Current Population Survey"), size = 1.25) +
   geom_point(data=POP_FOREIGN_BORN, aes(x=date,y= value/1000,color= "Foreign-born Population, 2025\nBLS data from Current Population Survey"), size = 3) +
-  annotate("text", label = "NOTE: DATA IS INACCURATE\nONLY SHOWN FOR DEMONSTRATION PURPOSES", x = as.Date("2025-01-01"), y = 49.15, color = "#EE6055", size = 5, hjust = 0, alpha = 0.75,lineheight = 0.8) +
+  annotate("text", label = "NOTE: DATA IS INACCURATE\nONLY SHOWN FOR\nDEMONSTRATION PURPOSES", x = as.Date("2025-01-01"), y = 49.15, color = "#EE6055", size = 5, hjust = 0, alpha = 0.75,lineheight = 0.8) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(48,51), breaks = c(48,49,50,51), expand = c(0,0)) +
   ylab("Millions") +
@@ -279,3 +280,62 @@ TOTAL_FOREIGN_BORN_POPULATION_Graph <- ggplot() + #plotting Foreign Population
   theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = TOTAL_FOREIGN_BORN_POPULATION_Graph, "Total Foreign Born Population Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+BREAKEVEN_JOB_GROWTH <- data.frame(
+  Names = c("Morgan Stanley", "Wells Fargo", "Deutsche Bank", "Goldman Sachs", "Bick (Stl Fed)", "Cheremukhin (Dal Fed)","Kolko (PIIE)", "Bostic (Atl Fed Prez)", "Musalem (Stl Fed Prez)", "Goolsbee (Chi Fed Prez)"),
+  Breakeven = c(50,55,50,80,32,34,90,60,50,50)
+) %>%
+  mutate(Names = factor(Names, levels = rev(c("Morgan Stanley", "Wells Fargo", "Deutsche Bank", "Goldman Sachs", "Bick (Stl Fed)", "Cheremukhin (Dal Fed)","Kolko (PIIE)", "Bostic (Atl Fed Prez)", "Musalem (Stl Fed Prez)", "Goolsbee (Chi Fed Prez)"))))
+
+
+BREAKEVEN_JOB_GROWTH_GRAPH <- ggplot(data = BREAKEVEN_JOB_GROWTH, aes(x = Names, y = Breakeven)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#FFE98F") +
+  xlab(NULL) +
+  ylab("Payroll Growth Required to Keep Unemployment Stable") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(0,100), expand = c(0,0)) +
+  ggtitle("Forecasts of Breakeven Employment Growth\nAmidst Trump's Immigration Crackdown") +
+  labs(caption = "Graph created by @JosephPolitano using Dallas Fed's Cheremukhin Data") +
+  theme_apricitas + theme(legend.position = c(.75,.35), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  coord_flip() +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = BREAKEVEN_JOB_GROWTH_GRAPH, "Breakeven Job Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+imm_vintages <- data.frame(
+  vintage = c("2024 Estimates", "2023 Estimates", "2022 Estimates", "2021 Estimates"),
+  `2020` = c(19885, 19886, 19893, 12247),
+  `2021` = c(376004, 376008, 376029, 244622),
+  `2022` = c(1693535, 999267, 1010923, NA),
+  `2023` = c(2294299, 1138989, NA, NA),
+  `2024` = c(2786119, NA, NA, NA),
+  check.names = FALSE
+) %>%
+  pivot_longer(-vintage, names_to = "year", values_to = "value") %>%
+  mutate(date = as.Date(paste0(year,"-01-01"))) %>%
+  drop_na()
+
+
+US_NET_IMMIGRATION_VINTAGES <- ggplot() + #plotting Wage Growth
+  #geom_line(data=filter(POPLEVEL_NATIVE_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= value/1000,color= "Official Native-Born Population Level, BLS"), size = 1.25) +
+  geom_line(data=filter(imm_vintages, vintage == "2021 Estimates"), aes(x=date,y= value/1000000, color = "2021 Estimates"), size = 1.25) +
+  geom_line(data=filter(imm_vintages, vintage == "2022 Estimates"), aes(x=date,y= value/1000000, color = "2022 Estimates"), size = 1.25) +
+  geom_line(data=filter(imm_vintages, vintage == "2023 Estimates"), aes(x=date,y= value/1000000, color = "2023 Estimates"), size = 1.25) +
+  geom_line(data=filter(imm_vintages, vintage == "2024 Estimates"), aes(x=date,y= value/1000000, color = "2024 Estimates"), size = 1.25) +
+  xlab("Date") +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(99.5,103.5), breaks = c(100,101,102,103), expand = c(0,0)) +
+  #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(212.5,227.5), breaks = c(210,215,220,225,230), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3), breaks = c(0,1,2,3), expand = c(0,0)) +
+  ylab("Millions") +
+  ggtitle("US Repeatedly Revised Up Migration Estimates") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Amidst Surging Immigration, the Census Bureau Struggled to Keep Up and Had to Revise Up Estimates") +
+  theme_apricitas + theme(legend.position = c(.3,.65)) +
+  scale_color_manual(name="US Net International Migration Vintages",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#9A348E"),breaks = c("2024 Estimates","2023 Estimates","2022 Estimates","2021 Estimates")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-02-01")-(.1861*(today()-600-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-600-as.Date("2020-01-01"))), ymin = 0-(.3*3), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot", plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = US_NET_IMMIGRATION_VINTAGES, "US Net Immigration Vintages.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

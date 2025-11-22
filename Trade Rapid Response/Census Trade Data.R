@@ -68,13 +68,13 @@ GROSS_TARIFF_PCT_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=GROSS_IMPORTS_BULK_CON, aes(x=time,y= CAL_DUT_MO/CON_VAL_MO,color= "US Average Effective Tariff Rate\n(Tariffs Collected as a % of Imports)"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.02) * 0.02),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US Tariff Rates are Rapidly Rising") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Imports") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.05) * 0.05)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.02) * 0.02)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GROSS_TARIFF_PCT_GRAPH, "Gross Tariffs PCT NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -1321,6 +1321,9 @@ STEEL_IMPORTS <- STEEL_IMPORTS_BULK %>%
 US_METAL_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("vline", x = as.Date("2025-03-01"), xintercept = as.Date("2025-03-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "25%\nTariff", x = as.Date("2025-02-26"), y = 45, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-06-01"), xintercept = as.Date("2025-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Additional\n25%\nTariff", x = as.Date("2025-05-26"), y = 45, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  
   geom_line(data=STEEL_IMPORTS, aes(x=time,y= 12*CON_VAL_MO/1000000000,color= "Steel"), size = 1.25) + 
   geom_line(data=ALUMINUM_IMPORTS, aes(x=time,y= 12*CON_VAL_MO/1000000000,color= "Aluminum"), size = 1.25) + 
   xlab("Date") +

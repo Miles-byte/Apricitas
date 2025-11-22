@@ -387,7 +387,7 @@ MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xl
   `colnames<-`(c("Total","Food/Beverage/Tobacco","Chemical","Plastic/Rubber","Nonmetallic Mineral","Fabricated Metal","Computer/Electronic/Electrical","Transportation Equipment")) %>%
   mutate_if(is.character,as.numeric) %>%
   mutate(Other = Total-`Food/Beverage/Tobacco`-Chemical-`Plastic/Rubber`-`Nonmetallic Mineral`-`Fabricated Metal`-`Computer/Electronic/Electrical`-`Transportation Equipment`) %>%
-  select(-Total) %>%
+  #select(-Total) %>%
   .[order(nrow(.):1),] %>%
   mutate(date = seq.Date(from = as.Date("2014-01-01"), by = "month", length.out = nrow(.))) %>%
   mutate_if(is.character,as.numeric) %>%

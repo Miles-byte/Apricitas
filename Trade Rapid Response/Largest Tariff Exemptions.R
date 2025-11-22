@@ -1,7 +1,7 @@
 JUNE_HS4_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","I_COMMODITY","I_COMMODITY_LDESC","COMM_LVL","RP"), 
-  time = "2025-07",
+  time = "2025-08",
   COMM_LVL = "HS4",
 )
 
@@ -32,7 +32,7 @@ JUNE_HS4_IMPORTS_NO_TARIFF <- JUNE_HS4_IMPORTS_BULK %>%
 JULY_MEXICO_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","CTY_CODE","CTY_NAME","I_COMMODITY","I_COMMODITY_LDESC","COMM_LVL","RP"), 
-  time = "2025-07",
+  time = "2025-08",
   COMM_LVL = "HS4",
   CTY_CODE = "2010",
 )
@@ -65,7 +65,7 @@ JULY_MEXICO_IMPORTS <- JULY_MEXICO_IMPORTS_BULK %>%
 JULY_CANADA_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","CTY_CODE","I_COMMODITY","COMM_LVL","RP"), 
-  time = "2025-07",
+  time = "2025-08",
   COMM_LVL = "HS4",
   CTY_CODE = "1220",
 )
@@ -101,14 +101,14 @@ JUNE_HS4_IMPORTS_NO_TARIFF <- JUNE_HS4_IMPORTS_NO_TARIFF %>%
   filter(Category != "None") %>%
   arrange(desc(CON_VAL_MO)) %>%
   filter(CON_VAL_MO > 5000000000) %>%
-  mutate(Category = factor(Category, levels = rev(c("Computers & Parts","Mexico (USMCA-compliant)","Canada (USMCA-compliant)","Pharmaceuticals","Energy","Precious Metals","Smartphones","Critical Minerals","Copper & Related","Lumber & Related","Semiconductor Equipment"))))
+  mutate(Category = factor(Category, levels = rev(c("Computers & Parts","Mexico (USMCA-compliant)","Canada (USMCA-compliant)","Energy","Pharmaceuticals","Precious Metals","Smartphones","Critical Minerals","Copper & Related","Lumber & Related","Semiconductor Equipment"))))
 
 LARGEST_TARIFF_EXEMPTIONS <- ggplot(data = JUNE_HS4_IMPORTS_NO_TARIFF, aes(x = Category, y = CON_VAL_MO/1000000000, fill = Category == "Computers & Parts")) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_bar(stat = "identity", position = "dodge", color = NA) +
   scale_fill_manual(values = c("TRUE" = "#EE6055", "FALSE" = "#FFE98F"), guide = "none") +
   xlab(NULL) +
-  ggtitle("Largest Tariff Exemptions, July 2025") +
+  ggtitle("Largest Tariff Exemptions, August 2025") +
   ylab("US Imports in Category, July 2025") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,40), expand = c(0,0)) +
   #labs(subtitle = "By % of US Imports") +
