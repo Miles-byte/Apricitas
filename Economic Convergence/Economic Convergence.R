@@ -44,7 +44,7 @@ GDP_PER_CAPITA_LEVEL_FILTERED_graph <- ggplot(data = GDP_PER_CAPITA_LEVEL_FILTER
   ggtitle("The Scale of Global Economic Disparities") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  theme_apricitas + theme(legend.position = c(.6,.6), axis.text.y = element_text(size = 16), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  theme_apricitas + theme(legend.position = c(.6,.6), axis.text.y = element_text(size = 16, color = "white"), plot.margin = unit(c(0.2,0.6,0.2,0.1), "cm"), plot.title = element_text(size = 25)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   coord_flip()
 
 ggsave(dpi = "retina",plot = GDP_PER_CAPITA_LEVEL_FILTERED_graph, "Real GDP Per Capita Level, Filtered Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -56,13 +56,13 @@ WORLD_MAP <- ne_countries(scale = "medium", returnclass = "sf") %>%
   st_transform('EPSG:3395') %>%
   transmute(name = iso_a3_eh) %>%
   full_join(.,GDP_PER_CAPITA_PPP_GROWTH_MINUS_US, by = "name") %>%
-  mutate(value_bucket = cut(value, breaks = c(-Inf,-0.06,-0.02,0.02,0.06, Inf), labels = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More")))
-  
+  mutate(value_bucket = cut(value, breaks = c(-Inf,-0.06,-0.02,0.02,0.06, Inf), labels = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More"))) %>%
+  mutate(value_bucket = if_else(name == "USA", NA_character_, value_bucket))
 
 WORLD_MAP_GRAPH <- ggplot() +
   geom_sf(data = WORLD_MAP, aes(fill = value_bucket), color = NA) +
   #coord_sf("mercator", lims_method = "geometry_bbox") +
-  scale_fill_manual(name= "GDP Per Capita,\nPPP-Adjusted\n2019-24 Growth\nRelative to the US", breaks = c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More"), values = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")) +
+  scale_fill_manual(name= "GDP Per Capita,\nPPP-Adjusted\n2019-24 Growth\nRelative to the US", breaks = rev(c("6% Slower or More", "2-6% Slower", "About the Same", "2-6% Faster", "6% Faster or More")), values = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"))) +
   ggtitle("   Post-COVID GDP/Capita Growth,\n   Relative to the United States") +
   theme_apricitas + 
   scale_x_continuous(limits = c(-13000000, 18500000)) +
@@ -84,17 +84,66 @@ WORLD_MAP_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = WORLD_MAP_GRAPH, "World Convergence Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+GDP_PER_CAPITA_PPP_GROWTH_1YR <- GDP_PER_CAPITA_PPP_BULK_2019 %>%
+  select(iso3c, date, `NY.GDP.PCAP.PP.KD`) %>%
+  pivot_wider(names_from = iso3c, values_from = `NY.GDP.PCAP.PP.KD`) %>%
+  slice_tail(n = 2) %>%
+  mutate(across(-date, ~ last(.x) / first(.x))) %>%
+  select(-date) %>%
+  unique() %>%
+  pivot_longer(cols = everything())
+
+GDP_PER_CAPITA_PPP_GROWTH_MINUS_US_1YR <- GDP_PER_CAPITA_PPP_GROWTH %>%
+  mutate(value = value - GDP_PER_CAPITA_PPP_GROWTH$value[GDP_PER_CAPITA_PPP_GROWTH$name == "USA"])
+
+WORLD_MAP_1YR <- ne_countries(scale = "medium", returnclass = "sf") %>%
+  st_transform('EPSG:3395') %>%
+  transmute(name = iso_a3_eh) %>%
+  full_join(.,GDP_PER_CAPITA_PPP_GROWTH_MINUS_US_1YR, by = "name") %>%
+  mutate(value_bucket = cut(value, breaks = c(-Inf,-0.02,-0.01,0.01,0.02, Inf), labels = c("2% Slower or More", "1-2% Slower", "About the Same", "1-2% Faster", "2% Faster or More"))) %>%
+  mutate(value_bucket = if_else(name == "USA", NA_character_, value_bucket))
+
+
+WORLD_MAP_GRAPH_1YR <- ggplot() +
+  geom_sf(data = WORLD_MAP_1YR, aes(fill = value_bucket), color = NA) +
+  #coord_sf("mercator", lims_method = "geometry_bbox") +
+  scale_fill_manual(name= "GDP Per Capita,\nPPP-Adjusted\n2024 Growth\nRelative to the US", breaks = rev(c("2% Slower or More", "1-2% Slower", "About the Same", "1-2% Faster", "2% Faster or More")), values = rev(c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D"))) +
+  ggtitle("   2024 GDP/Capita Growth,\n   Relative to the United States") +
+  theme_apricitas + 
+  scale_x_continuous(limits = c(-13000000, 18500000)) +
+  scale_y_continuous(limits = c(-8000000, 10000000)) +
+  labs(caption = "Graph created by @JosephPolitano using World Bank Data") +
+  theme(plot.title = element_text(size = 30),
+        legend.position = c(1.135,.6),
+        #legend.key.height = unit(0, "cm"),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 12),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        plot.margin = unit(c(0, 1.8, 0, 0.1), "in"),
+        legend.key = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+
+ggsave(dpi = "retina",plot = WORLD_MAP_GRAPH_1YR, "World Convergence Graph 1YR.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 POVERTY_SHARE_215 <- wb_data("SI.POV.DDAY", start_date = 1960, end_date = 2050, country = "all") %>%
   filter(country == "World") %>%
-  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.DDAY`)
+  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.DDAY`) %>%
+  drop_na()
 
 POVERTY_SHARE_365 <- wb_data("SI.POV.LMIC", start_date = 1960, end_date = 2050, country = "all") %>%
   filter(country == "World") %>%
-  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.LMIC`)
+  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.LMIC`) %>%
+  drop_na()
 
 POVERTY_SHARE_685 <- wb_data("SI.POV.UMIC", start_date = 1960, end_date = 2050, country = "all") %>%
   filter(country == "World") %>%
-  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.UMIC`)
+  transmute(date = as.Date(paste0(date, "-01-01")), value = `SI.POV.UMIC`) %>%
+  drop_na()
 
 
 GLOBAL_POVERTY_graph <- ggplot() +
@@ -108,8 +157,8 @@ GLOBAL_POVERTY_graph <- ggplot() +
   ggtitle("COVID Slowed Global Poverty Reduction") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Poverty Reduction Progress of the 2010s") +
   theme_apricitas + theme(legend.position = "right") +
-  scale_color_manual(name= "Share of World Population\nUnder Select Poverty Lines\n(2017 PPP)",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("$6.85 a Day","$3.65 a Day","$2.15 a Day")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1980-01-01")-(.26*(today()-as.Date("1980-01-01"))), xmax = as.Date("1980-01-01")-(0.049*(today()-as.Date("1980-01-01"))), ymin = 0-(.3*(.75)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= "Share of World Population\nUnder Select Poverty Lines\n(2021 PPP)",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("$6.85 a Day","$3.65 a Day","$2.15 a Day")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1982-01-01")-(.26*(today()-as.Date("1982-01-01"))), xmax = as.Date("1982-01-01")-(0.049*(today()-as.Date("1982-01-01"))), ymin = 0-(.3*(.75)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GLOBAL_POVERTY_graph, "Global Poverty Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -289,12 +338,12 @@ CONVERGENCE_FINAL_graph <- ggplot() +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   xlab("Date") +
   ylab("Growth, Relative to the US, %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.30), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-.1,.40), expand = c(0,0)) +
   ggtitle("Global Economic Convergence Has Slowed") +
   labs(caption = "Graph created by @JosephPolitano using World Bank Data", subtitle = "The COVID Pandemic & Ensuing Inflation Interrupted the Economic Convergence of the 2010s") +
   theme_apricitas + theme(legend.position = c(.22,.85)) +
   scale_color_manual(name= "PPP-Adjusted GDP/Capita Growth\nLow/Middle Income Countries\nRelative to the US\n5-Year Rolling Total",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Population-Weighted Average","Country-Weighted Average")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("1980-01-01")-(.1861*(today()-as.Date("1980-01-01"))), xmax = as.Date("1980-01-01")-(0.049*(today()-as.Date("1980-01-01"))), ymin = 0-(.3*(.75)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-as.Date("1995-01-01"))), ymin = -.1-(.3*(.5)), ymax = -.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CONVERGENCE_FINAL_graph, "Convergence Final Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

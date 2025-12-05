@@ -1053,7 +1053,7 @@ EU_BROAD_GDPpc_2019_SHP_GRAPH <- ggplot(data = EU_GDPpc_2019_SHP, aes(fill = yoy
   labs(fill = NULL) +
   geom_label(
     data = filter(EU_GDPpc_CENTROIDS_2019, geo %in% c("SI")), 
-    aes(x = 4700000, y = st_coordinates(geometry)[,2]-230000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    aes(x = 4700000, y = st_coordinates(geometry)[,2]-230000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1089,7 +1089,7 @@ EU_BROAD_GDPpc_2019_SHP_GRAPH <- ggplot(data = EU_GDPpc_2019_SHP, aes(fill = yoy
   ) +
   geom_label(
     data = filter(EU_GDPpc_CENTROIDS_2019, geo %in% c("NL")), 
-    aes(x = 3300000, y = st_coordinates(geometry)[,2]+620000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+620000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1101,7 +1101,7 @@ EU_BROAD_GDPpc_2019_SHP_GRAPH <- ggplot(data = EU_GDPpc_2019_SHP, aes(fill = yoy
   ) +
   geom_label(
     data = filter(EU_GDPpc_CENTROIDS_2019, geo %in% c("BE")), 
-    aes(x = 3300000, y = st_coordinates(geometry)[,2]+560000, label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+560000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -1113,7 +1113,7 @@ EU_BROAD_GDPpc_2019_SHP_GRAPH <- ggplot(data = EU_GDPpc_2019_SHP, aes(fill = yoy
   ) +
   geom_label(
     data = filter(EU_GDPpc_CENTROIDS_2019, geo %in% c("LU")), 
-    aes(x = 3300000, y = st_coordinates(geometry)[,2]+430000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", ""), sprintf("%.1f", round(label * 100, 1)), "%")), 
+    aes(x = 3300000, y = st_coordinates(geometry)[,2]+430000, label = paste0(geo, "\n", ifelse(label >= 0, "   ", "  "), sprintf("%.1f", round(label * 100, 1)), "%")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
