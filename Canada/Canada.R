@@ -681,13 +681,13 @@ CAN_GDP_MONTHLY_GRAPH <- ggplot() +
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
   geom_line(data=filter(CAN_GDP_MONTHLY, REF_DATE >= as.Date("2022-01-01")), aes(x=REF_DATE,y= `All industries [T001]`/1000000, color= "Canadian Monthly Real GDP"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.01, suffix = "T"), limits = c(2.15,2.3), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.01, suffix = "T"), limits = c(2.15,2.35), expand = c(0,0)) +
   ylab("Trillions of Chained 2017 Canadian Dollars") +
   ggtitle("Canadian Real GDP") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canada's Economy Has Been Flat Overall in 2025") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 2.15-(.3*0.15), ymax = 2.15) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 2.15-(.3*0.2), ymax = 2.15) +
   coord_cartesian(clip = "off") 
 
 ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_GRAPH, "Canada GDP Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
