@@ -1,4 +1,4 @@
-pacman::p_load(sf,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(RcppRoll,sf,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 install.packages("cli")
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
@@ -1931,8 +1931,8 @@ MANUFACTURING_GROWTH_YOY_graph <- ggplot(data = filter(MANUFACTURING_RBIND, date
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-100,0,100,200,300,400), limits = c(-150,400), expand = c(0,0)) +
   ggtitle("Year-on-Year Change in US Manufacturing Employment") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America Has Lost Nearly 100k Manufacturing Jobs Over the Last Year") +
-  theme_apricitas + theme(legend.position = c(.625,.80)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-133,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
-  #scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72", breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other"))) +
+  #theme_apricitas + theme(legend.position = c(.625,.80)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-133,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  theme_apricitas + theme(legend.position = c(.625,.75)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-11,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72"), breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -150-(.3*550), ymax = -150) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
@@ -2032,7 +2032,6 @@ TOTAL_CONSTRUCTION_YOY <- bls_api("CEU2000000001", startyear = 2010, registratio
 
 TOTAL_CONSTRUCTION_RBIND <- rbind(RESIDENTIAL_BUILDING_CONSTRUCTION,NONRESIDENTIAL_BUILDING_CONSTRUCTION,HEAVY_CIVIL_ENGINEERING_CONSTRUCTION,RESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS,NONRESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS) %>%
   mutate(series_id = factor(series_id, levels = rev(c("Residential Building Construction","Nonresidential Building Construction","Residential Specialty Trade Contractors","Nonresidential Specialty Trade Contractors","Heavy/Civil Engineering Construction"))))
-
 
 TOTAL_CONSTRUCTION_GROWTH_YOY_graph <- ggplot(data = filter(TOTAL_CONSTRUCTION_RBIND, date >= as.Date("2023-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -2134,6 +2133,336 @@ TOTAL_BLUE_COLLAR_YOY_graph <- ggplot(data = filter(TOTAL_BLUE_COLLAR_RBIND, dat
   theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = TOTAL_BLUE_COLLAR_YOY_graph, "Total Blue Collar Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+MINING_IND <- bls_api("CES1000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CES1000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Mining, Logging, Oil, & Gas") %>%
+  arrange(date) %>%
+  #mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+CONSTRUCTION_IND <- bls_api("CES2000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CES2000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Construction") %>%
+  arrange(date) %>%
+  #mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+MANUFACTURING_IND <- bls_api("CES3000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CES3000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Manufacturing") %>%
+  arrange(date) %>%
+  #mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+
+TRANSPORTATION_IND <- bls_api("CES4300000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CES4300000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Transportation & Warehousing") %>%
+  arrange(date) %>%
+  #mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+UTILITIES_IND <- bls_api("CES4422000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CES4422000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Utilities") %>%
+  arrange(date) %>%
+  #mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+TOTAL_BLUE_COLLAR_IND_RBIND <- rbind(MINING_IND,CONSTRUCTION_IND,MANUFACTURING_IND,TRANSPORTATION_IND,UTILITIES_IND) %>%
+  mutate(series_id = factor(series_id, levels = rev(c("Manufacturing","Construction","Mining, Logging, Oil, & Gas","Transportation & Warehousing","Utilities"))))
+
+TOTAL_BLUE_COLLAR_IND <- TOTAL_BLUE_COLLAR_IND_RBIND %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(series_id = "test")
+
+
+
+TOTAL_BLUE_COLLAR_IND_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(TOTAL_BLUE_COLLAR_IND, date >= as.Date("2023-01-01")), aes(x=date, y = value/1000, color = "US Blue Collar Employment\n(Manufacturing, Construction, Mining,\nTransportation, & Utilities)"), size = 1.25) +
+  xlab("Date") +
+  ylab("Year-on-Year Change, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = .1, suffix = "M"), breaks = c(28.5,28.6,28.7,28.8,28.9,29,29.1), limits = c(28.5,29.1), expand = c(0,0)) +
+  ggtitle("US Blue Collar Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "US Blue Collar Jobs are Down More than 100k From Their Early-2025 Peaks") +
+  theme_apricitas + theme(legend.position = c(.4,.875)) +
+  #scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72", breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other"))) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#3083DC","#A7ACD9","#6A4C93","#9A348E","#D28E20","#FF8E72"), breaks = c("Manufacturing","Construction","Mining, Logging, Oil, & Gas","Transportation & Warehousing","Utilities")) +
+  scale_color_manual(name = NULL, values = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 28.5-(.3*0.6), ymax = 28.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TOTAL_BLUE_COLLAR_IND_graph, "Total Blue Collar Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+LOGGING_YOY <- bls_api("CEU1011330001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1011330001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Logging") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+OIL_EXTRACTION_YOY <- bls_api("CEU1021100001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021100001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Oil & Gas Extraction") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+
+OIL_SUPPORT_YOY <- bls_api("CEU1021311201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021311201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Manufacturing") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+OIL_DRILLING_YOY <- bls_api("CEU1021311101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021311101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Manufacturing") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+OIL_SUPPORT_DRILLING_YOY <- merge(OIL_SUPPORT_YOY,OIL_DRILLING_YOY, by = "date") %>%
+  transmute(date, value = value.x+value.y, series_id = "Support Activities & Drilling for Oil & Gas")
+
+
+COAL_MINING_YOY <- bls_api("CEU1021210001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021210001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Coal Mining") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+METAL_MINING_YOY <- bls_api("CEU1021220001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021220001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Metal Ore Mining") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+MINERAL_MINING_YOY <- bls_api("CEU1021230001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021230001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Nonmetallic Mineral Mining & Quarrying") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+SUPPORT_MINING_YOY <- bls_api("CEU1021311501", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU1021311501", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Support Activities for Coal, Metal, & Nonmetallic Minerals") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+TOTAL_EXTRACTION_RBIND <- rbind(LOGGING_YOY,OIL_EXTRACTION_YOY,OIL_SUPPORT_DRILLING_YOY,COAL_MINING_YOY,METAL_MINING_YOY,MINERAL_MINING_YOY,SUPPORT_MINING_YOY) %>%
+  mutate(series_id = factor(series_id, levels = rev(c("Oil & Gas Extraction","Support Activities & Drilling for Oil & Gas","Coal Mining","Metal Ore Mining","Nonmetallic Mineral Mining & Quarrying","Support Activities for Coal, Metal, & Nonmetallic Minerals","Logging"))))
+
+TOTAL_EXTRACTION_YOY <- TOTAL_EXTRACTION_RBIND %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(series_id = "test")
+
+
+
+TOTAL_EXTRACTION_YOY_graph <- ggplot(data = filter(TOTAL_EXTRACTION_RBIND, date >= as.Date("2023-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(TOTAL_EXTRACTION_YOY, date >= as.Date("2023-01-01")), aes(x=date, y = value, color = "Total Extractive Industries Employment Growth"), size = 2) +
+  xlab("Date") +
+  ylab("Year-on-Year Change, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-40,-20,0,20,40,60), limits = c(-40,60), expand = c(0,0)) +
+  ggtitle("Year-on-Year Change in US Extractive Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America has Lost Jobs Across Extractive Industries, Especially Oil & Gas, Over the Last Year") +
+  theme_apricitas + theme(legend.position = c(.675,.8)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-10,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  #scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72", breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other"))) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#3083DC","#A7ACD9","#6A4C93","#9A348E","#D28E20","#FF8E72"), breaks = c("Oil & Gas Extraction","Support Activities & Drilling for Oil & Gas","Coal Mining","Metal Ore Mining","Nonmetallic Mineral Mining & Quarrying","Support Activities for Coal, Metal, & Nonmetallic Minerals","Logging")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -40-(.3*100), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TOTAL_EXTRACTION_YOY_graph, "Total Extraction Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+COMPUTER_YOY <- bls_api("CEU3133410001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133410001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Computers & Peripherals") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+COMMUNICATION_YOY <- bls_api("CEU3133420001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133420001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Communication") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+
+MEDIA_YOY <- bls_api("CEU3133460001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133460001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Media") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+COMMUNICATION_MEDIA_YOY <- merge(COMMUNICATION_YOY,MEDIA_YOY, by = "date") %>%
+  transmute(date, value = value.x+value.y, series_id = "Communications & Media Equipment")
+
+
+SEMICONDUCTOR_YOY <- bls_api("CEU3133440001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133440001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Semiconductor & Electronic Components") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+NAVIGATIONAL_YOY <- bls_api("CEU3133450001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133450001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Navigational, Measuring, & Control Instruments") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+
+
+LIGHTS_YOY <- bls_api("CEU3133510001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133510001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Lights") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+APPLIANCES_YOY <- bls_api("CEU3133520001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133520001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Household Appliances") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+LIGHTS_APPLIANCES_YOY <- merge(LIGHTS_YOY,APPLIANCES_YOY, by = "date") %>%
+  transmute(date, value = value.x+value.y, series_id = "Household Appliances & Lights")
+
+
+ELECTRICAL1_YOY <- bls_api("CEU3133530001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133530001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Electrical Equipment") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+ELECTRICAL2_YOY <- bls_api("CEU3133590001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
+  select(-latest) %>%
+  rbind(bls_api("CEU3133590001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Components") %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))) %>%
+  drop_na()
+
+ELECTRICAL_EQUIP_YOY <- merge(ELECTRICAL1_YOY,ELECTRICAL2_YOY, by = "date") %>%
+  transmute(date, value = value.x+value.y, series_id = "Electrical Equipment & Components")
+
+
+
+TOTAL_ELEC_RBIND <- rbind(COMPUTER_YOY,COMMUNICATION_MEDIA_YOY,SEMICONDUCTOR_YOY,NAVIGATIONAL_YOY,LIGHTS_APPLIANCES_YOY,ELECTRICAL_EQUIP_YOY) %>%
+  mutate(series_id = factor(series_id, levels = rev(c("Computers & Peripherals","Semiconductor & Electronic Components","Communications & Media Equipment","Navigational, Measuring, & Control Instruments","Household Appliances & Lights","Electrical Equipment & Components"))))
+
+TOTAL_ELEC_YOY <- TOTAL_ELEC_RBIND %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(series_id = "test")
+
+
+TOTAL_ELEC_YOY_graph <- ggplot(data = filter(TOTAL_ELEC_RBIND, date >= as.Date("2023-01-01")), aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(TOTAL_ELEC_YOY, date >= as.Date("2023-01-01")), aes(x=date, y = value, color = "Total Electronics & Electrical Manufacturing Employment Growth"), size = 2) +
+  xlab("Date") +
+  ylab("Year-on-Year Change, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-40,-20,0,20,40,60), limits = c(-40,60), expand = c(0,0)) +
+  ggtitle("US Electronics & Electrical Manufacturing Employment\nTotal Year-on-Year Change") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America is Losing Jobs in Electronics & Electrical Manufacturing—Due to Losses in Chipmaking") +
+  theme_apricitas + theme(legend.position = c(.675,.8)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-10,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  #scale_fill_manual(name= "Residential Construction Employment, Change Since Jan 2020",values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72", breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other"))) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#3083DC","#A7ACD9","#6A4C93","#9A348E","#D28E20","#FF8E72"), breaks = c("Computers & Peripherals","Communications & Media Equipment","Semiconductor & Electronic Components","Navigational, Measuring, & Control Instruments","Household Appliances & Lights","Electrical Equipment & Components")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -40-(.3*100), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TOTAL_ELEC_YOY_graph, "Total Elec Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 #
 ECI_WAG_YOY <- fredr(series_id = "ECIWAG",observation_start = as.Date("2002-01-01"), units = "pc1")

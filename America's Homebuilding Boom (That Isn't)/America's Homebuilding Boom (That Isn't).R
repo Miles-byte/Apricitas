@@ -1244,6 +1244,44 @@ CONSTRUCTION_STACKED_Graph <- ggplot(data = CONSTRUCTION_STACKED, aes(x = time, 
 
 ggsave(dpi = "retina",plot = CONSTRUCTION_STACKED_Graph, "Construction Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+CONSTRUCTION_STACKED_TYPE <- getCensus(
+  name = "timeseries/eits/resconst/",
+  vars = c("data_type_code","time_slot_date","time_slot_id","seasonally_adj","program_code","category_code","geo_level_code","cell_value","error_data"), 
+  time = paste("from 2000 to", format(Sys.Date(), "%Y")),
+  category_code = "UNDERCONST",
+  geo_level_code = "US",
+  #data_type_code = "TOTAL",
+  seasonally_adj = "yes",
+) %>%
+  mutate(time = as.Date(as.yearmon(time))) %>%
+  mutate(value = as.numeric(cell_value)) %>%
+  # filter(geo_level_code != "US") %>%
+  # mutate(geo_level_code = case_when(
+  #   geo_level_code == "NO" ~ "Northeast",
+  #   geo_level_code == "WE" ~ "West",
+  #   geo_level_code == "SO" ~ "South",
+  #   geo_level_code == "MW" ~ "Midwest",
+  #   TRUE ~ geo_level_code
+  # )) %>%
+  filter(data_type_code != "TOTAL") %>%
+  select(data_type_code,time, value) %>%
+  mutate(data_type_code = recode(data_type_code, SINGLE = "Single-Family", MULTI = "Multi-Family"))
+
+CONSTRUCTION_STACKED_TYPE_Graph <- ggplot(data = CONSTRUCTION_STACKED_TYPE, aes(x = time, y = value/1000, fill = data_type_code)) + #plotting permanent and temporary job losers
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 34) +
+  xlab("Date") +
+  ylab("Units Under Construction") +
+  scale_y_continuous(labels = scales::number_format(suffix = "M"), breaks = c(0,0.5,1,1.5), limits = c(0,1.75), expand = c(0,0)) +
+  ggtitle("Housing Under Construction By Type") +
+  labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "The Number of Housing Units Under Construction has Dropped 400k From its 2022 Peak") +
+  theme_apricitas + theme(legend.position = c(.52,.85)) +
+  scale_fill_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#00A99D","#EE6055","#FFE98F")), breaks = c("Single-Family","Multi-Family")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*1.75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CONSTRUCTION_STACKED_TYPE_Graph, "Construction Stacked Type.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 ZHVI_TOP <- read.csv("https://files.zillowstatic.com/research/public_csvs/zhvi/Metro_zhvi_uc_sfrcondo_tier_0.67_1.0_sm_sa_month.csv?t=1699886520") %>%
   gather(key = "date", value = "value",-5,-4,-3, -2, -1) %>%
   mutate(date = as.Date(gsub("X","",date), "%Y.%m.%d")) %>%

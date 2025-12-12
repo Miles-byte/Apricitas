@@ -44,6 +44,7 @@ JOLTS_DATA <- PAYEMS %>%
   full_join(QUITS, by = "date") %>%
   full_join(JOB_OPENINGS, by = "date") %>%
   arrange(date) %>%
+  tidyr::fill(payrolls, .direction = "down") %>%
   transmute(date, hiring_rate = hires/payrolls, layoff_rate = layoffs/payrolls, quit_rate = quits/payrolls, openings_rate = openings/(openings+payrolls)) %>%
   filter(date >= as.Date("2021-01-01"))
 

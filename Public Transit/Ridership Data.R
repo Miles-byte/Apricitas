@@ -17,7 +17,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 library(readxl)
 
 UPT_manual <- read_excel(
-  "C:/Users/Joseph/Documents/GitHub/Apricitas/Public Transit/UPT_MANUAL.xlsx"
+  "C:/Users/Josep/Documents/GitHub/Apricitas/Public Transit/UPT_MANUAL.xlsx"
 )
 
 monthly_cols <- names(UPT_manual)[grepl("^[0-9]{1,2}/[0-9]{4}$", names(UPT_manual))]

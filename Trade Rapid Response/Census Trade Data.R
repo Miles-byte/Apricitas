@@ -15,6 +15,7 @@ GROSS_EXPORTS_BULK <- getCensus(
 )
 
 GROSS_TRADE_BULK <- merge(GROSS_IMPORTS_BULK,GROSS_EXPORTS_BULK, by = "time") %>%
+  mutate(GEN_VAL_MO = as.numeric(GEN_VAL_MO), ALL_VAL_MO = as.numeric(ALL_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   mutate(NET_IMPORTS = GEN_VAL_MO-ALL_VAL_MO) %>%
   mutate(time = as.Date(paste0(time,"-01")))
 
@@ -40,13 +41,13 @@ GROSS_TARIFF_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=GROSS_TRADE_BULK, aes(x=time,y= CAL_DUT_MO*12/1000000000,color= "US Tariffs Collected\nNot Seasonally Adjusted Annual Rate"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,300),breaks = c(0,25,50,75,100,125,150,175,200,225,250,275,300), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,400),breaks = c(0,50,100,150,200,250,300,350,400), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Americans are Paying Billions in Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(300)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(400)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = GROSS_TARIFF_GRAPH, "Gross Tariffs NSA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -62,11 +63,11 @@ GROSS_IMPORTS_BULK_CON <- getCensus(
 
 GROSS_IMPORTS_BULK_CON <- GROSS_IMPORTS_BULK_CON %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
-  mutate(tariff_rate = CAL_DUT_MO/CON_VAL_MO)
+  mutate(tariff_rate = as.numeric(CAL_DUT_MO)/as.numeric(CON_VAL_MO))
 
 GROSS_TARIFF_PCT_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_line(data=GROSS_IMPORTS_BULK_CON, aes(x=time,y= CAL_DUT_MO/CON_VAL_MO,color= "US Average Effective Tariff Rate\n(Tariffs Collected as a % of Imports)"), size = 1.25) + 
+  geom_line(data=GROSS_IMPORTS_BULK_CON, aes(x=time,y= tariff_rate,color= "US Average Effective Tariff Rate\n(Tariffs Collected as a % of Imports)"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.02) * 0.02),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
@@ -95,7 +96,7 @@ CN_MX_CA_IMPORTS_BULK <- getCensus(
 CN_MX_CA_IMPORTS <- CN_MX_CA_IMPORTS_BULK %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA", CTY_NAME)) %>%
   group_by(CTY_NAME,time) %>%
-  summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE),CAL_DUT_MO = sum(CAL_DUT_MO, na.rm = TRUE)) %>%
+  summarize(time,CON_VAL_MO = sum(as.numeric(CON_VAL_MO), na.rm = TRUE),CAL_DUT_MO = sum(as.numeric(CAL_DUT_MO), na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   select(-CAL_DUT_MO) %>%
   ungroup() %>%
@@ -105,7 +106,7 @@ CN_MX_CA_IMPORTS <- CN_MX_CA_IMPORTS_BULK %>%
 CN_MX_CA_TARIFFS <- CN_MX_CA_IMPORTS_BULK %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA", CTY_NAME)) %>%
   group_by(CTY_NAME,time) %>%
-  summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE),CAL_DUT_MO = sum(CAL_DUT_MO, na.rm = TRUE)) %>%
+  summarize(time,CON_VAL_MO = sum(as.numeric(CON_VAL_MO), na.rm = TRUE),CAL_DUT_MO = sum(as.numeric(CAL_DUT_MO), na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   select(-CON_VAL_MO) %>%
   ungroup() %>%
@@ -190,6 +191,7 @@ MX_CA_RP_IMPORTS_RP <- MX_CA_RP_IMPORTS_BULK %>%
   mutate(time = as.Date(paste0(time, "-01"))) %>%
   filter(time >= as.Date("2024-01-01")) %>%
   group_by(CTY_NAME,tariff,time) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE),CAL_DUT_MO = sum(CAL_DUT_MO, na.rm = TRUE)) %>%
   mutate(CTY_NAME = str_to_title(CTY_NAME))
 
@@ -244,6 +246,7 @@ GOLD_IMPORTS_BULK <- getCensus(
 
 GOLD_IMPORTS <- GOLD_IMPORTS_BULK %>%
   group_by(time, CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CTY_NAME = if_else(CTY_NAME == "SWITZERLAND", CTY_NAME, "ALL OTHER COUNTRIES")) %>%
@@ -281,6 +284,7 @@ COMPUTER_IMPORTS_BULK <- getCensus(
 
 COMPUTER_IMPORTS <- COMPUTER_IMPORTS_BULK %>%
   group_by(time, CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("MEXICO","CHINA","HONG KONG","MACAU","VIETNAM","TAIWAN"), CTY_NAME, "ALL OTHER COUNTRIES")) %>%
@@ -323,6 +327,7 @@ LAPTOP_IMPORTS_BULK <- getCensus(
 
 LAPTOP_IMPORTS <- LAPTOP_IMPORTS_BULK %>%
   group_by(time, CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("MEXICO","CHINA","HONG KONG","MACAU","VIETNAM","TAIWAN"), CTY_NAME, "ALL OTHER COUNTRIES")) %>%
@@ -365,6 +370,7 @@ PHONE_IMPORTS_BULK <- getCensus(
 
 PHONE_IMPORTS <- PHONE_IMPORTS_BULK %>%
   group_by(time, CTY_NAME) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
   summarise(CON_VAL_MO = sum(CON_VAL_MO)) %>%
   filter(!CTY_NAME %in% c("CAFTA-DR","CENTRAL AMERICA","AFRICA","TOTAL FOR ALL COUNTRIES", "OECD", "APEC", "NATO","USMCA (NAFTA)","NAFTA","NORTH AMERICA", "TWENTY LATIN AMERICAN REPUBLICS","LAFTA","EUROPE","ASIA","EUROPEAN UNION","PACIFIC RIM COUNTRIES","SOUTH AMERICA","EURO AREA","ASEAN","CACM","AUSTRALIA AND OCEANIA")) %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("INDIA","CHINA","HONG KONG","MACAU","VIETNAM","TAIWAN"), CTY_NAME, "ALL OTHER COUNTRIES")) %>%
@@ -1262,6 +1268,7 @@ ALUMINUM_IMPORTS_BULK <- getCensus(
 
 ALUMINUM_IMPORTS <- ALUMINUM_IMPORTS_BULK %>%
   group_by(time) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
   summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   ungroup() %>%
@@ -1310,6 +1317,7 @@ STEEL_IMPORTS_BULK <- getCensus(
 
 STEEL_IMPORTS <- STEEL_IMPORTS_BULK %>%
   group_by(time) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO)) %>%
   summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   ungroup() %>%
@@ -1358,6 +1366,7 @@ CN_MX_CA_EXPORTS_BULK <- getCensus(
 CN_MX_CA_EXPORTS <- CN_MX_CA_EXPORTS_BULK %>%
   mutate(CTY_NAME = if_else(CTY_NAME %in% c("HONG KONG", "MACAU"), "CHINA", CTY_NAME)) %>%
   group_by(CTY_NAME,time) %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
   summarize(time,ALL_VAL_MO = sum(ALL_VAL_MO, na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   ungroup() %>%
@@ -1432,6 +1441,7 @@ CAR_EXPORTS_TIMELINE_BULK <- getCensus(
 
 CAR_EXPORTS <- CAR_EXPORTS_TIMELINE_BULK %>%
   group_by(time) %>%
+  mutate(ALL_VAL_MO = as.numeric(ALL_VAL_MO)) %>%
   summarize(time,ALL_VAL_MO = sum(ALL_VAL_MO, na.rm = TRUE)) %>%
   mutate(time = as.Date(paste0(time,"-01"))) %>%
   ungroup() %>%
@@ -1491,3 +1501,108 @@ PERCENT_TARIFFED_GRAPH <- ggplot() + #plotting integrated circuits exports
 
 ggsave(dpi = "retina",plot = PERCENT_TARIFFED_GRAPH, "Percent Tariffed Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+IN_BZ_RP_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "CTY_CODE","I_COMMODITY","CTY_NAME","CAL_DUT_MO","RP"),
+  time = paste("from 2017 to", format(Sys.Date(), "%Y")),
+  CTY_NAME = "BRAZIL",
+  CTY_NAME = "INDIA",
+  I_COMMODITY = "-",
+)
+
+
+IN_BZ_RP_IMPORTS_RP <- IN_BZ_RP_IMPORTS_BULK %>%
+  filter(RP != "-") %>%
+  mutate(tariff = case_when(
+    RP %in% c(18, 19)             ~ "Tariff-Free",
+    RP %in% c(69, 61)             ~ "Tariffed",
+    TRUE                          ~ "Tariff-Free"
+  )
+  ) %>%
+  mutate(time = as.Date(paste0(time, "-01"))) %>%
+  filter(time >= as.Date("2024-01-01")) %>%
+  group_by(CTY_NAME,tariff,time) %>%
+  mutate(CON_VAL_MO = as.numeric(CON_VAL_MO), CAL_DUT_MO = as.numeric(CAL_DUT_MO)) %>%
+  summarize(time,CON_VAL_MO = sum(CON_VAL_MO, na.rm = TRUE),CAL_DUT_MO = sum(CAL_DUT_MO, na.rm = TRUE)) %>%
+  mutate(CTY_NAME = str_to_title(CTY_NAME)) %>%
+  unique() %>%
+  mutate(CTY_NAME = factor(CTY_NAME, levels = c("India", setdiff(unique(CTY_NAME), "India"))))
+
+
+
+
+TARIFF_BREAKDOWN_IN_BZ_GRAPH <- ggplot() + #plotting integrated circuits exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_col(data=IN_BZ_RP_IMPORTS_RP, aes(x=time,y= CON_VAL_MO*12/1000000000,fill= tariff, position = "stack"), size = 1.25) + 
+  facet_wrap(~CTY_NAME) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,500),breaks = c(100,200,300,400,500), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("Breaking Down North American Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Trading Partners") +
+  theme_apricitas + theme(legend.position = c(.25,.85)) +
+  scale_color_manual(
+    name   = NULL,
+    values = c(
+      "Tariff-Free"                   = "#00A99D",
+      "Tariffed"        = "#EE6055"
+    ),
+    breaks = c(
+      "Tariff-Free",
+      "Tariffed"
+    )
+  ) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*(125)), ymax = 0) +
+  coord_cartesian(clip = "off") + theme(strip.text = element_text(size = 15, color = "white", face = "bold"))
+
+ggsave(dpi = "retina",plot = TARIFF_BREAKDOWN_CA_MX_GRAPH, "Tariff Breakdown CA MX Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+TARIFF_BREAKDOWN_IN_BZ_GRAPH <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  annotate("vline",
+           x = as.Date("2025-08-08"),
+           xintercept = as.Date("2025-08-08"),
+           color = "white",
+           size = 1,
+           alpha = 0.75,
+           linetype = "dashed") +
+  annotate("text",
+           x = as.Date("2025-08-14"),
+           y = 125,
+           label = "50%\nTariffs",
+           color = "white",
+           size = 4,
+           size = 3.5, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  geom_bar(data = IN_BZ_RP_IMPORTS_RP,
+           aes(x = time, y = CON_VAL_MO*12/1000000000, fill = tariff),
+           stat = "identity",
+           position = "stack",
+           color = NA) +
+  facet_wrap(~CTY_NAME) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),
+                     limits = c(0,150),
+                     breaks = c(0,50,100,150,200),
+                     expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("US Imports From India & Brazil\nWhere Trump Raised Tariffs to 50%") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",
+       subtitle = "Trade with Brazil & India are Decreasing Amidst Trump's Ultra-High Tariffs") +
+  theme_apricitas + theme(legend.position = c(.15,.85)) +
+  scale_fill_manual(
+    name = NULL,
+    values = c("Tariff-Free" = "#00A99D",
+               "Tariffed"    = "#EE6055"),
+    breaks = c("Tariff-Free","Tariffed")
+  ) +
+  annotation_custom(
+    apricitas_logo_rast,
+    xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))),
+    xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))),
+    ymin = 0-(.3*(125)),
+    ymax = 0
+  ) +
+  coord_cartesian(clip = "off") +
+  theme(strip.text = element_text(size = 15, color = "white", face = "bold"))
+
+ggsave(dpi = "retina",plot = TARIFF_BREAKDOWN_IN_BZ_GRAPH, "Tariff Breakdown IN BZ Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
