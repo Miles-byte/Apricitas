@@ -584,8 +584,53 @@ NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH, "New Brunswick Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-CANADA_TOURISM_ARRIVALS_BULK <- statcan_data("24-10-0054-01", "eng") 
+CANADA_HOUSING_PERMITS_BULK <- statcan_data("34-10-0292-01", "eng") 
 
+CANADA_TOTAL_HOUSING_PERMITS <- CANADA_HOUSING_PERMITS_BULK %>%
+  filter(GEO == "Canada" & Variables == "Number of dwelling-units created" & `Seasonal adjustment, value type` == "Seasonally adjusted, current") %>%
+  filter(`Type of building` != "Total residential") %>%
+  select(REF_DATE, `Type of building`,VALUE) %>%
+  mutate(`Type of building` = case_when(
+    `Type of building` == "Single dwelling building total"   ~ "Single-Family",
+    `Type of building` == "Multiple dwelling building total" ~ "Multi-Family",
+    TRUE ~ `Type of building`
+  ))
+
+CANADA_TOTAL_HOUSING_PERMITS_graph <- ggplot(data = CANADA_TOTAL_HOUSING_PERMITS, aes(x = REF_DATE, y = VALUE*12/1000, fill = `Type of building`)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
+  xlab("Date") +
+  ylab("Housing Units, Seasonally Adjusted Annual Rate") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,100,200,300,400), limits = c(0,400), expand = c(0,0)) +
+  ggtitle("Canadian Housing Permits") +
+  labs(caption = "Graph created by @JosephPolitano using Stastistics Canada data (table 34-10-0292-01)", subtitle = "Canada Mostly Builds Multi-Family Housing, With Permits Hitting a Record High in Late 2024") +
+  theme_apricitas + theme(legend.position = c(0.35,0.83)) +
+  scale_fill_manual(name= NULL, values = c("#FFE98F","#00A99D","#9A348E","#3083DC","#6A4C93")) +
+  theme_apricitas + theme(legend.position = c(.25,.86)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*400), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CANADA_TOTAL_HOUSING_PERMITS_graph, "Canada Total Housing Permits.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH <- ggplot() +
+  geom_line(data=CANADA_HOUSING_PERMITS_BULK, aes(x=date,y= `Single`/1000000, color= "New Single-Family Housing"), size = 1.25) +
+  geom_line(data=CANADA_HOUSING_PERMITS_BULK, aes(x=date,y= `Multiple dwelling building total`/1000000, color= "New Multi-Family Housing"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "M"), limits = c(0,1500), expand = c(0,0)) +
+  ylab("Billions of 2017 Canadian Dollars, Monthly") +
+  ggtitle("Quebec Real Construction Investment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Quebec Construction of Multifamily Housing Has Held Steady Over the Last 7 Years") +
+  theme_apricitas + theme(legend.position = c(.25,.9)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("New Multi-Family Housing","New Single-Family Housing","Nonresidential")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*(today()-as.Date("2017-01-01"))), ymin = 0-(.3*150), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH, "New Brunswick Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CANADA_TOURISM_ARRIVALS_BULK <- statcan_data("24-10-0054-01", "eng") 
 
 CANADA_TOURISM_ARRIVALS <- CANADA_TOURISM_ARRIVALS_BULK %>%
   filter(`Traveller characteristics` %in% c("United States of America residents entering Canada", "Canadian residents returning from the United States of America","Canadian residents returning from countries other than the United States of America")) %>%

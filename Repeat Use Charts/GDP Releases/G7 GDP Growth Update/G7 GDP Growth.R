@@ -185,7 +185,6 @@ SPA_PER_CAPITA <- merge(SPA_POP,SPA_GDP, by = "date") %>%
   transmute(date, value = value.y/value.x) %>%
   mutate(value = value/value[7]*100)
 
-
 ITA_POP <- EU_POP_BULK %>%
   filter(s_adj == "SCA", geo == "IT", TIME_PERIOD >= as.Date("2018-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
   transmute(date = TIME_PERIOD, value = values)
@@ -261,5 +260,42 @@ RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
 ggsave(dpi = "retina",plot = RGDP_G7_Per_Capita_Graph, "G7 Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
   
 combined_df <- reduce(list(ITA_PER_CAPITA, GER_PER_CAPITA, FRA_PER_CAPITA,JPN_PER_CAPITA,US_PER_CAPITA,UK_PER_CAPITA,CAN_PER_CAPITA), full_join, by = "date") %>% rename_with(~c("date", "ITA", "GER", "FRA", "JPN","US","UK","CAN"))
+
+US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date("1995-01-01")) %>%
+  mutate(value = value/value[99]*100) %>%
+  select(date,value)
+
+EU_GDP <- EU_GDP_BULK %>%
+  filter(s_adj == "SCA", geo == "EU27_2020", TIME_PERIOD >= as.Date("1995-01-01"), na_item == "B1GQ", unit == "CLV20_MEUR") %>%
+  transmute(date = TIME_PERIOD, value = values) %>%
+  mutate(value = value/value[99]*100)
+
+EU_POP <- EU_POP_BULK %>%
+  filter(geo == "EU27_2020", TIME_PERIOD >= as.Date("1995-01-01"), na_item == "POP_NC", unit == "THS_PER") %>%
+  transmute(date = TIME_PERIOD, value = values)
+
+EU_PER_CAPITA <- merge(EU_POP,EU_GDP, by = "date") %>%
+  transmute(date, value = value.y/value.x) %>%
+  mutate(value = value/value[99]*100)
+
+EUvsUSGDP_PER_CAPITA <- ggplot() + #RGDP Index
+  geom_line(data=EU_PER_CAPITA, aes(x=date,y= value,color= "European Union"), size = 1.25) +
+  #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  geom_line(data=US_PER_CAPITA, aes(x=date,y= value,color= "United States"), size = 1.25) +
+  annotate("text",label = "Pre-COVID GDP Per Capita", x = as.Date("2010-10-01"), y =101.5, color = "white", size = 4) +
+  #annotate(geom = "text", label = "USE FIGURES WITH CAUTION:\n Ukrainian Refugees Boosted Pop Growth Significantly, Especially in Germany (~1.2%),\n But Also in Canada (~0.5%), Italy (~0.3%), the UK (~0.2%), and France (~0.2%)", x = as.Date("2020-03-15"), y = 107.5, color ="white", size = 4, alpha = 0.75,lineheight = 0.9) +
+  annotate("hline", y = 100, yintercept = 100, color = "white", size = 1, linetype = "dashed") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(60,112.5), breaks = c(60,70,80,90,100,110), expand = c(0,0)) +
+  ylab("Index, 2019 Q3 = 100") +
+  ggtitle("Real GDP Per Capita Growth US vs EU") +
+  labs(caption = "Graph created by @JosephPolitano using National Accounts data from FRED & National Databases",subtitle = "The US has Seen Much Faster Per-Capita Growth Than The EU") +
+  theme_apricitas + theme(legend.position = c(.16,.61), legend.key.height = unit(0,"cm")) +
+  scale_color_manual(name= "Real GDP Per Capita\n2019 Q3 = 100",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"),breaks = c("United States","European Union")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("1995-01-01")-(.1861*(today()-90-as.Date("1995-01-01"))), xmax = as.Date("1995-01-01")-(0.049*(today()-90-as.Date("1995-01-01"))), ymin = 60-(.3*52.5), ymax = 60) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EUvsUSGDP_PER_CAPITA, "EU vs US Per Capita.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 write.csv(combined_df,"GDP_PER_CAPITA_G7.csv")
