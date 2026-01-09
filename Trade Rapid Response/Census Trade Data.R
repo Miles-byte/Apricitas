@@ -1381,13 +1381,13 @@ CN_MX_CA_EXPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=CN_MX_CA_EXPORTS, aes(x=time,y= MEXICO*12/1000000000,color= "Mexico"), size = 1.25) + 
   geom_line(data=CN_MX_CA_EXPORTS, aes(x=time,y= CANADA*12/1000000000,color= "Canada"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-55,55),breaks = c(-50,-25,0,25,50), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-60,55),breaks = c(-50,-25,0,25,50), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US Exports to Key Markets Dropped") +
   labs(caption = "Graph created by @JosephPolitano using US Census data. China Includes HK & MO",subtitle = "In April, US Exports to Canada, Mexico, & China Have Dropped Amidst the Trade War") +
   theme_apricitas + theme(legend.position = c(.5,.85)) +
   scale_color_manual(name = "Year-on-Year Change in US Exports,\nBillions, Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Canada","Mexico","China")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = -55-(.3*(110)), ymax = -55) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = -60-(.3*(115)), ymax = -60) +
   coord_cartesian(clip = "off") + theme(strip.text = element_text(size = 15, color = "white", face = "bold"))
 
 ggsave(dpi = "retina",plot = CN_MX_CA_EXPORTS_GRAPH, "CN MX CA Exports Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

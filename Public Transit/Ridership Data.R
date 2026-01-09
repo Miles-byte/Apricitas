@@ -17,7 +17,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 library(readxl)
 
 UPT_manual <- read_excel(
-  "C:/Users/Josep/Documents/GitHub/Apricitas/Public Transit/UPT_MANUAL.xlsx"
+  "C:/Users/Joseph/Documents/GitHub/Apricitas/Public Transit/UPT_MANUAL.xlsx"
 )
 
 monthly_cols <- names(UPT_manual)[grepl("^[0-9]{1,2}/[0-9]{4}$", names(UPT_manual))]
@@ -309,19 +309,19 @@ SKYLINE_graph <- ggplot() +
   geom_line(data=filter(RAIL_BULK, agency == "City and County of Honolulu", month >= as.Date("2023-01-01")), aes(x=month,y= value*12/1000000,color="Honolulu Skyline Ridership\n(Monthly, Annualized)"), size = 1.25) +
   annotate("text", label = "Skyline\nOpens", x = as.Date("2023-05-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2023-06-01"), xintercept = as.Date("2023-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Kahauiki\nExtension", x = as.Date("2025-09-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Kahauiki\nExtension", x = as.Date("2025-09-25"), y = 3, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2025-10-01"), xintercept = as.Date("2025-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Ka‘ākaukukui\nExtension", x = as.Date("2031-05-25"), y = 1.5, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2031-06-01"), xintercept = as.Date("2031-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,2), expand = c(0,0), breaks = c(0,1,2)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3.5), expand = c(0,0), breaks = c(0,1,2,3)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Honolulu Skyline: America's Newest Metro") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Honolulu's Skyline is America's Newest Heavy Rail Transit Network") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*3.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SKYLINE_graph, "Skyline Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -344,12 +344,12 @@ SOUND_TRANSIT_graph <- ggplot() +
   annotate("text", label = "Link\n2-Line\nOpens", x = as.Date("2024-02-01"), y = 50, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2024-09-01"), xintercept = as.Date("2024-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Lynnwood\n1-Line\nExtension", x = as.Date("2024-11-01"), y = 50, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  annotate(geom = "segment", x = as.Date("2025-05-01"), xend = as.Date("2025-05-01"), y = 0, yend = 45, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  annotate(geom = "segment", x = as.Date("2025-05-01"), xend = as.Date("2025-05-01"), y = 0, yend = 35, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
   annotate("text", label = "Redmond\n2-Line\nExtension", x = as.Date("2025-07-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  # annotate(geom = "segment", x = as.Date("2025-12-01"), xend = as.Date("2025-12-01"), y = 35, yend = 45, color = "white",linetype = "dashed", size = 1, alpha = 0.75) +
+  # annotate("text", label = "Federal Way\n1-Line\nExtension", x = as.Date("2026-02-01"), y = 41, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2025-09-01"), xintercept = as.Date("2025-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "1 & 2\nLines\nConnected", x = as.Date("2025-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2026-09-01"), xintercept = as.Date("2026-09-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Federal Way\n1-Line\nExtension", x = as.Date("2026-11-01"), y = 31, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
   theme_apricitas + theme(legend.position = c(.775,.75)) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
@@ -610,7 +610,7 @@ KC_STREETCAR_RIDERSHIP_MONTHLY_graph <- ggplot() +
   annotate("vline", x = as.Date("2016-04-01"), xintercept = as.Date("2016-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Streetcar\nOpens", x = as.Date("2016-03-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2025-10-01"), xintercept = as.Date("2025-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  annotate("text", label = "Main Street\nExtension", x = as.Date("2025-09-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("text", label = "Main Street\nExtension", x = as.Date("2025-09-01"), y = 3.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   #annotate("vline", x = as.Date("2026-10-01"), xintercept = as.Date("2026-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   #annotate("text", label = "Riverfront\nExtension", x = as.Date("2026-09-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
@@ -618,13 +618,38 @@ KC_STREETCAR_RIDERSHIP_MONTHLY_graph <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,4), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Kansas City Streetcar Ridership") +
-  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City is Extending its Streetcar Line to the UMKC Campus") +
-  theme_apricitas + theme(legend.position = c(.5,.825), plot.title = element_text(size = 27)) +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City has Extended its Streetcar Line to the UMKC Campus") +
+  theme_apricitas + theme(legend.position = c(.5,.9), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*3.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_graph, "KC Streetcar Ridership graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_MONTHLY_graph, "KC Streetcar Ridership Monthly graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+KC_STREETCAR_RIDERSHIP_MONTHLY_SOLID_graph <- ggplot() + 
+  #geom_line(data=filter(RAIL_BULK, agency == "Kansas City, City of Missouri", month >= as.Date("2015-01-01")), aes(x=month,y= year_roll/1000000,color="Kansas City Streetcar Ridership"), size = 1.25) +
+  geom_line(data=filter(RAIL_BULK, agency == "Kansas City, City of Missouri", month >= as.Date("2015-01-01")), aes(x=month,y= value*12/1000000,color="Kansas City Streetcar Ridership\n(Monthly Annualized)"), size = 1.25) +
+  #geom_line(data=filter(RAIL_BULK, agency == "Kansas City, City of Missouri", month >= as.Date("2015-01-01")), aes(x=month,y= value*12/1000000,color="Kansas City Streetcar Ridership"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  annotate("vline", x = as.Date("2016-04-01"), xintercept = as.Date("2016-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Streetcar\nOpens", x = as.Date("2016-03-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2025-10-01"), xintercept = as.Date("2025-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Main Street\nExtension", x = as.Date("2025-09-01"), y = 3.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  #annotate("vline", x = as.Date("2026-10-01"), xintercept = as.Date("2026-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  #annotate("text", label = "Riverfront\nExtension", x = as.Date("2026-09-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,4), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
+  ylab("Millions of Unlinked Passenger Trips") +
+  ggtitle("Kansas City Streetcar Ridership") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City has Extended its Streetcar Line to the UMKC Campus") +
+  theme_apricitas + theme(legend.position = c(.5,.9), plot.title = element_text(size = 27)) +
+  #scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*4), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_MONTHLY_SOLID_graph, "KC Streetcar Ridership Monthly Solid graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 
 VALLEY_METRO_MONTH_graph <- ggplot() + 
@@ -1572,6 +1597,7 @@ BUS_RECOVERY_YOY <- BUS_RECOVERY_YOY %>%
     agency == "Massachusetts Bay Transportation Authority" ~ "MBTA (Boston)",
     agency == "Southeastern Pennsylvania Transportation Authority" ~ "SEPTA (Philly)",
     agency == "County of Miami-Dade" ~ "MDT (Miami)",
+    agency == "Metropolitan Transit Authority of Harris County, Texas" ~ "METRO (Houston)",
     TRUE ~ agency
   ))
 

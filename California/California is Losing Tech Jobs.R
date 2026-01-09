@@ -201,7 +201,7 @@ CA_US_JOB_GROWTH_YOY_graph <- ggplot() + #plotting permanent and temporary job l
   geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= CA_yoy_pct, color= "California"), size = 1.25) +
   geom_line(data= filter(CA_US_TECH, date >= as.Date("2010-01-01")), aes(x=date,y= US_X_CA_yoy_pct, color= "US Ex-California"), size = 1.25) +
   xlab("Date") +
-  ylab("Percent of US Tech Jobs") +
+  ylab("Year-on-Year Growth, %") +
   annotate("text",label = "NOTE: Tech Includes Software Publishers, Computer Systems Design, Computing Infrastructure,\nData Processing, Web Hosting, Web Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2011-07-01"), y =.1485, color = "white", size = 4, alpha = 0.5) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.05,0,0.05,0.1), limits = c(-.075,.125), expand = c(0,0)) +
   ggtitle("Tech Employment Growth, Year-on-Year, %") +
