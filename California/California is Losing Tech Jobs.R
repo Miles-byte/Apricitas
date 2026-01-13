@@ -48,35 +48,35 @@ ggsave(dpi = "retina",plot = CA_JOB_REVISIONS_graph, "CA Job Revisions.png", typ
 
 
 US_DATA_PROCESSING <- bls_api("CEU5051800001", startyear = 1990, registrationKey = "BLS_KEY") %>% #data processing employment
-  rbind(bls_api("CEU5051800001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("CEU5051800001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Computing Infrastructure, Data Processing, Web Hosting, & Related") 
 
 US_SOFTWARE_PUBLISHERS <- bls_api("CEU5051320001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("CEU5051320001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("CEU5051320001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Software Publishers") 
 
 US_SEARCH_PORTALS <- bls_api("CEU5051900001", startyear = 1990, registrationKey = "BLS_KEY") %>% #internet employment
-  rbind(bls_api("CEU5051900001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("CEU5051900001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Web Search Portals, Libraries, and Other Information Services")
 
 US_MEDIA_SOCIAL <- bls_api("CEU5051620001", startyear = 1990, registrationKey = "BLS_KEY") %>% #internet employment
-  rbind(bls_api("CEU5051620001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("CEU5051620001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Streaming Services, Social Networks, & Related")
 
 US_COMPUTER_SYSTEM_DESIGN <- bls_api("CEU6054150001", startyear = 1990, registrationKey = "BLS_KEY") %>% #internet employment
-  rbind(bls_api("CEU6054150001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("CEU6054150001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
@@ -85,35 +85,35 @@ US_COMPUTER_SYSTEM_DESIGN <- bls_api("CEU6054150001", startyear = 1990, registra
 
 
 CA_DATA_PROCESSING <- bls_api("SMU06000005051800001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("SMU06000005051800001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("SMU06000005051800001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Computing Infrastructure, Data Processing, Web Hosting, & Related")
 
 CA_SOFTWARE_PUBLISHERS <- bls_api("SMU06000005051320001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("SMU06000005051320001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("SMU06000005051320001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Software Publishers")
 
 CA_SEARCH_PORTALS <- bls_api("SMU06000005051900001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("SMU06000005051900001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("SMU06000005051900001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Web Search Portals, Libraries, and Other Information Services")
 
 CA_MEDIA_SOCIAL <- bls_api("SMU06000005051620001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("SMU06000005051620001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("SMU06000005051620001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%
   mutate(series_id = "Streaming Services, Social Networks, & Related")
 
 CA_COMPUTER_SYSTEM_DESIGN <- bls_api("SMU06000006054150001", startyear = 1990, registrationKey = "BLS_KEY") %>% #software employment
-  rbind(bls_api("SMU06000006054150001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-latest)) %>%
+  rbind(bls_api("SMU06000006054150001", startyear = 2010, registrationKey = "BLS_KEY") %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
   arrange(date) %>%

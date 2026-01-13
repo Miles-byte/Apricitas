@@ -31,13 +31,13 @@ Total_Layoffs <- bls_api("JTS000000000000000LDL", startyear = 2018, endyear = fo
 
 #have to split black epop into two separate dataframes because BLS API only allows 10 years of data at a time
 Black_Epop1 <- bls_api("LNU02300066", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)
+Black_Epop2 <- bls_api("LNU02300066", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))
 
 #binding black epops together and creating date
 Black_Epop <- rbind(Black_Epop1,Black_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
 White_Epop1 <- bls_api("LNU02300063", startyear = 1994, endyear = 2013, Sys.getenv("BLS_KEY"))
-White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)
+White_Epop2 <- bls_api("LNU02300063", startyear = 2014, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) #%>% select(-any_of("latest"))
 
 White_Epop <- rbind(White_Epop1,White_Epop2) %>% mutate(period = gsub("M","",period)) %>% mutate(date = as.Date(as.yearmon(paste(year, period), "%Y %m")))
 
@@ -81,7 +81,7 @@ EPOP_MALE_2010 <- bls_api("LNS12300061", startyear = 2010) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 EPOP_MALE_2020 <- bls_api("LNS12300061", startyear = 2020) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest)
+  select(-any_of("latest"))
 
 EPOP_MALE <- rbind(EPOP_MALE_1990,EPOP_MALE_2000,EPOP_MALE_2010,EPOP_MALE_2020) %>%
   drop_na()
@@ -90,7 +90,7 @@ EPOP_FEMALE_1990 <- bls_api("LNS12300062", startyear = 1990, registrationKey = S
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 EPOP_FEMALE_2010 <- bls_api("LNS12300062", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% 
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest)
+  select(-any_of("latest"))
 
 EPOP_FEMALE <- rbind(EPOP_FEMALE_1990,EPOP_FEMALE_2010) %>%
   drop_na() %>%
@@ -224,14 +224,14 @@ ggsave(dpi = "retina",plot = EPOP_FEMALE_GRAPH, "EPOP FEMALE Graph.png", type = 
 #LAYOFFJOBLOSERS <- fredr(series_id = c("LNS13023653"), observation_start = as.Date("2000-01-01")) #temporary job losers
 
 PERMJOBLOSERS <- bls_api("LNS13026638", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("LNS13026638", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS13026638", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
   drop_na()
 
 LAYOFFJOBLOSERS <- bls_api("LNS13023653", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("LNS13023653", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS13023653", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
@@ -259,7 +259,7 @@ ggsave(dpi = "retina",plot = PERM_TEMP_JOBLOSS_Graph, "Permanent V Temporary Job
 UNRATE_1950 <- bls_api("LNS14000000", startyear = 1950, registrationKey = Sys.getenv("BLS_KEY")) %>%
   rbind(., bls_api("LNS14000000", startyear = 1970, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   rbind(., bls_api("LNS14000000", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(., bls_api("LNS14000000", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS14000000", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
@@ -330,7 +330,7 @@ ggsave(dpi = "retina",plot = NILFUnemploy_Graph, "Not In Labor Force vs Unemploy
 
 #NILFWJN_2002 <- fredr(series_id = c("NILFWJN"), observation_start = as.Date("2002-01-01")) #NILF want jobs now
 NILFWJN_2002 <- bls_api("LNS15026639", startyear = 2002, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
@@ -355,7 +355,7 @@ ggsave(dpi = "retina",plot = NILF_Graph, "NILF 2002.png", type = "cairo-png", wi
 #WAREHOUSE <- fredr(series_id = "CES4349300001",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 WAREHOUSE <- bls_api("CES4349300001", startyear = 2017, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  #rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  #rbind(., bls_api("LNS15026639", startyear = 2022, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value)
@@ -376,12 +376,12 @@ ggsave(dpi = "retina",plot = WAREHOUSE_Graph, "WareHouse.png", type = "cairo-png
 
 DISCOURAGED <- bls_api("LNS15026645", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 MARGINALLYATTACHED <- bls_api("LNS15026642", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 
@@ -434,19 +434,19 @@ Total_Quits_Layoffs_Graph <- ggplot() + #plotting total quits and layoffs
 
 #Unemployment by Race
 UNRATEWhite <- bls_api("LNS14000003", startyear = 2019) %>% 
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   drop_na()
 UNRATEBlack <- bls_api("LNS14000006", startyear = 2019) %>% 
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   drop_na()
 UNRATEHispanic <- bls_api("LNS14000009", startyear = 2019) %>% 
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   drop_na()
 UNRATEAsian <- bls_api("LNS14032183", startyear = 2019) %>% 
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   drop_na()
 
@@ -489,7 +489,7 @@ cat(paste0(
 
 UNRATETeens <- bls_api("LNS14000012", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 Teens_Graph <- ggplot() + #plotting u1 unemployment rate
@@ -510,7 +510,7 @@ ggsave(dpi = "retina",plot = Teens_Graph, "Teens.png", type = "cairo-png", width
 
 LessThanHS <- bls_api("LNS14027659", startyear = 2019) %>% #discouraged workers
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 LessThanHS_Graph <- ggplot() + #plotting u1 unemployment rate
@@ -529,7 +529,7 @@ ggsave(dpi = "retina",plot = LessThanHS_Graph, "Less than HS.png", type = "cairo
 
 
 LessThanHS_1992 <- bls_api("LNS14027659", startyear = 1992, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("LNS14027659", startyear = 2012, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS14027659", startyear = 2012, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
@@ -547,18 +547,18 @@ LessThanHS1992_Graph <- ggplot() + #plotting u1 unemployment rate
   annotation_custom(apricitas_logo_rast, xmin = as.Date("1992-01-01")-(.1861*(today()-as.Date("1992-01-01"))), xmax = as.Date("1992-01-01")-(0.049*(today()-as.Date("1992-01-01"))), ymin = 0-(.3*.225), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = LessThanHS_1992, "Less than HS 1992.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = LessThanHS1992_Graph, "Less than HS 1992.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 
 OwnIllnessNoWork <- bls_api("LNU02006735", startyear = 2018) %>% #LessthanHS
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 OwnIllnessPartTime <- bls_api("LNU02028296", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 OwnIllness_Graph <- ggplot() + #plotting the number of people out due to illnesses
@@ -579,7 +579,7 @@ ggsave(dpi = "retina",plot = OwnIllness_Graph, "OwnIllness.png", type = "cairo-p
 
 UnpaidAbsences <- bls_api("LNU02044495", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 
@@ -629,7 +629,7 @@ PandemicTelework_Graph <- ggplot() + #plotting weekly initial claims for 2014-20
 
 EPOP55Plus <- bls_api("LNS12324230", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 
@@ -686,7 +686,7 @@ Industry_Layoffs_Graph <- ggplot() + #plotting layoffs and discharges by industr
 
 Childcare <- bls_api("LNU02096055", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 Childcare_Graph <- ggplot() + #plotting Emplyoment-population ratio
@@ -718,12 +718,12 @@ Total_Layoffs_Graph <- ggplot() + #plotting total discharges
 
 EPOP_L_SA <- bls_api("LNS12000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 EPOP_L_NSA <- bls_api("LNU02000060", startyear = 2018, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 EPOP_SA_NSA_Graph <- ggplot() + #plotting total discharges
@@ -797,7 +797,7 @@ ggsave(dpi = "retina",plot = LAH_Graph, "LAH.png", type = "cairo-png", width = 9
 
 U1RATE <- bls_api("LNS13025670", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #OwnIllnessPartTime
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 
@@ -817,7 +817,7 @@ ggsave(dpi = "retina",plot = U1RATE_Graph, "U1RATE.png", type = "cairo-png", wid
 
 
 PARTTIME <- bls_api("LNS12032194", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("LNS12032194", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("LNS12032194", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value) %>%
@@ -1094,7 +1094,7 @@ GLI_Graph <- ggplot() +
 #RESIDENTIAL_BUILDING <- fredr(series_id = "CES2023610001",observation_start = as.Date("1998-01-01"),realtime_start = NULL, realtime_end = NULL)
 
 RESIDENTIAL_BUILDING <- bls_api("CES2023610001", startyear = 2000, registrationKey = Sys.getenv("BLS_KEY")) %>%
-  rbind(., bls_api("CES2023610001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
+  rbind(., bls_api("CES2023610001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
   select(date, value)
@@ -1199,6 +1199,36 @@ UNDEREMPLOY_Graph <- ggplot(data = UNDEREMPLOY, aes(x = date, y = value, fill = 
 
 ggsave(dpi = "retina",plot = UNDEREMPLOY_Graph, "Underemploy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+UNRATE_TEEN <- bls_api("LNS14000012", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
+  transmute(date, value, roll_value = c(0,0,roll_mean(value,3)))
+
+UNRATE_20S <- bls_api("LNS14000036", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
+  transmute(date, value, roll_value = c(0,0,roll_mean(value,3)))
+
+US_YOUTH_UNRATE_GRAPH <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(UNRATE_TEEN, date >= as.Date("2023-01-01")), aes(x=date,y= roll_value/100, color= "16-19 years old"), size = 1.25) +
+  geom_line(data= filter(UNRATE_TEEN, date >= as.Date("2023-01-01")), aes(x=date,y= value/100, color= "16-19 years old"),  size = 0.75, linetype = "dashed", alpha = 0.5) +
+  geom_line(data= filter(UNRATE_20S, date >= as.Date("2023-01-01")), aes(x=date,y= roll_value/100, color= "20-24 years old"), size = 1.25) +
+  geom_line(data= filter(UNRATE_20S, date >= as.Date("2023-01-01")), aes(x=date,y= value/100, color= "20-24 years old"), size = 0.75, linetype = "dashed", alpha = 0.5) +
+  xlab("Date") +
+  ylab("Percent") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.05,0.1,0.15), limits = c(0,0.175), expand = c(0,0)) +
+  ggtitle("US Youth Unemployment Rates") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "US Youth Unemployment Rates are Rising as the Labor Market Slows") +
+  theme_apricitas + theme(legend.position = c(.35,.86)) +
+  scale_color_manual(name= "Solid = 3M Moving Average, Dashed = Monthly",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*.175), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_YOUTH_UNRATE_GRAPH, "US Youth Unrate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 EMPLOY_TRADE_TRANSP_UTIL <- bls_api("CEU4000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
@@ -1221,7 +1251,7 @@ EMPLOY_EDU_HEALTH_SERVICES <- bls_api("CEU6500000001", startyear = 2019, registr
   .[order(nrow(.):1),] %>%
   mutate(value = (value-lag(value,12))) %>%
   select(date, value) %>%
-  mutate(series_id = "Private Education and Health Services") %>%
+  mutate(series_id = "Health Services and Private Education") %>%
   drop_na()
 
 EMPLOY_LEISURE_HOSPITALITY <- bls_api("CEU7000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -1286,7 +1316,7 @@ EMPLOY_OTHER_SERVICES <- rbind(bls_api("CES5000000001", startyear = 2019, regist
 #                         transmute(date, value = USINFO + USFIRE + USSERV, series_id = "Other Services Incl. Finance & Info")
 
 EMPLOY_GROWTH_YOY <- rbind(EMPLOY_TRADE_TRANSP_UTIL,EMPLOY_PROF_BUSINESS_SERVICES,EMPLOY_EDU_HEALTH_SERVICES,EMPLOY_LEISURE_HOSPITALITY,EMPLOY_GOODS,EMPLOY_GOVT,EMPLOY_OTHER_SERVICES) %>%
-  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
+  mutate(series_id = factor(series_id,levels = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Health Services and Private Education","Professional and Business Services","Government","Other Services Incl. Finance & Info")))
   
 EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -1297,12 +1327,38 @@ EMPLOY_GROWTH_YOY_graph <- ggplot(data = EMPLOY_GROWTH_YOY, aes(x = date, y = va
   ggtitle("The Shape of Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Job Growth is Broad-Based, With All Major Industries Posting Gains") +
   theme_apricitas + theme(legend.position = c(.825,.30)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Private Education and Health Services","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Health Services and Private Education","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
   theme(legend.text = element_text(size = 13, color = "white")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -20-(.3*35.5), ymax = -20.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = EMPLOY_GROWTH_YOY_graph, "Employ Growth YoY.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+EMPLOY_TOTAL_YOY <- bls_api("CEU0000000001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-lag(value,12))) %>%
+  select(date, value) %>%
+  mutate(series_id = "Total Job Growth") %>%
+  drop_na()
+
+EMPLOY_GROWTH_YOY_2023_graph <- ggplot(data = filter(EMPLOY_GROWTH_YOY, date >= as.Date("2023-01-01")), aes(x = date, y = value/1000, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(EMPLOY_TOTAL_YOY, date>= as.Date("2023-01-01")), aes(x=date, y = value/1000, color = "Total Job Growth"), size = 2) +
+  xlab("Date") +
+  ylab("Jobs Growth, YoY, Millions") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"), breaks = c(-1,0,1,2,3,4,5), limits = c(-1,5), expand = c(0,0)) +
+  ggtitle("Year-on-Year US Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "US Job Growth Has Decelerated, With Employment Shrinking in Several Industries") +
+  theme_apricitas + theme(legend.position = c(0.74,0.79), legend.margin=margin(0,0,-07,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72"), breaks = c("Leisure and Hospitality","Trade, Transportation, and Utilities","Goods-Producing","Health Services and Private Education","Professional and Business Services","Government","Other Services Incl. Finance & Info")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  theme(legend.text = element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -1-(.3*6), ymax = -1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_YOY_2023_graph, "Employ Growth YoY 2023.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 EMPLOY_TRADE_TRANSP_UTIL_IND <- bls_api("CES4000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -1420,7 +1476,7 @@ CES_2022 <- bls_api("CEU0000000001", startyear = 2022) %>% #headline CES NSA IND
 CPS_ADJ_2022 <- bls_api("LNU06000000", startyear = 2022) %>% #headline CPS NSA INDEXED TO JAN 22
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
   .[order(nrow(.):1),] %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na() %>%
   mutate(value = (value-value[1]))
 
@@ -1605,7 +1661,7 @@ TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = TECH_EMPLOY_GROWTH_IND, aes(x = da
 ggsave(dpi = "retina",plot = TECH_EMPLOY_GROWTH_IND_graph, "Tech Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 DATA_PROCESSING_YOY <- bls_api("CEU5051800001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU5051800001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1615,7 +1671,7 @@ DATA_PROCESSING_YOY <- bls_api("CEU5051800001", startyear = 2010, registrationKe
   drop_na()
 
 SOFTWARE_PUBLISHERS_YOY <- bls_api("CEU5051320001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #software employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU5051320001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1625,7 +1681,7 @@ SOFTWARE_PUBLISHERS_YOY <- bls_api("CEU5051320001", startyear = 2010, registrati
   drop_na()
 
 SEARCH_PORTALS_YOY <- bls_api("CEU5051929001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU5051929001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1635,7 +1691,7 @@ SEARCH_PORTALS_YOY <- bls_api("CEU5051929001", startyear = 2010, registrationKey
   drop_na()
 
 MEDIA_SOCIAL_YOY <- bls_api("CEU5051620001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU5051620001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1645,7 +1701,7 @@ MEDIA_SOCIAL_YOY <- bls_api("CEU5051620001", startyear = 2010, registrationKey =
   drop_na()
 
 CUSTOM_COMPUTER_PROG_YOY <- bls_api("CEU6054151101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU6054151101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1655,7 +1711,7 @@ CUSTOM_COMPUTER_PROG_YOY <- bls_api("CEU6054151101", startyear = 2010, registrat
   drop_na()
 
 COMPUTER_SYSTEM_DESIGN_YOY <- bls_api("CEU6054151201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU6054151201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1682,7 +1738,7 @@ TECH_EMPLOY_GROWTH_YOY_graph <- ggplot(data = filter(TECH_EMPLOY_GROWTH_YOY, dat
   ylab("Year-on-Year Change, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-100,0,100,200,300,400,500,600), limits = c(-100,420), expand = c(0,0)) +
   ggtitle("Year-on-Year Change in US Tech Employment") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment Growth in the Tech Sector Has Been Noticeable Weak") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Employment Growth in the Tech Sector Has Been Noticeably Weak") +
   theme_apricitas + theme(legend.position = c(0.35,0.83), legend.margin=margin(0,0,-07,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("Software Publishers","Custom Computer Programming Services","Computing Infrastructure, Data Processing, Web Hosting, & Related","Computer Systems Design Services","Web Search Portals and All Other Information Services","Streaming Services, Social Networks, & Related")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
@@ -1723,9 +1779,79 @@ TECH_EMPLOY_GROWTH_YOY_LONG_graph <- ggplot(data = TECH_EMPLOY_GROWTH_YOY, aes(x
 
 ggsave(dpi = "retina",plot = TECH_EMPLOY_GROWTH_YOY_LONG_graph, "Tech Employ Growth YOY Long.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+LEGAL_YOY <- bls_api("CEU6054110001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Legal") %>%
+  select(date,value,name)
+ACCOUNTING_YOY <- bls_api("CEU6054120001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Accounting") %>%
+  select(date,value,name)
+ARCHITECTURE_YOY <- bls_api("CEU6054130001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Architecture") %>%
+  select(date,value,name)
+CONSULTING_YOY <- bls_api("CEU6054160001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Consulting") %>%
+  select(date,value,name)
+MANAGEMENT_YOY <- bls_api("CEU6055000001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Management") %>%
+  select(date,value,name)
+TEMP_YOY <- bls_api("CEU6056132001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Temp Services") %>%
+  select(date,value,name)
+SUPPORT_YOY <- bls_api("CEU6056140001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Business Support Services") %>%
+  select(date,value,name)
+
+PROF_RBIND_YOY <- rbind(LEGAL_YOY,ACCOUNTING_YOY,ARCHITECTURE_YOY,CONSULTING_YOY,MANAGEMENT_YOY,TEMP_YOY,SUPPORT_YOY) %>%
+  mutate(name = factor(name, levels = rev(c("Legal","Accounting","Architecture","Consulting","Management","Temp Services","Business Support Services"))))
+
+TOTAL_PROF_YOY <- PROF_RBIND_YOY %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(name = "test")
+
+PROF_GROWTH_YOY_graph <- ggplot(data = filter(PROF_RBIND_YOY, date >= as.Date("2023-01-01")), aes(x = date, y = value, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(TOTAL_PROF_YOY, date >= as.Date("2023-01-01")), aes(x=date, y = value, color = "Total Professional Services Employment"), size = 2) +
+  xlab("Date") +
+  ylab("Year-on-Year Change, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-300,-200,-100,0,100,200,300,400,500), limits = c(-375,500), expand = c(0,0)) +
+  ggtitle("Year-on-Year Change in Professional Services Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Professional Services Continues Losing Jobs, Mostly Thanks to Falls in Temp Agency Employment") +
+  theme_apricitas + theme(legend.position = c(.7,.83)) + theme(plot.title = element_text(size = 21), legend.margin=margin(0,0,-112,0), legend.spacing.y = unit(0, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#3083DC","#A7ACD9","#6A4C93","#9A348E","#D28E20","#FF8E72"), breaks = c("Legal","Accounting","Architecture","Consulting","Management","Temp Services","Business Support Services")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -375-(.3*875), ymax = -375) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = PROF_GROWTH_YOY_graph, "Prof Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 VEHICLE_ASSEMBLY_YOY <- bls_api("CEU3133610001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133610001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1735,7 +1861,7 @@ VEHICLE_ASSEMBLY_YOY <- bls_api("CEU3133610001", startyear = 2010, registrationK
   drop_na()
 
 BODY_TRAILER_YOY <- bls_api("CEU3133620001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #software employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133620001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1745,7 +1871,7 @@ BODY_TRAILER_YOY <- bls_api("CEU3133620001", startyear = 2010, registrationKey =
   drop_na()
 
 ENGINE_YOY <- bls_api("CEU3133631001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133631001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1755,7 +1881,7 @@ ENGINE_YOY <- bls_api("CEU3133631001", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 ELECTRICAL_ELECTRONIC_YOY <- bls_api("CEU3133632001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133632001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1765,7 +1891,7 @@ ELECTRICAL_ELECTRONIC_YOY <- bls_api("CEU3133632001", startyear = 2010, registra
   drop_na()
 
 TRANSMISSION_POWER_YOY <- bls_api("CEU3133635001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133635001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1775,7 +1901,7 @@ TRANSMISSION_POWER_YOY <- bls_api("CEU3133635001", startyear = 2010, registratio
   drop_na()
 
 METAL_STAMPING_YOY <- bls_api("CEU3133637001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133637001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1785,7 +1911,7 @@ METAL_STAMPING_YOY <- bls_api("CEU3133637001", startyear = 2010, registrationKey
   drop_na()
 
 STEERING_SUSPENSION_YOY <- bls_api("CEU3133639001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133639001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value, seriesID) %>%
@@ -1825,7 +1951,7 @@ ggsave(dpi = "retina",plot = VEHICLE_EMPLOY_GROWTH_YOY_graph, "Vehicle Employ Gr
 
 
 TRANSPORT_EQUIP_MANU_YOY <- bls_api("CEU3133600001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133600001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1835,7 +1961,7 @@ TRANSPORT_EQUIP_MANU_YOY <- bls_api("CEU3133600001", startyear = 2010, registrat
   drop_na()
 
 FOOD_MANU_YOY <- bls_api("CEU3231100001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3231100001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1845,7 +1971,7 @@ FOOD_MANU_YOY <- bls_api("CEU3231100001", startyear = 2010, registrationKey = Sy
   drop_na()
 
 MACHINERY_YOY <- bls_api("CEU3133300001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133300001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1855,9 +1981,9 @@ MACHINERY_YOY <- bls_api("CEU3133300001", startyear = 2010, registrationKey = Sy
   drop_na()
 
 COMPUTER_ELECTRONIC_ELECTRICAL_YOY <- bls_api("CEU3133400001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133400001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3133500001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #data processing employment
+  rbind(bls_api("CEU3133500001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #data processing employment
   rbind(bls_api("CEU3133500001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1872,11 +1998,11 @@ COMPUTER_ELECTRONIC_ELECTRICAL_YOY <- bls_api("CEU3133400001", startyear = 2010,
 
 
 CHEMICAL_PETRO_PLASTIC_YOY <- bls_api("CES3232500001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #chemical
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3232500001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3232600001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #plastics and rubber
+  rbind(bls_api("CEU3232600001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #plastics and rubber
   rbind(bls_api("CEU3232600001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3232400001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #petroleum
+  rbind(bls_api("CEU3232400001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #petroleum
   rbind(bls_api("CEU3232400001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1890,11 +2016,11 @@ CHEMICAL_PETRO_PLASTIC_YOY <- bls_api("CES3232500001", startyear = 2010, registr
   drop_na()
 
 WOOD_PRINTING_PAPER_YOY <- bls_api("CEU3132100001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Wood
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3132100001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3232300001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Printing
+  rbind(bls_api("CEU3232300001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #Printing
   rbind(bls_api("CEU3232300001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3232200001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Paper
+  rbind(bls_api("CEU3232200001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #Paper
   rbind(bls_api("CEU3232200001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1908,11 +2034,11 @@ WOOD_PRINTING_PAPER_YOY <- bls_api("CEU3132100001", startyear = 2010, registrati
   drop_na()
 
 METALS_MINERALS_YOY <- bls_api("CEU3133100001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Primary Metal
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133100001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3133200001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Fabricated Metal
+  rbind(bls_api("CEU3133200001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #Fabricated Metal
   rbind(bls_api("CEU3133200001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3132700001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Nonmetallic Mineral
+  rbind(bls_api("CEU3132700001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% select(-any_of("latest"))) %>% #Nonmetallic Mineral
   rbind(bls_api("CEU3132700001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1927,17 +2053,17 @@ METALS_MINERALS_YOY <- bls_api("CEU3133100001", startyear = 2010, registrationKe
 
 
 OTHER_MANUFACTURING_YOY <- bls_api("CEU3133900001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Other Durables
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133900001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3231300001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Textile Mills
+  rbind(bls_api("CEU3231300001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-any_of("latest"))) %>% #Textile Mills
   rbind(bls_api("CEU3231300001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3231400001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Textile Product Mills
+  rbind(bls_api("CEU3231400001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-any_of("latest"))) %>% #Textile Product Mills
   rbind(bls_api("CEU3231400001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3231500001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Apparel Manufacturing
+  rbind(bls_api("CEU3231500001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-any_of("latest"))) %>% #Apparel Manufacturing
   rbind(bls_api("CEU3231500001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3232900001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Other Nondurable Manufacturing
+  rbind(bls_api("CEU3232900001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-any_of("latest"))) %>% #Other Nondurable Manufacturing
   rbind(bls_api("CEU3232900001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
-  rbind(bls_api("CEU3133700001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-latest)) %>% #Furniture
+  rbind(bls_api("CEU3133700001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY"))%>% select(-any_of("latest"))) %>% #Furniture
   rbind(bls_api("CEU3133700001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1952,7 +2078,7 @@ OTHER_MANUFACTURING_YOY <- bls_api("CEU3133900001", startyear = 2010, registrati
 
 
 TOTAL_MANUFACTURING_YOY <- bls_api("CEU3000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Wood
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -1977,7 +2103,7 @@ MANUFACTURING_GROWTH_YOY_graph <- ggplot(data = filter(MANUFACTURING_RBIND, date
   ylab("Year-on-Year Change, Thousands of Jobs") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-100,0,100,200,300,400), limits = c(-150,400), expand = c(0,0)) +
   ggtitle("Year-on-Year Change in US Manufacturing Employment") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America Has Lost Nearly 100k Manufacturing Jobs Over the Last Year") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America Has Lost Nearly Tens of Thousands of Manufacturing Jobs Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.625,.80)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-133,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   #theme_apricitas + theme(legend.position = c(.625,.75)) + theme(plot.title = element_text(size = 23), legend.margin=margin(0,0,-11,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#6A4C93","#00A99D","#A7ACD9","#9A348E","#3083DC","#D28E20","#FF8E72"), breaks = c("Metals & Nonmetallic Minerals","Transportation Equipment (Cars/Planes/Etc)","Food","Chemicals, Petroleum, & Plastic","Computer, Electronics, & Electrical","Machinery","Wood, Paper, & Printing","Other")) +
@@ -1989,7 +2115,7 @@ MANUFACTURING_GROWTH_YOY_graph <- ggplot(data = filter(MANUFACTURING_RBIND, date
 ggsave(dpi = "retina",plot = MANUFACTURING_GROWTH_YOY_graph, "Manufacturing Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 TOTAL_MANUFACTURING_MOM <- bls_api("CES3000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Wood
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
   group_by(date) %>%
@@ -2013,7 +2139,7 @@ cat(paste0(
 
 
 RESIDENTIAL_BUILDING_CONSTRUCTION <- bls_api("CEU2023610001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023610001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2023,7 +2149,7 @@ RESIDENTIAL_BUILDING_CONSTRUCTION <- bls_api("CEU2023610001", startyear = 2010, 
   drop_na()
 
 NONRESIDENTIAL_BUILDING_CONSTRUCTION <- bls_api("CEU2023620001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023620001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2033,7 +2159,7 @@ NONRESIDENTIAL_BUILDING_CONSTRUCTION <- bls_api("CEU2023620001", startyear = 201
   drop_na()
 
 HEAVY_CIVIL_ENGINEERING_CONSTRUCTION <- bls_api("CES2023700001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES2023700001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2044,7 +2170,7 @@ HEAVY_CIVIL_ENGINEERING_CONSTRUCTION <- bls_api("CES2023700001", startyear = 201
 
 
 RESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS <- bls_api("CEU2023800101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023800101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2054,7 +2180,7 @@ RESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS <- bls_api("CEU2023800101", startyear = 
   drop_na()
 
 NONRESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS <- bls_api("CEU2023800201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023800201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2064,7 +2190,7 @@ NONRESIDENTIAL_SPECIALTY_TRADE_CONTRACTORS <- bls_api("CEU2023800201", startyear
   drop_na()
 
 TOTAL_CONSTRUCTION_YOY <- bls_api("CEU2000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Wood
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2101,7 +2227,7 @@ ggsave(dpi = "retina",plot = TOTAL_CONSTRUCTION_GROWTH_YOY_graph, "Total Constru
 
 
 RES_FOUNDATION_EXTERIOR_CONTRACTORS <- bls_api("CEU2023810101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023810101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2111,7 +2237,7 @@ RES_FOUNDATION_EXTERIOR_CONTRACTORS <- bls_api("CEU2023810101", startyear = 2010
   drop_na()
 
 RES_BUILDING_EQUIPMENT_CONTRACTORS <- bls_api("CEU2023820101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023820101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2121,7 +2247,7 @@ RES_BUILDING_EQUIPMENT_CONTRACTORS <- bls_api("CEU2023820101", startyear = 2010,
   drop_na()
 
 RES_BUILDING_FINISHING_CONTRACTORS <- bls_api("CEU2023830101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023830101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2131,7 +2257,7 @@ RES_BUILDING_FINISHING_CONTRACTORS <- bls_api("CEU2023830101", startyear = 2010,
   drop_na()
 
 RES_BUILDING_OTHER_CONTRACTORS <- bls_api("CEU2023890101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023890101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2141,7 +2267,7 @@ RES_BUILDING_OTHER_CONTRACTORS <- bls_api("CEU2023890101", startyear = 2010, reg
   drop_na()
 
 TOTAL_RES_CONTRACTORS_YOY <- bls_api("CEU2023800101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #Wood
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023800101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2177,7 +2303,7 @@ TOTAL_RES_CONTRACTORS_GROWTH_YOY_graph <- ggplot(data = filter(TOTAL_RES_CONTRAC
 ggsave(dpi = "retina",plot = TOTAL_RES_CONTRACTORS_GROWTH_YOY_graph, "Total Res Contractors Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 RES_REMODELERS <- bls_api("CEU2023611801", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023611801", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2187,7 +2313,7 @@ RES_REMODELERS <- bls_api("CEU2023611801", startyear = 2010, registrationKey = S
   drop_na()
 
 RES_NEW_SF <- bls_api("CEU2023611501", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023611501", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2197,7 +2323,7 @@ RES_NEW_SF <- bls_api("CEU2023611501", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 RES_NEW_MF <- bls_api("CEU2023611601", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023611601", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2207,7 +2333,7 @@ RES_NEW_MF <- bls_api("CEU2023611601", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 RES_NEW_FS <- bls_api("CEU2023611701", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2023611701", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2253,7 +2379,7 @@ ggsave(dpi = "retina",plot = TOTAL_RES_CONSTRUCTION_YOY_GROWTH_YOY_graph, "Total
 
 
 MINING_YOY <- bls_api("CEU1000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2263,7 +2389,7 @@ MINING_YOY <- bls_api("CEU1000000001", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 CONSTRUCTION_YOY <- bls_api("CEU2000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU2000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2273,7 +2399,7 @@ CONSTRUCTION_YOY <- bls_api("CEU2000000001", startyear = 2010, registrationKey =
   drop_na()
 
 MANUFACTURING_YOY <- bls_api("CEU3000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2284,7 +2410,7 @@ MANUFACTURING_YOY <- bls_api("CEU3000000001", startyear = 2010, registrationKey 
 
 
 TRANSPORTATION_YOY <- bls_api("CEU4300000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU4300000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2294,7 +2420,7 @@ TRANSPORTATION_YOY <- bls_api("CEU4300000001", startyear = 2010, registrationKey
   drop_na()
 
 UTILITIES_YOY <- bls_api("CEU4422000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU4422000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2334,7 +2460,7 @@ TOTAL_BLUE_COLLAR_YOY_graph <- ggplot(data = filter(TOTAL_BLUE_COLLAR_RBIND, dat
 ggsave(dpi = "retina",plot = TOTAL_BLUE_COLLAR_YOY_graph, "Total Blue Collar Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 MINING_IND <- bls_api("CES1000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES1000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2344,7 +2470,7 @@ MINING_IND <- bls_api("CES1000000001", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 CONSTRUCTION_IND <- bls_api("CES2000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES2000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2354,7 +2480,7 @@ CONSTRUCTION_IND <- bls_api("CES2000000001", startyear = 2010, registrationKey =
   drop_na()
 
 MANUFACTURING_IND <- bls_api("CES3000000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES3000000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2365,7 +2491,7 @@ MANUFACTURING_IND <- bls_api("CES3000000001", startyear = 2010, registrationKey 
 
 
 TRANSPORTATION_IND <- bls_api("CES4300000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES4300000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2375,7 +2501,7 @@ TRANSPORTATION_IND <- bls_api("CES4300000001", startyear = 2010, registrationKey
   drop_na()
 
 UTILITIES_IND <- bls_api("CES4422000001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CES4422000001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2414,7 +2540,7 @@ TOTAL_BLUE_COLLAR_IND_graph <- ggplot() + #plotting permanent and temporary job 
 ggsave(dpi = "retina",plot = TOTAL_BLUE_COLLAR_IND_graph, "Total Blue Collar Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 LOGGING_YOY <- bls_api("CEU1011330001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1011330001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2424,7 +2550,7 @@ LOGGING_YOY <- bls_api("CEU1011330001", startyear = 2010, registrationKey = Sys.
   drop_na()
 
 OIL_EXTRACTION_YOY <- bls_api("CEU1021100001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021100001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2435,7 +2561,7 @@ OIL_EXTRACTION_YOY <- bls_api("CEU1021100001", startyear = 2010, registrationKey
 
 
 OIL_SUPPORT_YOY <- bls_api("CEU1021311201", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021311201", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2445,7 +2571,7 @@ OIL_SUPPORT_YOY <- bls_api("CEU1021311201", startyear = 2010, registrationKey = 
   drop_na()
 
 OIL_DRILLING_YOY <- bls_api("CEU1021311101", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021311101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2459,7 +2585,7 @@ OIL_SUPPORT_DRILLING_YOY <- merge(OIL_SUPPORT_YOY,OIL_DRILLING_YOY, by = "date")
 
 
 COAL_MINING_YOY <- bls_api("CEU1021210001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021210001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2469,7 +2595,7 @@ COAL_MINING_YOY <- bls_api("CEU1021210001", startyear = 2010, registrationKey = 
   drop_na()
 
 METAL_MINING_YOY <- bls_api("CEU1021220001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021220001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2479,7 +2605,7 @@ METAL_MINING_YOY <- bls_api("CEU1021220001", startyear = 2010, registrationKey =
   drop_na()
 
 MINERAL_MINING_YOY <- bls_api("CEU1021230001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021230001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2489,7 +2615,7 @@ MINERAL_MINING_YOY <- bls_api("CEU1021230001", startyear = 2010, registrationKey
   drop_na()
 
 SUPPORT_MINING_YOY <- bls_api("CEU1021311501", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU1021311501", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2533,7 +2659,7 @@ TOTAL_EXTRACTION_YOY_graph <- ggplot(data = filter(TOTAL_EXTRACTION_RBIND, date 
 ggsave(dpi = "retina",plot = TOTAL_EXTRACTION_YOY_graph, "Total Extraction Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 COMPUTER_YOY <- bls_api("CEU3133410001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133410001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2543,7 +2669,7 @@ COMPUTER_YOY <- bls_api("CEU3133410001", startyear = 2010, registrationKey = Sys
   drop_na()
 
 COMMUNICATION_YOY <- bls_api("CEU3133420001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133420001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2554,7 +2680,7 @@ COMMUNICATION_YOY <- bls_api("CEU3133420001", startyear = 2010, registrationKey 
 
 
 MEDIA_YOY <- bls_api("CEU3133460001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133460001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2568,7 +2694,7 @@ COMMUNICATION_MEDIA_YOY <- merge(COMMUNICATION_YOY,MEDIA_YOY, by = "date") %>%
 
 
 SEMICONDUCTOR_YOY <- bls_api("CEU3133440001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133440001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2578,7 +2704,7 @@ SEMICONDUCTOR_YOY <- bls_api("CEU3133440001", startyear = 2010, registrationKey 
   drop_na()
 
 NAVIGATIONAL_YOY <- bls_api("CEU3133450001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133450001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2590,7 +2716,7 @@ NAVIGATIONAL_YOY <- bls_api("CEU3133450001", startyear = 2010, registrationKey =
 
 
 LIGHTS_YOY <- bls_api("CEU3133510001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133510001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2600,7 +2726,7 @@ LIGHTS_YOY <- bls_api("CEU3133510001", startyear = 2010, registrationKey = Sys.g
   drop_na()
 
 APPLIANCES_YOY <- bls_api("CEU3133520001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133520001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2614,7 +2740,7 @@ LIGHTS_APPLIANCES_YOY <- merge(LIGHTS_YOY,APPLIANCES_YOY, by = "date") %>%
 
 
 ELECTRICAL1_YOY <- bls_api("CEU3133530001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133530001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2624,7 +2750,7 @@ ELECTRICAL1_YOY <- bls_api("CEU3133530001", startyear = 2010, registrationKey = 
   drop_na()
 
 ELECTRICAL2_YOY <- bls_api("CEU3133590001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   rbind(bls_api("CEU3133590001", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY"))) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   select(date, value) %>%
@@ -2908,7 +3034,7 @@ GLI_BLS_YOY <- bls_api("CES0500000017", startyear = 2017, endyear = format(Sys.D
   mutate(annualpct = (value-dplyr::lead(value, 12))/dplyr::lead(value, 12)) %>%
   .[nrow(.):1,] %>%
   mutate(date =(seq(as.Date("2017-01-01"), length = nrow(.), by = "month"))) %>%
-  select(-latest) %>%
+  select(-any_of("latest")) %>%
   drop_na()
 
 GLI_PCE_graph <- ggplot() + #plotting Wage Growth
@@ -3025,14 +3151,14 @@ PAYEMS_MONTHLY_GRAPH <- ggplot(data = PAYEMS_MONTHLY, aes(x = date, y = value/10
   geom_line(data = PAYEMS_MONTHLY, aes(x=date, y = THREEMMA/1000, color = "3 Month Moving Average"), size = 2) +
   xlab("State") +
   ylab("Percent") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"), breaks = c(0,.25,.5,.75,1), limits = c(-.1,1), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.25, suffix = "M"), breaks = c(-.25,0,.25,.5,.75,1), limits = c(-.250,1), expand = c(0,0)) +
   ggtitle("US Job Growth") +
   labs(caption = "Graph created by @JosephPolitano using Bureau of Labor Statistics data Via Guy Berger", subtitle = "US Job Growth Has Decelerated Significantly Over the Last Two Years") +
   theme_apricitas + theme(legend.position = c(.725,.75)) + theme(legend.margin=margin(0,0,-6,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93")) +
   guides(color = guide_legend(order = 2),fill = guide_legend(order = 1)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = -.1-(.3*1.1), ymax = -.1) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = -.250-(.3*1.250), ymax = -.250) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = PAYEMS_MONTHLY_GRAPH, "Payems Monthly 3MMA Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -3148,6 +3274,68 @@ GOVT_GROWTH_IND_graph <- ggplot(data = GOVT_RBIND, aes(x = date, y = value/1000,
 
 ggsave(dpi = "retina",plot = GOVT_GROWTH_IND_graph, "Govt Growth Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+FED_EMP_YOY <- bls_api("CEU9091000001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Federal Government") %>%
+  select(date,value,name)
+STATE_EDU_EMP_YOY <- bls_api("CEU9092161101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "State Government Education") %>%
+  select(date,value,name)
+STATE_XEDU_EMP_YOY <- bls_api("CEU9092200001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "State Government Excluding Education") %>%
+  select(date,value,name)
+LOCAL_EDU_EMP_YOY <- bls_api("CEU9093161101", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Local Government Education") %>%
+  select(date,value,name)
+LOCAL_XEDU_EMP_YOY <- bls_api("CEU9093200001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Local Government Excluding Education") %>%
+  select(date,value,name)
+
+
+GOVT_RBIND_YOY <- rbind(FED_EMP_YOY,STATE_EDU_EMP_YOY,STATE_XEDU_EMP_YOY,LOCAL_EDU_EMP_YOY,LOCAL_XEDU_EMP_YOY) %>%
+  mutate(name = factor(name, levels = rev(c("Federal Government","State Government Education","State Government Excluding Education","Local Government Education","Local Government Excluding Education"))))
+
+GOVT_TOTAL_YOY <- bls_api("CEU9000000001", startyear = 2020, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = value-lag(value,12)) %>%
+  mutate(name = "Government Total") %>%
+  select(date,value,name)
+
+GOVT_GROWTH_YOY_graph <- ggplot(data = filter(GOVT_RBIND_YOY, date >= as.Date("2023-01-01")), aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  geom_line(data = filter(GOVT_TOTAL_YOY, date >= as.Date("2023-01-01")), aes(x=date, y = value/1000, color = "Total Government Employment"), size = 2) +
+  xlab("Date") +
+  ylab("Year-on-Year Change, Thousands of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.5, suffix = "M"), breaks = c(-0.5,0,0.5,1), limits = c(-0.4,1.1), expand = c(0,0)) +
+  ggtitle("Year-on-Year Change in Government Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Public Sector is Losing Jobs Amidst DOGE Cuts in the Federal Government") +
+  theme_apricitas + theme(legend.position = c(.75,.9)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-90,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Federal Government","State Government Education","State Government Excluding Education","Local Government Education","Local Government Excluding Education")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -0.4-(.3*1.5), ymax = -0.4) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = GOVT_GROWTH_YOY_graph, "Govt Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 FED_EMP_IND_2025 <- bls_api("CES9091000001", startyear = 2025, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   mutate(pct = (value-value[nrow(.)])/value[nrow(.)]) %>%
@@ -3216,6 +3404,81 @@ UNRATE_TOTAL_FOREIGN_BORN_Graph <- ggplot() + #plotting Wage Growth
 
 ggsave(dpi = "retina",plot = UNRATE_TOTAL_FOREIGN_BORN_Graph, "UNRATE Total Foreign Born Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+EMLEVEL_FOREIGN_25_34 <- bls_api("LNU02073399", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EMLEVEL_FOREIGN_35_44 <- bls_api("LNU02073400", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EMLEVEL_FOREIGN_45_54 <- bls_api("LNU02073401", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+EMLEVEL_FOREIGN_25_54 <- rbind(EMLEVEL_FOREIGN_25_34,EMLEVEL_FOREIGN_35_44,EMLEVEL_FOREIGN_45_54) %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup()
+
+EMLEVEL_NATIVE_25_34 <- bls_api("LNU02073417", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EMLEVEL_NATIVE_35_44 <- bls_api("LNU02073418", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+EMLEVEL_NATIVE_45_54 <- bls_api("LNU02073419", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+EMLEVEL_NATIVE_25_54 <- rbind(EMLEVEL_NATIVE_25_34,EMLEVEL_NATIVE_35_44,EMLEVEL_NATIVE_45_54) %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup()
+
+
+POPLEVEL_FOREIGN_25_34 <- bls_api("LNU00073399", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+POPLEVEL_FOREIGN_35_44 <- bls_api("LNU00073400", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+POPLEVEL_FOREIGN_45_54 <- bls_api("LNU00073401", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+POPLEVEL_FOREIGN_25_54 <- rbind(POPLEVEL_FOREIGN_25_34,POPLEVEL_FOREIGN_35_44,POPLEVEL_FOREIGN_45_54) %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup()
+
+
+POPLEVEL_NATIVE_25_34 <- bls_api("LNU00073417", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+POPLEVEL_NATIVE_35_44 <- bls_api("LNU00073418", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+POPLEVEL_NATIVE_45_54 <- bls_api("LNU00073419", startyear = 2015, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
+
+POPLEVEL_NATIVE_25_54 <- rbind(POPLEVEL_NATIVE_25_34,POPLEVEL_NATIVE_35_44,POPLEVEL_NATIVE_45_54) %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup()
+
+
+EMPRATE_FOREIGN_25_54 <- merge(EMLEVEL_FOREIGN_25_54,POPLEVEL_FOREIGN_25_54, by = "date") %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
+  transmute(date, value = value.x/value.y, rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value.x,12)/rollmean(value.y,12)))
+
+EMPRATE_NATIVE_25_54 <- merge(EMLEVEL_NATIVE_25_54,POPLEVEL_NATIVE_25_54, by = "date") %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
+  transmute(date, value = value.x/value.y, rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value.x,12)/rollmean(value.y,12)))
+
+EMRATE_TOTAL_FOREIGN_BORN_Graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=filter(EMPRATE_FOREIGN_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= value,color= "Foreign-Born"), linetype = "dashed", size = 0.75, alpha = 0.5) +
+  geom_line(data=filter(EMPRATE_NATIVE_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= value,color= "Native-Born"), linetype = "dashed", size = 0.75, alpha = 0.5) +
+  geom_line(data=filter(EMPRATE_FOREIGN_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= rollmean,color= "Foreign-Born"), size = 1.25) +
+  geom_line(data=filter(EMPRATE_NATIVE_25_54, date >= as.Date("2016-01-01")), aes(x=date,y= rollmean,color= "Native-Born"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0.7,0.85), breaks = c(0.7,0.75,0.8,0.85), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("Prime Age (25-54) Employment Rates") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Employment Rates for Native Born & Immigrants are Flat Despite Trump's Immigration Crackdown") +
+  theme_apricitas + theme(legend.position = c(.2,.85)) +
+  scale_color_manual(name="Solid = 12M Moving Average,\nDashed = Monthly, NSA",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Native-Born","Foreign-Born")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0.7-(.3*0.15), ymax = 0.7) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = EMRATE_TOTAL_FOREIGN_BORN_Graph, "EMRATE Total Foreign Born Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 QUITS_Q <- fredr(series_id = "JTSQUL",observation_start = as.Date("2017-01-01"),realtime_start = NULL, realtime_end = NULL, frequency = "q", aggregation_method = "sum")
@@ -3238,30 +3501,28 @@ LABOR_TURNOVER_QUARTERLY_Graph <- ggplot() + #plotting job flows
 
 ggsave(dpi = "retina",plot = LABOR_TURNOVER_QUARTERLY_Graph, "Labor Turnover Quarterly.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-ATL_WAG_QUART_1 <- fredr("FRBATLWGT12MMUMHWGWD1WP", observation_start = as.Date("2015-01-01"))
-ATL_WAG_QUART_2 <- fredr("FRBATLWGT12MMUMHWGWD26WP", observation_start = as.Date("2015-01-01")) 
-ATL_WAG_QUART_3 <- fredr("FRBATLWGT12MMUMHWGWD51WP", observation_start = as.Date("2015-01-01"))
-ATL_WAG_QUART_4 <- fredr("FRBATLWGT12MMUMHWGWD76WP", observation_start = as.Date("2015-01-01"))
+ATL_WAG_QUART_1 <- fredr("FRBATLWGT12MMUMHWGWD1WP", observation_start = as.Date("2000-01-01"))
+ATL_WAG_QUART_2 <- fredr("FRBATLWGT12MMUMHWGWD26WP", observation_start = as.Date("2000-01-01")) 
+ATL_WAG_QUART_3 <- fredr("FRBATLWGT12MMUMHWGWD51WP", observation_start = as.Date("2000-01-01")) 
+ATL_WAG_QUART_4 <- fredr("FRBATLWGT12MMUMHWGWD76WP", observation_start = as.Date("2000-01-01"))
 
-ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph <- ggplot() +
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
-  geom_line(data=ATL_WAG_QUART_1, aes(x=date,y= value/100,color= "First (Lowest) Wage Quartile"), size = 1.25)+ 
-  geom_line(data=ATL_WAG_QUART_2, aes(x=date,y= value/100,color= "Second Wage Quartile"), size = 1.25)+ 
-  geom_line(data=ATL_WAG_QUART_3, aes(x=date,y= value/100,color= "Third Wage Quartile"), size = 1.25)+ 
-  geom_line(data=ATL_WAG_QUART_4, aes(x=date,y= value/100,color= "Fourth (Highest) Wage Quartile"), size = 1.25)+ 
-  annotate("text",label = "NOTE: Data Lags Significantly Due to Being a 12M Moving Average of Annual Growth", x = as.Date("2019-09-01"), y =0.02, color = "white", size = 5) +
+ATL_WAG_INCOME_graph <- ggplot() + #plotting Wage Growth
+  geom_line(data=ATL_WAG_QUART_1, aes(x=date,y= value/100,color= "1st (Lowest-Income) Quartile"), size = 1.25) +
+  geom_line(data=ATL_WAG_QUART_2, aes(x=date,y= value/100,color= "2nd Quartile"), size = 1.25) +
+  geom_line(data=ATL_WAG_QUART_3, aes(x=date,y= value/100,color= "3rd Quartile"), size = 1.25) +
+  geom_line(data=ATL_WAG_QUART_4, aes(x=date,y= value/100,color= "4th (Highest-Income) Quartile"), size = 1.25) +
+  annotate("text",label = "NOTE: Data Lags Significantly Due to Being a 12M Moving Average of Annual Growth", x = as.Date("2012-08-01"), y =0.005, color = "white", size = 5) +
   xlab("Date") +
-  ylab("12MMA of Median Annual Wage Growth. %") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.08),breaks = c(0,0.02,0.04,0.06,0.08), expand = c(0,0)) +
-  ggtitle("Wage Compression is Cooling") +
-  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed data", subtitle = "Low-Paid Workers are No Longer Seeing Significantly Faster Wage Growth Than High-Paid Workers") +
-  theme_apricitas + theme(legend.position = c(.25,.8)) +
-  scale_color_manual(name= "Median Wage Growth by Wage Quartile\n12MMA of Median 12M Wage Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9"), breaks = c("First (Lowest) Wage Quartile","Second Wage Quartile","Third Wage Quartile","Fourth (Highest) Wage Quartile")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*.08), ymax = 0) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.08), expand = c(0,0)) +
+  ylab("Percent") +
+  ggtitle("The Distribution of US Wage Growth") +
+  labs(caption = "Graph created by @JosephPolitano using Atlanta Fed Data",subtitle = "US Wage Growth Has Been Lowest for the Lowest-Paid Workers") +
+  theme_apricitas + theme(legend.position = c(.5,.80)) +
+  scale_color_manual(name= "12-Month Moving Average of Median Wage Growth",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*0.08), ymax = 0) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = ATLANTA_FED_WAGE_TRACKER_DISTRIB_Graph, "Atlanta Fed Wage Tracker Distrib Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
+ggsave(dpi = "retina",plot = ATL_WAG_INCOME_graph, "ATL Wage Income Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ggsave(dpi = "retina",plot = QUITS_RATE_Graph, "Quits Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

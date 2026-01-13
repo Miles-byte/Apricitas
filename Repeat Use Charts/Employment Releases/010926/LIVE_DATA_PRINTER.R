@@ -38,7 +38,7 @@ UNRATE_formatted_change <- ifelse(UNRATE_latest_data$change_from_prior_month >= 
                                     paste0("+", UNRATE_latest_data$change_from_prior_month),
                                     UNRATE_latest_data$change_from_prior_month)
 
-output_string <- paste0("NEW JOBS DATA:\n\nNon-farm Payrolls: ", Payrolls_formatted_change, "k")
+output_string <- paste0("NEW US JOBS DATA:\n\nNon-farm Payrolls: ", Payrolls_formatted_change, "k")
 output_string <- paste0(output_string, "\nUnemployment Rate: ", UNRATE_latest_data$latest_value,"%", " (",UNRATE_formatted_change,"%)")
 
 EPOP_1990 <- bls_api("LNS12300060", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>% 
@@ -152,7 +152,7 @@ PAYEMS_Graph <- ggplot(filter(PAYEMS, date >= as.Date("2021-01-01")), aes(x = da
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_bar(stat = "identity", fill = "#FFE98F", color = NA, show.legend = FALSE) +
   xlab(NULL) +
-  scale_y_continuous(labels = scales::comma_format(suffix = "k"),limits = c(-150,1000), breaks = c(0,250,500,750,1000), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::comma_format(suffix = "k"),limits = c(-250,1000), breaks = c(-250,0,250,500,750,1000), expand = c(0,0)) +
   ylab(NULL) +
   ggtitle("Nonfarm Payrolls Growth, Monthly") +
   #labs(caption = "Graph created by @JosephPolitano using Federal Reserve data") +
@@ -201,9 +201,6 @@ AHE_Graph <- ggplot(filter(AHE, date >= as.Date("2021-01-01")), aes(x = date, y 
   #annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-10-15")-(.1861*2200), xmax = as.Date("2015-10-15")-(0.049*2200), ymin = 0-(.3*1), ymax = 0) +
   coord_cartesian(clip = "off") +
   theme(plot.margin=unit(c(0.15,1,0.15,0.4),"cm"))
-
-#arranging the SEP graphs into one items and adding background and border colors to match the theme
-JOLTS_ARRANGE_GRAPH <- ggarrange(HIRES_Graph, LAYOFFS_Graph, QUITS_Graph, JOB_OPENINGS_Graph,  ncol = 2, nrow = 2, heights = 20, widths = 10, common.legend = TRUE, legend = "none") + bgcolor("#252A32") + border("#252A32")
 
 text <- c("Jobs  Data",fontface = "bold")
 

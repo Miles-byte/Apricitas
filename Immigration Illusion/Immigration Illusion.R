@@ -11,6 +11,7 @@ apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 EMP_FOREIGN_BORN <- bls_api("LNU02073395", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
   select(date, value, seriesID) %>%
   arrange(date) %>%
   drop_na() %>%
@@ -21,6 +22,7 @@ EMP_FOREIGN_BORN <- bls_api("LNU02073395", startyear = 2007, registrationKey = S
 
 EMP_TOTAL <- bls_api("LNU02000000", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>% #internet employment
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
   select(date, value, seriesID) %>%
   arrange(date) %>%
   drop_na() %>%
@@ -34,8 +36,8 @@ EMP_TOTAL_FOREIGN_BORN_SHARE <- merge(EMP_FOREIGN_BORN,EMP_TOTAL, by = "year") %
 
 
 EMP_TOTAL_FOREIGN_BORN_SHARE_Graph <- ggplot() + #plotting Wage Growth
-  geom_line(data=EMP_TOTAL_FOREIGN_BORN_SHARE, aes(x=date,y= foreign_born_share,color= "Foreign-born Share of US Employment, 2007-2024"), size = 1.25) +
-  geom_point(data=EMP_TOTAL_FOREIGN_BORN_SHARE, aes(x=date,y= foreign_born_share,color= "Foreign-born Share of US Employment, 2007-2024"), size = 3) +
+  geom_line(data=EMP_TOTAL_FOREIGN_BORN_SHARE, aes(x=date,y= foreign_born_share,color= "Foreign-born Share of US Employment, 2007-2025"), size = 1.25) +
+  geom_point(data=EMP_TOTAL_FOREIGN_BORN_SHARE, aes(x=date,y= foreign_born_share,color= "Foreign-born Share of US Employment, 2007-2025"), size = 3) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.15,.20), breaks = c(0.15,0.16,0.17,0.18,0.19,0.2), expand = c(0,0)) +
   ylab("Percent") +
@@ -198,7 +200,7 @@ HISPANIC_FOREIGN_BORN <- bls_api("LNU00073407", startyear = 2006, registrationKe
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE_HISPANIC <- merge(HISPANIC_FOREIGN_BORN,HISPANIC_POP_COUNTS, by = "date") %>%
-  select(-latest.x,-latest.y) %>%
+  #select(-latest.x,-latest.y) %>%
   drop_na() %>%
   transmute(date, value = value.x/value.y)
 
@@ -270,7 +272,7 @@ ggsave(dpi = "retina",plot = FOREIGN_SHARE_HISPANIC_Graph, "Foreign Share Hispan
 
 POP_FOREIGN_BORN <- bls_api("LNU00073395", startyear = 2025, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  select(-latest) %>%
+  #select(-latest) %>%
   drop_na()
 
 TOTAL_FOREIGN_BORN_POPULATION_Graph <- ggplot() + #plotting Foreign Population

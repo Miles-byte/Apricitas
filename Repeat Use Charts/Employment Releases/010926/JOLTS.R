@@ -147,4 +147,3 @@ sentence <- paste0(
   ", and job openings ", dir_word(cur$openings_rate, prev$openings_rate), scales::percent(cur$openings_rate, accuracy = 0.1)
 )
 
-sentence
