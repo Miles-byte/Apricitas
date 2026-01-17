@@ -3350,7 +3350,7 @@ FED_EMP_IND_2025_Graph <- ggplot() +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(floor(min(FED_EMP_IND_2025$value, na.rm = TRUE) / 10) * 10,0), breaks = c(-300,-200,-100,0), expand = c(0,0)) +
   ylab("Change Since Jan 2025") +
   ggtitle("US Federal Employment is Falling") +
-  labs(caption = "Graph created by @JosephPolitano using Federal Reserve data",subtitle = paste0("Federal Employment has Decreased by ", -FED_EMP_IND_2025$value[1], "k, or ", -round(FED_EMP_IND_2025$pct[1],4)*100,"% since January amidst DOGE cuts")) +
+  labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Federal Employment has Decreased by ", -FED_EMP_IND_2025$value[1], "k, or ", -round(FED_EMP_IND_2025$pct[1],4)*100,"% since January amidst DOGE cuts")) +
   theme_apricitas + theme(legend.position = c(.28,.20)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","RED")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-01")-(.1861*(today()-30-as.Date("2025-01-01"))), xmax = as.Date("2025-01-01")-(0.049*(today()-30-as.Date("2025-01-01"))), ymin = (floor(min(FED_EMP_IND_2025$value, na.rm = TRUE) / 10) * 10)-(.3*-(floor(min(FED_EMP_IND_2025$value, na.rm = TRUE) / 10) * 10)), ymax = (floor(min(FED_EMP_IND_2025$value, na.rm = TRUE) / 10) * 10)) +
