@@ -864,6 +864,131 @@ QSS_Data_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = QSS_Data_Graph, "QSS Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+FIXED_NOMINAL_STRUCTURE_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50405',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2010, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_NOMINAL_STRUCTURE_INVEST <- beaGet(FIXED_NOMINAL_STRUCTURE_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2010-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+FIXED_NOMINAL_DATACENTER_INVEST <- FIXED_NOMINAL_STRUCTURE_INVEST %>%
+  select(date,`Data Centers` = u50405_la001282_5_data_centers_current_dollars_level_6)
+
+FIXED_NOMINAL_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T50305',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2010, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+FIXED_NOMINAL_INVEST <- beaGet(FIXED_NOMINAL_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2010-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+NOMINAL_GDP_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIPA',
+  'TableName' = 'T10105',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 2010, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+NOMINAL_GDP <- beaGet(NOMINAL_GDP_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("2010-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na() %>%
+  transmute(date,GDP = t10105_a191rc_1_gross_domestic_product_current_dollars_level_6)
+
+AI_FIXED_NOMINAL_INVEST <- FIXED_NOMINAL_INVEST %>%
+  select(date,`Computers & Peripherals` = t50305_b935rc_11_computers_and_peripheral_equipment_current_dollars_level_6, `Software` = t50305_b985rc_17_software_current_dollars_level_6) %>%
+  merge(.,FIXED_NOMINAL_DATACENTER_INVEST,by = "date") %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Software","Computers & Peripherals","Data Centers")))
+
+AI_PHYSICAL_NOMINAL_INVEST_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = filter(AI_FIXED_NOMINAL_INVEST, name != "Software"), aes(x = date, y = value/1000, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,350), breaks = c(0,50,100,150,200,250,300,350), expand = c(0,0)) +
+  ylab("Billions of Dollars, Annual Rate") +
+  ggtitle("US AI-Related Physical Investment") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers & Computers Are Rapidly Growing Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*350), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AI_PHYSICAL_NOMINAL_INVEST_GRAPH, "AI Related Physical Investment Nominal Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+AI_NOMINAL_INVEST_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = filter(AI_FIXED_NOMINAL_INVEST), aes(x = date, y = value/1000000, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = .1, suffix = "T"),limits = c(0,1.1), breaks = c(0,0.5,1,1.5,2,2.5), expand = c(0,0)) +
+  ylab("Trillions of Dollars, Annual Rate") +
+  ggtitle("US AI-Related Investment") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers, Computers, & Software Are Rapidly Growing Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(0.25,0.85), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= NULL,values = c("#00A99D","#EE6055","#FFE98F","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*1.1), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AI_NOMINAL_INVEST_GRAPH, "AI Related Investment Nominal Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+AI_FIXED_NOMINAL_INVEST_PCTGDP <- FIXED_NOMINAL_INVEST %>%
+  select(date,`Computers & Peripherals` = t50305_b935rc_11_computers_and_peripheral_equipment_current_dollars_level_6, `Software` = t50305_b985rc_17_software_current_dollars_level_6) %>%
+  merge(.,FIXED_NOMINAL_DATACENTER_INVEST,by = "date") %>%
+  merge(.,NOMINAL_GDP,by = "date") %>%
+  mutate(`Computers & Peripherals` = `Computers & Peripherals`/GDP,
+         `Software` = `Software`/GDP,
+         `Data Centers` = `Data Centers`/GDP) %>%
+  select(-GDP) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Software","Computers & Peripherals","Data Centers")))
+
+
+AI_PHYSICAL_NOMINAL_INVEST_PCTGDP_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = filter(AI_FIXED_NOMINAL_INVEST_PCTGDP, name != "Software"), aes(x = date, y = value, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .1),limits = c(0,0.011), breaks = c(0,0.005,0.01,.015,0.02), expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("US AI-Related Physical Investment, % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers & Computers Are Rapidly Growing Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*.011), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = AI_PHYSICAL_NOMINAL_INVEST_PCTGDP_GRAPH, "AI Related Physical Investment Nominal Percent GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+AI_NOMINAL_INVEST_PCTGDP_GRAPH <- ggplot() + #plotting components of manufacturing construction
+  geom_bar(data = filter(AI_FIXED_NOMINAL_INVEST_PCTGDP), aes(x = date, y = value, fill = name), color = NA, size = 0, stat= "identity") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.04), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
+  ylab("Percent of GDP") +
+  ggtitle("US AI-Related Investment, % of GDP") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers, Computers, & Software Are Rapidly Growing Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(0.25,0.90), legend.key.size = unit(0.5,"cm")) +
+  scale_fill_manual(name= NULL,values = c("#00A99D","#EE6055","#FFE98F","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*.04), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = AI_NOMINAL_INVEST_PCTGDP_GRAPH, "AI Related Investment Nominal Percent GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 beaSets(Sys.getenv("BEA_KEY"))
 
 beaParams(Sys.getenv("BEA_KEY"),setName = 'FixedAssets')
@@ -961,6 +1086,8 @@ FIXED_INVEST_STRUC_NOMINAL <- beaGet(FIXED_INVEST_STRUC_NOMINAL_SPECS, iTableSty
   mutate(date = (seq(as.Date("2002-01-01"), length.out = nrow(.), by = "1 year"))) %>%
   clean_names() %>%
   drop_na()
+
+
 
 #Selecting Industries
 #COMPUTER AND ELECTRONICS MANUFACTURING
