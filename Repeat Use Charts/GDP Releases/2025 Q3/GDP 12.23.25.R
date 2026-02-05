@@ -1691,18 +1691,19 @@ PCEPI_DETAIL_SPECS <- list(
   'datasetname' = 'NIUnderlyingDetail',
   'TableName' = 'U20404',
   'Frequency' = 'M',
-  'Year' = paste(seq(from = 2015, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'Year' = paste(seq(from = 2009, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
   'ResultFormat' = 'json'
 )
 
 PCEPI_DETAIL_MONTHLY <- beaGet(PCEPI_DETAIL_SPECS, iTableStyle = FALSE) %>%
-  mutate(date = (seq(as.Date("2015-01-01"), length.out = nrow(.), by = "1 month"))) %>%
+  mutate(date = (seq(as.Date("2009-01-01"), length.out = nrow(.), by = "1 month"))) %>%
   clean_names() %>%
   mutate(across(where(is.numeric),~ .x / lag(.x, 12) - 1)) %>%
+  #filter(date >= as.Date("2010-01-01")) %>%
   filter(date >= as.Date("2016-01-01")) %>%
   select(date,u20404_dgdsrg_2_goods_fisher_price_index_level_0,u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0,u20404_ddurrg_3_durable_goods_fisher_price_index_level_0)
 
-PCE_PRICE_INDEX_Graph <- ggplot() +
+PCE_GOODS_PRICE_INDEX_Graph <- ggplot() +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   geom_line(data=PCEPI_DETAIL_MONTHLY, aes(x=date,y= u20404_dgdsrg_2_goods_fisher_price_index_level_0, color= "Goods"), size = 1.25) +
   geom_line(data=PCEPI_DETAIL_MONTHLY, aes(x=date,y= u20404_ia000062_375_pce_goods_excluding_food_and_energy_fisher_price_index_level_0, color= "Goods ex Food & Energy"), size = 1.25) +
@@ -1717,7 +1718,7 @@ PCE_PRICE_INDEX_Graph <- ggplot() +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(.1861*(today()-as.Date("2016-01-01")))), ymin = -0.04-(.3*0.16), ymax = -0.04) +
   coord_cartesian(clip = "off")
 
-ggsave(dpi = "retina",plot = PCE_PRICE_INDEX_Graph, "PCE Price Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+ggsave(dpi = "retina",plot = PCE_GOODS_PRICE_INDEX_Graph, "PCE GoodsPrice Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 
@@ -1737,7 +1738,7 @@ FIXED_NOMINAL_STRUCTURE_INVEST <- beaGet(FIXED_NOMINAL_STRUCTURE_INVEST_SPECS, i
   drop_na()
 
 ALT_POWER_FIXED_INVEST <- FIXED_NOMINAL_STRUCTURE_INVEST %>%
-  select(date,u50405_la001174_18_alternative_electric_current_dollars_level_6,u50405_la001175_19_all_other_electric_current_dollars_level_6) %>%
+  select(date,u50405_la001174_20_alternative_electric_current_dollars_level_6,u50405_la001175_21_all_other_electric_current_dollars_level_6) %>%
   setNames(c("date","Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)")) %>%
   pivot_longer(cols = -date) %>%
   mutate(name = factor(name, levels = rev(c("Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)"))))
@@ -1747,36 +1748,11 @@ ALT_POWER_FIXED_INVEST_graph <- ggplot(data = ALT_POWER_FIXED_INVEST, aes(x = da
   geom_bar(stat = "identity", position = "stack", color = NA) +
   ylab("Dollars") +
   ggtitle("America's Changing Power Investments") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,25,50,75,100), limits = c(0,115), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,25,50,75,100,125,150), limits = c(0,150), expand = c(0,0)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "New BEA Data Shows that Alternative Energy is Making Up a Higher Share of Power Investment") +
   theme_apricitas + theme(legend.position = c(.425,.89)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_fill_manual(name= "Nominal Fixed Investment in Structures",values = c("#EE6055","#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*115), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  coord_cartesian(clip = "off")
-
-ggsave(dpi = "retina",plot = ALT_POWER_FIXED_INVEST_graph, "Alt Power Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
-
-FIXED_NOMINAL_STRUCTURE_INVEST <- beaGet(FIXED_NOMINAL_STRUCTURE_INVEST_SPECS, iTableStyle = FALSE) %>%
-  mutate(date = (seq(as.Date("2010-01-01"), length.out = nrow(.), by = "3 months"))) %>%
-  clean_names() %>%
-  drop_na()
-
-ALT_POWER_FIXED_INVEST <- FIXED_NOMINAL_STRUCTURE_INVEST %>%
-  select(date,u50405_la001174_18_alternative_electric_current_dollars_level_6,u50405_la001175_19_all_other_electric_current_dollars_level_6) %>%
-  setNames(c("date","Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)")) %>%
-  pivot_longer(cols = -date) %>%
-  mutate(name = factor(name, levels = rev(c("Alternative Electric Power (Wind, Solar, Dry-Waste and Geothermal)","Conventional Electric Power (Coal, Natural Gas, Nuclear, etc)"))))
-
-ALT_POWER_FIXED_INVEST_graph <- ggplot(data = ALT_POWER_FIXED_INVEST, aes(x = date, y = value/1000, fill = name)) +
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_bar(stat = "identity", position = "stack", color = NA) +
-  ylab("Dollars") +
-  ggtitle("America's Changing Power Investments") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B", prefix = "$"), breaks = c(0,25,50,75,100), limits = c(0,115), expand = c(0,0)) +
-  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "New BEA Data Shows that Alternative Energy is Making Up a Higher Share of Power Investment") +
-  theme_apricitas + theme(legend.position = c(.425,.89)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_fill_manual(name= "Nominal Fixed Investment in Structures",values = c("#EE6055","#FFE98F","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*115), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*150), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ALT_POWER_FIXED_INVEST_graph, "Alt Power Fixed Investment.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

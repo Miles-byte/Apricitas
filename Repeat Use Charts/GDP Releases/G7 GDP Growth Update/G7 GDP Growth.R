@@ -235,8 +235,8 @@ JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
   mutate(value = value/value[7]*100)
 
 RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
-  #geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
-  #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
+  geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
   geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +

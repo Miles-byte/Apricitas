@@ -499,7 +499,8 @@ EU_GDP_CENTROIDS_2019 <- ne_countries(scale = "medium", returnclass = "sf") %>%
   mutate(long = if_else(geo == "HU", long - 50000, long)) %>%
   
   st_as_sf(coords = c("long","lat"), crs = 3035) %>%
-  st_centroid()
+  st_centroid() #%>%
+  #drop_na()
 
 
 EU_BROAD_GDP_2019_SHP_GRAPH <- ggplot(data = EU_GDP_2019_SHP, aes(fill = yoy)) +

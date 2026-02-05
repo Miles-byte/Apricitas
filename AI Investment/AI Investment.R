@@ -172,6 +172,37 @@ REAL_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = REAL_OFFICE_CONSTRUCTION_Graph, "REAL OFFICE CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+WAREHOUSE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
+  row_to_names(2) %>%
+  select(1,`Warehouse`) %>%
+  mutate(`Warehouse` = as.numeric(`Warehouse`)) %>%
+  .[order(nrow(.):1),] %>%
+  drop_na() %>%
+  mutate(date = seq.Date(from = as.Date("1993-01-01"), by = "month", length.out = nrow(.)))
+
+
+WAREHOUSE_PRICES <- bls_api("PCU236221236221", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(paste0(year,"-",gsub("M","",period),"-01"))) %>%
+  arrange(date)
+
+REAL_WAREHOUSE_CONSTRUCTION <- merge(WAREHOUSE_CONSTRUCTION,WAREHOUSE_PRICES, by = "date") %>%
+  mutate(value = value/value[128]) %>%
+  transmute(date, value = Warehouse/value)
+
+REAL_WAREHOUSE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=REAL_WAREHOUSE_CONSTRUCTION, aes(x=date,y= value/1000,color= "US Real Warehouse Construction,\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
+  xlab("Date") +
+  ylab("Spending, Billions of Jan 2017 Dollars") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60), limits = c(0,60), expand = c(0,0)) +
+  ggtitle("US Warehouse Construction Continues Falling") +
+  labs(caption = "Graph created by @JosephPolitano using Census Construction data & BLS PPI Price Data", subtitle = "Warehouse Construction is at the Lowest Level Since the Start of COVID") +
+  theme_apricitas + theme(legend.position = c(.35,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*(60)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = REAL_WAREHOUSE_CONSTRUCTION_Graph, "REAL WAREHOUSE CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 QFR_Data <- getCensus(
