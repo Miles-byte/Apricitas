@@ -239,6 +239,52 @@ QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary jo
 
 ggsave(dpi = "retina",plot = QFR_Data_Total_Increase_graph, "QFR Invest Total Increase Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+#MANUALLY GETTING DATA CENTER CAPEX FROM 10Ks
+CAPX <- data.frame(
+  Year = 2018:2026,
+  Alphabet = c(25.1, 23.5, 22.3, 24.6, 31.5, 32.3, 52.5, 91.4, 180),
+  Amazon = c(11.3, 12.7, 35, 55.4, 58.3, 48.1, 77.7, 128.3, 200),
+  Meta = c(13.9, 15.1, 15.1, 18.6, 31.2, 27, 37.3, 69.7, 125),
+  Microsoft = c(14.2, 13.5, 17.6, 23.2, 24.8, 35.2, 55.6, 83.1, 150)
+) %>%
+  pivot_longer(cols = -Year, names_to = "Company", values_to = "Value") %>%
+  mutate(
+    Year_Date = as.Date(paste0(Year, "-01-01")),
+    is_forecast = Year == 2026
+  )
+
+
+TECH_CAPEX_GRAPH <- ggplot() +
+  annotate("rect", xmin = as.Date("2025-01-01"), xmax = as.Date("2027-01-01"), 
+           ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.3) +
+  annotate("text", label = "2026 Guidance/ \nProjection", x = as.Date("2024-01-01"), y = 180, 
+           color = "#EE6055", size = 5, alpha = 0.6, lineheight = 0.8) +
+  geom_line(data = filter(CAPX, !is_forecast), 
+            aes(x = Year_Date, y = Value, color = Company), size = 1.25) +
+  geom_line(data = filter(CAPX, Year >= 2025), 
+            aes(x = Year_Date, y = Value, color = Company), 
+            size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_point(data = filter(CAPX, is_forecast), 
+             aes(x = Year_Date, y = Value, color = Company), size = 2.5) +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), 
+                     limits = c(0, 210), expand = c(0, 0)) +
+  xlab("Year") +
+  ylab("Capital Expenditure, $B") +
+  ggtitle("Big Tech Capital Expenditures Surge") +
+  labs(caption = "Graph created by @JosephPolitano using company data",
+       subtitle = "Amidst the AI Boom, Hyperscalers are Spending Record Amounts to Build Data Centers") +
+  theme_apricitas +
+  theme(legend.position = c(.3, .71)) +
+  scale_color_manual(name = "Company", 
+                     values = c("#FFE98F","#00A99D","#3083DC","#A7ACD9"),
+                     breaks = c("Amazon","Alphabet","Microsoft","Meta")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*210), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TECH_CAPEX_GRAPH, "Tech Capex Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 VA_COM_ELEC <- eia1_series("ELEC.SALES.VA-COM.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value = sales) %>%
   arrange(date) %>%
@@ -1018,6 +1064,42 @@ AI_NOMINAL_INVEST_PCTGDP_GRAPH <- ggplot() + #plotting components of manufacturi
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = AI_NOMINAL_INVEST_PCTGDP_GRAPH, "AI Related Investment Nominal Percent GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+PRICE_EQUIP_INVEST_SPECS <- list(
+  'UserID' =  Sys.getenv("BEA_KEY"),
+  'Method' = 'GetData',
+  'datasetname' = 'NIUnderlyingDetail',
+  'TableName' = 'U50504',
+  'Frequency' = 'Q',
+  'Year' = paste(seq(from = 1999, to = as.integer(format(Sys.Date(), "%Y"))), collapse = ","),
+  'ResultFormat' = 'json'
+)
+
+PRICE_EQUIP_INVEST <- beaGet(PRICE_EQUIP_INVEST_SPECS, iTableStyle = FALSE) %>%
+  mutate(date = (seq(as.Date("1999-01-01"), length.out = nrow(.), by = "3 months"))) %>%
+  clean_names() %>%
+  drop_na()
+
+PRICE_COMPUTER_INVEST <- PRICE_EQUIP_INVEST %>%
+  select(date,`Computers` = u50504_b935rg_4_computers_and_peripheral_equipment_fisher_price_index_level_0) %>%
+  mutate(Computers = Computers/lag(Computers,4)-1)
+
+PRICE_COMPUTER_INVEST_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=PRICE_COMPUTER_INVEST, aes(x=date,y= `Computers`,color= "Prices for US Fixed Investment in Computers,\nYear-on-Year Growth"), size = 1.25) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Price Growth, Year-on-Year") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-0.2,-0.15,-0.1,-0.05,0,0.05), limits = c(-0.2,.05), expand = c(0,0)) +
+  ggtitle("US Computer Price Growth, Year-on-Year") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data", subtitle = "Amidst the AI Boom, Computer Prices Are Growing at the Second-Fastest Pace on Record") +
+  theme_apricitas + theme(legend.position = c(.35,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = -.2-(.3*.25), ymax = -.2) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = PRICE_COMPUTER_INVEST_Graph, "Price Computer Invest Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
 beaSets(Sys.getenv("BEA_KEY"))
