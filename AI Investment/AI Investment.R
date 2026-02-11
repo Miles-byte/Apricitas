@@ -941,6 +941,27 @@ QSS_Data_Graph <- ggplot() + #plotting net tightening data
 
 ggsave(dpi = "retina",plot = QSS_Data_Graph, "QSS Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+BTOS_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/AI%20Investment/BTOS_Data.csv") %>%
+  mutate(date = as.Date(date))
+
+BTOS_DATA_Graph <- ggplot() + #plotting net tightening data
+  geom_line(data=BTOS_DATA, aes(x=date,y= percent,color= "% of US Companies Using AI Directly in Business Functions"), size = 1.25) + 
+  annotate("vline", x = as.Date("2025-11-01"), xintercept = as.Date("2025-11-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Question\nWording\nChanged", x = as.Date("2025-10-20"), y = 0.15, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Percent of All Companies") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(0,0.05,0.1,0.15,0.2), limits = c(0,.2), expand = c(0,0)) +
+  ggtitle("US AI Usage is Rising") +
+  labs(caption = "Graph created by @JosephPolitano using Census BTOS data", subtitle = "Amidst the AI Boom, More US Companies Are Integrating AI Into Business Processes") +
+  theme_apricitas + theme(legend.position = c(.40,.90)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-09-17")-(.1861*(today()-as.Date("2023-09-17"))), xmax = as.Date("2023-09-17")-(0.049*(today()-as.Date("2023-09-17"))), ymin = 0-(.3*.2), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BTOS_DATA_Graph, "BTOS Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 FIXED_NOMINAL_STRUCTURE_INVEST_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',

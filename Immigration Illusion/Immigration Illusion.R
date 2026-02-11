@@ -272,7 +272,7 @@ ggsave(dpi = "retina",plot = FOREIGN_SHARE_HISPANIC_Graph, "Foreign Share Hispan
 
 POP_FOREIGN_BORN <- bls_api("LNU00073395", startyear = 2025, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  #select(-latest) %>%
+  select(-latest) %>%
   drop_na()
 
 TOTAL_FOREIGN_BORN_POPULATION_Graph <- ggplot() + #plotting Foreign Population

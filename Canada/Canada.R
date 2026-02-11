@@ -938,7 +938,7 @@ CANADA_UNEPLOYMENT_MAP <- UNRATE_PROVINCE_DATA_MAP  %>%
   ) +
   geom_label(
     data = filter(UNRATE_PROVINCE_DATA_MAP, province_abbrev %in% c("PE")), 
-    aes(x = 9500000, 2430000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, "   ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    aes(x = 9500000, 2430000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -950,7 +950,7 @@ CANADA_UNEPLOYMENT_MAP <- UNRATE_PROVINCE_DATA_MAP  %>%
   ) +
   geom_label(
     data = filter(UNRATE_PROVINCE_DATA_MAP, province_abbrev %in% c("NS")), 
-    aes(x = 9500000, 2160000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, "   ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    aes(x = 9500000, 2160000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -962,7 +962,7 @@ CANADA_UNEPLOYMENT_MAP <- UNRATE_PROVINCE_DATA_MAP  %>%
   ) +
   geom_label(
     data = filter(UNRATE_PROVINCE_DATA_MAP, province_abbrev %in% c("NB")), 
-    aes(x = 9500000, 1890000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, "   ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
+    aes(x = 9500000, 1890000, label = paste0(province_abbrev, "\n", ifelse(value >= 0, " ", ""), sprintf("%.1f", round(value * 100, 1)), "%")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,

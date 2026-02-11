@@ -34,21 +34,21 @@ COMP_NOWCASTED <- left_join(BIZ_COMP,BIZ_HOURS_WORKED_OPT, by = "date") %>%
 US_NOWCASTED_OVERALL_LABOR_PRODUCTIVITY <- ggplot() + 
   geom_line(data=filter(PROD_NOWCASTED, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "Overall US Labor Productivity\n(Real Output Per Hour Worked)"), size = 1.25) + 
   annotate(geom = "segment", x = as.Date("2015-01-01"), xend = as.Date("2019-10-01"), y = 100, yend = PROD_NOWCASTED$value[64]/PROD_NOWCASTED$value[45]*100, color = "#00A99D",linetype = "dashed", size = 1) +
-  #annotate("text", label = paste0("Q1 2015-Q4 2019:\n+",round(((PROD_NOWCASTED$value[64]/PROD_NOWCASTED$value[45])^(4 /(64-45)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
-  annotate("text", label = paste0("Q1 2015-Q4 2019:\n+", round(((PROD_NOWCASTED$value[64] / PROD_NOWCASTED$value[45]) - 1) * 100, 1), "% Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  annotate("text", label = paste0("Q1 2015-Q4 2019:\n+",round(((PROD_NOWCASTED$value[64]/PROD_NOWCASTED$value[45])^(4 /(64-45)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2016-08-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  #annotate("text", label = paste0("Q1 2015-Q4 2019:\n+", round(((PROD_NOWCASTED$value[64] / PROD_NOWCASTED$value[45]) - 1) * 100, 1), "% Growth"), x = as.Date("2017-02-01"), y = 106, color = "#00A99D", size = 3.5, hjust = 0.5, lineheight = 0.8) +
   annotate(geom = "segment", x = as.Date("2019-10-01"), xend = max(PROD_NOWCASTED$date), y = PROD_NOWCASTED$value[64]/PROD_NOWCASTED$value[45]*100, yend = PROD_NOWCASTED$value[nrow(PROD_NOWCASTED)]/PROD_NOWCASTED$value[45]*100, color = "#EE6055",linetype = "dashed", size = 1) +
-  #annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(PROD_NOWCASTED$date))), " ", lubridate::year(max(as.Date(PROD_NOWCASTED$date)))),"\n+",round(((PROD_NOWCASTED$value[nrow(PROD_NOWCASTED)]/PROD_NOWCASTED$value[64])^(4 /(nrow(PROD_NOWCASTED)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-02-01"), y = 116, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
-  annotate("text", label = paste0("Q4 2019-", paste0("Q", lubridate::quarter(max(as.Date(PROD_NOWCASTED$date))), " ", lubridate::year(max(as.Date(PROD_NOWCASTED$date)))), "\n+", round(((PROD_NOWCASTED$value[nrow(PROD_NOWCASTED)] / PROD_NOWCASTED$value[64]) - 1) * 100, 1), "% Growth"), x = as.Date("2023-02-01"), y = 117, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
-  annotate("text", label = "Productivity Spikes\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-12-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  annotate("text", label = paste0("Q4 2019-",paste0("Q", lubridate::quarter(max(as.Date(PROD_NOWCASTED$date))), " ", lubridate::year(max(as.Date(PROD_NOWCASTED$date)))),"\n+",round(((PROD_NOWCASTED$value[nrow(PROD_NOWCASTED)]/PROD_NOWCASTED$value[64])^(4 /(nrow(PROD_NOWCASTED)-64)) - 1) * 100,2),"% Annualized Growth"), x = as.Date("2023-08-01"), y = 120, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  #annotate("text", label = paste0("Q4 2019-", paste0("Q", lubridate::quarter(max(as.Date(PROD_NOWCASTED$date))), " ", lubridate::year(max(as.Date(PROD_NOWCASTED$date)))), "\n+", round(((PROD_NOWCASTED$value[nrow(PROD_NOWCASTED)] / PROD_NOWCASTED$value[64]) - 1) * 100, 1), "% Growth"), x = as.Date("2023-02-01"), y = 117, color = "#EE6055", size = 3.5, hjust = 0.5, lineheight = 0.8) +
+  annotate("text", label = "Productivity Spikes\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-08-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   annotate("text", label = "Productivity Stalls/Falls\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2020-12-01"), hjust = 0.5, y = 116, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,120), breaks = c(95,100,105,110,115,120), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,122.5), breaks = c(95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index Q1 2015 = 100") +
   ggtitle("US Labor Productivity") +
   labs(caption = "Graph created by @JosephPolitano using BLS Productivity data Nowcasted With Updated BEA GDP Data.",subtitle = "Cumulative US Labor Productivity Growth Has Exceeded Pre-COVID Levels Since 2020") +
   theme_apricitas + theme(legend.position = c(.23,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 97.5-(.3*20), ymax = 97.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 97.5-(.3*22.5), ymax = 97.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_NOWCASTED_OVERALL_LABOR_PRODUCTIVITY, "Nowcasted US Overall Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -82,16 +82,16 @@ NOWCASTED_US_PRODUCTIVITY_WAGES <- ggplot() +
   geom_line(data=filter(PROD_NOWCASTED, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Labor Productivity"), size = 1.25) + 
   geom_line(data=filter(AVERAGE_COMPENSATION_REAL_NOWCASTED, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Real Average Compensation"), size = 1.25) + 
   geom_line(data=filter(MEDIAN_WAGE_REAL, date>= as.Date("2015-01-01")), aes(x=date,y= value/value[1]*100,color= "US Real Median Wage"), size = 1.25) + 
-  annotate("text", label = "Productivity & Wages Spike\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-10-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
-  annotate("text", label = "Productivity & Wages Stall/Fall\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2021-10-01"), hjust = 0.5, y = 118.5, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  annotate("text", label = "Productivity & Wages Spike\nArtificially When Low-Wage\nWorkers are Disproportionally\nLaid Off in COVID", x = as.Date("2018-08-01"), hjust = 0.5, y = 112, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
+  annotate("text", label = "Productivity & Wages Stall/Fall\nWhen Low-Wage\nWorkers are Rehired", x = as.Date("2021-10-01"), hjust = 0.5, y = 119.5, color = "white", size = 3.5, alpha = 0.75, lineheight = 0.8) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,120), breaks = c(95,100,105,110,115), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1),limits = c(97.5,122.5), breaks = c(95,100,105,110,115,120), expand = c(0,0)) +
   ylab("Index Q1 2015 = 100") +
   ggtitle("US Labor Productivity and Wages ") +
   labs(caption = "Graph created by @JosephPolitano using BLS data\nWages Deflated by PCEPI. Compensation and Productivity Hourly for Nonfarm Business. Median Wage Weekly",subtitle = "Increased Productivity Has Translated into Rising Wages & Compensation for American Workers") +
   theme_apricitas + theme(legend.position = c(.23,.915)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 97.5-(.3*20), ymax = 97.5) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 97.5-(.3*22.5), ymax = 97.5) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = NOWCASTED_US_PRODUCTIVITY_WAGES, "Nowcasted US Productivity Wages.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
