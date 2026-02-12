@@ -61,7 +61,7 @@ US_SOLAR_PANEL_TARIFFS_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=US_SOLAR_PANEL_IMPORTS, aes(x=date,y= tariff,color= "Effective Tariff Rate\n(Tariffs Paid as a Share of Imports)"), size = 1.25) + 
   #geom_line(data=US_SOLAR_CELL_IMPORTS, aes(x=date,y= tariff,color= "Solar Cells"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,ceiling(max(US_SOLAR_PANEL_IMPORTS$tariff)*100)/100), breaks = c(0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,ceiling(max(US_SOLAR_PANEL_IMPORTS$tariff)*100)/100), breaks = c(0,0.05,0.1,0.15,0.2,0.25), expand = c(0,0)) +
   ylab("Effective Tariff Rate, %") +
   ggtitle("US Solar Panel Effective Tariff Rate") +
   labs(caption = "Graph created by @JosephPolitano using Census International Trade data",subtitle = "US Solar Panels Imports Have Sunk to the Lowest Levels in Two Years Amidst Tariffs") +

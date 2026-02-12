@@ -1213,8 +1213,10 @@ BLS_NFP_MSA_BUB_YOY_GRAPH <- MSA_map_US_NSA %>%
                     guide = guide_legend(override.aes = list(color = c("#3083DC","#EE6055"), size = 5))) +
   scale_size_area(name = "Size of Change",
                   max_size = 15,
-                  breaks = c(0,0.025,.050,.075),
-                  labels = c("0","25k","50k","75k"),
+                  breaks = c(0,0.010,.020,0.03,0.04,0.05,0.06,0.07,0.08),
+                  labels = c("0","10k","20k","30k","40k","50k","60k","70k","80k"),
+                  #breaks = c(0,0.025,.050,.075),
+                  #labels = c("0","25k","50k","75k"),
                   guide = guide_legend(override.aes = list(fill = c("#3083DC")))) +
   #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
   ggtitle("       Change in Nonfarm Payrolls, Year-on-Year\n            50 Largest Metro Areas by Population") +
