@@ -708,13 +708,13 @@ AI_RELATED_IMPORTS <- ggplot() + #plotting integrated circuits exports
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Malaysia*12/1000000000,color= "Malaysia"), size = 1.25) + 
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= `South Korea`*12/1000000000,color= "South Korea"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,175),breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,225),breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US AI-Related Computer & Parts Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers) - 847130 (laptops) + 8473 (parts) + 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan and Mexico") +
   theme_apricitas + theme(legend.position = c(.45,.60)) +
   scale_color_manual(name = "AI-Related Computer & Parts Imports, Billions, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Taiwan","Mexico","Malaysia","Vietnam","Thailand","South Korea","China","All Other Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(175)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(225)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = AI_RELATED_IMPORTS, "AI Related Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -730,13 +730,13 @@ AI_RELATED_IMPORTS_TAIWAN <- ggplot() + #plotting integrated circuits exports
   geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `Computer Parts`*12/1000000000,color= "Computer Parts"), size = 1.25) + 
   geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `GPUs`*12/1000000000,color= "GPUs"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,125),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,150),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US AI-Related Imports From Taiwan") +
   labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers), 847130 (laptops), 8473 (parts), 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan") +
   theme_apricitas + theme(legend.position = c(.45,.60)) +
   scale_color_manual(name = "AI-Related Computer & Parts Imports, Billions, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Large Computers","Computer Parts","GPUs")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(125)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(150)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = AI_RELATED_IMPORTS_TAIWAN, "AI Related Imports Taiwan Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -1036,7 +1036,7 @@ AI_NOMINAL_INVEST_GRAPH <- ggplot() + #plotting components of manufacturing cons
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = .1, suffix = "T"),limits = c(0,1.1), breaks = c(0,0.5,1,1.5,2,2.5), expand = c(0,0)) +
   ylab("Trillions of Dollars, Annual Rate") +
-  ggtitle("US AI-Related Investment") +
+  ggtitle("US Computer & Software Investment") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers, Computers, & Software Are Rapidly Growing Amidst the AI Boom") +
   theme_apricitas + theme(legend.position = c(0.25,0.85), legend.key.size = unit(0.5,"cm")) +
   scale_fill_manual(name= NULL,values = c("#00A99D","#EE6055","#FFE98F","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
@@ -1077,12 +1077,13 @@ AI_NOMINAL_INVEST_PCTGDP_GRAPH <- ggplot() + #plotting components of manufacturi
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,0.04), breaks = c(0,0.01,0.02,0.03,0.04,0.05,0.06), expand = c(0,0)) +
   ylab("Percent of GDP") +
-  ggtitle("US AI-Related Investment, % of GDP") +
+  ggtitle("US Computer & Software Investment, % of GDP") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Investment in Data Centers, Computers, & Software Are Rapidly Growing Amidst the AI Boom") +
-  theme_apricitas + theme(legend.position = c(0.25,0.90), legend.key.size = unit(0.5,"cm")) +
+  theme_apricitas + theme(legend.position = c(0.25,0.90), legend.key.size = unit(0.5,"cm"), plot.title = element_text(size = 27)) +
   scale_fill_manual(name= NULL,values = c("#00A99D","#EE6055","#FFE98F","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = 0-(.3*.04), ymax = 0) +
-  coord_cartesian(clip = "off")
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = AI_NOMINAL_INVEST_PCTGDP_GRAPH, "AI Related Investment Nominal Percent GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 

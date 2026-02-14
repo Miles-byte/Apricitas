@@ -3385,7 +3385,7 @@ cat(paste0(
   "k since the start of the year amidst DOGE cuts—that's more than ",
   -1*(ceiling(FED_EMP_IND_2025$pct[1]*100)),
   "% of the Federal workforce",
-  "\n\nKeep in mind that this undercounts the true extent of cuts because workers on deferred resignation are still counted as federal employees"
+  "\n\nThe large drop in October was caused by many workers who had been on deferred resignation becoming officially unemployed"
 ))
 
 
