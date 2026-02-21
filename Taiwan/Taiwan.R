@@ -123,6 +123,39 @@ TAIWAN_GDP_FIXED_INVESTMENT_GRAPH <- ggplot() + #plotting Taiwan GDP data
 
 ggsave(dpi = "retina",plot = TAIWAN_GDP_FIXED_INVESTMENT_GRAPH, "Taiwan GDP Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
+TAIWAN_GDP_CONTRIB <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Taiwan/Taiwan_GDP_Contributions.csv") %>%
+  mutate(date = yq(Period)) %>%
+  select(-Period,-GDP,-Domestic.Demand,-Exports,-Imports) %>%
+  transmute(date,Consumption = `Private.Consumption`+`Government.Consumption`, `Gross Capital Formation` = `Gross.Capital.Formation`, `Net Exports` = `Net.Exports`) %>%
+  pivot_longer(-date)
+
+TAIWAN_GDP_QUARTERLY <- TAIWAN_GDP_CONTRIB %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  ungroup() %>%
+  mutate(name = "Total Quarterly GDP Growth")
+
+TAIWAN_GDP_CONTRIB_Graph <- ggplot(filter(TAIWAN_GDP_CONTRIB,date>= as.Date("2022-01-01")), aes(fill=name, x=date, y=value/100)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data = filter(TAIWAN_GDP_QUARTERLY, date>= as.Date("2022-01-01")), aes(x=date, y = value/100, color = "Total Quarterly GDP Growth"), size = 2) +
+  geom_point(data = filter(TAIWAN_GDP_QUARTERLY,date>=as.Date("2022-01-01")), aes(x=date, y = value/100), size = 3, fill ="black", color = "white", shape = 23) +
+  #guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(-0.12,0.32), breaks = c(-.1,0,.1,.2,.3), expand = c(0,0)) +
+  ylab("Contributions, Percent, Seasonally Adjusted at Annual Rates") +
+  ggtitle("Taiwanese Real GDP Growth & Contributions") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
+  theme_apricitas + theme(legend.position = c(0.21,0.95), legend.margin=margin(0,0,-80,0)) +
+  #scale_color_manual(name = NULL, values = "black") +
+  scale_fill_manual(name= NULL,values = c("#A7ACD9","#00A99D","#FFE98F","black"), breaks = c("Consumption","Gross Capital Formation","Net Exports")) +
+  scale_color_manual(name = NULL, values = "#EE6055") +
+  #theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13), plot.title = element_text(size = 26)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -0.12-(.3*.44), ymax = -0.12) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TAIWAN_GDP_CONTRIB_Graph, "Taiwan GDP Contribu Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 
 TSMC_STOCK <- tq_get("TSM",from = "2019-01-01")
@@ -141,3 +174,105 @@ TSMC_STOCK_GRAPH <- ggplot() + #plotting Taiwan GDP data
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = TSMC_STOCK_GRAPH, "TSMC Stock Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+
+TAIWAN_EXPORT_ORDERS_ELEC_COUNTRY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/TWN_EXPORT_ORDERS_ELECTRONICS_COUNTRY.csv") %>%
+  select(-date,-X) %>%
+  drop_na() %>%
+  ts(., start = c(2016,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq.Date(from = as.Date("2016-01-01"), by = "month", length.out = nrow(.)))
+
+TAIWAN_EXPORT_ORDERS_ICT_COUNTRY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Chip%20War/TWN_EXPORT_ORDERS_ICT_COUNTRY.csv") %>%
+  select(-date,-X) %>%
+  drop_na() %>%
+  ts(., start = c(2016,1), frequency = 12) %>%
+  seas(x11 = "") %>%
+  final() %>%
+  as.data.frame(value = melt(.)) %>%
+  mutate(date = seq.Date(from = as.Date("2016-01-01"), by = "month", length.out = nrow(.)))
+
+
+TAIWAN_EXPORT_ORDERS_COUNTRY <- merge(TAIWAN_EXPORT_ORDERS_ELEC_COUNTRY,TAIWAN_EXPORT_ORDERS_ICT_COUNTRY, by = "date") %>%
+  transmute(date,USA = USA.x+USA.y, Japan = Japan.x+Japan.y, China_HK = China_HK.x+China_HK.y,ASEAN = ASEAN.x+ASEAN.y,Europe = Europe.x+Europe.y,Others = Others.x+Others.y)
+
+TAIWAN_EXPORT_ORDERS_COUNTRY_Graph <- ggplot() + #plotting integrated circuits exports
+  geom_line(data=TAIWAN_EXPORT_ORDERS_COUNTRY, aes(x=date,y= (Others+Japan)/1000,color= "Others"), size = 1.25) +
+  geom_line(data=TAIWAN_EXPORT_ORDERS_COUNTRY, aes(x=date,y= Europe/1000,color= "Europe (Including Russia)"), size = 1.25) + 
+  geom_line(data=TAIWAN_EXPORT_ORDERS_COUNTRY, aes(x=date,y= ASEAN/1000,color= "ASEAN"), size = 1.25) + 
+  geom_line(data=TAIWAN_EXPORT_ORDERS_COUNTRY, aes(x=date,y= USA/1000,color= "USA"), size = 1.25) + 
+  geom_line(data=TAIWAN_EXPORT_ORDERS_COUNTRY, aes(x=date,y= China_HK/1000,color= "China and HK"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B",prefix = "$", accuracy = 1),limits = c(0,25), breaks = c(0,5,10,15,20,25), expand = c(0,0)) +
+  ylab("Billions of Dollars, Monthly") +
+  ggtitle("Taiwanese Computer & Electronics Export Orders") +
+  labs(caption = "Graph created by @JosephPolitano using MOEA data seasonally adjusted usint X-13ARIMA",subtitle = "Taiwanese Exports orders are Skyrocketing, Especially to the USA & ASEAN") +
+  theme_apricitas + theme(legend.position = c(.3,.775)) +
+  scale_color_manual(name= "Computer & Electronics Export Orders by Region", values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("USA","China and HK","ASEAN","Europe (Including Russia)","Others")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot") +
+  theme(plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = TAIWAN_EXPORT_ORDERS_COUNTRY_Graph, "Taiwan Export Orders County Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+#Data from here:
+#https://www.esist.org.tw/a0303/02/en/newest/monthly/?tab=Electricity
+
+TAIWAN_ELEC_CONS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Taiwan/Taiwan_elec_consumption.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  mutate(elec = gsub(",","",elec)) %>%
+  mutate(elec = as.numeric(elec))
+
+TAIWAN_ELEC_CONS_GRAPH <- ggplot() + #plotting Taiwan GDP data
+  geom_line(data=filter(TAIWAN_ELEC_CONS, date >= as.Date("2006-01-01")), aes(x=date,y= `elec`/1000,color= "Taiwanese Electricity Consumption\nby Electronics & Electrical Manufacturing"), size = 1.25) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Annual Electricity Consumption, TWh") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "TWh"), breaks = c(0,20,40,60), limits = c(0,75), expand = c(0,0)) +
+  ggtitle("Taiwanese Chipmakers' Power Consumption") +
+  labs(caption = "Graph created by @JosephPolitano using MOEA Energy data", subtitle = "Electronics Manufacturers, Mostly TSMC, Consume Roughly a Quarter of Taiwan's Electricity") +
+  theme_apricitas + theme(legend.position = c(.40,.875)) + theme(legend.spacing.y = unit(0,"cm")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2006-01-01")-(.1861*(today()-as.Date("2006-01-01"))), xmax = as.Date("2006-01-01")-(0.049*(today()-as.Date("2006-01-01"))), ymin = 0-(.3*75), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TAIWAN_ELEC_CONS_GRAPH, "Taiwan Elec Cons Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+#Pulled From Here:
+
+TAIWAN_EXPORT_MONTHLY <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Taiwan/Taiwan_Exports_Monthly.csv") %>%
+  setNames(c("category","date","country","value")) %>%
+  mutate(date = ym(str_sub(date, 1, 7))) %>%
+  mutate(country_group = case_when(
+    country == "United States" ~ "USA",
+    country == "China"         ~ "China and HK",
+    country == "Hong Kong"     ~ "China and HK",
+    country == "Macao"         ~ "China and HK",
+    TRUE                       ~ "Other")) %>%
+  summarise(value = sum(value, na.rm = TRUE), .by = c(category, date, country_group)) %>%
+  mutate(country_group = factor(country_group,levels = rev(c("USA","China and HK","Other"))))
+
+
+TAIWAN_EXPORT_MONTHLY_Graph <- ggplot(filter(TAIWAN_EXPORT_MONTHLY,date>= as.Date("2016-01-01")), aes(fill=country_group, x=date, y=value*12/1000000)) + 
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 32) + #putting color to NA gets rid of borders
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  #guides(fill = guide_legend(override.aes = list(shape = NA)), color = "none") +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,800), breaks = c(0,200,400,600,800), expand = c(0,0)) +
+  ylab("Exports, Annualized, Billions of Dollars") +
+  ggtitle("Taiwanese Exports by Destination") +
+  labs(caption = "Graph created by @JosephPolitano using Taiwan Customs data", subtitle = "Taiwanese Exports are Skyrocketing, Especially to the United States") +
+  theme_apricitas + theme(legend.position = c(0.21,0.95), legend.margin=margin(0,0,-80,0)) +
+  #scale_color_manual(name = NULL, values = "black") +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","black"), breaks = c("USA","China and HK","Other")) +
+  #theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13), plot.title = element_text(size = 26)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*800), ymax = 0) +
+  coord_cartesian(clip = "off") 
+
+ggsave(dpi = "retina",plot = TAIWAN_EXPORT_MONTHLY_Graph, "Taiwan Export Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

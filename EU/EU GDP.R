@@ -186,7 +186,7 @@ EU_GDP_YOY <- EU_GDP %>%
   mutate(geo = gsub("EL","GR",geo)) %>%
   filter(geo %in% c("AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"))
 
-#FOR FLASH GDP ESTIMATES
+# FOR FLASH GDP ESTIMATES
 # EU_GDP_YOY <- EU_GDP %>%
 #   subset(unit == "CLV_PCH_SM" & s_adj == "SCA" & na_item == "B1GQ") %>%
 #   transmute(geo, time = TIME_PERIOD, values) %>%
