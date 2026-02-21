@@ -523,12 +523,12 @@ US_TAIWAN_ADP_NET_IMPORTS_ROLLED_graph <- ggplot() + #plotting permanent and tem
   geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max((US_ADP_PARTS_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max((US_ADP_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5), expand = c(0,0)) +
   ggtitle("US Imports of Taiwanese Computers") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports from Taiwan") +
   theme_apricitas + theme(legend.position = c(.30,.78)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "US Net Imports from Taiwan\nRolling 12M Total",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Computer Parts & Accessories","Large Computers","GPUs/CPUs/TPUs")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max((US_ADP_PARTS_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5+1)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max((US_ADP_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5+1)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_TAIWAN_ADP_NET_IMPORTS_ROLLED_graph, "US Taiwan ADP Net Imports Rolled Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -598,12 +598,12 @@ US_LARGE_COMPUTER_IMPORTS_graph <- ggplot() + #plotting permanent and temporary 
   #geom_line(data= filter(US_CHIP_IMPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= imports*12/1000000000, color= "Semiconductors"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350,400), limits = c(0,ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/5000000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350,400), limits = c(0,ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/50000000000)*50), expand = c(0,0)) +
   ggtitle("Computer Imports Surge Amid the AI Boom") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data. Large Computers = HS8471 ex Laptops, Computer Parts = HS8473", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports") +
   theme_apricitas + theme(legend.position = c(.40,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "US Imports, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Large Computers","Computer Parts & Accessories","GPUs/CPUs/TPUs")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/5000000000)*5)+1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = -1-(.3*(ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/50000000000)*50)+1), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
   theme(plot.title.position = "plot")
 
@@ -708,7 +708,7 @@ AI_RELATED_IMPORTS <- ggplot() + #plotting integrated circuits exports
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Malaysia*12/1000000000,color= "Malaysia"), size = 1.25) + 
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= `South Korea`*12/1000000000,color= "South Korea"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,225),breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,225),breaks = c(0,25,50,75,100,125,150,175,200,225), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US AI-Related Computer & Parts Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers) - 847130 (laptops) + 8473 (parts) + 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan and Mexico") +
@@ -730,7 +730,7 @@ AI_RELATED_IMPORTS_TAIWAN <- ggplot() + #plotting integrated circuits exports
   geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `Computer Parts`*12/1000000000,color= "Computer Parts"), size = 1.25) + 
   geom_line(data=TAIWAN_IMPORTS_BREAKDOWN, aes(x=date,y= `GPUs`*12/1000000000,color= "GPUs"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,150),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,150),breaks = c(0,25,50,75,100,125,150,175,200,225,250), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US AI-Related Imports From Taiwan") +
   labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers), 847130 (laptops), 8473 (parts), 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan") +

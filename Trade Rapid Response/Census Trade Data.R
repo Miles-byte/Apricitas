@@ -139,6 +139,41 @@ GROSS_IMPORTS_CHINA <- ggplot() + #plotting integrated circuits exports
 ggsave(dpi = "retina",plot = GROSS_IMPORTS_CHINA, "Gross Imports China Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 
+TAIWAN_IMPORTS_BULK <- getCensus(
+  name = "timeseries/intltrade/imports/hs",
+  vars = c("CON_VAL_MO", "CTY_CODE","I_COMMODITY","CTY_NAME","CAL_DUT_MO"),
+  time = paste("from 2017 to", format(Sys.Date(), "%Y")),
+  CTY_NAME = "TAIWAN",
+  I_COMMODITY = "-",
+)
+
+
+TAIWAN_IMPORTS_TOTAL <- TAIWAN_IMPORTS_BULK %>%
+  group_by(CTY_NAME,time) %>%
+  summarize(time,CON_VAL_MO = sum(as.numeric(CON_VAL_MO), na.rm = TRUE),CAL_DUT_MO = sum(as.numeric(CAL_DUT_MO), na.rm = TRUE)) %>%
+  mutate(time = as.Date(paste0(time,"-01"))) %>%
+  select(-CAL_DUT_MO) %>%
+  ungroup() %>%
+  unique() %>%
+  pivot_wider(names_from = CTY_NAME, values_from = CON_VAL_MO)
+
+GROSS_IMPORTS_CHINA_TAIWAN <- ggplot() + #plotting integrated circuits exports
+  xlab("Date") +
+  geom_line(data=filter(CN_MX_CA_IMPORTS, time > as.Date("2021-12-01")), aes(x=time,y= CHINA*12/1000000000,color= "US Imports From China, Monthly Annualized"), size = 1.25) + 
+  geom_line(data=filter(TAIWAN_IMPORTS_TOTAL, time > as.Date("2021-12-01")), aes(x=time,y= TAIWAN*12/1000000000,color= "US Imports From Taiwan, Monthly Annualized"), size = 1.25) + 
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,700),breaks = c(0,100,200,300,400,500,600,700), expand = c(0,0)) +
+  ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
+  ggtitle("US Now Imports More from Taiwan than China") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data. China Includes HK & MO",subtitle = "Amidst the Trade War and AI Boom, The US Now Imports More From Taiwan than China") +
+  theme_apricitas + theme(legend.position = c(.35,.95)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 0-(.3*(700)), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = GROSS_IMPORTS_CHINA_TAIWAN, "Gross Imports China Taiwan Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
 
 GROSS_TARIFF_MX_CA_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +

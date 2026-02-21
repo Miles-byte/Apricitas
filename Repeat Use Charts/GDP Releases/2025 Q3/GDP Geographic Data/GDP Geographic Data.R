@@ -626,11 +626,13 @@ ggsave(dpi = "retina",plot = BEA_GDP_STATE_YOY_RAINBOW_GRAPH, "BEA GDP STATE YOY
 test <- beaParams(beaKey = Sys.getenv("BEA_KEY"), "Regional")
 test <- beaParamVals(beaKey = Sys.getenv("BEA_KEY"),"Regional","TableName")
 
+test <-test$ParamValue
+
 BEA_PCE_PC_SPECS <- list(
   "UserID" = Sys.getenv("BEA_KEY"), # Set up API key
   "Method" = "GetData", # Method
   "datasetname" = "Regional", # Specify dataset
-  "TableName" = "SARPP", # Specify table within the dataset
+  "TableName" = "SARPI", # Specify table within the dataset
   "Frequency" = "A", # Specify the line code
   "LineCode" = 4, # Specify the line code
   "GeoFips" = "STATE", # Specify the geographical level
@@ -638,7 +640,7 @@ BEA_PCE_PC_SPECS <- list(
 )
 
 BEA_PCE_PC_STATE <- beaGet(BEA_PCE_PC_SPECS, iTableStyle = FALSE, asWide = TRUE) %>%
-  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPP-4")) %>%
+  rename_with(~str_extract(., "(?<=\\d{5} )[A-Za-z ]+") %>% str_trim(), starts_with("SARPI-4")) %>%
   rename_with(~str_replace(., " Constant", "")) %>%
   select(-`United States`, -TimePeriod) %>%
   mutate(date = (seq(as.Date("2019-01-01"), length.out = nrow(.), by = "1 year"))) %>%
@@ -684,7 +686,8 @@ BEA_PCE_PC_STATE_BINS_RAW <- states_PCE_PC %>%
                     labels = c("<0%", "0-4%", "4-8%", "8-12%", "12-16%","16%+"),
                     guide = guide_legend(override.aes = list(color = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D","#3083DC"))),
                     drop = FALSE) +
-  ggtitle("         Real PCE Per Capita Growth 2019-2023\n                    At State Price Parities") +
+  #ggtitle("         Real PCE Per Capita Growth 2019-2024\n                    At State Price Parities") +
+  ggtitle("Real Per Capita Consumption Growth 2019-2024\n                    At State Price Parities") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -815,8 +818,10 @@ BEA_PCE_PC_STATE_BINS_GRADIENT_RAINBOW <- states_PCE_PC %>%
   ggplot(aes(fill = GROWTH)) +
   geom_sf(color = NA) +
   geom_sf(color = "grey25", aes(fill = GROWTH), lwd = 0.65, alpha = 0) + # Black borders for states
-  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(0,.16), label = c("<0%","4%","8%","12%","16%+"),breaks = c(0,0.04,0.08,0.12,0.16), expand = c(0,0)) +
-  ggtitle("         Real PCE Per Capita Growth 2019-2023\n                    At State Price Parities") +
+  #scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),limits = c(0,.16), label = c("<0%","4%","8%","12%","16%+"),breaks = c(0,0.04,0.08,0.12,0.16), expand = c(0,0)) +
+  scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-0.05,0,0.05,0.1,0.15,0.2,0.25,0.3), expand = c(0,0)) +
+  #ggtitle("         Real PCE Per Capita Growth 2019-2024\n                    At State Price Parities") +
+  ggtitle("Real Per Capita Consumption Growth 2019-2024\n                    At State Price Parities") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -855,7 +860,7 @@ BEA_PCE_PC_STATE_BINS_GRADIENT_RAINBOW <- states_PCE_PC %>%
   ) +
   geom_label(
     data = filter(states_centroids_PCE_PC, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", " "), sprintf("%.1f", round(GROWTH * 100, 1)), "% ")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -879,7 +884,7 @@ BEA_PCE_PC_STATE_BINS_GRADIENT_RAINBOW <- states_PCE_PC %>%
   ) +
   geom_label(
     data = filter(states_centroids_PCE_PC, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", " "), sprintf("%.1f", round(GROWTH * 100, 1)), "% ")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -891,7 +896,7 @@ BEA_PCE_PC_STATE_BINS_GRADIENT_RAINBOW <- states_PCE_PC %>%
   ) +
   geom_label(
     data = filter(states_centroids_PCE_PC, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", " "), sprintf("%.1f", round(GROWTH * 100, 1)), "% ")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -903,7 +908,7 @@ BEA_PCE_PC_STATE_BINS_GRADIENT_RAINBOW <- states_PCE_PC %>%
   ) +
   geom_label(
     data = filter(states_centroids_PCE_PC, state_abbv %in% c("DC")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", ""), sprintf("%.1f", round(GROWTH * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(GROWTH >= 0, "  ", " "), sprintf("%.1f", round(GROWTH * 100, 1)), "% ")), 
     size = 3, 
     color = "black",
     hjust = 0.5,
@@ -943,7 +948,8 @@ BEA_PCE_PC_STATE_GRADIENT_YOY <- states_PCE_PC %>%
   geom_sf(color = NA) +
   geom_sf(data = states_PCE_PC, color = "grey25", aes(fill = GROWTH_YOY), lwd = 0.65, alpha = 0) + # Black borders for states
   scale_fill_gradientn(colors = c("#EE6055","#F5B041","#FFE98F", "#AED581","#00A99D","#3083DC"),label = scales::percent_format(accuracy = 1),breaks = c(-.1,-0.08,-0.06,-0.04,-0.02,0,0.02,0.04,0.06,0.08,0.1,0.12), expand = c(0,0)) +
-  ggtitle("             Real PCE Per Capita Growth 2023\n                    At State Price Parities") +
+  ggtitle("   Real Per Capita Consumption Growth 2024\n                    At State Price Parities") +
+  #ggtitle("             Real PCE Per Capita Growth 2024\n                    At State Price Parities") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -1124,7 +1130,7 @@ BEA_RPP_STATE_BINS_RAW <- states_RPP %>%
     breaks = rev(c("<-2%", "-2%-0%", "0%-2%", "2%+")),
     guide = guide_legend(override.aes = list(color = c("#EE6055", "#FF8E72", "#F5B041", "#FFE98F")))
   ) +
-  ggtitle("       Change in State Price Parities 2019-2023\n                  Relative to National Average") +
+  ggtitle("       Change in State Price Parities 2019-2024\n                  Relative to National Average") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +
@@ -1272,7 +1278,7 @@ BEA_RPP_STATE_GRADIENT <- states_RPP %>%
   geom_sf(color = NA) +
   geom_sf(data = states, color = "grey25", fill = NA, lwd = 0.65, alpha = 0) + # Black borders for states
   scale_fill_gradientn(colors = rev(c("#EE6055","#FF8E72","#F5B041","#FFE98F")),limits = c(-0.04,0.04), breaks = c(-.04,-.02,0,0.02,0.04), labels = c("-4%","-2%","0%","2%","4%"), expand = c(0,0)) +
-  ggtitle("       Change in State Price Parities 2019-2023\n                  Relative to National Average") +
+  ggtitle("       Change in State Price Parities 2019-2024\n                  Relative to National Average") +
   theme(plot.title = element_text(size = 24)) +
   labs(caption = "Graph created by @JosephPolitano using BEA data") +
   labs(fill = NULL) +

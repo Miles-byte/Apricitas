@@ -1,7 +1,7 @@
 JUNE_HS4_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","I_COMMODITY","I_COMMODITY_LDESC","COMM_LVL","RP"), 
-  time = "2025-11",
+  time = "2025-12",
   COMM_LVL = "HS4",
 )
 
@@ -32,7 +32,7 @@ JUNE_HS4_IMPORTS_NO_TARIFF <- JUNE_HS4_IMPORTS_BULK %>%
 JULY_MEXICO_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","CTY_CODE","CTY_NAME","I_COMMODITY","I_COMMODITY_LDESC","COMM_LVL","RP"), 
-  time = "2025-11",
+  time = "2025-12",
   COMM_LVL = "HS4",
   CTY_CODE = "2010",
 )
@@ -65,7 +65,7 @@ JULY_MEXICO_IMPORTS <- JULY_MEXICO_IMPORTS_BULK %>%
 JULY_CANADA_IMPORTS_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
   vars = c("CON_VAL_MO","CAL_DUT_MO","CTY_CODE","I_COMMODITY","COMM_LVL","RP"), 
-  time = "2025-11",
+  time = "2025-12",
   COMM_LVL = "HS4",
   CTY_CODE = "1220",
 )
@@ -108,8 +108,8 @@ LARGEST_TARIFF_EXEMPTIONS <- ggplot(data = JUNE_HS4_IMPORTS_NO_TARIFF, aes(x = C
   geom_bar(stat = "identity", position = "dodge", color = NA) +
   scale_fill_manual(values = c("TRUE" = "#EE6055", "FALSE" = "#FFE98F"), guide = "none") +
   xlab(NULL) +
-  ggtitle("Largest Tariff Exemptions, November 2025") +
-  ylab("US Imports in Category, November 2025") +
+  ggtitle("Largest Tariff Exemptions, December 2025") +
+  ylab("US Imports in Category, December 2025") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,50), expand = c(0,0)) +
   #labs(subtitle = "By % of US Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census Data", subtitle = "Computers & Parts are Currently the Largest Category of Tariff-Exempt Products") +
