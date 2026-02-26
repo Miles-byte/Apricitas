@@ -936,13 +936,13 @@ STEEL_DERIVATIVES_TOTAL <- STEEL_DERIVATIVES_IMPORTS %>%
 
 US_UK_HS10_IMPORTS_QUANTITY_BULK <- getCensus(
   name = "timeseries/intltrade/imports/hs",
-  vars = c("CON_VAL_YR", "I_COMMODITY","CTY_CODE", "CTY_NAME","I_COMMODITY_LDESC","COMM_LVL","GEN_QY1_YR"), 
+  vars = c("CON_VAL_YR", "I_COMMODITY","CTY_CODE","COMM_LVL","GEN_QY1_YR"), 
   time = "2024-12",
   COMM_LVL = "HS10",
   #I_COMMODITY = "????",
   #I_COMMODITY = "*",#ALL COuntries
-  #CTY_CODE = "0201", #TOTAL
-  CTY_NAME = "UNITED KINGDOM",
+  CTY_CODE = "4120", #TOTAL
+  #CTY_NAME = "UNITED KINGDOM",
 )
 
 
@@ -1286,7 +1286,18 @@ EFFECTIVE_TARIFF <- data.frame(
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-06"), value, value + .40*(21165412065)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#40% Brazil
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-07"), value, value + 68668771904/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#letters tariffs
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-18"), value, value + (.15*AUG_18_STEEL_ALUM$CON_VAL_YR[6])/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#August 18th Steel & Aluminum Tariffs. Presuming 15% (50% on 30% steel/alum) until I have better data to test against
-  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-27"), value, value + (.25*53023452180)/TOTAL_IMPORTS$CON_VAL_YR[1])) #India Tariffs
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-27"), value, value + (.25*53023452180)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #India Tariffs
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-09-05"), value, value - .15*26000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Random Items WARNING ROUGH ESTIMATE FROM THIS LIST: https://www.whitehouse.gov/presidential-actions/2025/09/modifying-the-scope-of-reciprocal-tariffs-and-establishing-procedures-for-implementing-trade-and-security-agreements/
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-01"), value, value - .1*CHINA_TOTAL$CON_VAL_YR[1]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Removing 10% China
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-01"), value, value - .15*51000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Food WARNING JUST TAKING NUMBERS AND ROUGH ESTIMATES FROM TAX FOUNDATION. UPDATE WITH REAL LIST LATER
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-13"), value, value - .10*42349001541/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Updating Korea Car Deal
+  #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-01-15"), value, value - .05*31349127583/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Updating Taiwan Reciprocal Deal
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-02-06"), value, value - (.32*53023452180)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Removing 32% India Tariffs
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-02-20"), value, value - .40*(21165412065)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#40% Brazil
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-02-20"), value, value - 66351625899/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#letters tariffs, updated to account for Korea tariffs
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-02-20"), value, value - .10*279176209825/TOTAL_IMPORTS$CON_VAL_YR[1]))#Minus China
+
+  
   
 #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-05-23"), value, value + .4*313996081380/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#EU 40% Tariff
   #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 3, by = "day") < as.Date("2025-05-23"), value, value + .25*SMARTPHONE_IMPORTS$CON_VAL_YR[1]/TOTAL_IMPORTS$CON_VAL_YR[1])) #Smartphone Tariff
@@ -1329,38 +1340,57 @@ ggsave(dpi = "retina",plot = TARIFF_TIMELINE_LINE_GRAPH, "Tariff Timeline Line G
 TARIFF_TIMELINE_LINE_RATE_GRAPH <- ggplot() + #plotting integrated circuits exports
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
   #geom_line(data=IMPLEMENTED_SHARE, aes(x=date,y= value,color= "Share of US Imports Hit By New Tariffs"), size = 1.25) + 
-  geom_segment(aes(x = as.Date("2025-02-03"), xend = as.Date("2025-02-03"), y = 0, yend = 0.09), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "10% China",x = as.Date("2025-02-02"), y = .06, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-03-03"), xend = as.Date("2025-03-03"), y = 0, yend = 0.155), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "10% China\n25% Mexico\n10-25% Canada",x = as.Date("2025-03-02"), y = .125, size = 3, color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-03-06"), xend = as.Date("2025-03-06"), y = 0, yend = 0.18), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "Exclusion for\nUSMCA",x = as.Date("2025-03-07"), y = .16, size = 3,color = "white",hjust = 0, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-03-11"), xend = as.Date("2025-03-11"), y = 0, yend = 0.135), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "25% Steel\n& Alum.",x = as.Date("2025-03-12"), y = 0.09, size = 3,color = "white",hjust = 0, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-04-02"), xend = as.Date("2025-04-02"), y = 0, yend = 0.21), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "10% Most Countries\n25% Cars",x = as.Date("2025-04-01"), y = 0.20, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-04-08"), xend = as.Date("2025-04-08"), y = 0, yend = 0.275), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "10-40% Most Countries\n74% China",x = as.Date("2025-04-07"), y = 0.25, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-04-09"), xend = as.Date("2025-04-09"), y = 0, yend = 0.35), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "41% China\n90-Day Pause on\n10-40% Other Countries",x = as.Date("2025-04-08"), y = 0.325, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-05-02"), xend = as.Date("2025-05-02"), y = 0, yend = 0.255), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = "25%Non-\nUSMCA\nCar Parts",x = as.Date("2025-05-01"), y = 0.175, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-05-08"), xend = as.Date("2025-05-08"), y = .2, yend = 0.3), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = 'UK "Deal"',x = as.Date("2025-05-07"), y = 0.285, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-05-11"), xend = as.Date("2025-05-11"), y = 0, yend = 0.3), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '90-Day\nPause\nOn 115%\nChina',x = as.Date("2025-05-12"), y = 0.275, size = 3,color = "white",hjust = 0, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-06-03"), xend = as.Date("2025-06-03"), y = 0, yend = 0.24), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '25% Steel &\nAluminum',x = as.Date("2025-06-04"), y = 0.17, size = 3,color = "white",hjust = 0, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-07-31"), xend = as.Date("2025-07-31"), y = 0, yend = 0.18), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '50% Copper',x = as.Date("2025-07-30"), y = .17, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-08-05"), xend = as.Date("2025-08-05"), y = 0, yend = 0.2), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '40% Brazil',x = as.Date("2025-08-04"), y = .19, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-08-06"), xend = as.Date("2025-08-06"), y = 0, yend = 0.22), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '5-31% Most Countries',x = as.Date("2025-08-05"), y = .21, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-08-17"), xend = as.Date("2025-08-17"), y = 0, yend = 0.24), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = 'Steel & Aluminum\nDerivatives Expanded',x = as.Date("2025-08-16"), y = .23, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
-  geom_segment(aes(x = as.Date("2025-08-26"), xend = as.Date("2025-08-26"), y = 0, yend = 0.26), color = "white", size = 1, linetype = "dashed") +
-  annotate(geom = "text", label = '25% India',x = as.Date("2025-08-25"), y = .25, size = 3,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-02-03"), xend = as.Date("2025-02-03"), y = 0, yend = 0.09), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "10% China",x = as.Date("2025-02-02"), y = .06, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-03"), xend = as.Date("2025-03-03"), y = 0, yend = 0.155), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "10% China\n25% Mexico\n10-25% Canada",x = as.Date("2025-03-02"), y = .125, size = 2, color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-06"), xend = as.Date("2025-03-06"), y = 0, yend = 0.18), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "Exclusion for\nUSMCA",x = as.Date("2025-03-07"), y = .16, size = 2,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-03-11"), xend = as.Date("2025-03-11"), y = 0, yend = 0.135), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "25% Steel\n& Alum.",x = as.Date("2025-03-12"), y = 0.09, size = 2,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-02"), xend = as.Date("2025-04-02"), y = 0, yend = 0.21), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "10% Most Countries\n25% Cars",x = as.Date("2025-04-01"), y = 0.20, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-08"), xend = as.Date("2025-04-08"), y = 0, yend = 0.275), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "10-40% Most\nCountries\n74% China",x = as.Date("2025-04-07"), y = 0.23, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-04-09"), xend = as.Date("2025-04-09"), y = 0, yend = 0.35), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "41% China\n90-Day Pause on\n10-40% Other Countries",x = as.Date("2025-04-08"), y = 0.325, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-05-02"), xend = as.Date("2025-05-02"), y = 0, yend = 0.255), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = "25%Non-\nUSMCA\nCar Parts",x = as.Date("2025-05-01"), y = 0.175, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-05-08"), xend = as.Date("2025-05-08"), y = .2, yend = 0.3), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = 'UK "Deal"',x = as.Date("2025-05-07"), y = 0.285, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-05-11"), xend = as.Date("2025-05-11"), y = 0, yend = 0.3), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '90-Day\nPause\nOn 115%\nChina',x = as.Date("2025-05-12"), y = 0.275, size = 2,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-06-03"), xend = as.Date("2025-06-03"), y = 0, yend = 0.24), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '25% Steel &\nAluminum',x = as.Date("2025-06-04"), y = 0.17, size = 2,color = "white",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-07-31"), xend = as.Date("2025-07-31"), y = 0, yend = 0.18), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '50% Copper',x = as.Date("2025-07-30"), y = .17, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-08-05"), xend = as.Date("2025-08-05"), y = 0, yend = 0.2), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '40% Brazil',x = as.Date("2025-08-04"), y = .19, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-08-06"), xend = as.Date("2025-08-06"), y = 0, yend = 0.22), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '5-31% Most Countries',x = as.Date("2025-08-05"), y = .21, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-08-17"), xend = as.Date("2025-08-17"), y = 0, yend = 0.24), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = 'Steel & Aluminum\nDerivatives Expanded',x = as.Date("2025-08-16"), y = .23, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-08-26"), xend = as.Date("2025-08-26"), y = 0, yend = 0.26), color = "white", size = 0.6, linetype = "dashed") +
+  annotate(geom = "text", label = '25% India',x = as.Date("2025-08-25"), y = .25, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  
+  
+  annotate(geom = "text", label = 'Exemptions Expanded',x = as.Date("2025-09-01"), y = .28, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-09-04"), xend = as.Date("2025-09-04"), y = 0, yend = 0.29), color = "white", size = 0.6, linetype = "dashed") +
+  
+  annotate(geom = "text", label = '10% Paused China\nFood Exclusions',x = as.Date("2025-10-28"), y = .23, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-11-01"), xend = as.Date("2025-11-01"), y = 0, yend = 0.26), color = "white", size = 0.6, linetype = "dashed") +
+  
+  annotate(geom = "text", label = 'Korea Car Deal',x = as.Date("2025-11-10"), y = .28, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2025-11-13"), xend = as.Date("2025-11-13"), y = 0, yend = 0.29), color = "white", size = 0.6, linetype = "dashed") +
+  
+  
+  annotate(geom = "text", label = 'India Deal',x = as.Date("2026-02-03"), y = .23, size = 2,color = "white",hjust = 1, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2026-02-06"), xend = as.Date("2026-02-06"), y = 0, yend = 0.26), color = "white", size = 0.6, linetype = "dashed") +
+  
+  annotate(geom = "text", label = 'SCOTUS\nRuling &\n122 Tariffs',x = as.Date("2026-02-21"), y = .23, size = 4,color = "#EE6055",hjust = 0, lineheight = 0.9) +
+  geom_segment(aes(x = as.Date("2026-02-20"), xend = as.Date("2026-02-20"), y = 0, yend = 0.26), color = "#EE6055", size = 1, linetype = "dashed") +
+  
+  
   geom_line(data=EFFECTIVE_TARIFF, aes(x=date,y= value,color= "Tariff Rate\non 2024\nImport Mix"), size = 1.25) + 
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(0,.30), breaks = c(0,.05,.10,.15,.20,.25,.30,.35,.4,.45,.5), expand = c(0,0)) +

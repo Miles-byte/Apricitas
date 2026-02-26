@@ -1,10 +1,10 @@
-DHS_DTS_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/deposits_withdrawals_operating_cash?format=csv&page[size]=10000&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Customs%20and%20Certain%20Excise%20Taxes,DHS%20-%20Customs%20and%20Certain%20Excise%20Taxes)") %>%
+DHS_DTS_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/deposits_withdrawals_operating_cash?format=csv&page[size]=10&fields=record_date,transaction_type,transaction_catg,transaction_mtd_amt&filter=transaction_type:eq:Deposits,transaction_catg:in:(Customs%20and%20Certain%20Excise%20Taxes,DHS%20-%20Customs%20and%20Certain%20Excise%20Taxes)") %>%
   transmute(date = as.Date(record_date), value = transaction_mtd_amt) %>%
   group_by(year = year(date), month = month(date)) %>% 
   filter(date == max(date)) %>%
   filter(!(year == year(Sys.Date()) & month == month(Sys.Date())))
 
-DHS_MTS_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/mts/mts_table_4?format=csv&page[size]=10000&fields=record_date,classification_desc,current_month_gross_rcpt_amt&filter=classification_desc:eq:Customs%20Duties") %>%
+DHS_MTS_TGA_DEPOSITS <- read.csv("https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/mts/mts_table_4?format=csv&page[size]=100000&fields=record_date,classification_desc,current_month_gross_rcpt_amt&filter=classification_desc:eq:Customs%20Duties") %>%
   transmute(date = as.Date(record_date), value = current_month_gross_rcpt_amt) %>%
   group_by(year = year(date), month = month(date)) %>% 
   filter(date == max(date)) %>%

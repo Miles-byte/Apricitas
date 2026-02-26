@@ -169,7 +169,7 @@ BUSINESS_BANKRUPTCY_FILINGS_Graph <- ggplot() + #Bankruptcy
 
 ggsave(dpi = "retina",plot = BUSINESS_BANKRUPTCY_FILINGS_Graph, "Biz Bankruptcy Filings.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-SELF_EMPLOYMENT_TRANS <- bls_api("LNU02037801", startyear = 2014, endyear = 2024, Sys.getenv("BLS_KEY")) %>% #headline cpi data
+SELF_EMPLOYMENT_TRANS <- bls_api("LNU02037801", startyear = 2014, endyear = 2025, Sys.getenv("BLS_KEY")) %>% #headline cpi data
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
   group_by(year) %>%
   summarise(value = mean(value, na.rm = TRUE)) %>%
@@ -231,7 +231,7 @@ ESTABLISHMENT_BIRTHS_TRANS_MANU_Graph <- ggplot() + #Employment Gains Establishm
   ylab("Employment Growth, Thousands, Annual") +
   ggtitle("Jobs at New Transport & Manufacturing Establishments") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = "New Transportation and Manufacturing Establishments Have Boomed During the Pandemic") +
-  theme_apricitas + theme(legend.position = c(.35,.75), plot.title = element_text(size = 21)) +
+  theme_apricitas + theme(legend.position = c(.35,.85), plot.title = element_text(size = 21)) +
   scale_color_manual(name= "Employment Gains From Establishment Births, Annual",values = c("#FFE98F","#00A99D","#00A99D"), breaks = c("Transportation & Warehousing", "Manufacturing")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-365-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-365-as.Date("2016-01-01"))), ymin = 0-(.3*250), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")

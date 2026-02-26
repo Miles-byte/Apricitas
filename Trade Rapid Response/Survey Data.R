@@ -2,10 +2,10 @@
 TPU_BULK <- read.xlsx("https://www.matteoiacoviello.com/tpu_files/tpu_web_latest.xlsx",4) 
 
 TPU <- TPU_BULK %>%
-  mutate(DATE = seq.Date(from = as.Date("1960-01-01"), by = "month", length.out = nrow(.)))
+  mutate(DATE = seq.Date(from = as.Date("1960-01-01"), by = "3 months", length.out = nrow(.)))
 
 TRADE_POLICY_UNCERTAINTY_GRAPH <- ggplot() + #plotting net tightening data
-  geom_line(data=filter(TPU, DATE >= as.Date("2004-01-01")), aes(x=DATE,y= TPU ,color= "Trade Policy Uncertainty Index"), size = 1.25) + 
+  geom_line(data=filter(TPU, DATE >= as.Date("2004-01-01")), aes(x=DATE,y= TPUQ ,color= "Trade Policy Uncertainty Index"), size = 1.25) + 
   xlab("Date") +
   ylab("Trade Uncertainty Index Derived from News Coverage") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(0,100,200,300,400,500,600,700,800,900), limits = c(0,ceiling(max(TPU$TPU)/50)*50), expand = c(0,0)) +

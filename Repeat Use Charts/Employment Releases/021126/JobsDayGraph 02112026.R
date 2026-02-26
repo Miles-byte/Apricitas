@@ -1870,6 +1870,49 @@ CALL_CENTER_IND_graph <- ggplot() + #plotting permanent and temporary job losers
 
 ggsave(dpi = "retina",plot = CALL_CENTER_IND_graph, "Call Center Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+NEWSPAPER_IND <- bls_api("CES5051311001", startyear = 2010, registrationKey = "BLS_KEY") %>% #internet employment
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(date, value, seriesID) %>%
+  mutate(series_id = "Telephone Call Centers")
+
+NEWSPAPER_IND_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = filter(NEWSPAPER_IND, date >= as.Date("2010-01-01")), aes(x=date, y = value, color = "All Employees, Newspaper Publishers"), size = 1.25) +
+  xlab("Date") +
+  ylab("Jobs, Hundreds of Thousands") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(0,50,100,150,200,250), limits = c(0,275), expand = c(0,0)) +
+  ggtitle("US Newspaper Employment") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "US Newspaper Employment Continues Falling to Record Lows") +
+  theme_apricitas + theme(legend.position = c(.5,.875)) +
+  scale_color_manual(name = NULL, values = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*275), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = NEWSPAPER_IND_graph, "Newspaper Ind.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+NEWSPAPER_YOY <- bls_api("CEU5051311001", startyear = 2010, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #headline cpi data
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(value = (value-lag(value,12))/lag(value,12)) %>%
+  mutate(name = "Newspaper Publishers") %>%
+  select(date,value,name)
+
+NEWSPAPER_YOY_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = filter(NEWSPAPER_YOY, date >= as.Date("2011-01-01")), aes(x=date, y = value, color = "All Employees, Newspaper Publishers, Year-on-Year % Change"), size = 1.25) +
+  xlab("Date") +
+  ylab("Jobs, % Change Year-on-Year") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), breaks = c(-.20,-.1,0), limits = c(-0.25,0.05), expand = c(0,0)) +
+  ggtitle("Year-on-Year % Change in Newspaper Jobs") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "US Newspaper Employment Continues Falling to Record Lows") +
+  theme_apricitas + theme(legend.position = c(.5,.925)) +
+  scale_color_manual(name = NULL, values = "#FFE98F") +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2011-01-01")-(.1861*(today()-as.Date("2011-01-01"))), xmax = as.Date("2011-01-01")-(0.049*(today()-as.Date("2011-01-01"))), ymin = -0.25-(.3*.30), ymax = -0.25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = NEWSPAPER_YOY_graph, "Newspaper Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 VEHICLE_ASSEMBLY_YOY <- bls_api("CEU3133610001", startyear = 2010, registrationKey = Sys.getenv("BLS_KEY")) %>% #data processing employment
   select(-any_of("latest")) %>%
