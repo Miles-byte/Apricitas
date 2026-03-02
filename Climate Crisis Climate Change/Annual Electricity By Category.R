@@ -29,13 +29,13 @@ ALL_SECTOR_GENERATION <- rbind(SOLAR,WIND,HYDRO,NUCLEAR,COAL,NATURAL_GAS) %>%
 ALL_SECTOR_GENERATION_GRAPH <- ggplot() + #plotting components of annual inflation
   geom_bar(data = ALL_SECTOR_GENERATION, aes(x = date, y = value/1000000, fill = sector), color = NA, size = 0, stat= "identity") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "PWh"),limits = c(0,4.3), breaks = c(0,1,2,3,4), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "PWh"),limits = c(0,4.5), breaks = c(0,1,2,3,4), expand = c(0,0)) +
   ylab("PWh") +
   ggtitle("US Power Generation by Year") +
   labs(caption = "Graph created by @JosephPolitano using EIA data",subtitle = "Low Carbon Energy Sources Now Make Up a Record Share of America's Electricity") +
   theme_apricitas + theme(legend.position = "right") +
   scale_fill_manual(name= NULL,values = c("#EE6055","#A7ACD9","#00A99D","#3083DC","#FFE98F","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*4.2), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*(today()-as.Date("2000-01-01"))), ymin = 0-(.3*4.5), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ALL_SECTOR_GENERATION_GRAPH, "US All Sector Generation Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
