@@ -274,13 +274,13 @@ EU_HOMEPRICE_LINE <- EU_HOMEPRICE_BULK %>%
   subset(purchase == "TOTAL" & unit == "RCH_A") %>%
   transmute(geo, time = TIME_PERIOD, values) %>%
   subset(time >= as.Date("2013-01-01")) %>%
-  filter(geo %in% c("EU27_2020","EA20")) %>%
+  filter(geo %in% c("EU27_2020","EA21")) %>%
   pivot_wider(names_from = geo, values_from = values)
 
 
 EU_HOMEPRICE_LINE_GRAPH <- ggplot() + 
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=EU_HOMEPRICE_LINE, aes(x=time,y= EA20/100,color="Euro Area"), size = 1.25) +
+  geom_line(data=EU_HOMEPRICE_LINE, aes(x=time,y= EA21/100,color="Euro Area"), size = 1.25) +
   geom_line(data=EU_HOMEPRICE_LINE, aes(x=time,y= EU27_2020/100,color="European Union"), size = 1.25) +
   xlab(NULL) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0), limits = c(-.03,.13)) +

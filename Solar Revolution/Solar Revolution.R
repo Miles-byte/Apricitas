@@ -2122,6 +2122,21 @@ TX_CLEAN_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_CLEAN_PCT_GRAPH, "TX Clean Pct Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+TX_SOLAR_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(TX_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=value,color= "Solar, Share of TX Electricity Generation"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(TX_SOLAR_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean,color= "Solar, Share of TX Electricity Generation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0, ceiling(max(TX_SOLAR_PCT$value)/0.025)*0.025), expand = c(0,0)) +
+  ylab("Percent of TX Electricity Generation") +
+  ggtitle("Solar, Share of Texas Electricity") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Solar is a Growing Share of Texas' Electricity Generation") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Share of TX Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*ceiling(max(TX_SOLAR_PCT$value)/0.025)*0.025), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TX_SOLAR_PCT_GRAPH, "TX Solar Pct Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 ERCOT_NUC <- eia1_series("STEO.NUEPGEN_TX.M") %>%
@@ -2568,13 +2583,13 @@ US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_GRAPH <- ggplot() + #plotting EU NET EV Ex
   #geom_line(data= filter(US_TOTAL_CONSUMPTION_STEO, date >= as.Date("1997-01-01")), aes(x=date,y=value,color= "US Total Sales of Electricity"), size = 0.75, alpha = 0.5, linetype = "dashed") +
   geom_line(data= filter(US_TOTAL_CONSUMPTION_STEO, date >= as.Date("2000-01-01")), aes(x=date,y=rollmean*12,color= "US Total Sales of Electricity\n12M Rolling Total"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::comma_format(suffix = "TWh"), limits= c(3200,4200),expand = c(0,0)) +
+  scale_y_continuous(labels = scales::comma_format(suffix = "TWh"), limits= c(3200,4500),expand = c(0,0)) +
   ylab("TWh, 12M Total") +
   ggtitle("America's Growing Grid") +
   labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "After Almost Two Decades of Stagnation, Rapid Load Growth Has Returned to the US") +
   theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#3083DC","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*((today()-as.Date("2000-01-01")))), ymin = 3200-(.3*(1000)), ymax = 3200) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*((today()-as.Date("2000-01-01")))), ymin = 3200-(.3*(1300)), ymax = 3200) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_GRAPH, "US Electricity Consumption Total STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
