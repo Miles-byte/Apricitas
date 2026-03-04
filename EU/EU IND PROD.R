@@ -277,13 +277,13 @@ EU_IND_PROD_LINE <- EU_IND_PROD_BULK %>%
   subset(unit == "I21" & s_adj == "SCA" & nace_r2 == "B-D") %>%
   transmute(geo, time = TIME_PERIOD, values) %>%
   subset(time >= as.Date("2013-01-01")) %>%
-  filter(geo %in% c("EU27_2020","EA20")) %>%
+  filter(geo %in% c("EU27_2020","EA21")) %>%
   pivot_wider(names_from = geo, values_from = values)
 
 
 EU_IND_PROD_LINE_GRAPH <- ggplot() + 
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=EU_IND_PROD_LINE, aes(x=time,y= EA20,color="Euro Area"), size = 1.25) +
+  geom_line(data=EU_IND_PROD_LINE, aes(x=time,y= EA21,color="Euro Area"), size = 1.25) +
   geom_line(data=EU_IND_PROD_LINE, aes(x=time,y= EU27_2020,color="European Union"), size = 1.25) +
   xlab(NULL) +
   scale_y_continuous(labels = scales::number_format(accuracy = 1), expand = c(0,0), limits = c(70,110)) +

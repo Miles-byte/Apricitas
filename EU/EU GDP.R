@@ -1508,7 +1508,7 @@ CONSTRUCTION_PROD_EU_GRAPH <- ggplot() + #plotting energy intensive manufacturin
 ggsave(dpi = "retina",plot = CONSTRUCTION_PROD_EU_GRAPH, "CONSTRUCTION PROD EU GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 EA_MANU_SURVEY <- get_eurostat("ei_bsin_q_r2") %>%
-  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+  subset(s_adj == "SA" & geo == "EA21" & time >= as.Date("2004-01-01") &
            indic %in% c("BS-FLP2-PC","BS-FLP3-PC","BS-FLP4-PC","BS-FLP5-PC","BS-FLP6-PC")) %>%
   select(indic, time, values) %>%
   pivot_wider(names_from = indic, values_from = values)
@@ -1533,7 +1533,7 @@ ggsave(dpi = "retina",plot = EA_MANU_SURVEY_DEMAND_Materials_graph, "EA_MANU_SUR
 
 #
 EA_SERV_SURVEY <- get_eurostat("ei_bsse_q_r2") %>%
-  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+  subset(s_adj == "SA" & geo == "EA21" & time >= as.Date("2004-01-01") &
            indic %in% c("BS-FLB1-PC","BS-FLB2-PC","BS-FLB3-PC","BS-FLB4-PC","BS-FLB5-PC","BS-FLB6-PC")) %>%
   select(indic, time, values) %>%
   pivot_wider(names_from = indic, values_from = values)
@@ -1557,7 +1557,7 @@ EA_SERV_SURVEY_graph <- ggplot() + #plotting BIE
 ggsave(dpi = "retina",plot = EA_SERV_SURVEY_graph, "EA_Serv Survey.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 EA_CONS_SURVEY <- get_eurostat("ei_bsbu_m_r2") %>%
-  subset(s_adj == "SA" & geo == "EA20" & time >= as.Date("2004-01-01") &
+  subset(s_adj == "SA" & geo == "EA21" & time >= as.Date("2004-01-01") &
            indic %in% c("BS-FLBA2-PC","BS-FLBA4-PC","BS-FLBA5-PC","BS-FLBA6-PC","BS-FLBA7-PC")) %>%
   select(indic, time, values) %>%
   pivot_wider(names_from = indic, values_from = values)

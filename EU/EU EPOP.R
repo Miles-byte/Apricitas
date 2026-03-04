@@ -270,12 +270,12 @@ EU_EPOP_LINE <- EU_EPOP_BULK %>%
   subset(age == "Y25-54" & s_adj == "SA" & indic_em == "EMP_LFS" & unit == "PC_POP" & sex == "T") %>%
   transmute(geo, time = TIME_PERIOD, values) %>%
   subset(time >= as.Date("2013-01-01")) %>%
-  filter(geo %in% c("EU27_2020","EA20")) %>%
+  filter(geo %in% c("EU27_2020","EA21")) %>%
   pivot_wider(names_from = geo, values_from = values)
 
 
 EU_EPOP_LINE_GRAPH <- ggplot() + #plotting car manufacturing
-  geom_line(data=EU_EPOP_LINE, aes(x=time,y= EA20/100,color="Euro Area"), size = 1.25) +
+  geom_line(data=EU_EPOP_LINE, aes(x=time,y= EA21/100,color="Euro Area"), size = 1.25) +
   geom_line(data=EU_EPOP_LINE, aes(x=time,y= EU27_2020/100,color="European Union"), size = 1.25) +
   xlab(NULL) +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0), limits = c(0.75,.83)) +
