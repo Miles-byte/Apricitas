@@ -24,7 +24,7 @@ US <- fredr(series_id = "GDPC1",observation_start = as.Date("2018-01-01")) %>%
 #MUST BE CONVERTED TO ENDING IN "PN2" FOR FIRST QUARTERLY ESTIMATE
 #MUST BE CONVERTED TO ENDING IN "UKEA" FOR REVISED QUARTERLY ESTIMATE
 
-UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/ukea") %>%
+UK <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/abmi/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -86,7 +86,7 @@ FRA <- FRANCE_GDP_INSEE_list_selected %>%
   arrange(date) %>%
   mutate(value = value/value[7]*100)
 #Update links from here: https://www.esri.cao.go.jp/en/sna/data/sokuhou/files/2024/qe243/gdemenuea.html
-JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2025/qe253_2/tables/gaku-jk2532.csv",fileEncoding="latin1") %>%
+JPN <- read.csv("https://www.esri.cao.go.jp/jp/sna/data/data_list/sokuhou/files/2025/qe254/tables/gaku-jk2541.csv",fileEncoding="latin1") %>%
   slice(-1:-6) %>%
   select(X) %>%
   transmute(date = seq.Date(from = as.Date("1994-01-01"), by = "quarter", length.out = nrow(.)), value = as.numeric(gsub(",","",X))) %>%
@@ -151,7 +151,7 @@ US_PER_CAPITA <- fredr(series_id = "A939RX0Q048SBEA",observation_start = as.Date
   select(date,value)
 
 #change to pn2 for first estimates
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -235,8 +235,8 @@ JPN_PER_CAPITA <- merge(JAPAN_POP,JPN, by = "date") %>%
   mutate(value = value/value[7]*100)
 
 RGDP_G7_Per_Capita_Graph <- ggplot() + #RGDP Index
-  geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
-  geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
+  #geom_line(data=SPA_PER_CAPITA, aes(x=date,y= value,color= "Spain"), size = 1.25) +
+  #geom_line(data=AUS_GDP, aes(x=date,y= value,color= "Australia"), size = 1.25) +
   geom_line(data=UK_PER_CAPITA, aes(x=date,y= value,color= "United Kingdom"), size = 1.25) +
   geom_line(data=CAN_PER_CAPITA, aes(x=date,y= value,color= "Canada"), size = 1.25) +
   geom_line(data=GER_PER_CAPITA, aes(x=date,y= value,color= "Germany"), size = 1.25) +
