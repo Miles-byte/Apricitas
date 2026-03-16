@@ -3,7 +3,7 @@ pacman::p_load(rnaturalearth,rnaturalearthdata,ggpubr,canadianmaps,statcanR,cans
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
-apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo <- image_read("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Logo.png")
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 CAPACITY_SOME <- get_series("CAPACITYSOME") %>%

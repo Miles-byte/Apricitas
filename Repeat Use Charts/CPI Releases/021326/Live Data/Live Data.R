@@ -7,7 +7,7 @@ library(blscrapeR)
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
-apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo <- image_read("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Logo.png")
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 
@@ -172,13 +172,13 @@ CPI_COFFEE_INDEX_Graph <- ggplot() + #plotting CPI/PCEPI against 2% CPI trend
   # annotate("vline", x= as.Date("2022-08-01"), xintercept= as.Date("2022-08-01"), color = "white", size = 1.25, linetype = "dashed") +
   # annotate("text",label = "Inflation Reduction Act Signed", x= as.Date("2021-09-01"), y = 0.0075, color = "white", size = 5.5) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,0.50), breaks = c(-0.05,0,0.05,0.1,0.15,0.2,.25,.3,.35,.4,.45,.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(-0.05,0.55), breaks = c(-0.05,0,0.05,0.1,0.15,0.2,.25,.3,.35,.4,.45,.5,.55), expand = c(0,0)) +
   ylab("Percent Change From Year Ago") +
   ggtitle("US Coffee Price Growth") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Coffee Prices are Up ",round(COFFEE_PRICES$value[1]*100),"% Over the Last Year")) +
   theme_apricitas + theme(legend.position = c(.25,.75)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.05-(.3*0.55), ymax = -0.05) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -0.05-(.3*0.60), ymax = -0.05) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = CPI_COFFEE_INDEX_Graph, "CPI COFFEE Index.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
