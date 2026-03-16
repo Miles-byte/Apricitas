@@ -292,6 +292,27 @@ TOTAL_FOREIGN_BORN_POPULATION_Graph <- ggplot() + #plotting Foreign Population
 
 ggsave(dpi = "retina",plot = TOTAL_FOREIGN_BORN_POPULATION_Graph, "Total Foreign Born Population Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+TOTAL_EMP_NATIVE_BORN <- bls_api("LNU02073413", startyear = 2025, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  select(-latest) %>%
+  drop_na()
+
+TOTAL_EMP_NATIVE_BORN_Graph <- ggplot() + #plotting Foreign Population
+  geom_line(data=TOTAL_EMP_NATIVE_BORN, aes(x=date,y= value/1000,color= "Employment Level, Native Born"), size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2026-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Population\nEstimates\nUpdated", x = as.Date("2026-01-05"), y = 133, color = "white", size = 4, hjust = 0, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(130,134), breaks = c(130,131,132,133,134), expand = c(0,0)) +
+  ylab("Millions") +
+  ggtitle("Native-Born Employment Wasn't Rising") +
+  labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Employment & Population Levels for Native-Born Workers Were Revised Down") +
+  theme_apricitas + theme(legend.position = c(.5,.92)) +
+  scale_color_manual(name=NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-10")-(.1861*(today()-as.Date("2025-01-10"))), xmax = as.Date("2025-01-10")-(0.049*(today()-as.Date("2025-01-10"))), ymin = 130-(.3*4), ymax = 130) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TOTAL_EMP_NATIVE_BORN_Graph, "Total Emp Native Born Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
 
 BREAKEVEN_JOB_GROWTH <- data.frame(
   Names = c("Morgan Stanley", "Wells Fargo", "Deutsche Bank", "Goldman Sachs", "Bick (Stl Fed)", "Cheremukhin (Dal Fed)","Kolko (PIIE)", "Bostic (Atl Fed Prez)", "Musalem (Stl Fed Prez)", "Goolsbee (Chi Fed Prez)"),

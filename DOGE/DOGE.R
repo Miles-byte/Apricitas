@@ -6,7 +6,7 @@ library(blscrapeR)
 theme_apricitas <- theme_ft_rc() +
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
 
-apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo <- image_read("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Logo.png")#downloading and rasterizing my "Apricitas" blog logo from github
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 FED_WFH_PCT <- bls_api("LNU0201BAC7", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -88,13 +88,13 @@ US_FED_EMP_IND_DECOMP_graph <- ggplot(data = filter(FED_RBIND, date >= as.Date("
   geom_line(data = filter(FED_EMP_IND_2025, date >= as.Date("2023-01-01")), aes(x=date, y = value, color = "Total Federal Government"), size = 2) +
   xlab("Date") +
   ylab("Change in Jobs, Thousands of Jobs") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-300,-200,-100,0), limits = c(-300,50), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-300,-200,-100,0), limits = c(-350,50), expand = c(0,0)) +
   ggtitle("US Federal Employment is Falling") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Federal Employment has Decreased by ", -FED_EMP_IND_2025$value[1], "k, or ", -round(FED_EMP_IND_2025$pct[1],4)*100,"% since January amidst DOGE cuts")) +
   theme_apricitas + theme(legend.position = c(.35,.25)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-7,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
   scale_fill_manual(name= "Change in Federal Employment Since Jan 2025",values = c("#FFE98F","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93"), breaks = c("Post Office","Federal Hospitals (VA/IHS)","Department of Defense","Civilian Agencies")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-01")-(.1861*(today()-as.Date("2025-01-01"))), xmax = as.Date("2025-01-01")-(0.049*(today()-as.Date("2025-01-01"))), ymin = -300-(.3*350), ymax = -300) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-01")-(.1861*(today()-as.Date("2025-01-01"))), xmax = as.Date("2025-01-01")-(0.049*(today()-as.Date("2025-01-01"))), ymin = -350-(.3*400), ymax = -350) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = US_FED_EMP_IND_DECOMP_graph, "US Fed Empy Ind Decomp.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -106,15 +106,6 @@ FED_UNEMP <- bls_api("LNU03097260", startyear = 2019, endyear = format(Sys.Date(
   select(date,value,name) %>%
   arrange(date) %>%
   mutate(roll = c(0,0,rollmean(value,3)))
-
-FED_UNEMP <- bls_api("LNU03000000", startyear = 2019, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% #federal unemployment levels
-  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
-  mutate(name = "Unemployment Level, Former Federal Employees") %>%
-  mutate(across(where(is.numeric), ~ if_else(is.na(.x), (lag(.x) + lead(.x)) / 2, .x))) %>% #mutating across NA to average the month before and after to cover for October missing data
-  select(date,value,name) %>%
-  arrange(date) %>%
-  mutate(roll = c(0,0,rollmean(value,3)))
-
 
 US_FED_UNEMP_graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data = filter(FED_UNEMP, date >= as.Date("2022-01-01")), aes(x=date, y = roll, color = "Unemployed Former Federal Employees"), size = 1.25) +
@@ -205,12 +196,12 @@ SCIENCE_SERVICES_EMP_Graph <- ggplot() + #plotting permanent and temporary job l
   geom_line(data = filter(SCIENCE_SERVICES_EMP, date >= as.Date("2019-01-01")), aes(x=date, y = yoy, color = "Scientific Research & Development Services\nYear-on-year Change in Employment"), size = 1.25) +
   xlab("Date") +
   ylab("Year-on-year Change, Employees") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-25,0,25,50,75,100), limits = c(-25,100), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-25,0,25,50,75,100), limits = c(-30,100), expand = c(0,0)) +
   ggtitle("Science Employment is Falling") +
   labs(caption = "Graph created by @JosephPolitano using BLS data",subtitle = paste0("Research & Development Employment is Down Amidst Larger Cuts to American Science Funding")) +
   theme_apricitas + theme(legend.position = c(.30,.90)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#9A348E","#A7ACD9","#3083DC","#6A4C93")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -25-(.3*125), ymax = -25) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -30-(.3*125), ymax = -30) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SCIENCE_SERVICES_EMP_Graph, "Scientific Services Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -411,10 +402,9 @@ ggsave(dpi = "retina",plot = TREASURY_SPENDING_CHART, "Treasury Spending Chart.p
 
 EMPLOYMENT_NOV_2025 <- read_delim("C:\\Users\\Joseph\\Downloads\\employment_202511_1_2026-01-20.csv", 
                                   delim = "|")
-  
+
 EMPLOYMENT_NOV_2024 <- read_delim("C:\\Users\\Joseph\\Downloads\\employment_202411_1_2026-01-20.csv", 
                                   delim = "|") 
-
 
 GROUPED_EMPLOYMENT_NOV_2025 <- EMPLOYMENT_NOV_2025 %>%
   group_by(agency_subelement) %>%
@@ -448,7 +438,7 @@ FED_EMP_2024_2025_GRAPH <- ggplot(data = FED_EMP_2024_2025, aes(x = agency_subel
             color = "black", 
             fontface = "bold") +
   xlab(NULL) +
-  ggtitle("Federal Agencies With the Largest\nEmployment Change, Nov 2024-Nov 2025") +
+  ggtitle("Federal Agencies With the Largest\nEmployment Change, Nov 2024-Jan 2025") +
   ylab("Numerical Change in Employees") +
   scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), limits = c(-25,10), expand = c(0,0)) +
   #labs(subtitle = "By % of US Imports") +

@@ -239,7 +239,7 @@ ELEVENTH_FIFTEENTH_NETWORKS_graph <- ggplot() +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Ridership, US 11th-15th Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 11th-15th Systems Selected Based on 2019 Ridership Rankings") +
-  theme_apricitas + theme(legend.position = c(.775,.75), plot.title = element_text(size = 23)) +
+  theme_apricitas + theme(legend.position = c(.675,.75), plot.title = element_text(size = 23)) +
   scale_color_manual(name= "Ridership, Rolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("MTS (San Diego)","Sound Transit (Seattle)","Tri-Met (Portland)","DART (Dallas)","MDT (Miami)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*65), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -258,7 +258,7 @@ SIXTEENTH_TWENTIETH_graph <- ggplot() +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Ridership, US 16th-20th Largest Urban Rail Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail. 16th-20th Systems Selected Based on 2019 Ridership Rankings") +
-  theme_apricitas + theme(legend.position = c(.80,.75), plot.title = element_text(size = 23)) +
+  theme_apricitas + theme(legend.position = c(.70,.75), plot.title = element_text(size = 23)) +
   scale_color_manual(name= "Ridership, Rolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("NJTransit (NJ, Light Rail Only)","METRO (Minneapolis-St. Paul)","METRORail (Houston)","RTD (Denver)","UTA (Salt Lake City)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*37.5), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -297,7 +297,7 @@ LIGHT_RAIL_graph <- ggplot() +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Ridership, Largest US Light-Rail-Only Networks") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Heavy Rail, Light Rail, etc but Not Commuter Rail",subtitle = "The San Diego Trolley is America's Busiest Light-Rail-Only Transit Network") +
-  theme_apricitas + theme(legend.position = c(.80,.75), plot.title = element_text(size = 25)) +
+  theme_apricitas + theme(legend.position = c(.70,.75), plot.title = element_text(size = 25)) +
   scale_color_manual(name= "Ridership, Rolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC"), breaks = c("MTS (San Diego)","Muni (SF)","Sound Transit (Seattle)","Tri-Met (Portland)","DART (Dallas)","Valley Metro Rail (Phoenix)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*80), ymax = 0) +
   coord_cartesian(clip = "off")
@@ -315,13 +315,13 @@ SKYLINE_graph <- ggplot() +
   #annotate("vline", x = as.Date("2031-06-01"), xintercept = as.Date("2031-06-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3.5), expand = c(0,0), breaks = c(0,1,2,3)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,4), expand = c(0,0), breaks = c(0,1,2,3,4)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Honolulu Skyline: America's Newest Metro") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Honolulu's Skyline is America's Newest Heavy Rail Transit Network") +
   theme_apricitas + theme(legend.position = c(.50,.95)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*3.5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = 0-(.3*4), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = SKYLINE_graph, "Skyline Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -1372,6 +1372,7 @@ RAIL_RECOVERY_YOY <- RAIL_RECOVERY_YOY %>%
     agency == "Massachusetts Bay Transportation Authority" ~ "MBTA (Boston)",
     agency == "Southeastern Pennsylvania Transportation Authority" ~ "SEPTA (Philly)",
     agency == "San Diego Metropolitan Transit System" ~ "MTS (San Diego)",
+    agency == "Central Puget Sound Regional Transit Authority" ~ "Sound Transit (Seattle)",
     TRUE ~ agency
   ))
 

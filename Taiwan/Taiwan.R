@@ -489,3 +489,51 @@ TWNUSDEXRT_GRAPH <- ggplot() + #plotting Taiwan GDP data
   theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = TWNUSDEXRT_GRAPH, "Taiwanese Dollar USD Exchange Rate Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+
+TAIWAN_EMPLOYMENT <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Taiwan/EMP_GROWTH_DATA.csv") %>%
+  mutate(electronic_parts_and_components = as.numeric(gsub(",","",electronic_parts_and_components)),
+         computers_electronic_and_optical_products = as.numeric(gsub(",","",computers_electronic_and_optical_products))) %>%
+  mutate(date = as.Date(date))
+
+TAIWAN_EMPLOYMENT_GRAPH <- ggplot() + #plotting Taiwan GDP data
+  geom_line(data=TAIWAN_EMPLOYMENT, aes(x=date,y= electronic_parts_and_components/1000,color= "Electronic Parts & Components Manufacturing"), size = 1.25) + 
+  geom_line(data=TAIWAN_EMPLOYMENT, aes(x=date,y= computers_electronic_and_optical_products/1000,color= "Computer & Electronic Product Manufacturing"), size = 1.25) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  xlab("Date") +
+  ylab("Job Growth, Year-on-Year") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-20,-10,0,10,20,30), limits = c(-20,30), expand = c(0,0)) +
+  ggtitle("Taiwan Year-on-Year Chipmaking Job Growth") +
+  labs(caption = "Graph created by @JosephPolitano using MOEA data", subtitle = "Hiring in Taiwanese Electronics Manufacturers Have Rebounded Amidst the AI Boom") +
+  theme_apricitas + theme(legend.position = c(.35,.90)) + theme(legend.spacing.y = unit(0,"cm")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = -20-(.3*50), ymax = -20) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TAIWAN_EMPLOYMENT_GRAPH, "Taiwanese Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+
+TAIWAN_FINANCIAL_ACCTS <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Taiwan/TAIWAN_FINANCIAL_ACCOUNTS.csv") %>%
+  mutate(date = as.Date(date, "%d/%m/%Y")) %>%
+  setNames(c("date","Foreign Direct Investment","Debt Securities","Equity & Investment Fund Shares","Deposits, Loans, Trade Credit, & Other Investment","Financial Derivatives","Reserve Assets")) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = rev(c("Foreign Direct Investment","Reserve Assets","Equity & Investment Fund Shares","Deposits, Loans, Trade Credit, & Other Investment","Debt Securities","Financial Derivatives"))))
+
+
+TAIWAN_FINANCIAL_ACCTS_GRAPH <- ggplot(data = TAIWAN_FINANCIAL_ACCTS, aes(x = date, y = value/1000, fill = name)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA) +
+  xlab("Date") +
+  ylab("Annual Net Outflows, Billions") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(-50,0,50,100,150,200), limits = c(-50,200), expand = c(0,0)) +
+  ggtitle("Taiwanese Financial Account Net Outflows") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "The Flipside of Taiwan's Large Trade Surplus are Large Financial Outflows, Led by FDI & Lending") +
+  theme_apricitas + theme(legend.position = c(.35,.82), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#9A348E","#3083DC","#6A4C93")) +
+  #theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = -50-(.3*250), ymax = -50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = TAIWAN_FINANCIAL_ACCTS_GRAPH, "Taiwan Financial Accts Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing

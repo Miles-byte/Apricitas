@@ -742,7 +742,7 @@ CAR_PARTS_TOTAL_USMCA <- CAR_PARTS_IMPORTS_USMCA %>%
 
 BULK_IMPORTS <- getCensus(
   name = "timeseries/intltrade/imports/hs",
-  vars = c("CON_VAL_YR","I_COMMODITY","CTY_CODE", "CTY_NAME","COMM_LVL"), 
+  vars = c("CON_VAL_YR","I_COMMODITY","CTY_CODE","CTY_NAME","COMM_LVL"), 
   time = "2024-12",
   COMM_LVL = "HS10", #10 DIGIT HS CODE
   CTY_NAME = "TOTAL FOR ALL COUNTRIES",
@@ -752,6 +752,8 @@ BULK_IMPORTS <- getCensus(
   CTY_NAME = "CANADA",
   CTY_NAME = "EUROPEAN UNION",
 )
+
+write.csv(BULK_IMPORTS,"BULK_IMPORTS.csv")
 
 ALUMINUM_IMPORTS <- BULK_IMPORTS %>%
   filter(I_COMMODITY %in% c(
@@ -1287,9 +1289,9 @@ EFFECTIVE_TARIFF <- data.frame(
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-07"), value, value + 68668771904/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#letters tariffs
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-18"), value, value + (.15*AUG_18_STEEL_ALUM$CON_VAL_YR[6])/TOTAL_IMPORTS$CON_VAL_YR[1])) %>%#August 18th Steel & Aluminum Tariffs. Presuming 15% (50% on 30% steel/alum) until I have better data to test against
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-08-27"), value, value + (.25*53023452180)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #India Tariffs
-  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-09-05"), value, value - .15*26000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Random Items WARNING ROUGH ESTIMATE FROM THIS LIST: https://www.whitehouse.gov/presidential-actions/2025/09/modifying-the-scope-of-reciprocal-tariffs-and-establishing-procedures-for-implementing-trade-and-security-agreements/
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-09-05"), value, value - .15*26000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Random Items ROUGH ESTIMATE FROM THIS LIST: https://www.whitehouse.gov/presidential-actions/2025/09/modifying-the-scope-of-reciprocal-tariffs-and-establishing-procedures-for-implementing-trade-and-security-agreements/
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-01"), value, value - .1*CHINA_TOTAL$CON_VAL_YR[1]/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Removing 10% China
-  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-01"), value, value - .15*51000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Food WARNING JUST TAKING NUMBERS AND ROUGH ESTIMATES FROM TAX FOUNDATION. UPDATE WITH REAL LIST LATER
+  mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-01"), value, value - .15*51000000000/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Exempting Food ROUGH ESTIMATES FROM TAX FOUNDATION.
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2025-11-13"), value, value - .10*42349001541/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Updating Korea Car Deal
   #mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-01-15"), value, value - .05*31349127583/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Updating Taiwan Reciprocal Deal
   mutate(value = ifelse(seq(as.Date("2025-01-20"), Sys.Date() + 12, by = "day") < as.Date("2026-02-06"), value, value - (.32*53023452180)/TOTAL_IMPORTS$CON_VAL_YR[1])) %>% #Removing 32% India Tariffs
