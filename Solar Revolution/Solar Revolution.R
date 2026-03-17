@@ -2633,6 +2633,103 @@ TX_ELECTRICITY_PRODUCTION_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_ELECTRICITY_PRODUCTION_STEO_GRAPH, "TX Electricity STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+US_GAS_STEO_A <- eia1_series("STEO.NGEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Nat Gas", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_COL_STEO_A <- eia1_series("STEO.CLEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Coal", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_NUC_STEO_A <- eia1_series("STEO.NUEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Nuclear", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_HYD_STEO_A <- eia1_series("STEO.HVEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Hydro", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_WND_STEO_A <- eia1_series("STEO.WNEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Wind", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_SOL_STEO_A <- eia1_series("STEO.SOEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Solar", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+US_TTL_STEO_A <- eia1_series("STEO.TOEPGEN_US.A") %>%
+  transmute(date = as.Date(paste0(period,"-01-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(growth = value - lag(value,1))
+
+
+US_GEN_STEO_A_RBIND <- rbind(US_GAS_STEO_A,US_COL_STEO_A,US_NUC_STEO_A,US_HYD_STEO_A,US_WND_STEO_A,US_SOL_STEO_A) %>%
+  #filter(date >= as.Date("2015-01-01")) %>%
+  mutate(category = factor(category,levels = rev(c("Nuclear","Hydro","Wind","Solar","Nat Gas","Coal"))))
+
+US_GEN_STEO_A_GROWTH_GRAPH <- ggplot(filter(US_GEN_STEO_A_RBIND, date >= as.Date("2015-01-01")), aes(fill=category, x=date, y=growth)) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("rect", xmin = floor_date(as.Date(today() -240), "month"), xmax = max(US_GEN_STEO_A_RBIND$date + 150), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -350), "month"), hjust = 1, y = 225, color = "#EE6055", size = 5,lineheight = 0.8, alpha = 0.6) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) +
+  #geom_line(data= filter(US_TTL_STEO_A, date >= as.Date("2015-01-01")), aes(x=date,y=growth),color= "black", size = 1.25, show.legend = FALSE) +
+  #geom_point(data= filter(US_TTL_STEO_A, date >= as.Date("2015-01-01")), aes(x=date,y=growth),color= "black",fill = "black", size = 3, shape = 23, show.legend = FALSE) +
+  xlab("Date") +
+  ylab("TWh of Capacity") + 
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"), breaks = c(-200,-100,0,100,200), limits = c(-250,250), expand = c(0,0)) +
+  ggtitle("US Annual Change in Electricity Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "US Clean Energy Buildout Has Accelerated, Especially in Utility-Scale Solar and Wind") +
+  theme_apricitas + theme(legend.position = "right") +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#A7ACD9","#FFE98F","#9A348E","#3083DC","#00A99D","#6A4C93"),breaks = rev(c("Nuclear","Hydro","Wind","Solar","Nat Gas","Coal"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()+1000-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()+1000-as.Date("2015-01-01"))), ymin = -250-(.3*500), ymax = -250) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = US_GEN_STEO_A_GROWTH_GRAPH, "US Gen STEO Annual Growth Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+US_GEN_STEO_A_BAR_GRAPH <- ggplot(filter(US_GEN_STEO_A_RBIND, date >= as.Date("2007-01-01")), aes(fill=category, x=date, y=value/1000)) + 
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  annotate("rect", xmin = floor_date(as.Date(today() -240), "month"), xmax = max(US_GEN_STEO_A_RBIND$date + 150), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -350), "month"), hjust = 1, y = 4.4, color = "#EE6055", size = 5,lineheight = 0.8, alpha = 0.6) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA) +
+  xlab("Date") +
+  ylab("PWh, Annual Generation") + 
+  scale_y_continuous(labels = scales::number_format(suffix = "PWh"), breaks = c(0,1,2,3,4,5), limits = c(0,4.5), expand = c(0,0)) +
+  ggtitle("US Annual Electricity Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data", subtitle = "US Clean Energy Buildout Has Accelerated, Especially in Utility-Scale Solar and Wind") +
+  theme_apricitas + theme(legend.position = "right") +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#A7ACD9","#FFE98F","#9A348E","#3083DC","#00A99D","#6A4C93")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()+1000-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()+1000-as.Date("2007-01-01"))), ymin = 0-(.3*5), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = US_GEN_STEO_A_BAR_GRAPH, "US Gen STEO Annual Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_ANNUAL_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -360), "year")+180, xmax = max(US_TTL_STEO_A$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -1300), "month"), y = 4.4, color = "#EE6055", size = 5, alpha = 0.6) +
+  #geom_line(data= filter(US_TOTAL_CONSUMPTION_STEO, date >= as.Date("1997-01-01")), aes(x=date,y=value,color= "US Total Sales of Electricity"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_TTL_STEO_A, date >= as.Date("2000-01-01")), aes(x=date,y=value/1000,color= "US Total Electricity Generation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::comma_format(suffix = "PWh", accuracy = .1), limits= c(3.500,4.500),breaks = c(3.5,4,4.5), expand = c(0,0)) +
+  ylab("PWh, Annual Total") +
+  ggtitle("America's Growing Grid") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "After Almost Two Decades of Stagnation, Rapid Load Growth Has Returned to the US") +
+  theme_apricitas + theme(legend.position = c(.3,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#EE6055","#00A99D","#A7ACD9","#3083DC","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2000-01-01")-(.1861*(today()-as.Date("2000-01-01"))), xmax = as.Date("2000-01-01")-(0.049*((today()-as.Date("2000-01-01")))), ymin = 3.500-(.3*(1)), ymax = 3.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_ELECTRICITY_CONSUMPTION_TOTAL_STEO_ANNUAL_GRAPH, "US Electricity Consumption Total STEO Annual Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 RESIDENTIAL_SALES <- eia1_series("ELEC.SALES.US-RES.M") %>%
   transmute(date = as.Date(paste0(period,"-01")), category = "Residential", sales) %>%
