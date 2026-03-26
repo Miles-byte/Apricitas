@@ -136,8 +136,8 @@ OFFICE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/p
 DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
   annotate(geom = "segment", x = as.Date("2022-11-01"), xend = as.Date("2022-11-01"), y = 0, yend = 20, color = "white",linetype = "dashed", size = 1) +
   annotate("text", label = "ChatGPT\nLaunch", x = as.Date("2022-09-01"), y = 17.5, color = "white", size = 4, hjust = 1, lineheight = 0.8) +
-  geom_line(data=DATA_CENTER_CONSTRUCTION, aes(x=date,y= `Data center`/1000,color= "US Data Center Construction Spending"), size = 1.25) + 
   geom_line(data=filter(OFFICE_CONSTRUCTION, date >= as.Date("2014-01-01")), aes(x=date,y= `General`/1000,color= "US Office Construction Spending"), size = 1.25) + 
+  geom_line(data=DATA_CENTER_CONSTRUCTION, aes(x=date,y= `Data center`/1000,color= "US Data Center Construction Spending"), size = 1.25) + 
   xlab("Date") +
   ylab("Spending, Billions") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(20,40,60,80), limits = c(0,ceiling(max(OFFICE_CONSTRUCTION$`General`)/5000)*5), expand = c(0,0)) +
@@ -151,6 +151,7 @@ DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening 
 ggsave(dpi = "retina",plot = DATA_CENTER_VS_OFFICE_CONSTRUCTION_Graph, "DATA CENTER VS OFFICE CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
 
 OFFICE_PRICES <- bls_api("PCU236223236223", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
+  rbind(bls_api("PCU236223236223", startyear = 2026, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
   mutate(date = as.Date(paste0(year,"-",gsub("M","",period),"-01"))) %>%
   arrange(date)
 
@@ -182,6 +183,7 @@ WAREHOUSE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xls
 
 
 WAREHOUSE_PRICES <- bls_api("PCU236221236221", startyear = 2006, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>%
+  rbind(bls_api("PCU236221236221", startyear = 2026, endyear = format(Sys.Date(), "%Y"), Sys.getenv("BLS_KEY")) %>% select(-latest)) %>%
   mutate(date = as.Date(paste0(year,"-",gsub("M","",period),"-01"))) %>%
   arrange(date)
 
@@ -229,7 +231,7 @@ QFR_Data_Total_Increase_graph <- ggplot() + #plotting permanent and temporary jo
   annotate("text",label = "NOTE: Information Technology Sector Includes Software Publishers,\nComputing Infrastructure,Data Processing, Web Hosting,\nWeb Search Portals, Social Media, and Streaming Services", hjust = 0, x = as.Date("2016-09-01"), y =80, color = "white", size = 4, alpha = 0.5, lineheight = 0.8) +
   xlab("Date") +
   ylab("Dollar Growth, Year-on-year") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240), limits = c(0,240), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300), limits = c(0,300), expand = c(0,0)) +
   ggtitle("Information Tech Sector Investment") +
   labs(caption = "Graph created by @JosephPolitano using Census QFR data", subtitle = "Information Technology Sector Physical Investment Has Boomed Over the Last Year") +
   theme_apricitas + theme(legend.position = c(.40,.85), legend.key.height = unit(1,"cm")) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +

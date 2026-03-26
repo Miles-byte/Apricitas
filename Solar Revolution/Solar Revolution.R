@@ -2602,7 +2602,7 @@ US_BATTERY_STEO <- eia1_series("STEO.BAEPCGW_US.M") %>%
 
 US_BATTERY_STORAGE_STEO_GRAPH <- ggplot() + 
   annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
-  annotate("text", label = "EIA Forecast", x = floor_date(as.Date(today() -475), "month"), y = 55, color = "#EE6055", size = 5, alpha = 0.6) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -475), "month"), y = 55, color = "#EE6055", size = 5, alpha = 0.6) +
   geom_line(data= filter(US_BATTERY_STEO, date >= as.Date("2018-01-01")), aes(x=date,y=value,color= "US Grid-Scale Battery Storage Power Capacity, GW"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::number_format(suffix = "GW"),limits = c(0, ceiling(max(US_BATTERY_STEO$value)/10)*10), expand = c(0,0)) +
@@ -2849,7 +2849,7 @@ p_load(tigris)
 
 GENERATOR_CAPACITY_MAP_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_ADDITIONS_MAP_DATA.csv") %>%
   transmute(capacity = as.numeric(gsub(",","",Nameplate.Capacity..MW.)), name = Energy.Source.Code, year = Planned.Operation.Year, state = Plant.State, Latitude, Longitude) %>%
-  filter(year == 2024) %>%
+  filter(year == 2026) %>%
   filter(name %in% c("SUN","WND","MWH","NUC")) %>%
   mutate(name = case_when(
     name == "SUN" ~ "Solar",
@@ -2884,7 +2884,7 @@ GENERATOR_CAPACITY_MAP <- states %>%
                   labels = c("250MW","500MW","750MW","1GW"),
                   guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
   #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
-  ggtitle("       New Clean Power Capacity Planned for 2024") +
+  ggtitle("       New Clean Power Capacity Planned for 2026") +
   labs(caption = "Graph created by @JosephPolitano using EIA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
@@ -2893,6 +2893,55 @@ GENERATOR_CAPACITY_MAP <- states %>%
          area = guide_legend(order = 2))
 
 ggsave(dpi = "retina",plot = GENERATOR_CAPACITY_MAP, "New Generator Capacity Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+GENERATOR_CAPACITY_MAP_TOTAL_DATA <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Solar%20Revolution/GENERATOR_CAPACITY_ADDITIONS_MAP_DATA.csv") %>%
+  transmute(capacity = as.numeric(gsub(",","",Nameplate.Capacity..MW.)), name = Energy.Source.Code, year = Planned.Operation.Year, state = Plant.State, Latitude, Longitude) %>%
+  filter(year == 2026) %>%
+  filter(name %in% c("SUN","WND","MWH","NUC","NG")) %>%
+  mutate(name = case_when(
+    name == "SUN" ~ "Solar",
+    name == "WND" ~ "Wind",
+    name == "NUC" ~ "Nuclear",
+    name == "MWH" ~ "Batteries",
+    name == "NG" ~ "Natural Gas",
+    TRUE ~ as.character(name)  # Keeps other values unchanged
+  )) %>%
+  st_as_sf(., coords = c("Longitude", "Latitude"), crs = 4326) %>%
+  shift_geometry(position = "below")
+
+states <- states(cb = TRUE, year = 2021) %>%
+  st_transform(crs = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=0 +lon_0=-96 +x_0=0 +y_0=0 +datum=WGS84") %>%
+  mutate(state_abbv = gsub("\\s", "", STUSPS)) %>%
+  shift_geometry(position = "below") %>% #THIS PUTS HAWAII AND ALASKA BELOW THE MAP
+  filter(STATEFP < 60)
+
+GENERATOR_CAPACITY_MAP_TOTAL <- states %>%
+  ggplot() +
+  geom_sf(fill = "grey60") +
+  geom_sf(data = states, color = "black", fill = NA, lwd = 0.65) + # Black borders for states
+  geom_point(data = GENERATOR_CAPACITY_MAP_TOTAL_DATA, aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], fill = name, size = capacity), shape = 21, alpha = 0.6, stroke = NA, show.legend = TRUE) +
+  scale_fill_manual(name = "Type",
+                    values = c("#FFE98F","#9A348E","#00A99D","#3083DC","#EE6055"),
+                    breaks = c("Solar", "Wind","Nuclear","Batteries","Natural Gas"), 
+                    labels = c("Solar", "Wind","Nuclear","Batteries","Natural Gas"),
+                    guide = guide_legend(override.aes = list(color = c("#FFE98F","#9A348E","#00A99D","#3083DC","#EE6055"), size = 5))) +
+  scale_size_area(name = "Capacity",
+                  max_size = 7,
+                  breaks = c(250,500,750,1000),
+                  limits = c(0,1114.0),
+                  labels = c("250MW","500MW","750MW","1GW"),
+                  guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
+  #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
+  ggtitle("          New Power Capacity Planned for 2026") +
+  labs(caption = "Graph created by @JosephPolitano using EIA data") +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
+  theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank()) +
+  guides(fill = guide_legend(order = 1, override.aes = list(size = 5)), # Set color legend order and size
+         area = guide_legend(order = 2))
+
+ggsave(dpi = "retina",plot = GENERATOR_CAPACITY_MAP_TOTAL, "New Generator Capacity Map Total.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 TX <- counties(cb = TRUE, year = 2021) %>%
   filter(STUSPS == "TX") %>%
@@ -2917,7 +2966,7 @@ TX_GENERATOR_CAPACITY_MAP <- TX %>%
                   labels = c("250MW","500MW","750MW","1GW"),
                   guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
   #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
-  ggtitle("Texas New Clean Power Capacity Planned for 2024") +
+  ggtitle("Texas New Clean Power Capacity Planned for 2026") +
   labs(caption = "Graph created by @JosephPolitano using EIA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
@@ -2950,7 +2999,7 @@ CA_GENERATOR_CAPACITY_MAP <- CA %>%
                   labels = c("250MW","500MW","750MW","1GW"),
                   guide = guide_legend(override.aes = list(fill = c("#FFE98F")))) +
   #guides(name = NULL, color = guide_legend(override.aes = list(fill = c("#EE6055","#F5B041","#FFE98F", "#AED581", "#00A99D")))) +
-  ggtitle("CA New Clean Power Capacity Planned for 2024") +
+  ggtitle("CA New Clean Power Capacity Planned for 2026") +
   labs(caption = "Graph created by @JosephPolitano using EIA data") +
   labs(fill = NULL) +
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank()) +
@@ -3039,6 +3088,248 @@ states_solar_graph <- states_solar %>%
   theme(plot.title = element_text(size = 26),axis.title.x = element_blank(),axis.title.y = element_blank())
 
 ggsave(dpi = "retina",plot = states_solar_graph, "States Solar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_SOL_STEO <- eia1_series("STEO.SOEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_SOL_SMALL_STEO <- eia1_series("STEO.SODTP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Solar", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_SOL_STEO_TOTAL <- merge(US_SOL_STEO,US_SOL_SMALL_STEO, by = "date") %>%
+  transmute(date, Large_Solar = value.x, Small_Solar = value.y, Large_Solar_Rollmean = rollmean.x, Small_Solar_Rollmean = rollmean.y)
+
+US_TOTAL_INC_IND <- eia1_series("STEO.TSEOTWH.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12)))
+
+US_SOL_STEO_PCT <- merge(US_SOL_STEO_TOTAL,US_TOTAL_INC_IND, by = "date") %>%
+  transmute(date, 
+            Total = value, 
+            Total_Solar = Large_Solar + Small_Solar,
+            Total_Solar_PCT = Total_Solar/(Total+Small_Solar),
+            Total_Solar_Rollmean = Large_Solar_Rollmean + Small_Solar_Rollmean,
+            Total_Solar_Rollmean_PCT = Total_Solar_Rollmean/(rollmean + Small_Solar_Rollmean))
+
+
+US_SOLAR_STEO_PCT_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -475), "month"), y = .125, color = "#EE6055", size = 5, alpha = 0.6) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(US_SOL_STEO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=Total_Solar_PCT,color= "Solar, Share of US Electricity Generation"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_SOL_STEO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=Total_Solar_Rollmean_PCT,color= "Solar, Share of US Electricity Generation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(0, ceiling(max(US_SOL_STEO_PCT$Total_Solar_PCT)/0.025)*0.025), expand = c(0,0)) +
+  ylab("Percent of US Electricity Generation") +
+  ggtitle("Solar, Share of US Electricity") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Solar is a Growing Share of US Electricity Generation") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Share of US Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*ceiling(max(US_SOL_STEO_PCT$Total_Solar_PCT)/0.025)*0.025), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_SOLAR_PCT_GRAPH, "US Solar STEO Pct Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+US_SOLAR_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -575), "month"), y = 57.5, color = "#EE6055", size = 5, alpha = 0.6) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(US_SOL_STEO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=Total_Solar,color= "US Solar Electricity Generation"), size = 0.75, alpha = 0.5, linetype = "dashed") +
+  geom_line(data= filter(US_SOL_STEO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=Total_Solar_Rollmean,color= "US Solar Electricity Generation"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(0, ceiling(max(US_SOL_STEO_PCT$Total_Solar)/10)*10), expand = c(0,0)) +
+  ylab("Generation, TWh") +
+  ggtitle("US Solar Power Generation") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Solar is a Rapidly Growing Source of US Electricity Generation") +
+  theme_apricitas + theme(legend.position = c(.315,.85), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "US Solar Electricity Generation\nDashed = Monthly, Solid = 12M Moving Average",values = c("#FFE98F","#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()-as.Date("2015-01-01")))), ymin = 0-(.3*ceiling(max(US_SOL_STEO_PCT$Total_Solar)/10)*10), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = US_SOLAR_STEO_GRAPH, "US Solar STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+BATTERY_INDUSTRIAL_PRODUCTION <- fredr(series_id = "IPG33591S", observation_start = as.Date("2015-01-01"), frequency = "m", aggregation_method = "avg")
+
+BATTERY_INDUSTRIAL_PRODUCTION_GRAPH <- ggplot() + 
+  geom_line(data= filter(BATTERY_INDUSTRIAL_PRODUCTION, date >= as.Date("2017-01-01")), aes(x=date,y=value,color= "US Battery Industrial Production"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(),limits = c(0, ceiling(max(BATTERY_INDUSTRIAL_PRODUCTION$value)/50)*50), expand = c(0,0)) +
+  ylab("Index, 2017 = 100") +
+  ggtitle("American Battery Manufacturing Boom") +
+  labs(caption = "Graph created by @JosephPolitano using Federal Reserve Data",subtitle = "US Battery Production Has Skyrocketed Over the Last Few Years") +
+  theme_apricitas + theme(legend.position = c(.4,.86), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= NULL,values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2017-01-01")-(.1861*(today()-as.Date("2017-01-01"))), xmax = as.Date("2017-01-01")-(0.049*((today()-as.Date("2017-01-01")))), ymin = 0-(.3*(ceiling(max(BATTERY_INDUSTRIAL_PRODUCTION$value)/50)*50)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = BATTERY_INDUSTRIAL_PRODUCTION_GRAPH, "US Battery Industrial Production Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+FOSSIL_FUEL_GENERATION_IND <- bls_api("CES4422111201", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Fossil Fuel Electricity Generation")
+
+RENEWABLE_GENERATION_IND <- bls_api("CES4422111801", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Low Carbon Electricity Generation")
+
+TRANSMISSION_CONTROL_IND <- bls_api("CES4422112001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Electricity Transmission, Control, & Distribution")
+
+POWER_COMM_CONS_IND <- bls_api("CES2023713001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Power & Communication Line Construction")
+
+ELECTRICAL_CONTRACT_IND <- bls_api("CES2023821001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Electrical Contractors")
+
+ELECTRICAL_EQUIP_MANU_1 <- bls_api("CES3133530001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Electrical Equipment Manufacturers")
+
+ELECTRICAL_EQUIP_MANU_2 <- bls_api("CES3133590001", startyear = 2019, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))%>%
+  .[order(nrow(.):1),] %>%
+  mutate(value = (value-value[13])) %>%
+  select(date, value) %>%
+  mutate(series_id = "Electrical Equipment Manufacturers")
+
+ELECTRICAL_EQUIP_MANU_IND <- rbind(ELECTRICAL_EQUIP_MANU_1,ELECTRICAL_EQUIP_MANU_2) %>%
+  group_by(date) %>%
+  summarise(value = sum(value)) %>%
+  mutate(series_id = "Electrical Equipment Manufacturers")
+
+
+ELEC_EMPLOY_GROWTH_IND <- rbind(FOSSIL_FUEL_GENERATION_IND,RENEWABLE_GENERATION_IND,TRANSMISSION_CONTROL_IND,POWER_COMM_CONS_IND,ELECTRICAL_CONTRACT_IND,ELECTRICAL_EQUIP_MANU_IND) %>%
+  mutate(series_id = factor(series_id,levels = c("Fossil Fuel Electricity Generation","Low Carbon Electricity Generation","Electricity Transmission, Control, & Distribution","Power & Communication Line Construction","Electrical Equipment Manufacturers","Electrical Contractors")))
+
+EMPLOY_GROWTH_IND_graph <- ggplot(data = ELEC_EMPLOY_GROWTH_IND, aes(x = date, y = value, fill = series_id)) + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "stack", color = NA, width = 32) +
+  xlab("Date") +
+  ylab("Change Since Jan 2020, Millions of Jobs") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-100,0,100,200,300), limits = c(-100,300), expand = c(0,0)) +
+  ggtitle("Cumulative Electrical Job Growth Since 2019") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "America Has Added Nearly 300k Electrification Jobs Since 2019, Especially in Electrical Contractors") +
+  theme_apricitas + theme(legend.position = c(.3,.79)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_fill_manual(name= NULL,values = c("#EE6055","#00A99D","#FFE98F","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks =c("Fossil Fuel Electricity Generation","Low Carbon Electricity Generation","Electricity Transmission, Control, & Distribution","Power & Communication Line Construction","Electrical Equipment Manufacturers","Electrical Contractors")) +
+  theme(legend.text =  element_text(size = 13, color = "white")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2019-01-01")-(.1861*(today()-as.Date("2019-01-01"))), xmax = as.Date("2019-01-01")-(0.049*(today()-as.Date("2019-01-01"))), ymin = -100-(.3*400), ymax = -100) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = EMPLOY_GROWTH_IND_graph, "Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
+
+RESIDENTIAL_SALES_STEO <- eia1_series("STEO.ELRCP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Residential", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+COMMERCIAL_SALES_STEO <- eia1_series("STEO.ELCCP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Commercial", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+INDUSTRIAL_SALES_STEO <- eia1_series("STEO.ELICP_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Industrial", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+RES_IND_COM_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(INDUSTRIAL_SALES_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean-rollmean[61],color= "Industrial"), size = 1.25) +
+  geom_line(data= filter(RESIDENTIAL_SALES_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean-rollmean[61],color= "Residential"), size = 1.25) +
+  geom_line(data= filter(COMMERCIAL_SALES_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=rollmean-rollmean[61],color= "Commercial"), size = 1.25) +
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(COMMERCIAL_SALES_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -575), "month"), y = 21.5, color = "#EE6055", size = 5, alpha = 0.6) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::number_format(suffix = "TWh"),limits = c(-7.5,25), expand = c(0,0)) +
+  ylab("Change Since 2019") +
+  ggtitle("Change in Electricity Sales Since 2019") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "The Commercial Sector—Including Data Centers—is the Largest Contributor to Electricity Growth") +
+  theme_apricitas + theme(legend.position = c(.2,.83), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Change Since 2019\nRolling 12M Total",values = rev(c("#EE6055","#A7ACD9","#00A99D","#3083DC","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()+700-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()+700-as.Date("2015-01-01")))), ymin = -7.5-(.3*32.5), ymax = -7.5) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = RES_IND_COM_STEO_GRAPH, "RES IND COM STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+ERCOT_GENERATION_STEO <- eia1_series("STEO.TOEPGEN_TX.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "ERCOT", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+PJM_GENERATION_STEO <- eia1_series("STEO.TOEPGEN_PJ.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "PJM", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+US_TOTAL_GENERATION_STEO <- eia1_series("STEO.TOEPGEN_US.M") %>%
+  transmute(date = as.Date(paste0(period,"-01")), category = "Total", value) %>%
+  arrange(date) %>%
+  mutate(rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value,12))) %>%
+  mutate(yoy_growth = value/lag(value,12)-1)
+
+US_EX_PJ_TX_GENERATION_STEO <- merge(US_TOTAL_GENERATION_STEO,PJM_GENERATION_STEO, by = "date") %>%
+  merge(.,ERCOT_GENERATION_STEO, by = "date") %>%
+  transmute(date, category = "US Ex PJM & ERCOT",value = value.x-value.y-value, rollmean = rollmean.x-rollmean.y-rollmean)
+
+TX_PJM_REST_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(ERCOT_GENERATION_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=(rollmean-rollmean[61])/(rollmean[61]),color= "ERCOT (Texas)"), size = 1.25) +
+  geom_line(data= filter(PJM_GENERATION_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=(rollmean-rollmean[61])/(rollmean[61]),color= "PJM (Mid-Atlantic)"), size = 1.25) +
+  geom_line(data= filter(US_EX_PJ_TX_GENERATION_STEO, date >= as.Date("2015-01-01")), aes(x=date,y=(rollmean-rollmean[61])/(rollmean[61]),color= "Rest of USA"), size = 1.25) +
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(PJM_GENERATION_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -575), "month"), y = 0.52, color = "#EE6055", size = 5, alpha = 0.6) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(),limits = c(-.15,.6), expand = c(0,0), breaks = c(0,0.2,0.4,0.6)) +
+  ylab("Change Since 2019") +
+  ggtitle("Cumulative Electricity Growth Since 2019, %") +
+  labs(caption = "Graph created by @JosephPolitano using EIA Data",subtitle = "Texas is Seeing by Far the Largest Power Growth in the US, Followed Distantly by the Mid-Atlantic") +
+  theme_apricitas + theme(legend.position = c(.2,.83), legend.key.height = unit(0, "cm")) +
+  scale_color_manual(name= "Utility-Scale Generation\nChange Since 2019\nRolling 12M Total",values = rev(c("#EE6055","#A7ACD9","#3083DC","#00A99D","#9A348E","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()+700-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*((today()+700-as.Date("2015-01-01")))), ymin = -.15-(.3*.75), ymax = -.15) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina",plot = TX_PJM_REST_STEO_GRAPH, "TX PJM REST STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 p_unload(all)  # Remove all add-ons
 

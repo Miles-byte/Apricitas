@@ -6,7 +6,7 @@ theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I 
 install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
-apricitas_logo <- image_read("https://github.com/Miles-byte/Apricitas/blob/main/Logo.png?raw=true") #downloading and rasterizing my "Apricitas" blog logo from github
+apricitas_logo <- image_read("https://raw.githubusercontent.com/Miles-byte/Apricitas/main/Logo.png")
 apricitas_logo_rast <- rasterGrob(apricitas_logo, interpolate=TRUE)
 
 RGDP <- fredr(series_id = "GDPC1",observation_start = as.Date("2019-01-01"),realtime_start = NULL, realtime_end = NULL) #Real GDP
@@ -1156,6 +1156,23 @@ US_CHIP_FIXED_EQUIP_INVEST_GRAPH <- ggplot() + #indexed employment rate
 
 ggsave(dpi = "retina",plot = US_CHIP_FIXED_EQUIP_INVEST_GRAPH, "US Chip Equipment Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+FIXED_INVESTMENT_BULK_ELEC_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = filter(FIXED_RESI_INVEST_BULK, date > as.Date("2010-01-01")), aes(x=date, y = u50406_lb001174_20_alternative_electric_chained_dollars_level_6/1000, color = "Alternative Electric Power Generation (Wind, Solar, etc)"), size = 1.25) + 
+  geom_line(data = filter(FIXED_RESI_INVEST_BULK, date > as.Date("2010-01-01")), aes(x=date, y = u50406_lb001175_21_all_other_electric_chained_dollars_level_6/1000, color = "Traditional Electric Power Generation (Nat Gas, Coal, etc)"), size = 1.25) + 
+  geom_line(data = filter(FIXED_EQUIP_INVEST_REAL, date > as.Date("2010-01-01")), aes(x=date, y = u50506_c276rx_20_electrical_transmission_distribution_and_industrial_apparatus_chained_dollars_level_6/1000, color = "Electrical Transmission, Distribution, & Industrial Apparatus"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,ceiling(max(FIXED_RESI_INVEST_BULK$u50406_lb001174_20_alternative_electric_chained_dollars_level_6, na.rm = TRUE)/10000)*10), expand = c(0,0)) +
+  ylab("Billions of 2017 Dollars") +
+  ggtitle("US Real Electricity Construction") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Real Fixed Investment in Alternative Clean Sources of Electric Power is at a Record High") +
+  theme_apricitas + theme(legend.position = c(.40,.85)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2010-01-01")-(.1861*(today()-as.Date("2010-01-01"))), xmax = as.Date("2010-01-01")-(0.049*(today()-as.Date("2010-01-01"))), ymin = 0-(.3*(ceiling(max(FIXED_RESI_INVEST_BULK$u50406_lb001174_20_alternative_electric_chained_dollars_level_6, na.rm = TRUE)/10000)*10)), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = FIXED_INVESTMENT_BULK_ELEC_Graph, "Electricity Total Fixed Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 #Movie and Live Spectator Sports PCE
 PCE_UNDERLYING_DETAIL_NOMINAL_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
@@ -1229,15 +1246,15 @@ ggsave(dpi = "retina",plot = FIXED_INVESTMENT_RESIDENTIAL_Graph, "Fixed Resident
 ggsave(dpi = "retina",plot = FIXED_INVESTMENT_NONRESIDENTIAL_Graph, "Fixed Nonresidential Components.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
 BROKERS_COMMISSIONS_RESIDENTIAL_Graph <- ggplot() + #indexed employment rate
-  geom_line(data = FIXED_RESI_INVEST_BULK, aes(x=date, y = u50406_a758rx_45_brokers_commissions_and_other_ownership_transfer_costs_chained_dollars_level_6/1000, color = "Real Brokers' Commissions & Other Ownership Transfer Costs, Residential Structures"), size = 1.25) + 
+  geom_line(data = FIXED_RESI_INVEST_BULK, aes(x=date, y = u50406_c321rx_37_brokers_commissions_on_sale_of_structures_chained_dollars_level_6/1000, color = "Real Brokers' Commissions & Other Ownership Transfer Costs, Residential Structures"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(75,200), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,50), expand = c(0,0)) +
   ylab("Billions of 2017 Dollars") +
   ggtitle("US Real Brokers' Commissions") +
   labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = NULL) +
   theme_apricitas + theme(legend.position = c(.525,.975)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 75-(.3*125), ymax = 75) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2007-01-01")-(.1861*(today()-as.Date("2007-01-01"))), xmax = as.Date("2007-01-01")-(0.049*(today()-as.Date("2007-01-01"))), ymin = 0-(.3*50), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = BROKERS_COMMISSIONS_RESIDENTIAL_Graph, "Brokers Commissions.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -1956,38 +1973,6 @@ FIXED_RESI_INVEST_NOMINAL_SPECS <- list(
 FIXED_RESI_INVEST_NOMINAL <- beaGet(FIXED_RESI_INVEST_NOMINAL_SPECS, iTableStyle = FALSE) %>%
   mutate(date = (seq(as.Date("2018-01-01"), length.out = nrow(.), by = "3 months"))) %>%
   clean_names()
-
-
-FIXED_INVEST_BULK_BAR <- merge(FIXED_RESI_INVEST_NOMINAL,FIXED_EQUIP_INVEST_NOMINAL, by = "date") %>%
-  filter(date == max(date)) %>%
-  select(-time_period.x,-time_period.y) %>%
-  pivot_longer(-date) %>%
-  mutate(name = name %>%
-           str_remove("^u5\\d+_[^_]+_\\d+_") %>%
-           str_remove("_current_dollars_level_\\d+$") %>%
-           str_replace_all("_", " ") %>%
-           str_to_title()) %>%
-  filter(name %in% c("Data Centers","Single Family Structures","Computers And Peripheral Equipment","Manufacturing","Industrial Equipment","Multifamily Structures","Electric","Petroleum And Natural Gas")) %>%
-  mutate(value = value/1000)
-
-
-LARGEST_TARIFF_EXEMPTIONS <- ggplot(data = FIXED_INVEST_BULK_BAR, aes(x = name, y = value, fill = name == "Computers & Parts")) +
-  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
-  geom_bar(stat = "identity", position = "dodge", color = NA) +
-  scale_fill_manual(values = c("TRUE" = "#EE6055", "FALSE" = "#FFE98F"), guide = "none") +
-  xlab(NULL) +
-  ggtitle("The Size of US AI Investment") +
-  ylab("US Fixed Investment in Category, Q4 2025") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,425), expand = c(0,0)) +
-  #labs(subtitle = "By % of US Imports") +
-  labs(caption = "Graph created by @JosephPolitano using BEA Data", subtitle = "America is Spending a Massive Amount on New Data Centers & Computers") +
-  theme_apricitas + theme(legend.position = c(.5,.4), plot.margin= grid::unit(c(0.2, .2, 0.2, .2), "in"), axis.text.y = element_text(size = 16, color = "white"), axis.title.x = element_text(size = 14, color = "white")) +
-  coord_flip() +
-  theme(plot.title.position = "plot",plot.title = element_text(hjust = 0))
-
-ggsave(dpi = "retina",plot = LARGEST_TARIFF_EXEMPTIONS, "Largest Tariff Exemptions Bar Chart Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
-
-
 
 FIXED_INVEST_BULK_BAR <- merge(FIXED_RESI_INVEST_NOMINAL, FIXED_EQUIP_INVEST_NOMINAL, by = "date") %>%
   filter(date == max(date)) %>%
