@@ -3137,7 +3137,7 @@ ggsave(dpi = "retina",plot = US_SOLAR_PCT_GRAPH, "US Solar STEO Pct Graph.png", 
 
 
 US_SOLAR_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
-  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_BATTERY_STEO$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
+  annotate("rect", xmin = floor_date(as.Date(today() -74), "month"), xmax = max(US_SOL_STEO_PCT$date), ymin = -Inf, ymax = Inf, fill = "#EE6055", color = NA, alpha = 0.4) +
   annotate("text", label = "EIA Projection", x = floor_date(as.Date(today() -575), "month"), y = 57.5, color = "#EE6055", size = 5, alpha = 0.6) +
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data= filter(US_SOL_STEO_PCT, date >= as.Date("2015-01-01")), aes(x=date,y=Total_Solar,color= "US Solar Electricity Generation"), size = 0.75, alpha = 0.5, linetype = "dashed") +
