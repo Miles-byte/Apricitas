@@ -341,13 +341,13 @@ COMPUTER_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   geom_line(data=COMPUTER_IMPORTS, aes(x=time,y= Taiwan*12/1000000000,color= "Taiwan"), size = 1.25) + 
   geom_line(data=COMPUTER_IMPORTS, aes(x=time,y= Vietnam*12/1000000000,color= "Vietnam"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,150),breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,175),breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("Computer Imports Shifted Amidst Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data. Gold Defined as HS Code 8471",subtitle = "Overall US Computer Imports to Hit Record Highs Even as Imports From China Collapsed") +
   theme_apricitas + theme(legend.position = c(.35,.75)) +
   scale_color_manual(name = "US Computer Imports, Billions, Monthly Annualized",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("Mexico","Taiwan","China","Vietnam","All Other Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(150)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-01-01")-(.1861*(today()-as.Date("2024-01-01"))), xmax = as.Date("2024-01-01")-(0.049*(today()-as.Date("2024-01-01"))), ymin = 0-(.3*(175)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = COMPUTER_IMPORTS_GRAPH, "Computer Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
@@ -428,7 +428,7 @@ PHONE_IMPORTS_GRAPH <- ggplot() + #plotting integrated circuits exports
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,100),breaks = c(0,25,50,75,100), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
-  ggtitle("Smartphone Imports Fell Amidst Tariffs") +
+  ggtitle("Smartphone Imports Shifted Amidst Tariffs") +
   labs(caption = "Graph created by @JosephPolitano using US Census data. Gold Defined as HS Code 851713",subtitle = "US Smartphone Imports From China Dropped Dramatically Admist Increased US Tariffs") +
   theme_apricitas + theme(legend.position = c(.35,.75)) +
   scale_color_manual(name = "US Smartphone Imports, Billions, Monthly Annualized",values = c("#FFE98F","#9A348E","#EE6055","#A7ACD9","#3083DC"), breaks = c("India","Vietnam","China","All Other Countries")) +

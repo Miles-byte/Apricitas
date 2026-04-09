@@ -655,7 +655,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("RI")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, "  ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -667,7 +667,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("CT")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, "  ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -679,7 +679,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("NJ")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, "  ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -691,7 +691,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("DE")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, "  ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -703,7 +703,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", ""), sprintf("%.1f", round(Growth * 100, 1)), "%")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
