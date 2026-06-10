@@ -469,16 +469,18 @@ CA_TECH_EMPLOY_GROWTH_IND_graph <- ggplot(data = filter(CA_TECH_EMPLOY_GROWTH_IN
   geom_line(data = filter(CA_TECH_EMPLOY_GROWTH_INDSUM, date >= as.Date("2020-01-01")), aes(x=date, y = sum_value, color = "Total Tech Sector Employment"), size = 2) +
   xlab("Date") +
   ylab("Change Since Jan 2020, Thousands of Jobs, NSA") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-50,-25,0,25,50,75,100,125), limits = c(-40,125), expand = c(0,0)) +
-  ggtitle("California Tech Sector Job Growth") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "CA Tech Jobs Have Stagnated, With Search, Streaming, and Computer Systems Design Dropping") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "k"), breaks = c(-50,-25,0,25,50,75,100,125), limits = c(-50,125), expand = c(0,0)) +
+  #ggtitle("California Tech Sector Job Growth") +
+  ggtitle("Total Change in California Tech Jobs Since 2020") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "CA Continues Losing Tech Jobs, With Search, Streaming, and Computer Systems Design Dropping") +
   theme_apricitas + theme(legend.position = c(0.35,0.83), legend.key.size = unit(0.5,"cm"), legend.spacing.y = unit(0, "cm")) +
   scale_fill_manual(name= "Change in Employment since Jan 2020",values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#3083DC","#6A4C93","#A7ACD9"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming, & Related","Computing Infrastructure, Data Processing, Web Hosting, & Related","Web Search Portals, Libraries, & Related","Streaming Services, Social Networks, & Related")) +
   scale_color_manual(name = NULL, values = "#EE6055") +
   theme(legend.text =  element_text(size = 12, color = "white"), legend.title = element_text(size = 13)) +
-  theme_apricitas + theme(legend.position = c(.38,.86)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-110,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -40-(.3*155), ymax = -40) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
-  coord_cartesian(clip = "off")
+  theme_apricitas + theme(legend.position = c(.38,.87)) + theme(plot.title = element_text(size = 26), legend.margin=margin(0,0,-110,0), legend.spacing.y = unit(0.2, "cm"), legend.key.width = unit(0.5, "cm"),legend.key.height = unit(0.5, "cm"), legend.text = element_text(size = 13)) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2020-01-01")-(.1861*(today()-as.Date("2020-01-01"))), xmax = as.Date("2020-01-01")-(0.049*(today()-as.Date("2020-01-01"))), ymin = -50-(.3*175), ymax = -50) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
 
 ggsave(dpi = "retina",plot = CA_TECH_EMPLOY_GROWTH_IND_graph, "CA Tech Employ Growth IND.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 

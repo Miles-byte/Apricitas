@@ -308,7 +308,7 @@ QSS_Data <- getCensus(
 
 QSS_Data_Graph <- ggplot() + #plotting net tightening data
   geom_line(data=QSS_Data, aes(x=date,y= `Web Search Portals, Libraries, & Related`,color= "Web Search Portals, Libraries, & Related"), size = 1.25)+ 
-  geom_line(data=QSS_Data, aes(x=date,y= `Computer Systems Design, Custom Programming, & Related`,color= "Computer Systems Design, Custom Programming,\n& Related"), size = 1.25)+ 
+  geom_line(data=QSS_Data, aes(x=date,y= `Computer Systems Design, Custom Programming, & Related`,color= "Computer Systems Design,\nCustom Programming, & Related"), size = 1.25)+ 
   geom_line(data=QSS_Data, aes(x=date,y= `Software Publishers`,color= "Software Publishers"), size = 1.25)+ 
   geom_line(data=QSS_Data, aes(x=date,y= `Computing Infrastructure, Data Processing, Web Hosting, & Related`,color= "Computing Infrastructure, Data Processing,\nWeb Hosting, & Related"), size = 1.25)+ 
   annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
@@ -319,7 +319,7 @@ QSS_Data_Graph <- ggplot() + #plotting net tightening data
   ggtitle("Tech Sector Revenue Growth") +
   labs(caption = "Graph created by @JosephPolitano using Census Bureau data", subtitle = "Revenue Growth Has Reaccelerated Across Tech Sectors in 2024 After Slowing in 2022") +
   theme_apricitas + theme(legend.position = c(.315,.75)) +
-  scale_color_manual(name= "Year-on-Year Revenue Growth",values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#A7ACD9","#3083DC"), breaks = c("Software Publishers","Computer Systems Design, Custom Programming,\n& Related","Computing Infrastructure, Data Processing,\nWeb Hosting, & Related","Web Search Portals, Libraries, & Related")) +
+  scale_color_manual(name= "Year-on-Year Revenue Growth",values = c("#FFE98F","#A7ACD9","#00A99D","#9A348E","#A7ACD9","#3083DC"), breaks = c("Software Publishers","Computer Systems Design,\nCustom Programming, & Related","Computing Infrastructure, Data Processing,\nWeb Hosting, & Related","Web Search Portals, Libraries, & Related")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2013-07-01")-(.1861*(today()-as.Date("2013-07-01"))), xmax = as.Date("2013-07-01")-(0.049*(today()-as.Date("2013-07-01"))), ymin = 0-(.3*.45), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 

@@ -3332,6 +3332,239 @@ TX_PJM_REST_STEO_GRAPH <- ggplot() + #plotting EU NET EV Exports
 
 ggsave(dpi = "retina",plot = TX_PJM_REST_STEO_GRAPH, "TX PJM REST STEO Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+library(httr2)
+library(tidyverse)
+
+api_key <- "i9BKQl4CWoh7UBTRgL68mvsAK1MAPQmd9tYWYhP7"
+
+Sys.getenv("EIA_API_KEY")  # store in .Renviron
+
+fetch_eia_page <- function(offset, length = 5000) {
+  request("https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/") |>
+    req_url_query(
+      api_key        = api_key,
+      frequency      = "hourly",
+      `data[0]`      = "value",
+      `facets[fueltype][]` = c("BAT", "SNB", "SUN"),
+      `facets[respondent][]` = "US48",
+      start          = "2019-01-01T00",
+      end            = "2025-12-31T00",
+      `sort[0][column]`    = "period",
+      `sort[0][direction]` = "asc",
+      offset         = offset,
+      length         = length,
+      .multi = "explode"
+    ) |>
+    req_perform() |>
+    resp_body_json(simplifyVector = TRUE)
+}
+# get total row count from first call
+first  <- fetch_eia_page(0)
+total  <- first$response$total
+cat("Total rows:", total, "\n")
+
+total <- as.integer(first$response$total)
+offsets <- seq(0, total - 1, by = 5000)
+
+raw <- purrr::map(offsets, \(o) {
+  Sys.sleep(0.1)  # be polite
+  fetch_eia_page(o)$response$data
+}, .progress = TRUE)
+
+df <- list_rbind(raw) |>
+  mutate(
+    period = ymd_h(period),
+    value  = as.numeric(value)
+  )
+
+df_summary <- df |>
+  mutate(period = with_tz(period, tzone = "America/Los_Angeles")) %>%
+  mutate(
+    hour = hour(period),
+    year = year(period),
+    month = month(period),
+  ) |>
+  filter(month %in% c(7)) |>
+  group_by(year, hour, fueltype, `type-name`) |>
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop")
+
+
+HOURLY_SOLAR_BATTERY_GRAPH <- df_summary |>
+  filter(year %in% c(2019, 2025)) |>
+  ggplot(aes(x = hour, y = value/1000, fill = `type-name`)) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 1) +
+  facet_wrap(~year, ncol = 2) +
+  scale_x_continuous(breaks = seq(0, 23, by = 3)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "GWh")) +
+  labs(
+    x = "Hour of day (PST)",
+    y = "Avg generation (GWh), Lower 48 States",
+    fill = NULL,
+    title = "US Hourly Avg. Solar & Battery Generation",
+    subtitle = "Solar Not Only Produces More Power at Peak Hours, But is Now Spread More Through the Day"
+  ) +
+  theme_apricitas +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#3083DC","#A7ACD9","#9A348E","#00A99D","#6A4C93"),breaks = c("Solar","Solar with integrated battery storage","Battery storage"),labels = c("Solar","Solar w/ Integrated Batteries","Battery Storage")) +
+  theme(legend.position = c(.25,.85)) +
+  theme(plot.title.position = "plot") +
+  theme(strip.text = element_text(color = "white", size = 15, face = "bold"))
+
+ggsave(dpi = "retina",plot = HOURLY_SOLAR_BATTERY_GRAPH, "US Hourly Solar Battery Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+HOURLY_SOLAR_BATTERY_LONG_GRAPH <- df_summary |>
+  #filter(year %in% c(2019, 2025)) |>
+  ggplot(aes(x = hour, y = value/1000, fill = `type-name`)) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 1) +
+  facet_wrap(~year, nrow = 2) +
+  scale_x_continuous(breaks = seq(0, 23, by = 3)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "GWh")) +
+  labs(
+    x = "Hour of day (PST)",
+    y = "Avg generation (GWh), Lower 48 States",
+    fill = NULL,
+    title = "US Hourly Avg. Solar & Battery Generation",
+    subtitle = "Solar Not Only Produces More Power at Peak Hours, But is Now Spread More Through the Day"
+  ) +
+  theme_apricitas +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#3083DC","#A7ACD9","#9A348E","#00A99D","#6A4C93"),breaks = c("Solar","Solar with integrated battery storage","Battery storage"),labels = c("Solar","Solar w/ Integrated Batteries","Battery Storage")) +
+  theme(legend.position = c(.25,.85)) +
+  theme(plot.title.position = "plot") +
+  theme(strip.text = element_text(color = "white", size = 15, face = "bold"))
+
+ggsave(dpi = "retina",plot = HOURLY_SOLAR_BATTERY_LONG_GRAPH, "US Hourly Solar Battery Long Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+fetch_eia_page_TEX <- function(offset, length = 5000) {
+  request("https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/") |>
+    req_url_query(
+      api_key        = api_key,
+      frequency      = "hourly",
+      `data[0]`      = "value",
+      `facets[fueltype][]` = c("BAT", "SNB", "SUN"),
+      `facets[respondent][]` = "TEX",
+      start          = "2019-01-01T00",
+      end            = "2025-12-31T00",
+      `sort[0][column]`    = "period",
+      `sort[0][direction]` = "asc",
+      offset         = offset,
+      length         = length,
+      .multi = "explode"
+    ) |>
+    req_perform() |>
+    resp_body_json(simplifyVector = TRUE)
+}
+# get total row count from first call
+first  <- fetch_eia_page_TEX(0)
+total  <- first$response$total
+cat("Total rows:", total, "\n")
+
+total <- as.integer(first$response$total)
+offsets <- seq(0, total - 1, by = 5000)
+
+raw <- purrr::map(offsets, \(o) {
+  Sys.sleep(0.1)  # be polite
+  fetch_eia_page_TEX(o)$response$data
+}, .progress = TRUE)
+
+TEX <- list_rbind(raw) |>
+  mutate(
+    period = ymd_h(period),
+    value  = as.numeric(value)
+  )
+
+TEX_summary <- TEX |>
+  mutate(period = with_tz(period, tzone = "America/Los_Angeles")) %>%
+  mutate(
+    hour = hour(period),
+    year = year(period),
+    month = month(period),
+  ) |>
+  filter(month %in% c(7)) |>
+  group_by(year, hour, fueltype, `type-name`) |>
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(state = "Texas")
+
+
+fetch_eia_page_CAL <- function(offset, length = 5000) {
+  request("https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/") |>
+    req_url_query(
+      api_key        = api_key,
+      frequency      = "hourly",
+      `data[0]`      = "value",
+      `facets[fueltype][]` = c("BAT", "SNB", "SUN","OTH"),
+      `facets[respondent][]` = "CAL",
+      start          = "2019-01-01T00",
+      end            = "2025-12-31T00",
+      `sort[0][column]`    = "period",
+      `sort[0][direction]` = "asc",
+      offset         = offset,
+      length         = length,
+      .multi = "explode"
+    ) |>
+    req_perform() |>
+    resp_body_json(simplifyVector = TRUE)
+}
+# get total row count from first call
+first  <- fetch_eia_page_CAL(0)
+total  <- first$response$total
+cat("Total rows:", total, "\n")
+
+total <- as.integer(first$response$total)
+offsets <- seq(0, total - 1, by = 5000)
+
+raw <- purrr::map(offsets, \(o) {
+  Sys.sleep(0.1)  # be polite
+  fetch_eia_page_CAL(o)$response$data
+}, .progress = TRUE)
+
+CAL <- list_rbind(raw) |>
+  mutate(
+    period = ymd_h(period),
+    value  = as.numeric(value)
+  )
+
+CAL_summary <- CAL |>
+  mutate(period = with_tz(period, tzone = "America/Los_Angeles")) %>%
+  mutate(
+    hour = hour(period),
+    year = year(period),
+    month = month(period),
+  ) |>
+  filter(month %in% c(7)) |>
+  group_by(year, hour, fueltype, `type-name`) |>
+  summarise(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+  mutate(state = "California") %>%
+  mutate(
+    fueltype = if_else(fueltype == "OTH", "BAT", fueltype),
+    `type-name` = if_else(`type-name` == "Other", "Battery storage", `type-name`)
+  ) |>
+  group_by(year, hour, fueltype, `type-name`, state) |>
+  summarise(value = sum(value, na.rm = TRUE), .groups = "drop")
+
+CA_HOURLY_SOLAR_BATTERY_GRAPH <- rbind(CAL_summary,TEX_summary) |>
+  filter(year >= c(2023)) |>
+  ggplot(aes(x = hour, y = value/1000, fill = `type-name`)) +
+  geom_bar(position="stack", stat="identity", size = 0, color = NA, width = 1) +
+  facet_wrap(~year, ncol = 3) +
+  scale_x_continuous(breaks = seq(0, 23, by = 3)) +
+  scale_y_continuous(labels = scales::number_format(suffix = "GWh")) +
+  labs(
+    x = "Hour of day (PST)",
+    y = "Avg generation (GWh), Lower 48 States",
+    fill = NULL,
+    title = "California Hourly Avg. Solar & Battery Generation",
+    subtitle = "Solar Not Only Produces More Power at Peak Hours, But is Now Spread More Through the Day"
+  ) +
+  theme_apricitas +
+  scale_fill_manual(name= NULL,values = c("#FFE98F","#EE6055","#3083DC","#A7ACD9","#9A348E","#00A99D","#6A4C93"),breaks = c("Solar","Solar with integrated battery storage","Battery storage"),labels = c("Solar","Solar w/ Integrated Batteries","Battery Storage")) +
+  theme(legend.position = c(.25,.85)) +
+  theme(plot.title.position = "plot") +
+  theme(strip.text = element_text(color = "white", size = 15, face = "bold")) +
+  theme(plot.title = element_text(size = 25))
+
+ggsave(dpi = "retina",plot = CA_HOURLY_SOLAR_BATTERY_GRAPH, "CA Hourly Solar Battery Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 p_unload(all)  # Remove all add-ons
 

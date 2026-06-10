@@ -193,41 +193,41 @@ TOTAL_NATIVE_BORN_POP_DATA <- ggplot() + #plotting Wage Growth
 
 ggsave(dpi = "retina",plot = TOTAL_NATIVE_BORN_POP_DATA, "Total Native Born Pop Data Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
-HISPANIC_POP_COUNTS <- bls_api("LNU00000009", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+HISPANIC_POP_COUNTS <- bls_api("LNU00000009", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-HISPANIC_FOREIGN_BORN <- bls_api("LNU00073407", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+HISPANIC_FOREIGN_BORN <- bls_api("LNU00073407", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE_HISPANIC <- merge(HISPANIC_FOREIGN_BORN,HISPANIC_POP_COUNTS, by = "date") %>%
-  #select(-latest.x,-latest.y) %>%
+  select(-latest.x,-latest.y) %>%
   drop_na() %>%
   transmute(date, value = value.x/value.y)
 
-ASIAN_NATIVE_BORN <- bls_api("LNU00073424", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+ASIAN_NATIVE_BORN <- bls_api("LNU00073424", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-ASIAN_FOREIGN_BORN <- bls_api("LNU00073406", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+ASIAN_FOREIGN_BORN <- bls_api("LNU00073406", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE_ASIAN <- merge(ASIAN_FOREIGN_BORN,ASIAN_NATIVE_BORN, by = "date") %>%
   transmute(date, value = value.x/(value.y+value.x), rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value.x,12)/rollmean(value.y,12)))
 
 
-BLACK_NATIVE_BORN <- bls_api("LNU00073423", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+BLACK_NATIVE_BORN <- bls_api("LNU00073423", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-BLACK_FOREIGN_BORN <- bls_api("LNU00073405", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+BLACK_FOREIGN_BORN <- bls_api("LNU00073405", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE_BLACK <- merge(BLACK_FOREIGN_BORN,BLACK_NATIVE_BORN, by = "date") %>%
   transmute(date, value = value.x/(value.y+value.x), rollmean = c(0,0,0,0,0,0,0,0,0,0,0,rollmean(value.x,12)/rollmean(value.y,12)))
 
 
-WHITE_NATIVE_BORN <- bls_api("LNU00073422", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+WHITE_NATIVE_BORN <- bls_api("LNU00073422", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-WHITE_FOREIGN_BORN <- bls_api("LNU00073404", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+WHITE_FOREIGN_BORN <- bls_api("LNU00073404", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE_WHITE <- merge(WHITE_FOREIGN_BORN,WHITE_NATIVE_BORN, by = "date") %>%
@@ -235,10 +235,10 @@ FOREIGN_SHARE_WHITE <- merge(WHITE_FOREIGN_BORN,WHITE_NATIVE_BORN, by = "date") 
 
 
 
-NATIVE_BORN <- bls_api("LNU00073413", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+NATIVE_BORN <- bls_api("LNU00073413", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
-FOREIGN_BORN <- bls_api("LNU00073395", startyear = 2006, registrationKey = Sys.getenv("BLS_KEY")) %>%
+FOREIGN_BORN <- bls_api("LNU00073395", startyear = 2007, registrationKey = Sys.getenv("BLS_KEY")) %>%
   mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y")))
 
 FOREIGN_SHARE <- merge(FOREIGN_BORN,NATIVE_BORN, by = "date") %>%

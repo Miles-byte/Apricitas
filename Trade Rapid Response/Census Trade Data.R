@@ -71,7 +71,7 @@ GROSS_TARIFF_PCT_GRAPH <- ggplot() + #plotting integrated circuits exports
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,ceiling(max(GROSS_IMPORTS_BULK_CON$tariff_rate, na.rm = TRUE) / 0.02) * 0.02),breaks = c(0,.02,.04,.06,.08,.1,.12,.14,.16,.18,.20,.22,.24,.26), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
-  ggtitle("US Tariff Rates are Rapidly Rising") +
+  ggtitle("US Effective Tariff Rates") +
   labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Costs are Rising as Trump Imposes Massive Tariffs on Major US Imports") +
   theme_apricitas + theme(legend.position = c(.35,.89)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +

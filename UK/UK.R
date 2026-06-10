@@ -788,8 +788,8 @@ LABOR_PRODUCTIVITY_graph <- ggplot() + #Plotting GDP Growth Rates
 
 ggsave(dpi = "retina",plot = LABOR_PRODUCTIVITY_graph, "Labor Productivity.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
-#change to pn2 for first estimates
-UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/ukea") %>%
+#change to ukea for not first estimates
+UK_PER_CAPITA <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2") %>%
   `colnames<-`(c("date","value")) %>%
   transmute(date = as.Date(as.yearqtr(date, "%Y Q%q")), value) %>%
   subset(., value > 1)  %>%
@@ -1414,6 +1414,49 @@ ENERGY_PRICE_INDICES_Graph <- ggplot() + #Plotting GDP Growth Rates
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = ENERGY_PRICE_INDICES_Graph, "Energy Price Indices Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+UK_MONTHLY_GDP <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp") %>%
+  subset(., nchar(Title)==8) %>%
+  `colnames<-`(c("date","value")) %>%
+  transmute(date = as.Date(as.yearmon(date, "%Y %b")), value) %>%
+  mutate_if(is.character,as.numeric) %>%
+  drop_na() %>%
+  mutate(value = value/value[277]*100)
+
+UK_MONTHLY_GDP_YOY <- read.csv("https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed2r/mgdp") %>%
+  subset(., nchar(Title)==8) %>%
+  `colnames<-`(c("date","value")) %>%
+  transmute(date = as.Date(as.yearmon(date, "%Y %b")), value) %>%
+  mutate_if(is.character,as.numeric) %>%
+  drop_na()
+
+
+mom_change <- tail(UK_MONTHLY_GDP$value, 1) - nth(UK_MONTHLY_GDP$value, -2)
+yoy_change <- tail(UK_MONTHLY_GDP_YOY$value, 1)
+
+dynamic_subtitle <- paste0(
+  "British GDP is ",
+  ifelse(mom_change >= 0, "Up ", "Down "),
+  round(abs(mom_change), 1),
+  "% Over the Last Month and ",
+  ifelse(yoy_change >= 0, "Up ", "Down "),
+  round(abs(yoy_change), 1),
+  "% Over the Last Year"
+)
+
+UK_MONTHLY_GDP_Graph <- ggplot() + #Plotting GDP Growth Rates
+  geom_line(data = filter(UK_MONTHLY_GDP, date > as.Date("2016-01-01")), aes(x = date, y = value, color = "UK Monthly GDP Index, Jan 2020 = 100"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(74,110), breaks = c(80,90,100,110),labels = scales::number_format(), expand = c(0,0)) +
+  ylab("Index, Jan 2020 = 100") +
+  ggtitle("UK Monthly GDP") +
+  labs(caption = "Graph created by @JosephPolitano using ONS data",subtitle = dynamic_subtitle) +
+  theme_apricitas + theme(legend.position = c(.45,.9)) +
+  scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 74-(.3*36), ymax = 74) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = UK_MONTHLY_GDP_Graph, "UK Monthly GDP Chart.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

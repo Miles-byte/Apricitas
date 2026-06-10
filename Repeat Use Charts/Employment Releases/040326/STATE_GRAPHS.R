@@ -703,7 +703,7 @@ JOB_GROWTH_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   ) +
   geom_label(
     data = filter(states_territories_centroids, state_abbv %in% c("MD")), 
-    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, " ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
+    aes(x = 2700000, y = st_coordinates(geometry)[,2], label = paste0(state_abbv, "\n", ifelse(Growth >= 0, "  ", " "), sprintf("%.1f", round(Growth * 100, 1)), "% ")), 
     size = 3.5, 
     color = "black",
     hjust = 0.5,
@@ -1550,6 +1550,32 @@ JOB_GROWTH_STATE_BAR_GRAPH <- ggplot(data = JOB_GROWTH, aes(x = series_id, y = G
   theme(axis.text.x = element_text(size = 7))
 
 ggsave(dpi = "retina",plot = JOB_GROWTH_STATE_BAR_GRAPH, "Growth State Bar Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+FL_NSA_YOY <- FL_NSA %>%
+  mutate(value = (value-lag(value,12))/lag(value,12))
+  
+TX_NSA_YOY <- TX_NSA %>%
+  mutate(value = (value-lag(value,12))/lag(value,12))
+
+CA_NSA_YOY <- CA_NSA %>%
+  mutate(value = (value-lag(value,12))/lag(value,12))
+
+CATXFL_JOB_GROWTH_YOY_graph <- ggplot() + #plotting permanent and temporary job losers
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
+  geom_line(data= filter(FL_NSA_YOY, date >= as.Date("2022-01-01")), aes(x=date,y= value, color= "Florida"), size = 1.25) +
+  geom_line(data= filter(TX_NSA_YOY, date >= as.Date("2022-01-01")), aes(x=date,y= value, color= "Texas"), size = 1.25) +
+  geom_line(data= filter(CA_NSA_YOY, date >= as.Date("2022-01-01")), aes(x=date,y= value, color= "California"), size = 1.25) +
+  xlab("Date") +
+  ylab("Year-on-Year Growth, %") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = .25), breaks = c(0,.025,.05,.075), limits = c(-.01,.09), expand = c(0,0)) +
+  ggtitle("Job Growth by State, Year-on-Year, %") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "For the First Time Since 2022, California is Growing Faster than Florida or Texas") +
+  theme_apricitas + theme(legend.position = c(.5,.74)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = -.01-(.3*.1), ymax = -.01) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CATXFL_JOB_GROWTH_YOY_graph, "CA US Job Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 AL_MANU <- bls_api("SMS01000003000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -3157,3 +3183,4 @@ FED_JOB_GROWTH_PCT_WORKFORCE_STATE_GRADIENT_RAINBOW <- states_job_growth  %>%
   theme_apricitas + theme(legend.position = "right", panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0, 0, 0, 0), "in"), legend.key = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank())
 
 ggsave(dpi = "retina",plot = FED_JOB_GROWTH_PCT_WORKFORCE_STATE_GRADIENT_RAINBOW, "Fed Job Growth Pct Workforce By State Yoy Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+

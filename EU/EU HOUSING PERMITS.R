@@ -31,12 +31,17 @@ EU_POP_QUARTERLY <- EU_POP_QUARTERLY_BULK %>%
 
 EU_PERMITS_PC_QUARTERLY <- EU_PERMITS_QUARTERLY_BULK %>%
   filter(unit == "I21", cpa2_1 == "CPA_F41001_X_410014", indic_bt == "BPRM_DW", s_adj == "SCA") %>%
-  full_join(.,EU_PERMITS_ANNUAL, by = "geo") %>%
-  mutate(values = (values.x * values.y)/100) %>%
-  select(-values.x,-values.y) %>%
-  full_join(.,EU_POP_QUARTERLY, by = "geo") %>%
-  mutate(values = values.x/values.y*1000) %>%
-  select(-values.x,-values.y)
+  full_join(., EU_PERMITS_ANNUAL, by = "geo") %>%
+  mutate(values = (values.x * values.y) / 100) %>%
+  select(-values.x, -values.y) %>%
+  full_join(
+    EU_POP_QUARTERLY_BULK %>%
+      filter(unit == "THS_PER", s_adj == "NSA", na_item == "POP_NC") %>%
+      select(geo, TIME_PERIOD, values),
+    by = c("geo", "TIME_PERIOD")
+  ) %>%
+  mutate(values = values.x / values.y * 1000) %>%
+  select(-values.x, -values.y)
   
   
 EU_PERMITS_PC_MAP <- EU_PERMITS_PC_QUARTERLY %>%
@@ -105,7 +110,7 @@ EU_PERMITS_PC_GRAPH <- ggplot(data = EU_PERMITS_PC_SHP, aes(fill = values)) +
                  " ", year(EU_PERMITS_PC_SHP$time[10])))+
   scale_x_continuous(limits = c(1600000, 7150000)) +
   scale_y_continuous(limits = c(1300000, 5300000)) +
-  theme(plot.title = element_text(size = 24)) +
+  theme(plot.title = element_text(size = 20)) +
   labs(caption = "Graph created by @JosephPolitano using Eurostat data") +
   labs(fill = NULL) +
   geom_label(
@@ -290,9 +295,9 @@ EU_PERMITS_PC_GRAPH <- ggplot(data = EU_PERMITS_PC_SHP, aes(fill = values)) +
   ) +
   geom_text(data = filter(EU_PERMITS_PC_CENTROIDS, !geo %in% c("AD","IS","UA","RS","TR","MD","AX","CH","SM","VA","ME","AL","MK","BA","JE","IM","FO","GB","BB","LI","MC","GG","XK","NO","IE","LU","NE","EE","LT","NL","BE","DK","BY","LV","MT","GR","CY","SI","SK","HR","BG","CZ","HU","AT","PT")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label, 1)), " ")), size = 3, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
   geom_text(data = filter(EU_PERMITS_PC_CENTROIDS, geo %in% c("BG","CZ","HU","AT")), aes(x = st_coordinates(geometry)[,1], y = st_coordinates(geometry)[,2], label = paste0(geo, "\n", ifelse(label >= 0, " ", ""), sprintf("%.1f", round(label, 1)), " ")), size = 2.5, color = "black", check_overlap = TRUE,fontface = "bold",lineheight = 0.75) +
-  theme(plot.title.position = "panel") + theme(plot.title = element_text(hjust = 0, margin = margin(l = -20))) +
-  theme_apricitas + theme(legend.position = c(0.1,.65), panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, -0.2, 0, -1.5), "in"), legend.key = element_blank(),axis.title.x = element_blank(), axis.title.y = element_blank())
-
+  theme_apricitas + theme(legend.position = c(0.1,.65), panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(0.1, -0.2, 0, -1.5), "in"), legend.key = element_blank(),axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title.position = "panel") + theme(plot.title = element_text(hjust = 0, size = 24, margin = margin(l = -20)))
+  
 
 ggsave(dpi = "retina",plot = EU_PERMITS_PC_GRAPH, "EU PERMITS PC Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 

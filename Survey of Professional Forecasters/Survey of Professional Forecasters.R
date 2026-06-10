@@ -45,8 +45,8 @@ MEDIAN_GDP_GROWTH <- read_xlsx(MEDIAN_GROWTH_TEMPFILE, sheet = "RGDP") %>%
 
 GDP_GROWTH_GRAPH <- ggplot() + #plotting GDP Forecast Growth
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2025-07-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q3 2025"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2025-10-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q4 2025"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2026-01-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q1 2026"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2026-04-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q2 2026"), size = 1.25) +
   #geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2026-01-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q1 2026"), size = 1.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0,0.025), expand = c(0,0)) +
@@ -96,18 +96,20 @@ MEDIAN_GDP_LVLS <- MEDIAN_GDP_LVLS %>%
 
 GDP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2025 Median Forecasts"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2025 Median Forecasts"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2025 Median Forecasts"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q3 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q4 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2026-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2026 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_GDP_LVLS, date == as.Date("2026-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2026 Median Forecasts"), size = 1.25) +
   geom_line(data=REAL_GDP, aes(x=date,y= value/1000, color= "Real GDP"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::dollar_format(accuracy = 0.1, suffix = "T"), limits = c(22,25), expand = c(0,0)) +
   ylab("Real GDP") +
   ggtitle("US Real GDP & Forecasts") +
-  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Increased GDP Projections, But they Remain Below Pre-Trade-War Levels") +
+  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Reduced US GDP Projections, Though They Remain Above Late-2025 Forecasts") +
   theme_apricitas + theme(legend.position = c(.25,.75)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Real GDP","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Real GDP","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts","Q1 2026 Median Forecasts","Q2 2026 Median Forecasts")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 22-(.3*3), ymax = 22) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
   guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25, 1.25))))
@@ -152,18 +154,18 @@ MEDIAN_UNEMP_LVLS <- MEDIAN_UNEMP_LVLS %>%
 
 UNEMP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/100, color= "Q1 2025 Median Forecasts"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/100, color= "Q2 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/100, color= "Q3 2025 Median Forecasts"), size = 1.25) +
   geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/100, color= "Q4 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2026-01-01")), aes(x=date_forecasted,y= forecast/100, color= "Q1 2026 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_UNEMP_LVLS, date == as.Date("2026-04-01")), aes(x=date_forecasted,y= forecast/100, color= "Q2 2026 Median Forecasts"), size = 1.25) +
   geom_line(data=UNRATE, aes(x=date,y= value/100, color= "Unemployment Rate"), size = 2.25) +
   xlab("Date") +
   scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0.03,0.05), expand = c(0,0)) +
   ylab("Unemployment Rate") +
   ggtitle("US Unemployment Rate & Forecasts") +
-  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered Unemployment Projections, But they Remain Above Q1 2025 Levels") +
+  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered Unemployment Projections, Though They Still Expect Unemployment to Rise") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Unemployment Rate","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Unemployment Rate","Q1 2026 Median Forecasts","Q2 2026 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 0.03-(.3*0.02), ymax = 0.03) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
   guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25,1.25))))
@@ -209,21 +211,61 @@ MEDIAN_EMP_LVLS <- MEDIAN_EMP_LVLS %>%
 
 EMP_LEVELS_GRAPH <- ggplot() + #plotting rent by A/B/C City Size
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
-  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2025 Median Forecasts"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2025 Median Forecasts"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q3 2025 Median Forecasts"), size = 1.25) +
-  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q4 2025 Median Forecasts"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-07-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q3 2025 Median Forecasts"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2025-10-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q4 2025 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2026-01-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q1 2026 Median Forecasts"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_EMP_LVLS, date == as.Date("2026-04-01")), aes(x=date_forecasted,y= forecast/1000, color= "Q2 2026 Median Forecasts"), size = 1.25) +
   geom_line(data=EMP, aes(x=date,y= value/1000, color= "Payroll Employment"), size = 2.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.1), limits = c(154,162.5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.1), limits = c(154,160), expand = c(0,0)) +
   ylab("Nonfarm Payrolls") +
   ggtitle("US Payroll Employment & Forecasts") +
-  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered US Employment Projections Continually This Year") +
+  labs(caption = "Graph created by @JosephPolitano using Philly Fed Survey of Professional Forecasters data",subtitle = "Forecasters Have Lowered US Employment Projections Since the Start of This Year") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
-  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Payroll Employment","Q1 2025 Median Forecasts","Q2 2025 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 154-(.3*8.5), ymax = 154) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"),breaks = c("Payroll Employment","Q1 2026 Median Forecasts","Q2 2026 Median Forecasts","Q3 2025 Median Forecasts","Q4 2025 Median Forecasts")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()+365-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()+365-as.Date("2023-01-01"))), ymin = 154-(.3*6), ymax = 154) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
-  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25, 1.25))))
+  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25))))
 
 ggsave(dpi = "retina",plot = EMP_LEVELS_GRAPH, "EMP Levels Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+MEDIAN_CPI_GROWTH <- read_xlsx(MEDIAN_LEVELS_TEMPFILE, sheet = "CPI") %>%
+  mutate(across(where(is.character), as.numeric)) %>%
+  mutate(date = yq(paste0(YEAR, " Q", QUARTER))) %>%
+  mutate(fcasted_date_2 = date,
+         fcasted_date_3 = date %m+% months(3),
+         fcasted_date_4 = date %m+% months(6),
+         fcasted_date_5 = date %m+% months(9),
+         fcasted_date_6 = date %m+% months(12)) %>%
+  select(-YEAR,-QUARTER) %>%
+  select(-CPIA,-CPIB,-CPIC) %>%
+  pivot_longer(
+    cols = matches("CPI\\d+|fcasted_date_\\d+"),
+    names_to = c(".value", "horizon"),
+    names_pattern = "([a-zA-Z_]+)(\\d+)"
+  ) %>%
+  rename(
+    forecast = CPI,
+    date_forecasted = fcasted_date_
+  ) %>%
+  select(date, forecast, date_forecasted)
+
+
+CPI_GROWTH_FORECAST_GRAPH <- ggplot() + #plotting GDP Forecast Growth
+  annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
+  geom_line(data=filter(MEDIAN_CPI_GROWTH, date_forecasted == as.Date("2026-01-01")), aes(x=date,y= forecast/100, color= "Median CPI Forecast for Q1 2026"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_CPI_GROWTH, date_forecasted == as.Date("2026-04-01")), aes(x=date,y= forecast/100, color= "Median CPI Forecast for Q2 2026"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_CPI_GROWTH, date_forecasted == as.Date("2026-07-01")), aes(x=date,y= forecast/100, color= "Median CPI Forecast for Q3 2026"), size = 1.25) +
+  geom_line(data=filter(MEDIAN_CPI_GROWTH, date_forecasted == as.Date("2026-10-01")), aes(x=date,y= forecast/100, color= "Median CPI Forecast for Q4 2026"), size = 1.25) +
+  #geom_line(data=filter(MEDIAN_GDP_GROWTH, date_forecasted == as.Date("2026-01-01")), aes(x=date,y= forecast/100, color= "Median GDP Forecast for Q1 2026"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1), limits = c(0,0.06), expand = c(0,0)) +
+  ylab("Percent Growth, Seasonally Adjusted Annual Rate") +
+  ggtitle("Change in CPI Inflation Forecasts") +
+  labs(caption = "Graph created by @JosephPolitano using Philly Fed data",subtitle = "Professional Forecasters Expect CPI Inflation to Rise to 6% in Q2") +
+  theme_apricitas + theme(legend.position = c(.25,.75)) +
+  scale_color_manual(name= NULL ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2025-01-01")-(.1861*(today()-as.Date("2025-01-01"))), xmax = as.Date("2025-01-01")-(0.049*(today()-as.Date("2025-01-01"))), ymin = 0-(.3*.06), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CPI_GROWTH_FORECAST_GRAPH, "CPI Growth Forecast Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
