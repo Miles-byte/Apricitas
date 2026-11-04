@@ -13,6 +13,7 @@ install_github("keberwein/blscrapeR")
 library(blscrapeR)
 
 
+
 US_ADP_EXPORTS <- getCensus(
   name = "timeseries/intltrade/exports/hs",
   vars = c("MONTH", "YEAR", "ALL_VAL_MO", "E_COMMODITY", "CTY_CODE"), 
@@ -63,7 +64,7 @@ US_COMPUTER_NET_IMPORTS_Graph <- ggplot() + #plotting integrated circuits export
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_DPU/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= roll_ADP_PARTS/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("US Computer Net Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. Large Computers are HS Code 847150, Parts & Accessories are HS Code 847330",subtitle = "US Imports of Large Computers & Parts/Accessories Has Been Skyrocketing") +
@@ -80,7 +81,7 @@ US_COMPUTER_NET_IMPORTS_Monthly_Graph <- ggplot() + #plotting integrated circuit
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= DPU*12/1000000000,color= "Large Computers (excl. Laptops)"), size = 1.25) + 
   geom_line(data=filter(US_ADP_NET_IMPORTS, time>= as.Date("2014-01-01")), aes(x=time,y= ADP_PARTS*12/1000000000,color= "Computer Parts & Accessories"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,20,40,60,80,100,120,140,160,180,200,220,240), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(-5,ceiling(max(US_ADP_NET_IMPORTS$DPU)*12/5000000000)*5), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
   ylab("Billions of Dollars") +
   ggtitle("US Computer Net Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. Large Computers are HS Code 847150, Parts & Accessories are HS Code 847330",subtitle = "US Imports of Large Computers & Parts/Accessories Has Been Skyrocketing") +
@@ -110,12 +111,12 @@ OFFICE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/p
 
 
 DATA_CENTER_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
-  annotate(geom = "segment", x = as.Date("2022-11-01"), xend = as.Date("2022-11-01"), y = 0, yend = 20, color = "white",linetype = "dashed", size = 1) +
-  annotate("text", label = "ChatGPT\nLaunch", x = as.Date("2022-09-01"), y = 17.5, color = "white", size = 4, hjust = 1, lineheight = 0.8) +
+  annotate(geom = "segment", x = as.Date("2022-11-01"), xend = as.Date("2022-11-01"), y = 0, yend = 30, color = "white",linetype = "dashed", size = 1) +
+  annotate("text", label = "ChatGPT\nLaunch", x = as.Date("2022-09-01"), y = 20, color = "white", size = 4, hjust = 1, lineheight = 0.8) +
   geom_line(data=DATA_CENTER_CONSTRUCTION, aes(x=date,y= `Data center`/1000,color= "US Data Center Construction Spending,\nSeasonally Adjusted Annual Rate"), size = 1.25) + 
   xlab("Date") +
   ylab("Spending, Billions") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(10,20,30,40,50,60,70), limits = c(0,ceiling(max(DATA_CENTER_CONSTRUCTION$`Data center`)/5000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = seq(0,200,20), limits = c(0,ceiling(max(DATA_CENTER_CONSTRUCTION$`Data center`)/5000)*5), expand = c(0,0)) +
   ggtitle("Data Center Construction at Record Highs") +
   labs(caption = "Graph created by @JosephPolitano using Census data", subtitle = "Data Center Construction Spending is Skyrocketing Amidst the AI Boom") +
   theme_apricitas + theme(legend.position = c(.52,.92), legend.key.height = unit(0,"cm"), plot.title = element_text(size = 27)) +
@@ -124,6 +125,23 @@ DATA_CENTER_CONSTRUCTION_Graph <- ggplot() + #plotting net tightening data
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = DATA_CENTER_CONSTRUCTION_Graph, "DATA CENTER CONSTRUCTION GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE
+
+DATA_CENTER_CONSTRUCTION %>%
+  arrange(date) %>%
+  summarise(
+    pace = last(`Data center`)/1000,
+    record = last(`Data center`) >= max(`Data center`),
+    yoy = last(`Data center`)/nth(`Data center`, -13) - 1,
+    gpt = last(`Data center`)/`Data center`[date == as.Date("2022-11-01")] - 1
+  ) %>%
+  with(glue::glue(
+    "US data center construction {if (record) 'reached another new record high' else 'came in'} in official data released today, ",
+    "{if (pace %% 1 >= 0.5) paste0('nearing a pace of $', ceiling(pace)) else paste0('exceeding a pace of $', floor(pace))}B/yr ",
+    "(and this only includes data center facilities, not the expensive computers within)\n\n",
+    "Spending is {if (yoy >= 0) 'up' else 'down'} {scales::percent(abs(yoy), accuracy = 1)} over the last year ",
+    "and {scales::percent(gpt, accuracy = 1)} since ChatGPT's launch"
+  )) %>%
+  cat()
 
 OFFICE_CONSTRUCTION <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
   row_to_names(2) %>%
@@ -327,12 +345,12 @@ COM_ELEC_Graph <- ggplot() + #plotting permanent and temporary job losers
   geom_line(data= filter(US_COM_ELEC, date >= as.Date("2015-01-01")), aes(x=date,y= rollsum, color= "US"), size = 2.25) +
   xlab("Date") +
   ylab("Sales to Commerical Power Users, 2019 = 100") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130,140,150,160,170,180,190,200), limits = c(80,175), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1), breaks = c(80,90,100,110,120,130,140,150,160,170,180,190,200), limits = c(80,190), expand = c(0,0)) +
   ggtitle("Electricity Sales to Commercial Users\n(Including Data Centers & Crypto Mining)") +
   labs(caption = "Graph created by @JosephPolitano using EIA Electricity data", subtitle = "Data Center and Miner Power Demand Has Mattered in Key Markets Like ND, OR, VA, & TX") +
   theme_apricitas + theme(legend.position = c(.25,.7)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
   scale_color_manual(name= "Electricity Sales to Commercial Users\nRolling 12M Total, Indexed, 2019 = 100",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("US","North Dakota","Oregon","Virginia","Texas"), guide=guide_legend(override.aes=list(lwd = c(2.25,1.25,1.25,1.25,1.25)))) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*95), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 80-(.3*110), ymax = 80) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = COM_ELEC_Graph, "Com Elec Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -525,7 +543,7 @@ US_TAIWAN_ADP_NET_IMPORTS_ROLLED_graph <- ggplot() + #plotting permanent and tem
   geom_line(data= filter(US_ADP_PARTS_NET_EXPORTS_COUNTRY, time >= as.Date("2015-01-01")), aes(x=time,y= (TAIWAN_rollsum.x-TAIWAN_rollsum.y)/1000000000, color= "Computer Parts & Accessories"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80), limits = c(-1,ceiling(max((US_ADP_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,10,20,30,40,50,60,70,80,90,100,110,120,130), limits = c(-1,ceiling(max((US_ADP_NET_EXPORTS_COUNTRY%>%select(TAIWAN_rollsum.x)%>%drop_na())$TAIWAN_rollsum.x)/5000000000)*5), expand = c(0,0)) +
   ggtitle("US Imports of Taiwanese Computers") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports from Taiwan") +
   theme_apricitas + theme(legend.position = c(.30,.78)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
@@ -600,7 +618,7 @@ US_LARGE_COMPUTER_IMPORTS_graph <- ggplot() + #plotting permanent and temporary 
   #geom_line(data= filter(US_CHIP_IMPORTS, date >= as.Date("2015-01-01")), aes(x=date,y= imports*12/1000000000, color= "Semiconductors"), size = 1.25) +
   xlab("Date") +
   ylab("Net Imports, Dollars") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350,400), limits = c(0,ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/50000000000)*50), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), breaks = c(0,50,100,150,200,250,300,350,400,450,500), limits = c(0,ceiling(max(COMPUTER_X_LAPTOP_IMPORTS$imports*12)/50000000000)*50), expand = c(0,0)) +
   ggtitle("Computer Imports Surge Amid the AI Boom") +
   labs(caption = "Graph created by @JosephPolitano using Census Trade data. Large Computers = HS8471 ex Laptops, Computer Parts = HS8473", subtitle = "AI & Data Center Demand Has Driven a Massive Boom in US Computer Imports") +
   theme_apricitas + theme(legend.position = c(.40,.80)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
@@ -710,13 +728,13 @@ AI_RELATED_IMPORTS <- ggplot() + #plotting integrated circuits exports
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= Malaysia*12/1000000000,color= "Malaysia"), size = 1.25) + 
   geom_line(data=AI_IMPORTS_BREAKDOWN, aes(x=date,y= `South Korea`*12/1000000000,color= "South Korea"), size = 1.25) + 
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,225),breaks = c(0,25,50,75,100,125,150,175,200,225), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1),limits = c(0,275),breaks = c(0,50,100,150,200,250), expand = c(0,0)) +
   ylab("Dollars, Not Seasonally Adjusted Annual Rate") +
   ggtitle("US AI-Related Computer & Parts Imports") +
   labs(caption = "Graph created by @JosephPolitano using Census data. AI = HS 8471 (computers) - 847130 (laptops) + 8473 (parts) + 854231 (GPUs)",subtitle = "America's AI-Related Imports are Skyrocketing, Especially From Taiwan and Mexico") +
   theme_apricitas + theme(legend.position = c(.45,.60)) +
   scale_color_manual(name = "AI-Related Computer & Parts Imports, Billions, Monthly Annualized",values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("Taiwan","Mexico","Malaysia","Vietnam","Thailand","South Korea","China","All Other Countries")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(225)), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2021-01-01")-(.1861*(today()-as.Date("2021-01-01"))), xmax = as.Date("2021-01-01")-(0.049*(today()-as.Date("2021-01-01"))), ymin = 0-(.3*(250)), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = AI_RELATED_IMPORTS, "AI Related Imports Breakdown Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #CAIRO GETS RID OF THE ANTI ALIASING ISSUE

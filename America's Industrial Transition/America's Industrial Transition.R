@@ -387,7 +387,7 @@ MFG_SPENDING_CATEGORIES <- read.xlsx("https://www.census.gov/construction/c30/xl
   `colnames<-`(c("Total","Food/Beverage/Tobacco","Chemical","Plastic/Rubber","Nonmetallic Mineral","Fabricated Metal","Computer/Electronic/Electrical","Transportation Equipment")) %>%
   mutate_if(is.character,as.numeric) %>%
   mutate(Other = Total-`Food/Beverage/Tobacco`-Chemical-`Plastic/Rubber`-`Nonmetallic Mineral`-`Fabricated Metal`-`Computer/Electronic/Electrical`-`Transportation Equipment`) %>%
-  #select(-Total) %>%
+  select(-Total) %>%
   .[order(nrow(.):1),] %>%
   mutate(date = seq.Date(from = as.Date("2014-01-01"), by = "month", length.out = nrow(.))) %>%
   mutate_if(is.character,as.numeric) %>%
@@ -401,13 +401,27 @@ MFG_SPENDING_CATEGORIES_GRAPH <- ggplot() + #plotting components of manufacturin
   scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"),limits = c(0,250), breaks = c(0,50,100,150,200,250), expand = c(0,0)) +
   ylab("Billions of Dollars, Annual Rate") +
   ggtitle("US Manufacturing Construction Spending") +
-  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "Computer/Electronic Manufacturing Now Makes Up Nearly 60% of Manufacturing Construction") +
+  labs(caption = "Graph created by @JosephPolitano using US Census data",subtitle = "American Manufacturing Construction Continues Declining From its 2024 Highs") +
   theme_apricitas + theme(legend.position = c(0.25,0.75), legend.key.size = unit(0.5,"cm")) +
   scale_fill_manual(name= NULL,values = c("#EE6055","#FFE98F","#00A99D","#9A348E","#3083DC","#A7ACD9","#6A4C93","#FF8E72")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*250), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = MFG_SPENDING_CATEGORIES_GRAPH, "MFG Spending Categories Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+MFG_SPENDING_CATEGORIES %>%
+  group_by(date) %>%
+  summarise(total = sum(value)) %>%
+  arrange(date) %>%
+  summarise(tweet = paste0(
+    "American factory construction ", if_else(last(total) < nth(total, -2), "inched down", "inched up"),
+    " to the lowest level since ", year(max(date[total <= last(total) & date < max(date)])),
+    " in official data released today as CHIPS Act projects finish and tariffs weigh on nearly all industries\n\n",
+    "Total US factory construction is down ", scales::percent(1 - last(total)/max(total[year(date) == 2024]), accuracy = 1),
+    " from its 2024 highs and ", scales::percent(1 - last(total)/nth(total, -13), accuracy = 1), " over the last year alone"
+  )) %>%
+  pull(tweet) %>%
+  cat()
 
 ELECTRIC_SPENDING <- read.xlsx("https://www.census.gov/construction/c30/xlsx/privsatime.xlsx") %>%
   drop_na() %>%

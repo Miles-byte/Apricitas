@@ -3187,6 +3187,67 @@ ggsave(dpi = "retina",plot = FED_JOB_GROWTH_PCT_WORKFORCE_STATE_GRADIENT_RAINBOW
 
 
 
+US <- US_CONS <- bls_api("CES0000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
+  mutate(name = "US")
+
+LION_EMP_TOTL <- rbind(UT,NV,ID,US) %>%
+  mutate(category = "All Employees") %>%
+  group_by(name) %>%
+  mutate(value = (value/value[1])-1) %>%
+  ungroup()
+
+UT_CONS <- bls_api("SMS49000002000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
+  mutate(name = "Utah")
+NV_CONS <- bls_api("SMS32000002000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
+  mutate(name = "Nevada")
+ID_CONS <- bls_api("SMS16000002000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
+  mutate(name = "Idaho")
+
+US_CONS <- bls_api("CES2000000001", startyear = 2020, registrationKey = Sys.getenv("BLS_KEY")) %>%
+  mutate(date = as.Date(as.yearmon(paste(periodName, year), "%b %Y"))) %>%
+  arrange(date) %>%
+  mutate(FIPS = as.numeric(substr(seriesID, 6, nchar(seriesID) - 10))) %>%
+  mutate(name = "US")
+
+LION_EMP_CONS <- rbind(UT_CONS,NV_CONS,ID_CONS,US_CONS) %>%
+  mutate(category = "Construction Employees") %>%
+  group_by(name) %>%
+  mutate(value = (value/value[1])-1) %>%
+  ungroup()
+
+LION_EMP_AGG <- rbind(LION_EMP_TOTL,LION_EMP_CONS)
+
+LION_EMP_AGG_GRAPH <- ggplot() +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_line(data = LION_EMP_AGG, aes(x = date, y = value, color = name, linewidth = name)) + 
+  facet_wrap(~ category) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), expand = c(0,0)) +
+  ylab("Percent Growth Since Jan 2020") +
+  ggtitle("Cumulative Job Growth Since Jan 2020, %") +
+  labs(caption = "Graph created by @JosephPolitano", subtitle = "The 'Mountain Lions' of Utah, Nevada, & Idaho Have Led the US in Job Growth, Especially in Construction") +
+  theme_apricitas + theme(legend.position = c(.15,.67), plot.title = element_text(size = 27)) + 
+  theme(strip.text = element_text(size = 17, color = "white", face = "bold")) +
+  scale_color_manual(name = NULL, values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC"), breaks = c("US","Idaho","Utah","Nevada")) +
+  scale_linewidth_manual(name = NULL, values = c("US" = 2.25, "Idaho" = 1.25, "Utah" = 1.25, "Nevada" = 1.25), guide = "none") +
+  guides(color = guide_legend(override.aes = list(linewidth = c(2.25, 1.25, 1.25, 1.25)))) +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina", plot = LION_EMP_AGG_GRAPH, "LION_EMP_AGG_GRAPH.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 
 
 

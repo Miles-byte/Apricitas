@@ -1352,24 +1352,25 @@ TX_MSA_Growth_graph <- ggplot() + #plotting permanent and temporary job losers
 ggsave(dpi = "retina",plot = TX_MSA_Growth_graph, "TX MSA Job Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
-TX_MSA_Growth_graph <- ggplot() + #plotting permanent and temporary job losers
+NC_SC_MSA_Growth_graph <- ggplot() + #plotting permanent and temporary job losers
   annotate("hline", y = 0, yintercept = 0, color = "white", size = 0.5) +
   geom_line(data= filter(ALL_MSAs_NSA_LINE, date >= as.Date("2023-01-01") & name == "RAL"), aes(x=date,y= pct_growth_yoy, color = "Raleigh Metro Area"), size = 1.25) +
   geom_line(data= filter(ALL_MSAs_NSA_LINE, date >= as.Date("2023-01-01") & name == "CHA"), aes(x=date,y= pct_growth_yoy, color = "Charlotte Metro Area"), size = 1.25) +
+  geom_line(data= filter(ALL_STATE_NSA_LINE, date >= as.Date("2023-01-01") & name == "South Carolina"), aes(x=date,y= Yoy_Growth, color = "South Carolina"), size = 2.25) +
   geom_line(data= filter(ALL_STATE_NSA_LINE, date >= as.Date("2023-01-01") & name == "North Carolina"), aes(x=date,y= Yoy_Growth, color = "North Carolina"), size = 2.25) +
   xlab("Date") +
   ylab("Year-on-Year Growth, %") +
   scale_y_continuous(labels = scales::percent_format(accuracy = .25), breaks = c(-0.02,0,0.02,0.04,0.06,0.08), limits = c(-.02,.08), expand = c(0,0)) +
-  ggtitle("North Carolina Job Growth, Year-on-Year, %") +
-  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "Texas Job Growth Has Slowed Significantly, But all Major MSAs are Still Gaining Jobs") +
+  ggtitle("Carolinas Job Growth, Year-on-Year, %") +
+  labs(caption = "Graph created by @JosephPolitano using BLS data", subtitle = "North and South Carolina Have Been Some of the Most Consistently-Fast Growing States in the US") +
   theme_apricitas + theme(legend.position = c(.5,.74)) +#, axis.text.x=element_blank(), axis.title.x=element_blank()) +
-  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("North Carolina","Raleigh Metro Area","Charlotte Metro Area")) +
+  scale_color_manual(name= NULL,values = rev(c("#FF8E72","#6A4C93","#A7ACD9","#3083DC","#9A348E","#EE6055","#00A99D","#FFE98F")), breaks = c("North Carolina","South Carolina","Raleigh Metro Area","Charlotte Metro Area")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2023-01-01")-(.1861*(today()-as.Date("2023-01-01"))), xmax = as.Date("2023-01-01")-(0.049*(today()-as.Date("2023-01-01"))), ymin = -.02-(.3*.09), ymax = -.02) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
   coord_cartesian(clip = "off") +
   guides(color = guide_legend(override.aes = list(alpha = 1))) +
   theme(plot.title.position = "plot")
 
-ggsave(dpi = "retina",plot = TX_MSA_Growth_graph, "TX MSA Job Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = NC_SC_MSA_Growth_graph, "NC SC MSA Job Growth Yoy.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 OR_SEMI <- bls_api("SMU41000003133440001", startyear = 2018, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -1428,6 +1429,7 @@ OR_ELEC_SEMI_graph <- ggplot() + #plotting permanent and temporary job losers
   theme(plot.title.position = "panel")
 
 ggsave(dpi = "retina",plot = OR_ELEC_SEMI_graph, "OR Elec Semi Jobs.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 
 MSA_map_US_NSA |>
   arrange(desc(pct_growth_yoy)) |>

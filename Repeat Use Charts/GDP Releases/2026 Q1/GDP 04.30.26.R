@@ -1203,6 +1203,21 @@ PCE_GAMBLING_Graph <- ggplot() + #indexed employment rate
 
 ggsave(dpi = "retina",plot = PCE_GAMBLING_Graph, "PCE Gambling Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+PCE_LOTTERIES_Graph <- ggplot() + #indexed employment rate
+  geom_line(data = PCE_UNDERLYING_DETAIL_NOMINAL, aes(x=date, y = u20405_dlotrc_228_lotteries_current_dollars_level_6/1000, color = "US Lottery Gambling Losses"), size = 1.25) + 
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B"), limits = c(0,80), expand = c(0,0)) +
+  ylab("Billions of Dollars") +
+  ggtitle("The Rise of American Lottery Gambling") +
+  labs(caption = "Graph created by @JosephPolitano using BEA data",subtitle = "Americans are Losing Record Amounts to State Lotteries") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= "BEA Nominal Personal Consumption Expenditures",values = c("#FFE98F","#00A99D","#EE6055","#9A348E","#A7ACD9","#3083DC")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*80), ymax = 0) + #these repeated sections place the logo in the bottom-right of each graph. The first number in all equations is the chart's origin point, and the second number is the exact length of the x or y axis
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = PCE_LOTTERIES_Graph, "PCE Lotteries Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
+
+
 PCE_UNDERLYING_DETAIL_NOMINAL_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',

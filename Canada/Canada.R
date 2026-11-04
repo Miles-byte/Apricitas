@@ -1,4 +1,4 @@
-pacman::p_load(rnaturalearth,rnaturalearthdata,ggpubr,canadianmaps,statcanR,cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
+pacman::p_load(forcats,rnaturalearth,rnaturalearthdata,ggpubr,canadianmaps,statcanR,cansim,valet,dplyr,seasonal,janitor,openxlsx,dplyr,BOJ,readxl,RcppRoll,DSSAT,tidyr,eia,cli,remotes,magick,cowplot,knitr,ghostscript,png,httr,grid,usethis,pacman,rio,ggplot2,ggthemes,quantmod,dplyr,data.table,lubridate,forecast,gifski,av,tidyr,gganimate,zoo,RCurl,Cairo,datetime,stringr,pollster,tidyquant,hrbrthemes,plotly,fredr)
 
 theme_apricitas <- theme_ft_rc() + #setting the "apricitas" custom theme that I use for my blog
   theme(axis.line = element_line(colour = "white"),legend.position = c(.90,.90),legend.text = element_text(size = 14, color = "white"), legend.title =element_text(size = 14),plot.title = element_text(size = 28, color = "white")) #using a modified FT theme and white axis lines for my "theme_apricitas"
@@ -584,6 +584,40 @@ NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = NEW_BRUNSWICK_CONS_INVESTMENT_GRAPH, "New Brunswick Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+CANADA_CONS_INVESTMENT_BULK <- statcan_data("34-10-0293-01", "eng") 
+
+CANADA_CONS_INVESTMENT_INDUSTRIAL <- CANADA_CONS_INVESTMENT_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(`Type of work` == "Types of work, total") %>% #guess
+  filter(`Investment Value` == "Unadjusted - constant") %>% #guess
+  filter(`Type of structure` %in% c("Factories, plants","Transportation, utilities","Mining and agriculture")) %>%
+  transmute(date = REF_DATE, name = recode(`Type of structure`, "Factories, plants" = "Factories and Plants", "Transportation, utilities" = "Transportation and Utilities", "Mining and agriculture" = "Mining and Agriculture"), value = VALUE/1e6) %>%
+  group_by(name) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(roll = roll_sumr(value, 12)) %>%
+  ungroup() %>%
+  mutate(value = value*12) %>%
+  filter(date >= as.Date("2018-01-01"))
+
+CANADA_CONS_INVESTMENT_INDUSTRIAL_GRAPH <- ggplot(data = CANADA_CONS_INVESTMENT_INDUSTRIAL, aes(x = date, y = value/1000, color = name)) +
+  geom_line(size = 1.25) +
+  xlab("Date") +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = 7, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,NA), expand = c(0,0)) +
+  ylab("Billions of 2017 Canadian Dollars, Monthly Annualized") +
+  ggtitle("Canadian Industrial Construction Investment") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Not Seasonally Adjusted, Constant Prices", subtitle = "Canadian Investment in Factories Has Slid, but Spending on Transportation & Utility Infrastructure is Up") +
+  theme_apricitas + theme(legend.position = c(.35,.16)) +
+  scale_color_manual(name = "Real Investment in Industrial Building Construction", values = c("Factories and Plants" = "#FFE98F", "Transportation and Utilities" = "#00A99D", "Mining and Agriculture" = "#EE6055")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*8), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina", plot = CANADA_CONS_INVESTMENT_INDUSTRIAL_GRAPH, "Canada Industrial Construction Investment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
 CANADA_HOUSING_PERMITS_BULK <- statcan_data("34-10-0292-01", "eng") 
 
 CANADA_TOTAL_HOUSING_PERMITS <- CANADA_HOUSING_PERMITS_BULK %>%
@@ -714,6 +748,44 @@ CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH <- ggplot() +
 
 ggsave(dpi = "retina",plot = CANADA_TOURISM_TRAVELLER_PROVINCE_GRAPH, "Canadian Tourism Arrivals Province Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
+CAN_TOURISM_SPEND_QUARTERLY_BULK <- statcan_data("24-10-0070-01", "eng")
+
+CAN_TOURISM_SHARE <- CAN_TOURISM_SPEND_QUARTERLY_BULK %>%
+  filter(GEO %in% c("Canada","United States of America","Overseas")) %>%
+  filter(`Main trip purpose` == "Holidays, leisure and recreation") %>%
+  filter(`Visit duration` == "All visit durations") %>%
+  filter(`Visit statistics` == "Expenditures") %>%
+  transmute(date = REF_DATE, name = GEO, value = VALUE) %>%
+  mutate(across(where(is.numeric), ~ replace_na(.x, 0))) %>%
+  mutate(value = value/1000000) %>%
+  group_by(name) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(roll = roll_sumr(value, 4)) %>%
+  group_by(date) %>%
+  mutate(share = roll/sum(roll)) %>%
+  ungroup() %>%
+  drop_na()
+
+CAN_TOURISM_SHARE_GRAPH <- ggplot() +
+  #geom_line(data = filter(CAN_TOURISM_SHARE, name == "Canada"), aes(x = date, y = share, color = "Domestic"), size = 1.25) +
+  geom_line(data = filter(CAN_TOURISM_SHARE, name == "Overseas"), aes(x = date, y = value*4, color = "All Other Countries"), size = 0.75, linetype = "dashed", alpha = 0.4) +
+  geom_line(data = filter(CAN_TOURISM_SHARE, name == "United States of America"), aes(x = date, y = value*4, color = "United States"), size = 0.75, linetype = "dashed", alpha = 0.4) +
+  geom_line(data = filter(CAN_TOURISM_SHARE, name == "Overseas"), aes(x = date, y = roll, color = "All Other Countries"), size = 1.25) +
+  geom_line(data = filter(CAN_TOURISM_SHARE, name == "United States of America"), aes(x = date, y = roll, color = "United States"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,35), breaks = seq(0,50,5), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars") +
+  ggtitle("Canadian International Tourism Spending") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Personal Holidays, Leisure and Recreation Trips, All Visit Durations", subtitle = "Canadians Have Shifted Tourism Spending Away From the US") +
+  theme_apricitas + theme(legend.position = c(.35,.75)) +
+  scale_color_manual(name = "Dashed = Quarterly Annualized, Solid = Yearly Rolling Total", values = c("#FFE98F","#00A99D"), breaks = c("United States","All Other Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = min(CAN_TOURISM_SHARE$date)-(.1861*(today()-min(CAN_TOURISM_SHARE$date))), xmax = min(CAN_TOURISM_SHARE$date)-(0.049*(today()-min(CAN_TOURISM_SHARE$date))), ymin = 0-(.3*35), ymax = 0) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina", plot = CAN_TOURISM_SHARE_GRAPH, "Canada Tourism Spending Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
 CAN_GDP_MONTHLY_BULK <- statcan_data("36-10-0434-01", "eng")
 
 CAN_GDP_MONTHLY <- CAN_GDP_MONTHLY_BULK %>%
@@ -726,13 +798,13 @@ CAN_GDP_MONTHLY_GRAPH <- ggplot() +
   annotate(geom = "hline",y = 0.0,yintercept = 0.0, size = .25,color = "white") +
   geom_line(data=filter(CAN_GDP_MONTHLY, REF_DATE >= as.Date("2022-01-01")), aes(x=REF_DATE,y= `All industries [T001]`/1000000, color= "Canadian Monthly Real GDP"), size = 1.25) +
   xlab("Date") +
-  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.01, suffix = "T"), limits = c(2.15,2.35), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 0.01, suffix = "T"), limits = c(2.15,2.4), expand = c(0,0)) +
   ylab("Trillions of Chained 2017 Canadian Dollars") +
   ggtitle("Canadian Real GDP") +
   labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canada's Economy Has Been Flat Overall in 2025") +
   theme_apricitas + theme(legend.position = c(.25,.85)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 2.15-(.3*0.2), ymax = 2.15) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2022-01-01")-(.1861*(today()-as.Date("2022-01-01"))), xmax = as.Date("2022-01-01")-(0.049*(today()-as.Date("2022-01-01"))), ymin = 2.15-(.3*0.25), ymax = 2.15) +
   coord_cartesian(clip = "off") 
 
 ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_GRAPH, "Canada GDP Monthly Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
@@ -770,6 +842,34 @@ CAN_GDP_MONTHLY_CARS_GRAPH <- ggplot() +
 ggsave(dpi = "retina",plot = CAN_GDP_MONTHLY_CARS_GRAPH, "Canada GDP Monthly Cars Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
+CAN_GDP_MONTHLY_INDEX <- CAN_GDP_MONTHLY %>%
+  arrange(REF_DATE) %>%
+  transmute(date = REF_DATE, `Real GDP` = `All industries [T001]`, `Manufacturing` = `Manufacturing [31-33]`, `Construction` = `Construction [23]`, `Energy` = `Energy sector [T016]`) %>%
+  mutate(across(-date, ~ .x/.x[date == as.Date("2025-01-01")]*100)) %>%
+  filter(date >= as.Date("2024-01-01")) %>%
+  pivot_longer(-date) %>%
+  mutate(name = factor(name, levels = c("Real GDP","Manufacturing","Construction","Energy")))
+
+CAN_GDP_MONTHLY_INDEX_GRAPH <- ggplot() +
+  annotate(geom = "hline", y = 100, yintercept = 100, size = .25, color = "white") +
+  geom_line(data = filter(CAN_GDP_MONTHLY_INDEX, name == "Manufacturing"), aes(x = date, y = value, color = "Manufacturing"), size = 1.25) +
+  geom_line(data = filter(CAN_GDP_MONTHLY_INDEX, name == "Construction"), aes(x = date, y = value, color = "Construction"), size = 1.25) +
+  geom_line(data = filter(CAN_GDP_MONTHLY_INDEX, name == "Energy"), aes(x = date, y = value, color = "Energy"), size = 1.25) +
+  geom_line(data = filter(CAN_GDP_MONTHLY_INDEX, name == "Real GDP"), aes(x = date, y = value, color = "Real GDP"), size = 2.25) +
+  annotate("segment", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), y = 94, yend = 102, color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-25"), y = 101, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(limits = c(94,104), breaks = seq(90,110,1), expand = c(0,0)) +
+  ylab("Index, Jan 2025 = 100") +
+  ggtitle("Real Canadian Output Amid US Tariffs") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data", subtitle = "Canadian Manufacturing Has Contracted Amid US Tariffs, But Construction, Energy, & Total GDP are Up") +
+  theme_apricitas + theme(legend.position = c(.25,.85), legend.key.height = unit(0.5,"cm")) +
+  scale_color_manual(name = "Real Value Added, Index Jan 2025 = 100", values = c("Real GDP" = "#FFE98F", "Manufacturing" = "#00A99D", "Construction" = "#EE6055", "Energy" = "#A7ACD9"), breaks = c("Real GDP","Manufacturing","Construction","Energy")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2024-02-01")-(.1861*(today()-as.Date("2024-02-01"))), xmax = as.Date("2024-02-01")-(0.049*(today()-as.Date("2024-02-01"))), ymin = 94-(.3*10), ymax = 94) +
+  coord_cartesian(clip = "off") +
+  theme(plot.title.position = "plot")
+
+ggsave(dpi = "retina", plot = CAN_GDP_MONTHLY_INDEX_GRAPH, "Canada GDP Monthly Index Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 LFS_BULK <- statcan_data("14-10-0287-03", "eng")
@@ -1428,6 +1528,669 @@ GDP_PROVINCE_2019_DATA_MAP_GRAPH <- GDP_PROVINCE_2019_DATA_MAP  %>%
   theme(plot.title = element_text(size = 24.5))
 
 ggsave(dpi = "retina",plot = GDP_PROVINCE_2019_DATA_MAP_GRAPH, "Canada GDP Province 2019 Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAN_IIP_BULK <- statcan_data("36-10-0485-01", "eng")
+
+#CAN_IIP_BULK %>% select(-REF_DATE, -VALUE) %>% distinct() %>% View() #check labels
+
+CAN_IIP_US_SHARE <- CAN_IIP_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Valuation == "Market value") %>%
+  filter(`Canada's international investment position` %in% c("Total assets","Total liabilities")) %>%
+  filter(`Geographic region` %in% c("United States","All countries")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = `Canada's international investment position`, region = `Geographic region`) %>%
+  pivot_wider(names_from = region, values_from = value) %>%
+  transmute(date, name, value = `United States`/`All countries`) %>%
+  drop_na() %>%
+  pivot_wider() %>%
+  filter(date >= as.Date("2015-01-01"))
+
+CAN_IIP_US_SHARE_GRAPH <- ggplot() +
+  geom_line(data=CAN_IIP_US_SHARE, aes(x=date,y= `Total assets`, color= "US Share of Canada's International Assets"), size = 1.25) +
+  geom_line(data=CAN_IIP_US_SHARE, aes(x=date,y= `Total liabilities`, color= "US Share of Canada's International Liabilities"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.48,.63), breaks = c(.50,.55,.60), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Financial Ties to the US") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "The US Makes Up a Majority of Canada's International Assets and Liabilities") +
+  theme_apricitas + theme(legend.position = c(.4,.9)) +
+  scale_color_manual(name= "Canada's International Investment Position, Market Value" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("US Share of Canada's International Assets","US Share of Canada's International Liabilities")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = .48-(.3*.15), ymax = .48) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_IIP_US_SHARE_GRAPH, "Canada IIP US Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_PARTNER_BULK <- statcan_data("12-10-0011-01", "eng")
+
+#CAN_TRADE_PARTNER_BULK %>% select(-REF_DATE, -VALUE) %>% distinct() %>% View() #check labels
+
+CAN_TRADE_NONUS <- CAN_TRADE_PARTNER_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Basis == "Balance of payments") %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted") %>%
+  filter(Trade %in% c("Export","Import")) %>%
+  filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = Trade, partner = `Principal trading partners`) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  transmute(date, name, value = `All countries`-`United States`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider() %>%
+  mutate(year = year(date))
+
+CAN_TRADE_NONUS_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_NONUS, aes(x=date,y= Export/1000, color= "Exports to Non-US Countries"), size = 1.25) +
+  geom_line(data=CAN_TRADE_NONUS, aes(x=date,y= Import/1000, color= "Imports from Non-US Countries"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,40), breaks = c(0,10,20,30,40), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly") +
+  ggtitle("Canada's Non-US Trade") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canadian Goods Trade With Countries Other Than the US Has Grown Amid US Tariffs") +
+  theme_apricitas + theme(legend.position = c(.3,.9)) +
+  scale_color_manual(name= "Canadian Goods Trade, Balance of Payments Basis" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Exports to Non-US Countries","Imports from Non-US Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*40), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_TRADE_NONUS_GRAPH, "Canada Non US Trade Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_EXPORTS_NONUS_TARGET_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_NONUS, aes(x=date,y= Export/1000*12, color= "Exports to Non-US Countries"), size = 1.25) +
+  xlab("Date") +
+  annotate("segment", x = as.Date("2023-10-01"), xend = as.Date(Inf), y = 187623*2/1000, yend = 187623*2/1000, color = "white", size = 1, linetype = "dashed", alpha = 0.75) + 
+  annotate("text", label = "Carney's 2035 Export Target", x = as.Date("2026-09-01"), y = 392, color = "white", size = 5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,425), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly Annualized, Seasonally Adjusted") +
+  ggtitle("Canada's Rising Non-US Exports") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "Canadian Goods Trade With Countries Other Than the US Has Grown Amid US Tariffs") +
+  theme_apricitas + theme(legend.position = c(.35,.6)) +
+  scale_color_manual(name= "Canadian Goods Trade, Monthly Annualized" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Exports to Non-US Countries","Imports from Non-US Countries")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*425), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_EXPORTS_NONUS_TARGET_GRAPH, "Canada Exports Nonus Target Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAN_TRADE_NONUS_EXPORTS_PARTNER <- CAN_TRADE_PARTNER_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Basis == "Balance of payments") %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted") %>%
+  filter(Trade == "Export") %>%
+  filter(`Principal trading partners` %in% c("All countries","United States","European Union","China","United Kingdom","Japan","Mexico","South Korea")) %>%
+  transmute(date = REF_DATE, partner = `Principal trading partners`, value = VALUE/1e3) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  mutate(Other = `All countries`-`United States`-`European Union`-China-`United Kingdom`-Japan-Mexico-`South Korea`) %>%
+  select(-`All countries`, -`United States`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_longer(-date, names_to = "partner") %>%
+  mutate(partner = fct_reorder(partner, if_else(partner == "Other", -Inf, value), .fun = last, .desc = TRUE))
+
+CAN_TRADE_NONUS_EXPORTS_PARTNER_AREA_GRAPH <- ggplot(data = CAN_TRADE_NONUS_EXPORTS_PARTNER, aes(x = date, y = value*12, fill = partner)) +
+  geom_area(position = "stack", color = NA) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = 350, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,375), breaks = c(0,100,200,300,400), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly Annualized, SA") +
+  ggtitle("Canada's Non-US Exports by Destination") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. BOP Basis, Seasonally Adjusted", subtitle = "Canadian Exports to Non-US Partners Have Grown Amidst the Trade War") +
+  theme_apricitas + theme(legend.position = c(.235,.72)) +
+  scale_fill_manual(name = "Canadian Exports, Excluding US", values = c("China" = "#EE6055", "European Union" = "#3083DC", "United Kingdom" = "#FFE98F", "Japan" = "#6A4C93", "Mexico" = "#00A99D", "South Korea" = "#F5B041", "Other" = "#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*375), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_EXPORTS_PARTNER_AREA_GRAPH, "Canada Non-US Exports by Partner Area Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NONUS_EXPORTS_PARTNER_LINE_GRAPH <- ggplot(data = CAN_TRADE_NONUS_EXPORTS_PARTNER, aes(x = date, y = value*12, color = partner)) +
+  geom_line(size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = 115, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,125), breaks = c(0,25,50,75,100,125), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly Annualized, SA") +
+  ggtitle("Canada's Non-US Exports by Destination") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. BOP Basis, Seasonally Adjusted", subtitle = "Canadian Exports to Non-US Partners Have Grown Amidst the Trade War") +
+  theme_apricitas + theme(legend.position = c(.235,.72)) +
+  scale_color_manual(name = "Canadian Exports, Excluding US", values = c("China" = "#EE6055", "European Union" = "#3083DC", "United Kingdom" = "#FFE98F", "Japan" = "#6A4C93", "Mexico" = "#00A99D", "South Korea" = "#F5B041", "Other" = "#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*125), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_EXPORTS_PARTNER_LINE_GRAPH, "Canada Non-US Exports by Partner Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NONUS_IMPORTS_PARTNER <- CAN_TRADE_PARTNER_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Basis == "Balance of payments") %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted") %>%
+  filter(Trade == "Import") %>%
+  filter(`Principal trading partners` %in% c("All countries","United States","European Union","China","United Kingdom","Japan","Mexico","South Korea")) %>%
+  transmute(date = REF_DATE, partner = `Principal trading partners`, value = VALUE/1e3) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  mutate(Other = `All countries`-`United States`-`European Union`-China-`United Kingdom`-Japan-Mexico-`South Korea`) %>%
+  select(-`All countries`, -`United States`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_longer(-date, names_to = "partner") %>%
+  mutate(partner = fct_reorder(partner, if_else(partner == "Other", -Inf, value), .fun = last, .desc = TRUE))
+
+CAN_TRADE_NONUS_IMPORTS_PARTNER_AREA_GRAPH <- ggplot(data = CAN_TRADE_NONUS_IMPORTS_PARTNER, aes(x = date, y = value*12, fill = partner)) +
+  geom_area(position = "stack", color = NA) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = 350, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,525), breaks = c(0,100,200,300,400,500), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly Annualized, SA") +
+  ggtitle("Canada's Non-US Imports by Source") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. BOP Basis, Seasonally Adjusted", subtitle = "Canadian Exports to Non-US Partners Have Grown Amidst the Trade War") +
+  theme_apricitas + theme(legend.position = c(.235,.72)) +
+  scale_fill_manual(name = "Canadian Imports, Excluding US", values = c("China" = "#EE6055", "European Union" = "#3083DC", "United Kingdom" = "#FFE98F", "Japan" = "#6A4C93", "Mexico" = "#00A99D", "South Korea" = "#F5B041", "Other" = "#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*525), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_IMPORTS_PARTNER_AREA_GRAPH, "Canada Non-US Imports by Partner Area Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NONUS_IMPORTS_PARTNER_LINE_GRAPH <- ggplot(data = CAN_TRADE_NONUS_IMPORTS_PARTNER, aes(x = date, y = value*12, color = partner)) +
+  geom_line(size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = 115, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,175), breaks = c(0,25,50,75,100,125,150,175), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Monthly Annualized, SA") +
+  ggtitle("Canada's Non-US Imports by Source") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. BOP Basis, Seasonally Adjusted", subtitle = "Canadian Exports to Non-US Partners Have Grown Amidst the Trade War") +
+  theme_apricitas + theme(legend.position = c(.235,.72)) +
+  scale_color_manual(name = "Canadian Imports, Excluding US", values = c("China" = "#EE6055", "European Union" = "#3083DC", "United Kingdom" = "#FFE98F", "Japan" = "#6A4C93", "Mexico" = "#00A99D", "South Korea" = "#F5B041", "Other" = "#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*175), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_IMPORTS_PARTNER_LINE_GRAPH, "Canada Non-US Imports by Partner Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NONUS_SHARE <- CAN_TRADE_PARTNER_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Basis == "Balance of payments") %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted") %>%
+  filter(Trade %in% c("Export","Import")) %>%
+  filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = Trade, partner = `Principal trading partners`) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  transmute(date, name, value = 1-`United States`/`All countries`) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider()
+
+CAN_TRADE_NONUS_SHARE_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_NONUS_SHARE, aes(x=date,y= Export, color= "Non-US Share of Canadian Exports"), size = 1.25) +
+  geom_line(data=CAN_TRADE_NONUS_SHARE, aes(x=date,y= Import, color= "Non-US Share of Canadian Imports"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.5), breaks = c(0,.1,.2,.3,.4,.5), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Non-US Trade") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "A Growing Share of Canadian Goods Trade is With Countries Other Than the US") +
+  theme_apricitas + theme(legend.position = c(.3,.9)) +
+  scale_color_manual(name= "Canadian Goods Trade, Balance of Payments Basis" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-US Share of Canadian Exports","Non-US Share of Canadian Imports")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*.5), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_TRADE_NONUS_SHARE_GRAPH, "Canada Non US Trade Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_SERVICES_CAT_BULK <- statcan_data("12-10-0157-01", "eng")
+
+CAN_SERVICES_CAT_BULK %>% select(-REF_DATE, -VALUE) %>% distinct() %>% View() #check labels
+
+CAN_SERVICES_NONUS <- CAN_SERVICES_CAT_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(`Seasonal adjustment` == "Seasonally adjusted") %>%
+  filter(Trade %in% c("Receipts","Payments")) %>%
+  filter(`Principal trading partners` %in% c("Total of all countries","United States")) %>%
+  transmute(date = REF_DATE, value = VALUE, name = Trade, partner = `Principal trading partners`) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  transmute(date, name, level = `Total of all countries`-`United States`, share = 1-`United States`/`Total of all countries`) %>%
+  filter(date >= as.Date("2016-01-01")) %>%
+  pivot_wider(values_from = c(level,share))
+
+CAN_SERVICES_NONUS_SHARE_GRAPH <- ggplot() +
+  geom_line(data=CAN_SERVICES_NONUS, aes(x=date,y= share_Receipts, color= "Non-US Share of Canadian Services Exports"), size = 1.25) +
+  geom_line(data=CAN_SERVICES_NONUS, aes(x=date,y= share_Payments, color= "Non-US Share of Canadian Services Imports"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.375,.500), breaks = c(.4,.45,.5), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Non-US Services Trade") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "A Growing Share of Canadian Services Trade is With Countries Other Than the US") +
+  theme_apricitas + theme(legend.position = c(.35,.89)) +
+  scale_color_manual(name= "Canadian Services Trade, Balance of Payments Basis" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Non-US Share of Canadian Services Exports","Non-US Share of Canadian Services Imports")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 0-(.3*.75), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_SERVICES_NONUS_SHARE_GRAPH, "Canada Non US Services Trade Share Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NAPCS_BULK <- statcan_data("12-10-0175-01", "eng")
+
+CAN_TRADE_NAPCS_BULK %>% select(where(is.character), -any_of(c("DGUID","UOM","SCALAR_FACTOR","VECTOR","COORDINATE","STATUS","SYMBOL","TERMINATED","DECIMALS"))) %>% purrr::map(unique) #check labels
+
+CAN_TRADE_US_SHARE_ENERGY <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade %in% c("Domestic export","Import")) %>%
+  filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  filter(`North American Product Classification System (NAPCS)` %in% c("Total of all merchandise","Energy products [C12]")) %>%
+  transmute(date = REF_DATE, value = VALUE, trade = Trade, partner = `Principal trading partners`, product = `North American Product Classification System (NAPCS)`) %>%
+  pivot_wider(names_from = product, values_from = value) %>%
+  transmute(date, trade, partner, Total = `Total of all merchandise`, ExEnergy = `Total of all merchandise`-`Energy products [C12]`) %>%
+  pivot_longer(cols = c(Total,ExEnergy), names_to = "product") %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  group_by(trade, product) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(monthly = `United States`/`All countries`, roll = roll_sumr(`United States`, 12)/roll_sumr(`All countries`, 12)) %>%
+  ungroup() %>%
+  transmute(date, name = paste(trade, product), monthly, roll) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider(values_from = c(monthly, roll)) %>%
+  drop_na()
+
+
+CAN_TRADE_US_SHARE_EXPORT_ENERGY_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `monthly_Domestic export Total`, color= "Exports"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `monthly_Domestic export ExEnergy`, color= "Exports ex-Energy"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `roll_Domestic export Total`, color= "Exports"), size = 1.25) +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `roll_Domestic export ExEnergy`, color= "Exports ex-Energy"), size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = .79, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.60,.80), breaks = c(.60,.65,.70,.75,.80), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Export Reliance on the US") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "The US Share of Canadian Goods Trade Has Fallen, Especially Outside of Energy") +
+  theme_apricitas + theme(legend.position = c(.25,.2)) +
+  scale_color_manual(name= "Share of Canadian Exports Going to US\nSolid = Rolling 12M, Dashed = Monthly" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Exports","Exports ex-Energy")) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = .6-(.3*.2), ymax = .6) +
+  coord_cartesian(clip = "off")
+
+
+CAN_TRADE_US_SHARE_IMPORT_ENERGY_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `monthly_Import Total`, color= "Imports"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `monthly_Import ExEnergy`, color= "Imports ex-Energy"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `roll_Import Total`, color= "Imports"), size = 1.25) +
+  geom_line(data=CAN_TRADE_US_SHARE_ENERGY, aes(x=date,y= `roll_Import ExEnergy`, color= "Imports ex-Energy"), size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = .525, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.40,.55), breaks = c(0.4,0.45,0.5,0.55), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Import Reliance on the US") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data",subtitle = "The US Share of Canadian Goods Trade Has Fallen, Especially Outside of Energy") +
+  theme_apricitas + theme(legend.position = c(.25,.2)) +
+  scale_color_manual(name= "US Share of Canadian Goods Imports\nSolid = Rolling 12M, Dashed = Monthly" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Imports","Imports ex-Energy")) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = .40-(.3*.15), ymax = .40) +
+  coord_cartesian(clip = "off")
+
+
+ggsave(dpi = "retina",plot = CAN_TRADE_US_SHARE_IMPORT_ENERGY_GRAPH, "Canada US Import Share Energy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+ggsave(dpi = "retina",plot = CAN_TRADE_US_SHARE_EXPORT_ENERGY_GRAPH, "Canada US Export Share Energy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_US_SHARE_TOTAL_ENERGY <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade %in% c("Domestic export","Import")) %>%
+  #filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  filter(`North American Product Classification System (NAPCS)` %in% c("Total of all merchandise","Energy products [C12]")) %>%
+  group_by(date = REF_DATE, partner = `Principal trading partners`, product = `North American Product Classification System (NAPCS)`) %>%
+  summarise(value = sum(VALUE), .groups = "drop") %>%
+  pivot_wider(names_from = product, values_from = value) %>%
+  transmute(date, partner, Total = `Total of all merchandise`, ExEnergy = `Total of all merchandise`-`Energy products [C12]`) %>%
+  pivot_longer(cols = c(Total,ExEnergy), names_to = "product") %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  group_by(product) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(monthly = `United States`/`All countries`, roll = roll_sumr(`United States`, 12)/roll_sumr(`All countries`, 12)) %>%
+  ungroup() %>%
+  select(date, product, monthly, roll) %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  pivot_wider(names_from = product, values_from = c(monthly, roll)) %>%
+  drop_na()
+
+CAN_TRADE_US_SHARE_TOTAL_ENERGY_GRAPH <- ggplot() +
+  geom_line(data=CAN_TRADE_US_SHARE_TOTAL_ENERGY, aes(x=date,y=monthly_Total, color= "Total Trade"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_TOTAL_ENERGY, aes(x=date,y=monthly_ExEnergy, color= "Total Trade ex-Energy"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data=CAN_TRADE_US_SHARE_TOTAL_ENERGY, aes(x=date,y=roll_Total, color= "Total Trade"), size = 1.25) +
+  geom_line(data=CAN_TRADE_US_SHARE_TOTAL_ENERGY, aes(x=date,y=roll_ExEnergy, color= "Total Trade ex-Energy"), size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = .69, color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(.50,.70), breaks = c(.50,.55,.60,.65,.70), expand = c(0,0)) +
+  ylab("Percent of Total") +
+  ggtitle("Canada's Trade Reliance on the US") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Total Trade = Domestic Exports + Imports",subtitle = "The US Share of Canadian Goods Trade Has Fallen, Especially Outside of Energy") +
+  theme_apricitas + theme(legend.position = c(.45,.85)) +
+  scale_color_manual(name= "US Share of Canadian Goods Trade\nSolid = Rolling 12M, Dashed = Monthly" ,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E"), breaks = c("Total Trade","Total Trade ex-Energy")) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = .50-(.3*.20), ymax = .50) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina",plot = CAN_TRADE_US_SHARE_TOTAL_ENERGY_GRAPH, "Canada US Total Trade Share Energy Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_US_NAPCS_YTD <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade %in% c("Domestic export","Import")) %>%
+  filter(`Principal trading partners` == "United States") %>%
+  filter(year(REF_DATE) %in% c(2024, 2026)) %>%
+  filter(month(REF_DATE) <= month(max(REF_DATE))) %>%
+  group_by(trade = Trade, product = `North American Product Classification System (NAPCS)`, year = year(REF_DATE)) %>%
+  summarise(value = sum(VALUE, na.rm = TRUE), .groups = "drop") %>%
+  pivot_wider(names_from = year, values_from = value, names_prefix = "Y") %>%
+  mutate(change = Y2026 - Y2024, pct_change = Y2026/Y2024 - 1) %>%
+  arrange(trade, change)
+
+#top-level sections only
+CAN_TRADE_US_NAPCS_YTD %>%
+  filter(str_detect(product, "\\[C\\d{2}\\]") | product == "Total of all merchandise") %>%
+  View()
+
+
+
+
+CAN_US_EXPORT_DROP_TOP5 <- CAN_TRADE_US_NAPCS_YTD %>%
+  filter(trade == "Domestic export", str_detect(product, "\\[C\\d{2}\\]")) %>%
+  slice_min(change, n = 4) %>%
+  mutate(product = str_remove(product, " \\[C\\d+\\]") %>% str_to_title() %>% str_replace_all(c(" And " = " & ", " Or " = " or ")),
+         product = case_when(str_starts(product, "Forestry") ~ "Forestry & Paper Products", str_starts(product, "Basic") ~ "Chemical, Plastic, & Rubber Products", TRUE ~ product),
+         decline = -change/1e6) %>%
+  mutate(product = factor(product, levels = rev(product)))
+
+CAN_US_IMPORT_DROP_TOP5 <- CAN_TRADE_US_NAPCS_YTD %>%
+  filter(trade == "Import", str_detect(product, "\\[C\\d{2}\\]")) %>%
+  slice_min(change, n = 4) %>%
+  mutate(product = str_remove(product, " \\[C\\d+\\]") %>% str_to_title() %>% str_replace_all(c(" And " = " & ", " Or " = " or ")),
+         product = case_when(str_starts(product, "Forestry") ~ "Forestry & Paper Products", str_starts(product, "Basic") ~ "Chemical, Plastic, & Rubber Products", TRUE ~ product),
+         decline = -change/1e6) %>%
+  mutate(product = factor(product, levels = rev(product)))
+
+CAN_US_EXPORT_DROP_GRAPH <- ggplot(data = CAN_US_EXPORT_DROP_TOP5, aes(x = product, y = decline)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#EE6055") +
+  geom_text(aes(label = paste0(" ", product)), position = position_stack(vjust = 0), angle = 0, hjust = 0, size = 5.25, color = "white", fontface = "bold") +
+  xlab(NULL) +
+  ylab(NULL) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0, ceiling(max(c(CAN_US_EXPORT_DROP_TOP5$decline, CAN_US_IMPORT_DROP_TOP5$decline))/5)*5), expand = c(0,0)) +
+  labs(subtitle = "Canadian Exports to the US") +
+  theme_apricitas + theme(legend.position = "none", plot.margin = grid::unit(c(0, .2, 0, .2), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"), axis.text.y = element_blank()) +
+  coord_flip()
+
+CAN_US_IMPORT_DROP_GRAPH <- ggplot(data = CAN_US_IMPORT_DROP_TOP5, aes(x = product, y = decline)) +
+  annotate("hline", y = 0, yintercept = 0, color = "white", size = .5) +
+  geom_bar(stat = "identity", position = "dodge", color = NA, fill = "#00A99D") +
+  geom_text(aes(label = paste0(" ", product)), position = position_stack(vjust = 0), angle = 0, hjust = 0, size = 5.25, color = "white", fontface = "bold") +
+  xlab(NULL) +
+  ylab(NULL) +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0, ceiling(max(c(CAN_US_EXPORT_DROP_TOP5$decline, CAN_US_IMPORT_DROP_TOP5$decline))/5)*5), expand = c(0,0)) +
+  labs(subtitle = "Canadian Imports from the US") +
+  theme_apricitas + theme(legend.position = "none", plot.margin = grid::unit(c(0, .2, 0, .2), "in"), plot.subtitle = element_text(size = 20, color = "white", face = "bold"), axis.text.y = element_blank()) +
+  coord_flip()
+
+tgrob <- text_grob("Largest Declines in Canada-US Trade, 2026 vs 2024", face = "bold", size = 26, color = "white")
+
+plot_0 <- as_ggplot(tgrob) + theme_apricitas + theme(plot.margin = margin(0,0.5,0,0.5, "cm")) + theme(legend.position = "bottom", plot.title = element_text(size = 14, color = "white"), legend.background = element_rect(fill = "#252A32", colour = "#252A32"), plot.background = element_rect(fill = "#252A32", colour = "#252A32"), legend.key = element_rect(fill = "#252A32", colour = "#252A32")) +
+  theme(plot.margin = unit(c(-0.15,-.15,-0.15,-.15),"cm"))
+
+CAN_US_TRADE_DROP <- ggarrange(CAN_US_EXPORT_DROP_GRAPH, CAN_US_IMPORT_DROP_GRAPH, ncol = 2, nrow = 1, heights = c(5,20), widths = 10, common.legend = TRUE, legend = "top") + bgcolor("#252A32") + border("#252A32")
+
+CAN_US_TRADE_DROP <- ggarrange(plot_0, CAN_US_TRADE_DROP, nrow = 2, heights = c(4,20), widths = 10) %>%
+  annotate_figure(., bottom = text_grob(paste0("\nGraph Created by @Josephpolitano Using Statistics Canada Data\nNOTE: Jan-", month.abb[month(max(CAN_TRADE_NAPCS_BULK$REF_DATE))], " 2026 vs Same Period of 2024. Nominal CAD, NAPCS Sections. Exports Are Domestic Exports"), color = "grey55", hjust = 1, x = 1, size = 10)) + bgcolor("#252A32") + border("#252A32")
+
+ggsave(dpi = "retina", plot = CAN_US_TRADE_DROP, "Canada US Trade Drop Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_UK_EXPORTS <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade == "Domestic export") %>%
+  filter(`Principal trading partners` == "United Kingdom") %>%
+  filter(str_detect(`North American Product Classification System (NAPCS)`, "\\[C12\\]|\\[C14\\]|\\[C15\\]") | `North American Product Classification System (NAPCS)` == "Total of all merchandise") %>%
+  transmute(date = REF_DATE, product = case_when(str_detect(`North American Product Classification System (NAPCS)`, "\\[C14\\]") ~ "Metal & Mineral Products (Mostly Gold)", str_detect(`North American Product Classification System (NAPCS)`, "\\[C12\\]") ~ "Energy Products", str_detect(`North American Product Classification System (NAPCS)`, "\\[C15\\]") ~ "Chemical, Plastic, & Rubber Products", TRUE ~ "Total"), value = VALUE/1e6) %>%
+  pivot_wider(names_from = product, values_from = value) %>%
+  mutate(Other = Total - `Metal & Mineral Products (Mostly Gold)` - `Energy Products` - `Chemical, Plastic, & Rubber Products`) %>%
+  select(-Total) %>%
+  pivot_longer(-date) %>%
+  group_by(name) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(monthly = value*12, roll = roll_sumr(value, 12)) %>%
+  ungroup() %>%
+  filter(date >= as.Date("2018-01-01"))
+
+CAN_TRADE_UK_EXPORTS_GRAPH <- ggplot() +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Metal & Mineral Products (Mostly Gold)"), aes(x = date, y = monthly, color = "Metal & Mineral Products (Mostly Gold)"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Energy Products"), aes(x = date, y = monthly, color = "Energy Products"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Chemical, Plastic, & Rubber Products"), aes(x = date, y = monthly, color = "Chemical, Plastic, & Rubber Products"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Other"), aes(x = date, y = monthly, color = "Other"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Metal & Mineral Products (Mostly Gold)"), aes(x = date, y = roll, color = "Metal & Mineral Products (Mostly Gold)"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Energy Products"), aes(x = date, y = roll, color = "Energy Products"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Chemical, Plastic, & Rubber Products"), aes(x = date, y = roll, color = "Chemical, Plastic, & Rubber Products"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_UK_EXPORTS, name == "Other"), aes(x = date, y = roll, color = "Other"), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,NA), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars") +
+  ggtitle("Canadian Exports to the UK") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Domestic Exports, Not Seasonally Adjusted", subtitle = "Canadian Exports to the UK Have Surged, Driven Primarily by Gold") +
+  theme_apricitas + theme(legend.position = c(.3,.75)) +
+  scale_color_manual(name = "Canadian Domestic Exports to the UK\nSolid = Rolling 12M, Dashed = Monthly Annualized", values = c("Metal & Mineral Products (Mostly Gold)" = "#FFE98F", "Energy Products" = "#EE6055", "Chemical, Plastic, & Rubber Products" = "#00A99D", "Other" = "#A7ACD9"), breaks = c("Metal & Mineral Products (Mostly Gold)","Energy Products","Chemical, Plastic, & Rubber Products","Other")) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25, linetype = "solid"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*max(CAN_TRADE_UK_EXPORTS$monthly, na.rm = TRUE)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_UK_EXPORTS_GRAPH, "Canada UK Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAN_TRADE_NONUS_NAPCS_MONTHLY <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade == "Domestic export") %>%
+  filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  filter(str_detect(`North American Product Classification System (NAPCS)`, "\\[C1[1-4]\\]|\\[C2[12]\\]") | `North American Product Classification System (NAPCS)` == "Total of all merchandise") %>%
+  transmute(date = REF_DATE, partner = `Principal trading partners`,
+            product = recode(`North American Product Classification System (NAPCS)`,
+                             "Metal and non-metallic mineral products [C14]" = "Metal & Mineral Products",
+                             "Energy products [C12]" = "Energy Products",
+                             "Farm, fishing and intermediate food products [C11]" = "Farm, Fishing, & Food Products",
+                             "Metal ores and non-metallic minerals [C13]" = "Metal Ores & Minerals",
+                             "Consumer goods [C22]" = "Consumer Goods",
+                             "Aircraft and other transportation equipment and parts [C21]" = "Aircraft & Transportation Equipment",
+                             "Total of all merchandise" = "Total"),
+            value = VALUE) %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  transmute(date, product, value = (`All countries` - `United States`)/1e6) %>%
+  pivot_wider(names_from = product, values_from = value) %>%
+  mutate(Other = Total - `Metal & Mineral Products` - `Energy Products` - `Farm, Fishing, & Food Products` - `Metal Ores & Minerals` - `Consumer Goods` - `Aircraft & Transportation Equipment`) %>%
+  select(-Total) %>%
+  pivot_longer(-date) %>%
+  group_by(name) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(monthly = value*12, roll = roll_sumr(value, 12)) %>%
+  ungroup() %>%
+  filter(date >= as.Date("2018-01-01")) %>%
+  mutate(name = factor(name, levels = c("Metal & Mineral Products","Energy Products","Farm, Fishing, & Food Products","Metal Ores & Minerals","Consumer Goods","Aircraft & Transportation Equipment","Other")))
+
+
+CAN_TRADE_NONUS_NAPCS_AREA_GRAPH <- ggplot(data = CAN_TRADE_NONUS_NAPCS_MONTHLY, aes(x = date, y = roll, fill = name)) +
+  geom_area(position = "stack", color = NA) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = .9*(CAN_TRADE_NONUS_NAPCS_MONTHLY %>% group_by(date) %>% summarise(t = sum(roll)) %>% pull(t) %>% max(na.rm = TRUE)), color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,375), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars, Rolling 12M Total") +
+  ggtitle("Canada's Non-US Exports by Product") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Domestic Exports", subtitle = "Canada's Non-US Export Growth Has Been Driven by Metals & Energy") +
+  theme_apricitas + theme(legend.position = c(.295,.70)) +
+  scale_fill_manual(name = "Canadian Domestic Exports, Excluding US\nRolling 12M Total", values = c("Metal & Mineral Products" = "#FFE98F", "Energy Products" = "#EE6055", "Farm, Fishing, & Food Products" = "#00A99D", "Metal Ores & Minerals" = "#F5B041", "Consumer Goods" = "#3083DC", "Aircraft & Transportation Equipment" = "#6A4C93", "Other" = "#A7ACD9")) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*375), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_NAPCS_AREA_GRAPH, "Canada Non-US Exports by Product Area Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+CAN_TRADE_NONUS_NAPCS_LINE_GRAPH <- ggplot() +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Other"), aes(x = date, y = monthly, color = "Other"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Aircraft & Transportation Equipment"), aes(x = date, y = monthly, color = "Aircraft & Transportation Equipment"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Consumer Goods"), aes(x = date, y = monthly, color = "Consumer Goods"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Metal Ores & Minerals"), aes(x = date, y = monthly, color = "Metal Ores & Minerals"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Farm, Fishing, & Food Products"), aes(x = date, y = monthly, color = "Farm, Fishing, & Food Products"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Energy Products"), aes(x = date, y = monthly, color = "Energy Products"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Metal & Mineral Products"), aes(x = date, y = monthly, color = "Metal & Mineral Products"), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Other"), aes(x = date, y = roll, color = "Other"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Aircraft & Transportation Equipment"), aes(x = date, y = roll, color = "Aircraft & Transportation Equipment"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Consumer Goods"), aes(x = date, y = roll, color = "Consumer Goods"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Metal Ores & Minerals"), aes(x = date, y = roll, color = "Metal Ores & Minerals"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Farm, Fishing, & Food Products"), aes(x = date, y = roll, color = "Farm, Fishing, & Food Products"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Energy Products"), aes(x = date, y = roll, color = "Energy Products"), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_NONUS_NAPCS_MONTHLY, name == "Metal & Mineral Products"), aes(x = date, y = roll, color = "Metal & Mineral Products"), size = 1.25) +
+  annotate("vline", x = as.Date("2025-01-01"), xintercept = as.Date("2025-01-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Trump\nElection", x = as.Date("2024-12-01"), y = .9*max(CAN_TRADE_NONUS_NAPCS_MONTHLY$monthly, na.rm = TRUE), color = "white", size = 4, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(suffix = "B", accuracy = 1), limits = c(0,NA), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars") +
+  ggtitle("Canada's Non-US Exports by Product") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Domestic Exports, Not Seasonally Adjusted", subtitle = "Canada's Non-US Export Growth Has Been Driven by Metals & Energy") +
+  theme_apricitas + theme(legend.position = c(.325,.70)) +
+  scale_color_manual(name = "Canadian Domestic Exports, Excluding US\nSolid = Rolling 12M, Dashed = Monthly Annualized", values = c("Metal & Mineral Products" = "#FFE98F", "Energy Products" = "#EE6055", "Farm, Fishing, & Food Products" = "#00A99D", "Metal Ores & Minerals" = "#F5B041", "Consumer Goods" = "#3083DC", "Aircraft & Transportation Equipment" = "#6A4C93", "Other" = "#A7ACD9"), breaks = c("Metal & Mineral Products","Energy Products","Farm, Fishing, & Food Products","Metal Ores & Minerals","Consumer Goods","Aircraft & Transportation Equipment","Other")) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25, linetype = "solid"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*max(CAN_TRADE_NONUS_NAPCS_MONTHLY$monthly, na.rm = TRUE)), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_NONUS_NAPCS_LINE_GRAPH, "Canada Non-US Exports by Product Line Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+CAN_TRADE_CHINA_EXPORTS <- CAN_TRADE_NAPCS_BULK %>%
+  filter(GEO == "Canada") %>%
+  filter(Trade == "Domestic export") %>%
+  filter(`Principal trading partners` == "China") %>%
+  filter(str_detect(`North American Product Classification System (NAPCS)`, "\\[C\\d{2}\\]")) %>%
+  transmute(date = REF_DATE, product = str_remove(`North American Product Classification System (NAPCS)`, " \\[C\\d+\\]") %>% str_to_title() %>% str_replace_all(c(" And " = " & ", " Or " = " or ")), value = VALUE/1e6) %>%
+  mutate(product = case_when(str_starts(product, "Forestry") ~ "Forestry & Paper Products",
+                             str_starts(product, "Basic") ~ "Chemical, Plastic, & Rubber Products",
+                             str_starts(product, "Farm") ~ "Farm, Fishing, & Food Products",
+                             str_starts(product, "Metal & Non") ~ "Metal & Mineral Products",
+                             str_starts(product, "Metal Ores") ~ "Metal Ores & Minerals",
+                             str_starts(product, "Aircraft") ~ "Aircraft & Transportation Equipment",
+                             str_starts(product, "Industrial Machinery") ~ "Industrial Machinery & Equipment",
+                             str_starts(product, "Electronic") ~ "Electronics & Electrical Equipment",
+                             TRUE ~ product)) %>%
+  group_by(product) %>%
+  mutate(recent = sum(value[date > max(date) %m-% months(12)], na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(rank = dense_rank(desc(recent)), name = fct_reorder(if_else(rank <= 6, product, "Other"), rank, .fun = min)) %>%
+  group_by(date, name) %>%
+  summarise(value = sum(value, na.rm = TRUE), .groups = "drop") %>%
+  group_by(name) %>%
+  arrange(date, .by_group = TRUE) %>%
+  mutate(monthly = value*12, roll = roll_sumr(value, 12)) %>%
+  ungroup() %>%
+  filter(date >= as.Date("2018-01-01"))
+
+CAN_TRADE_CHINA_EXPORTS_GRAPH <- ggplot() +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[7]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[7]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[6]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[6]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[5]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[5]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[4]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[4]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[3]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[3]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[2]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[2]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[1]), aes(x = date, y = monthly, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[1]), size = 0.75, alpha = 0.4, linetype = "dashed") +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[7]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[7]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[6]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[6]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[5]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[5]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[4]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[4]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[3]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[3]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[2]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[2]), size = 1.25) +
+  geom_line(data = filter(CAN_TRADE_CHINA_EXPORTS, name == levels(name)[1]), aes(x = date, y = roll, color = levels(CAN_TRADE_CHINA_EXPORTS$name)[1]), size = 1.25) +
+  xlab("Date") +
+  scale_y_continuous(labels = scales::dollar_format(accuracy = 1, suffix = "B"), limits = c(0,25), expand = c(0,0)) +
+  ylab("Billions of Canadian Dollars") +
+  ggtitle("Canadian Exports to China") +
+  labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. Domestic Exports, Not Seasonally Adjusted", subtitle = "Canadian Exports to China Have Risen to Record Highs, Driven by Energy & Metal Ores") +
+  theme_apricitas + theme(legend.position = c(.33,.69)) +
+  scale_color_manual(name = "Canadian Domestic Exports to China\nSolid = Rolling 12M, Dashed = Monthly Annualized", values = setNames(c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#F5B041"), levels(CAN_TRADE_CHINA_EXPORTS$name)), breaks = levels(CAN_TRADE_CHINA_EXPORTS$name)) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 1.25, linetype = "solid"))) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2018-01-01")-(.1861*(today()-as.Date("2018-01-01"))), xmax = as.Date("2018-01-01")-(0.049*(today()-as.Date("2018-01-01"))), ymin = 0-(.3*25), ymax = 0) +
+  coord_cartesian(clip = "off")
+
+ggsave(dpi = "retina", plot = CAN_TRADE_CHINA_EXPORTS_GRAPH, "Canada China Exports Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+
+
+library(scatterpie)
+
+CAN_PROV_GDP_EXP_BULK <- statcan_data("36-10-0222-01", "eng")
+
+CAN_PROV_SHAPES <- ne_states(country = "Canada", returnclass = "sf") %>%
+  transmute(GEO = recode(name, "Québec" = "Quebec")) %>%
+  st_transform(3347)
+
+CAN_PROV_TRADE <- CAN_TRADE_NAPCS_BULK %>%
+  filter(year(REF_DATE) == 2024, GEO != "Canada") %>%
+  filter(Trade %in% c("Domestic export","Import")) %>%
+  filter(`North American Product Classification System (NAPCS)` == "Total of all merchandise") %>%
+  filter(`Principal trading partners` %in% c("All countries","United States")) %>%
+  group_by(GEO, partner = `Principal trading partners`) %>%
+  summarise(value = sum(VALUE, na.rm = TRUE)/1e6, .groups = "drop") %>%
+  pivot_wider(names_from = partner, values_from = value) %>%
+  transmute(GEO, US = `United States`, NonUS = `All countries` - `United States`) %>%
+  inner_join(CAN_PROV_GDP_EXP_BULK %>%
+               filter(year(REF_DATE) == 2024, GEO != "Canada") %>%
+               filter(Prices == "Current prices") %>% #guess
+               filter(Estimates %in% c("Exports of goods to other provinces","Imports of goods from other provinces")) %>% #guess
+               group_by(GEO) %>%
+               summarise(Interprov = sum(VALUE, na.rm = TRUE)/1000, .groups = "drop"), by = "GEO") %>%
+  inner_join(CAN_PROV_SHAPES, by = "GEO") %>%
+  st_as_sf() %>%
+  mutate(x = st_coordinates(st_point_on_surface(geometry))[,1], y = st_coordinates(st_point_on_surface(geometry))[,2]) %>%
+  st_drop_geometry() %>%
+  mutate(total = US + NonUS + Interprov, r = sqrt(total/max(total))*450000)
+
+CAN_PROV_TRADE_MAP <- ggplot() +
+  geom_sf(data = CAN_PROV_SHAPES, fill = "grey55", color = "black", size = 0.25) +
+  geom_sf(color = NA) +
+  #geom_sf(aes(fill = value), colour = "black", size = 0.1) +
+  #ggtitle("Canada, 2019-2024 RGDP Growth by Province/Territory") +
+  coord_sf(crs = 3347, xlim = c(2700000, 9300000), ylim = c(900000, 5000000)) +
+  geom_scatterpie(data = CAN_PROV_TRADE, aes(x = x, y = y, r = r), cols = c("US","Interprov","NonUS"), color = NA) +
+  geom_scatterpie_legend(CAN_PROV_TRADE$r, x = -2000000, y = 400000, n = 3, labeller = function(r) paste0("$", round((r/450000)^2*max(CAN_PROV_TRADE$total)), "B")) +
+  scale_fill_manual(name = NULL, values = c("US" = "#EE6055", "Interprov" = "#FFE98F", "NonUS" = "#00A99D"), breaks = c("US","Interprov","NonUS"), labels = c("Trade with the US","Trade with Other Provinces","Trade with Other Countries")) +
+  ggtitle("    Canadian Provinces' Goods Trade by Partner") +
+  #labs(caption = "Graph created by @JosephPolitano using Statistics Canada data. 2024. Trade = Exports + Imports. Interprovincial Data From Provincial Economic Accounts", subtitle = "Pie Size Proportional to Total Goods Trade, Including With Other Provinces") +
+  theme_apricitas +
+  labs(fill = NULL) +
+  theme_apricitas + theme(legend.position = c(.2,.9), panel.grid.major=element_blank(), axis.line = element_blank(), axis.text.x = element_blank(),axis.text.y = element_blank(),plot.margin= grid::unit(c(t = 0.15, r = 0, b= 0,l = 0), "in"), axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(plot.title = element_text(size = 24.5))
+
+ggsave(dpi = "retina", plot = CAN_PROV_TRADE_MAP, "Canada Provincial Trade Pie Map.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+BOC_BLP_TRADE_ACTIONS <- tribble(
+  ~action,                                                               ~`Taking this action`, ~`Planning to take this action`,
+  "Changing suppliers or restructuring supply chains",                   9.7,                   10.9,
+  "Reducing operations, capacity or employment",                         6.2,                   7.2,
+  "Reducing investment in Canada or redirecting it abroad",              6.9,                   5.6,
+  "Changing products or services offered",                               5.6,                   6.2,
+  "Increasing spending in technology, artificial intelligence or automation", 5.6,              5.3,
+  "Diversifying export markets",                                         6.2,                   4.0,
+  "Shifting sales focus toward domestic markets",                        5.9,                   4.0,
+  "Expanding operations or production capacity in Canada",               2.5,                   5.0,
+  "Changing workforce skills",                                           1.9,                   4.4
+) %>%
+  mutate(action = str_to_title(action) %>% str_replace_all("(?<=\\s)(And|Or|To|In|Of|The|For|On|A|An)\\b", tolower)) %>%
+  mutate(action = factor(str_wrap(action, 40), levels = rev(str_wrap(action, 40)))) %>%
+  pivot_longer(-action) %>%
+  mutate(value = value/100, name = factor(name, levels = c("Taking this action","Planning to take this action")))
+
+BOC_BLP_TRADE_ACTIONS_GRAPH <- ggplot(data = BOC_BLP_TRADE_ACTIONS, aes(x = action, y = value, fill = name)) +
+  geom_col(position = position_stack(reverse = TRUE), color = NA, width = 0.8) +
+  xlab(NULL) +
+  ylab("Share of Firms") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0,.25), breaks = seq(0,.25,.05), expand = c(0,0)) +
+  ggtitle("How Canadian Firms Are Responding to Tariffs") +
+  labs(caption = "Bank of Canada Business Leaders' Pulse Chart recreated by @JosephPolitano Last Observation September 30, 2026", subtitle = "Share of Firms Taking or Planning Actions in Response to Tariffs or Trade Tensions") +
+  theme_apricitas + theme(legend.position = c(.75,.5), axis.text.y = element_text(size = 11, color = "white", lineheight = 0.8)) +
+  scale_fill_manual(name = NULL, values = c("Taking this action" = "#00A99D", "Planning to take this action" = "#FFE98F"), labels = c("Taking This Action","Planning to Take This Action")) +
+  coord_flip() +
+  theme(plot.title.position = "plot", plot.title = element_text(size = 26))
+
+ggsave(dpi = "retina", plot = BOC_BLP_TRADE_ACTIONS_GRAPH, "BOC BLP Trade Actions Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
 
 p_unload(all)  # Remove all packages using the package manager

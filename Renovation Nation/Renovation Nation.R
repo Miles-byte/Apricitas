@@ -68,6 +68,7 @@ REAL_US_IMPROVEMENTS_Graph <- ggplot() + #indexed investment growth
 
 ggsave(dpi = "retina",plot = REAL_US_IMPROVEMENTS_Graph, "Real US Improvements Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+
 REAL_PRIVATE_FIXED_INVEST_SPECS_QUARTERLY <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -140,7 +141,10 @@ REAL_US_IMPROVEMENTS_Graph <- ggplot() + #indexed investment growth
 
 ggsave(dpi = "retina",plot = REAL_US_IMPROVEMENTS_Graph, "Real US Improvements Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+REAL_CONS_RBIND <- merge(REAL_SINGLE_FAMILY_DATA,REAL_MULTI_FAMILY_DATA,by = "date") %>%
+  merge(.,REAL_IMPROVEMENTS_DATA,by = "date")
 
+write.csv(REAL_CONS_RBIND, "Real US Residential Investment.csv")
 
 AGE_FIXED_RESIDENTIAL_ASSETS_SPECS <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
@@ -170,6 +174,8 @@ AGE_FIXED_RESIDENTIAL_ASSETS_Graph <- ggplot() + #indexed investment growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = AGE_FIXED_RESIDENTIAL_ASSETS_Graph, "Age Fixed Residential Assets Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+write.csv(AGE_FIXED_RESIDENTIAL_ASSETS %>% select(date,fa_at209_e1r53101hh00_68_housing_units_year_level_0), "Average Age of US Housing Units.csv")
 
 
 RENOVATION_EMPLOYMENT <- bls_api("CES2023611801", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -203,6 +209,13 @@ RENOVATION_EMPLOYMENT_Graph <- ggplot() + #indexed investment growth
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = RENOVATION_EMPLOYMENT_Graph, "Renovation Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
+
+RENOVATION_EMPLOYMENT_RBIND <- RENOVATION_EMPLOYMENT %>%
+  select(date, RENOVATION = value) %>%
+  merge(SF_EMPLOYMENT %>% select(date, SF = value), by = "date") %>%
+  merge(MF_EMPLOYMENT %>% select(date, MF = value), by = "date")
+
+write.csv(RENOVATION_EMPLOYMENT_RBIND, "Renovation Employment.csv")
 
 
 ACS_MOVING_RATES <- read.csv("https://raw.githubusercontent.com/Miles-byte/Apricitas/refs/heads/main/Renovation%20Nation/acs_moving_rates.csv") %>%
@@ -276,6 +289,9 @@ HOUSING_PER_CAPITA_RBIND_graph <- ggplot(data = HOUSING_PER_CAPITA_RBIND, aes(x 
 
 ggsave(dpi = "retina",plot = HOUSING_PER_CAPITA_RBIND_graph, "Housing Per Capita Rbind Stacked.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+write.csv(HOUSING_PER_CAPITA_RBIND, "Housing Per Capita.csv")
+
+
 NOMINAL_PRIVATE_FIXED_INVEST_SPECS_QUARTERLY <- list(
   'UserID' =  Sys.getenv("BEA_KEY"),
   'Method' = 'GetData',
@@ -325,6 +341,7 @@ RES_INVEST_PCT_GDP_GRAPH <- ggplot(data = RES_INVEST_PCT_GDP, aes(x = date, y = 
 
 ggsave(dpi = "retina",plot = RES_INVEST_PCT_GDP_GRAPH, "Res Invest Pct GDP Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
 
+write.csv(RES_INVEST_PCT_GDP, "Residential Investment Percent GDP.csv")
 
 
 CON_FND_EMPLOYMENT <- bls_api("CEU2023810101", startyear = 1990, registrationKey = Sys.getenv("BLS_KEY")) %>%
@@ -394,6 +411,13 @@ CONTRACTOR_EMPLOYMENT_Graph <- ggplot() + #indexed investment growth
 
 ggsave(dpi = "retina",plot = CONTRACTOR_EMPLOYMENT_Graph, "Contractor Employment Graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in")
 
+CON_FND_EMPLOYMENT_RBIND <- CON_FND_EMPLOYMENT %>%
+  select(date, Foundation = value) %>%
+  merge(BLD_EQP_EMPLOYMENT %>% select(date, Equipment = value), by = "date") %>%
+  merge(BLD_FIN_EMPLOYMENT %>% select(date, Finishing = value), by = "date") %>%
+  merge(BLD_OTH_EMPLOYMENT %>% select(date, Other = value), by = "date")
+
+write.csv(CON_FND_EMPLOYMENT_RBIND, "Contractor Employment.csv")
 
 
 p_unload(all)  # Remove all add-ons

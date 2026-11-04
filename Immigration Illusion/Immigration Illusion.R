@@ -258,11 +258,11 @@ FOREIGN_SHARE_HISPANIC_Graph <- ggplot() + #plotting Wage Growth
   xlab("Date") +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(99.5,103.5), breaks = c(100,101,102,103), expand = c(0,0)) +
   #scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(212.5,227.5), breaks = c(210,215,220,225,230), expand = c(0,0)) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.42,.48), breaks = c(.42,.43,.44,.45,.46,.47,.48,.49,.50), expand = c(0,0)) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),limits = c(.41,.48), breaks = c(.41,.42,.43,.44,.45,.46,.47,.48,.49,.50), expand = c(0,0)) +
   ylab("Percent") +
   ggtitle("Hispanics are Less Likely to ID as Immigrants") +
   labs(caption = "Graph created by @JosephPolitano using BLS Data",subtitle = "Since Trump's Inauguration, Hispanic CPS Respondents are Less Likely to Say They're Immigrants") +
-  theme_apricitas + theme(legend.position = c(.4,.93)) +
+  theme_apricitas + theme(legend.position = c(.38,.93)) +
   scale_color_manual(name=NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2016-01-01")-(.1861*(today()-as.Date("2016-01-01"))), xmax = as.Date("2016-01-01")-(0.049*(today()-as.Date("2016-01-01"))), ymin = 134-(.3*6), ymax = 134) +
   coord_cartesian(clip = "off") +

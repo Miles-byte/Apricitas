@@ -593,13 +593,13 @@ KC_STREETCAR_RIDERSHIP_graph <- ggplot() +
   #annotate("text", label = "Riverfront\nExtension", x = as.Date("2026-09-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,3), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,9), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Kansas City Streetcar Ridership") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City is Extending its Streetcar Line to the UMKC Campus") +
   theme_apricitas + theme(legend.position = c(.27,.925), plot.title = element_text(size = 27)) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*3), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*9), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_graph, "KC Streetcar Ridership graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -615,13 +615,13 @@ KC_STREETCAR_RIDERSHIP_MONTHLY_graph <- ggplot() +
   annotate("text", label = "Riverfront\nExtension", x = as.Date("2027-05-01"), y = 4.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,5), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,9), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Kansas City Streetcar Ridership") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City has Extended its Streetcar Line to the UMKC Campus") +
   theme_apricitas + theme(legend.position = c(.5,.9), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*9), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_MONTHLY_graph, "KC Streetcar Ridership Monthly graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -634,18 +634,18 @@ KC_STREETCAR_RIDERSHIP_MONTHLY_SOLID_graph <- ggplot() +
   annotate("text", label = "Streetcar\nOpens", x = as.Date("2016-03-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate("vline", x = as.Date("2025-10-01"), xintercept = as.Date("2025-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
   annotate("text", label = "Main Street\nExtension", x = as.Date("2025-09-01"), y = 3.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
-  #annotate("vline", x = as.Date("2026-10-01"), xintercept = as.Date("2026-10-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
-  #annotate("text", label = "Riverfront\nExtension", x = as.Date("2026-09-01"), y = 2.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
+  annotate("vline", x = as.Date("2026-04-01"), xintercept = as.Date("2026-04-01"), color = "white", size = 1, linetype = "dashed", alpha = 0.75) +
+  annotate("text", label = "Riverfront\nExtension", x = as.Date("2027-05-01"), y = 4.25, color = "white", size = 3.5, hjust = 1, lineheight = 0.8, alpha = 0.75) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,5), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,9), expand = c(0,0), breaks = c(0,1,2,3,4,5,6,7,8,9)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Kansas City Streetcar Ridership") +
   labs(caption = "Graph created by @JosephPolitano using FTA Data\nNOTE: Includes Light Rail Lines",subtitle = "Kansas City has Extended its Streetcar Line to the UMKC Campus") +
   theme_apricitas + theme(legend.position = c(.5,.9), plot.title = element_text(size = 27)) +
   #scale_color_manual(name= "Solid = 12M Total\nDashed = Monthly, Annualized",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
   scale_color_manual(name= NULL,values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*5), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2015-01-01")-(.1861*(today()-as.Date("2015-01-01"))), xmax = as.Date("2015-01-01")-(0.049*(today()-as.Date("2015-01-01"))), ymin = 0-(.3*9), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = KC_STREETCAR_RIDERSHIP_MONTHLY_SOLID_graph, "KC Streetcar Ridership Monthly Solid graph.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -1088,13 +1088,13 @@ Sound_Ridership <- ggplot() +
   geom_line(data=filter(AGENCY_BULK, agency == "Central Puget Sound Regional Transit Authority", month >= as.Date("2014-01-01")), aes(x=month,y= year_roll/1000000,color="Sound Transit\n(Incl. Link, Sounder, & Commuter Buses)"), size = 1.25) +
   annotate(geom = "hline",y = 0,yintercept = 0, size = 0.5,color = "white") +
   xlab("Date") +
-  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,65), expand = c(0,0), breaks = c(20,40,60)) +
+  scale_y_continuous(labels = scales::number_format(accuracy = 1, suffix = "M"),limits = c(0,70), expand = c(0,0), breaks = c(20,40,60)) +
   ylab("Millions of Unlinked Passenger Trips") +
   ggtitle("Sound Transit Total Ridership") +
-  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Sound Transit Ridership Is Approaching 40M Trips Per Year") +
+  labs(caption = "Graph created by @JosephPolitano using FTA Data",subtitle = "Sound Transit Ridership Is Approaching 70M Trips Per Year") +
   theme_apricitas + theme(legend.position = c(.50,.90), plot.title = element_text(size = 27)) +
   scale_color_manual(name= "Ridership, Rolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC")) +
-  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*65), ymax = 0) +
+  annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*70), ymax = 0) +
   coord_cartesian(clip = "off")
 
 ggsave(dpi = "retina",plot = Sound_Ridership, "Sound Total Ridership.png", type = "cairo-png", width = 9.02, height = 5.76, units = "in") #cairo gets rid of anti aliasing
@@ -1216,7 +1216,7 @@ FIRST_SEVEN_RIDERSHIP_RECOVERY_AGENCY_SHORT_graph <- ggplot() + #plotting regula
   ylab("Percent of 2019 Ridership") +
   ggtitle("Ridership Recovery, US 7 Largest Transit Agencies") +
   labs(caption = "1st-7th Systems Selected Based on 2019 Ridership Rankings",subtitle = "LA Metro Has Led the Post-COVID Ridership Recovery") +
-  theme_apricitas + theme(legend.position = c(.4,.325), plot.title = element_text(size = 21)) +
+  theme_apricitas + theme(legend.position = c(.3,.325), plot.title = element_text(size = 21)) +
   scale_color_manual(name= "Ridership, % of 2019\nRolling 12M Totals",values = c("#FFE98F","#00A99D","#EE6055","#A7ACD9","#9A348E","#3083DC","#6A4C93"), breaks = c("MTA (NYC)","WMATA (DC)","CTA (Chicago)","MBTA (Boston)","BART (Bay Area)","SEPTA (Philly)","LA Metro (LA)")) +
   annotation_custom(apricitas_logo_rast, xmin = as.Date("2014-01-01")-(.1861*(today()-as.Date("2014-01-01"))), xmax = as.Date("2014-01-01")-(0.049*(today()-as.Date("2014-01-01"))), ymin = 0-(.3*1.4), ymax = 0) +
   coord_cartesian(clip = "off")
